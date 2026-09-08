@@ -1501,8 +1501,7 @@ DATA.bundles.forEach((b, i) => {
 DATA.homepage = {
   hero: {
     mediaId: '', h1: 'Outstanding memories — chosen by people who live the experience.',
-    subheadline: 'Feel the place, not the planning. We pick the experiences that turn a day into a memory — with clear booking and reliable delivery.',
-    snippetVariants: ['Curated by Rosotravel experts — decisions you can trust, not endless scrolling.']
+
   },
   decisionStrip: {
     line1: 'Why you see shortlists, not a catalog.',
@@ -6276,12 +6275,64 @@ const Comp = {
     overlay.classList.remove('show');
     if (this._lastFocused) this._lastFocused.focus();
   },
-  startRegen(btn){
-    const card = btn.closest('.card');
-    if (card.classList.contains('is-locked')) return;
+  // "Regenerate all" — triggers the same per-card AI regeneration on every
+  // unlocked, AI-eligible card currently on the page at once. Review still
+  // goes through the existing shared mechanism (pendingApprovalsBanner +
+  // openAcceptAllModal) — nothing here bypasses that; it only starts more
+  // cards regenerating in parallel than a single button would.
+  // "Regenerate all" — first asks which section(s) to regenerate (all
+  // unchecked by default), then triggers the same per-card AI regeneration
+  // on just the selected ones. Review still goes through the existing
+  // shared mechanism (pendingApprovalsBanner + openAcceptAllModal) —
+  // nothing here bypasses that.
+  countryOpenRegenScopeModal(){
+    const cards = [...document.querySelectorAll('.card[data-card-id]')].filter(c =>
+      c.querySelectorAll('.card-input[data-field-label]').length > 0
+    );
+    if (!cards.length) { Comp.showToast('No AI sections available to regenerate.', 'danger'); return; }
+    const rows = cards.map(c => {
+      const id = c.dataset.cardId;
+      const label = c.getAttribute('aria-label') || id;
+      const locked = c.classList.contains('is-locked');
+      return `<label style="display:flex; align-items:center; gap:8px; padding:8px 0; border-bottom:1px solid var(--border); cursor:${locked?'not-allowed':'pointer'};">
+        <input type="checkbox" class="country-regen-scope-check" value="${id}" ${locked?'disabled':''}>
+        <span>${label}${locked ? ' <span class="field-hint" style="margin-left:6px;">(locked \u2014 unlock first)</span>' : ''}</span>
+      </label>`;
+    }).join('');
+    Comp.openConfirm({
+      title: 'Regenerate all sections',
+      desc: 'Select which section(s) to regenerate with AI.',
+      warningHtml: `<div style="margin-top:8px;">${rows}</div>`,
+      confirmLabel: 'Continue',
+      onConfirm: () => {
+        const selected = Array.prototype.map.call(document.querySelectorAll('.country-regen-scope-check:checked'), el => el.value);
+        if (!selected.length) { Comp.showToast('No sections selected.', 'danger'); return; }
+        setTimeout(() => Comp.regenerateSelectedCards(selected), 0);
+      }
+    });
+  },
+  regenerateSelectedCards(selectedIds){
+    const cards = selectedIds.map(id => document.querySelector(`.card[data-card-id="${id}"]`)).filter(Boolean);
+    cards.forEach(c => Comp.regenerateCard(c));
+    Comp.showToast(`Regenerating ${cards.length} section${cards.length===1?'':'s'}\u2026`, 'success');
+  },
+  regenerateAllOnPage(){
+    const cards = [...document.querySelectorAll('.card[data-card-id]')].filter(c =>
+      !c.classList.contains('is-locked') && c.querySelectorAll('.card-input[data-field-label]').length > 0
+    );
+    if (!cards.length) { Comp.showToast('No unlocked AI sections to regenerate.', 'danger'); return; }
+    cards.forEach(c => Comp.regenerateCard(c));
+    Comp.showToast(`Regenerating ${cards.length} section${cards.length===1?'':'s'}\u2026`, 'success');
+  },
+  regenerateCard(card){
+    if (!card || card.classList.contains('is-locked')) return;
     card.classList.add('is-regenerating');
-    card.querySelector('.sec-actions .btn-sm[onclick^="Comp.stopRegen"]').style.display = 'inline-flex';
+    const stopBtn = card.querySelector('.sec-actions .btn-sm[onclick^="Comp.stopRegen"]');
+    if (stopBtn) stopBtn.style.display = 'inline-flex';
     card._t = setTimeout(() => Comp.finishRegen(card, true), 2200);
+  },
+  startRegen(btn){
+    Comp.regenerateCard(btn.closest('.card'));
   },
   stopRegen(btn){ this.finishRegen(btn.closest('.card'), false); },
   finishRegen(card, completed){
@@ -6920,8 +6971,10 @@ Comp.contentLanguageBar = function(idPrefix, hideAudience, opts){
 Comp.SmartSection = function(opts){
   // extraHtml renders inside the same card, after the fields — for sections
   // that need a control the generic field list cannot express (e.g. a media
-  // picker) without breaking out into a second card.
-  const { sectionId, title, fields, locked, saveCall, lockCall, regenCall, hint, hideLock, extraHtml, bannerHtml, regenState, regenReviewCall } = opts;
+  // picker) without breaking out into a second card. topExtraHtml renders
+  // BEFORE the fields loop instead, for read-only/display-only content that
+  // should appear at the top of the section regardless of field order.
+  const { sectionId, title, fields, locked, saveCall, lockCall, regenCall, hint, hideLock, extraHtml, topExtraHtml, bannerHtml, regenState, regenReviewCall } = opts;
   const fieldsHtml = fields.map(f => `
     <div class="field">
       <label for="${sectionId}-${f.key}-input">${f.label}${f.required ? ' <span class="required">*</span>' : ''}</label>
@@ -6942,6 +6995,7 @@ Comp.SmartSection = function(opts){
     <p class="card-title">${title}</p>
     ${hint ? `<p class="field-hint card-hint card-hint--loose">${hint}</p>` : ''}
     ${bannerHtml || ''}
+    ${topExtraHtml ? `<div class="mb-5">${topExtraHtml}</div>` : ''}
     <div class="field-stack" style="margin-bottom:${extraHtml ? '14px' : '20px'};">${fieldsHtml}</div>
     ${extraHtml ? `<div class="mb-5">${extraHtml}</div>` : ''}
     ${hideLock && locked ? '' : `<div style="border-top:1px solid var(--border); padding-top:14px; display:flex; gap:8px; justify-content:flex-end;">
@@ -7643,7 +7697,7 @@ function pageCountryDetails(params){
   let tabBody = '';
   if (tab === 'seo') {
     tabBody = `
-    ${Comp._rawDataCard(country)}
+
 
     ${Comp.AiCard({id:'seo', title:'SEO data', fieldsHtml:`
       ${aiField('Meta title', `Visit ${country.name} — Top Destinations &amp; Travel Guide`)}
@@ -7762,13 +7816,7 @@ function pageCountryDetails(params){
       {label:'Cities', count: DATA.cities.filter(c => c.country === country.name).length, route:'cityListing', filterParams:{filterType:'country', filterValue:country.name, filterLabel:'Country'}},
       {label:'Attractions', count: DATA.masterAttractions.filter(a => a.country === country.name).length, route:'attractionListing', filterParams:{filterType:'country', filterValue:country.name, filterLabel:'Country'}},
       {label:'Products', count: DATA.products.filter(p => p.country === country.name).length, breakdown: Comp.statusBreakdown(DATA.products.filter(p => p.country === country.name)), route:'productListing', filterParams:{filterType:'country', filterValue:country.name, filterLabel:'Country'}}
-    ])}
-    ${Comp.Card({title:`Relationship graph (read-only)`, body:`
-      ${Comp._infoTable([
-        ['Parent relation', 'Self (root — Country has no parent)'],
-        ['Relationship hash', country.relationshipHash || '—'],
-        ['Relationship edges', 'COUNTRY_ROOT']
-      ])}`})}`;
+    ])}`;
   } else if (tab === 'keywords') {
     tabBody = Comp.KeywordAssignTab(country.name, 'Country');
   } else if (tab === 'overrides') {
@@ -7787,6 +7835,7 @@ function pageCountryDetails(params){
   const body = `
     ${Comp.Breadcrumb([Comp.returnBreadcrumbItem('Countries', 'countryListing'), {label:country.name}])}
     ${Comp.PageHeader({title:`${country.name}`, actions:`
+        ${Comp.Button('\u21bb Regenerate all', {onclick:'Comp.countryOpenRegenScopeModal()'})}
         ${Comp.Button('Run SEO Auto', {disabled: !seoAutoEligible, onclick:`Comp.runSeoAuto('country','${country.id}')`, extraAttrs: !seoAutoEligible ? `title="Disabled — needs at least 1 PUBLISHED product linked to this destination (currently ${publishedProductCount} published of ${productCount} total)"` : ''})}
         ${Comp.Button(country.status==='Active' ? 'Deactivate' : 'Activate', {variant:'btn-amber', onclick:`Comp.confirmToggleCountryStatus('${country.id}')`})}`, level:'h2'})}
     ${!seoAutoEligible ? `<div class="status-banner is-info"><span>${ICON.info}</span><span><strong>Run SEO Auto is disabled</strong> — this destination needs at least 1 published product linked via the relationship graph. It remains unpublished/unsitemapped until then.</span></div>` : ''}
@@ -7923,7 +7972,7 @@ function pageRegionDetails(params){
   let tabBody = '';
   if (tab === 'seo') {
     tabBody = `
-    ${Comp._rawDataCard(region)}
+
 
     ${Comp.AiCard({id:'region-seo', title:'SEO data', fieldsHtml:`
       ${aiField('Meta title', `${region.name} Travel Guide — Top Countries &amp; Destinations`)}
@@ -17010,8 +17059,7 @@ function pageHomeManagement(params){
       bannerHtml: heroMissing ? `<div class="status-banner is-danger"><span>${ICON.warning}</span><span><strong>No hero image set</strong> \u2014 the homepage cannot be indexed until one is chosen.</span></div>` : '',
       fields:[
         {key:'h1', label:'H1', value:h.hero.h1, required:true},
-        {key:'subheadline', label:'Snippet / description', value:h.hero.subheadline, isTextarea:true, required:true}
-      ].concat((h.hero.snippetVariants || []).map((v, i) => ({key:'snippetVar'+i, label:`Snippet variant ${i+1}`, value:v}))),
+      ],
       extraHtml: `
         <div class="field">
           <label>Hero image / video ${heroMissing ? '<span class="required">*</span>' : ''}</label>
@@ -17043,22 +17091,23 @@ function pageHomeManagement(params){
       sectionId:'homewhychoose', title:'Why Travelers Choose Rosotravel', locked:!!h.sectionLocks.whyChooseUs,
       hint:'Two-line heading, checkmark bullet list, and a supporting photo or video \u2014 matches the front-end trust section.',
       fields:(h.whyChooseUs.bullets || []).map((b, i) => ({key:'bullet'+i, label:`Point ${i+1}`, value:b})),
-      extraHtml: `
+      topExtraHtml: `
         <div class="field">
           <label>Heading \u2014 line 1</label>
-          <div class="smart-field-view" style="display:block;">${Comp._escHtml(h.whyChooseUs.headingLine1 || '')}</div>
+          <div style="padding:2px 0; font-size:var(--fs-base); color:var(--text-primary);">${Comp._escHtml(h.whyChooseUs.headingLine1 || '')}</div>
           <p class="field-hint mt-1">Read-only \u2014 contact a developer to change this heading.</p>
         </div>
         <div class="field">
           <label>Heading \u2014 line 2 (italic emphasis)</label>
-          <div class="smart-field-view" style="display:block;">${Comp._escHtml(h.whyChooseUs.headingLine2 || '')}</div>
+          <div style="padding:2px 0; font-size:var(--fs-base); color:var(--text-primary);">${Comp._escHtml(h.whyChooseUs.headingLine2 || '')}</div>
           <p class="field-hint mt-1">Read-only \u2014 contact a developer to change this heading.</p>
         </div>
         <div class="field">
           <label>Snippet</label>
-          <div class="smart-field-view" style="display:block;">${h.whyChooseUs.snippet ? Comp._escHtml(h.whyChooseUs.snippet) : '<span style=\"color:var(--text-muted);\">Not set</span>'}</div>
+          <div style="padding:2px 0; font-size:var(--fs-base); color:var(--text-primary); white-space:pre-wrap;">${h.whyChooseUs.snippet ? Comp._escHtml(h.whyChooseUs.snippet) : '<span style=\"color:var(--text-muted);\">Not set</span>'}</div>
           <p class="field-hint mt-1">Read-only \u2014 contact a developer to change this text.</p>
-        </div>
+        </div>`,
+      extraHtml: `
         <div class="field">
           <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
             <label class="m-0">Points</label>
@@ -17130,7 +17179,7 @@ function pageHomeManagement(params){
       title:'Page Optimization', idPrefix:'homeopt',
       saveTarget:{array:'homepage', id:'homepage'},
       schemaType:'WebSite', schemaTypes:['WebSite','WebPage','Organization','BreadcrumbList'],
-      schemaData:{ name:'Rosotravel', description:h.hero.subheadline, url:'https://rosotravel.com/' },
+      schemaData:{ name:'Rosotravel', description:h.hero.h1, url:'https://rosotravel.com/' },
       showReadTime:false, showCta:false
     });
   } else if (tab === 'keywords') {
@@ -17156,8 +17205,7 @@ Comp.HOME_SECTION_FIELDS = {
     {key:'metaDescription', target:(h)=>h, targetKey:'metaDescription'}
   ],
   info: [
-    {key:'h1', target:(h)=>h.hero, targetKey:'h1'},
-    {key:'subheadline', target:(h)=>h.hero, targetKey:'subheadline'}
+    {key:'h1', target:(h)=>h.hero, targetKey:'h1'}
   ],
   section2: [
     {key:'title', target:(h)=>h.section2, targetKey:'title'},
@@ -17177,7 +17225,7 @@ Comp.HOME_SECTION_ID_MAP = { seo:'homeseo', info:'homeinfo', section2:'homesecti
 // exists, its status, or whether it has drifted from the English source.
 DATA.HOME_LANGUAGES = ['English','Spanish','French','German','Italian','Portuguese','Dutch','Polish'];
 DATA.HOME_TRANSLATABLE_SECTIONS = [
-  {key:'hero', label:'Hero (H1 + subheadline)'},
+  {key:'hero', label:'Hero (H1)'},
   {key:'decisionStrip', label:'Decision Narrative Strip'},
   {key:'whyChooseUs', label:'Why Travelers Choose Rosotravel'},
   {key:'seo', label:'Meta title & description'}
@@ -17293,7 +17341,6 @@ Comp.openHomePreview = function(lang){
       : `${st.covered} of ${st.total} sections published in ${language}. Unpublished sections fall back to English on the live site.`,
     warningHtml: `${Comp._infoTable([
       sectionRow('hero', 'Hero H1', h.hero.h1),
-      sectionRow('hero', 'Subheadline', h.hero.subheadline),
       sectionRow('decisionStrip', 'Decision strip', `${h.decisionStrip.line1} ${h.decisionStrip.line2}`),
       sectionRow('whyChooseUs', 'Why travelers choose us', `${h.whyChooseUs.headingLine1} ${h.whyChooseUs.headingLine2}`),
       sectionRow('seo', 'Meta title', h.metaTitle || 'Rosotravel \u2014 Curated Travel Experiences'),
@@ -17361,24 +17408,16 @@ Comp.homeLockSection = function(sectionKey){
   render();
 };
 
-// ---- Home hero: H1, snippet/description, hero media ----
-// The data model always carried h.hero (h1, subheadline, snippetVariants,
-// mediaId) and the Overview tab already flagged a missing hero image as a
-// blocking indexing issue \u2014 but nothing rendered the fields, so there was no
-// way to fix it.
+// ---- Home hero: H1, hero media ----
+// The data model always carried h.hero (h1, mediaId) and the Overview tab
+// already flagged a missing hero image as a blocking indexing issue.
 Comp.homeSaveHero = function(){
   const h = DATA.homepage;
   // SmartSection names its inputs `${sectionId}-${key}-input`.
   const g = (key) => { const el = document.getElementById('homehero-' + key + '-input'); return el ? el.value : null; };
-  const h1 = g('h1'), sub = g('subheadline');
+  const h1 = g('h1');
   if (h1 !== null && !h1.trim()) { Comp.showToast('H1 is required \u2014 the homepage cannot publish without one.', 'danger'); return; }
-  if (sub !== null && !sub.trim()) { Comp.showToast('Snippet / description is required.', 'danger'); return; }
   if (h1 !== null) h.hero.h1 = h1;
-  if (sub !== null) h.hero.subheadline = sub;
-  (h.hero.snippetVariants || []).forEach((_, i) => {
-    const v = g('snippetVar' + i);
-    if (v !== null) h.hero.snippetVariants[i] = v;
-  });
   h.history = h.history || [];
   h.history.unshift({label:'Hero updated', time:new Date().toLocaleString(), actor:'Admin (you)'});
   // Hero copy is source content, so translations of it go stale.
@@ -20894,9 +20933,9 @@ Comp.homeReviewPendingBannerHtml = function(){
 Comp.homeOpenRegenScopeModal = function(){
   const h = DATA.homepage;
   const scopes = [
-    {id:'hero', label:'Hero (H1 + Snippet)', locked: !!h.sectionLocks.hero},
-    {id:'seo', label:'Meta Title / Meta Description', locked: !!h.sectionLocks.seo},
-    {id:'why', label:'Why Travelers Choose \u2014 Points', locked: !!h.sectionLocks.whyChooseUs}
+    {id:'hero', label:'Hero', locked: !!h.sectionLocks.hero},
+    {id:'seo', label:'SEO data', locked: !!h.sectionLocks.seo},
+    {id:'why', label:'Why Travelers Choose Rosotravel', locked: !!h.sectionLocks.whyChooseUs}
   ];
   const rows = scopes.map(s => `
     <label style="display:flex; align-items:center; gap:8px; padding:8px 0; border-bottom:1px solid var(--border); cursor:${s.locked?'not-allowed':'pointer'};">
@@ -20940,7 +20979,6 @@ Comp.homeStartRegenerate = function(selectedScopes, selectedLangs){
   let fields = [];
   if (selectedScopes.includes('hero')) {
     fields.push({key:'hero_h1', label:'Hero \u2014 H1', current:h.hero.h1});
-    fields.push({key:'hero_subheadline', label:'Hero \u2014 Snippet / description', current:h.hero.subheadline});
   }
   if (selectedScopes.includes('seo')) {
     fields.push({key:'seo_metaTitle', label:'Meta Title', current:h.metaTitle||''});
@@ -20967,7 +21005,6 @@ Comp.homeOpenRegenReviewFromPending = function(){
     Object.entries(accepted).forEach(([key, val]) => {
       count++;
       if (key === 'hero_h1') h.hero.h1 = val;
-      else if (key === 'hero_subheadline') h.hero.subheadline = val;
       else if (key === 'seo_metaTitle') h.metaTitle = val;
       else if (key === 'seo_metaDescription') h.metaDescription = val;
       else if (key.indexOf('why_bullet') === 0) { const idx = parseInt(key.replace('why_bullet',''),10); h.whyChooseUs.bullets[idx] = val; }
@@ -20999,8 +21036,7 @@ Comp._homeBuildRegenFields = function(sectionKey){
   const h = DATA.homepage;
   if (sectionKey === 'hero') {
     return [
-      {key:'hero_h1', label:'Hero \u2014 H1', current:h.hero.h1},
-      {key:'hero_subheadline', label:'Hero \u2014 Snippet / description', current:h.hero.subheadline}
+      {key:'hero_h1', label:'Hero \u2014 H1', current:h.hero.h1}
     ];
   }
   if (sectionKey === 'seo') {
@@ -21020,7 +21056,6 @@ Comp._homeApplyRegenAccepted = function(accepted){
   Object.entries(accepted).forEach(([key, val]) => {
     count++;
     if (key === 'hero_h1') h.hero.h1 = val;
-    else if (key === 'hero_subheadline') h.hero.subheadline = val;
     else if (key === 'seo_metaTitle') h.metaTitle = val;
     else if (key === 'seo_metaDescription') h.metaDescription = val;
     else if (key.indexOf('why_bullet') === 0) { const idx = parseInt(key.replace('why_bullet',''),10); h.whyChooseUs.bullets[idx] = val; }
