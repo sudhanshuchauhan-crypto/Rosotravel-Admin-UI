@@ -2068,24 +2068,22 @@ const Comp = {
       '</label>'
     ).join('');
 
+    const bulkApprovalBlock =
+      '<div class="action-row action-row--between mt-3" style="border-top:1px solid var(--border);padding-top:12px;">' +
+        '<div>' +
+          '<p style="font-size:var(--fs-sm);font-weight:600;margin:0 0 2px;">Require manual approval</p>' +
+          '<p class="field-hint mt-0">Results will require approval on each record\'s page before being applied.</p>' +
+        '</div>' +
+        '<button type="button" class="btn-lock is-on" id="rl-approval-btn" aria-pressed="true" onclick="Comp._rlToggleApproval(this)">' +
+          '<span class="toggle-track" aria-hidden="true"></span>' +
+          '<span class="lock-label">On</span>' +
+        '</button>' +
+      '</div>';
+
     const body =
       '<p class="opt-sub" style="margin-top:0;">Sections</p>' +
       '<div class="field-stack" style="gap:0;">' + sectionRows + '</div>' +
-
-      '<p class="opt-sub">Target languages</p>' +
-      '<div style="background:var(--surface-sunken);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 14px;">' +
-        langRows +
-        '<div class="action-row action-row--between mt-3" style="border-top:1px solid var(--border);padding-top:12px;">' +
-          '<div>' +
-            '<p style="font-size:var(--fs-sm);font-weight:600;margin:0 0 2px;">Require manual approval</p>' +
-            '<p class="field-hint mt-0">Results will require approval on each record\'s page before being applied.</p>' +
-          '</div>' +
-          '<button type="button" class="btn-lock is-on" id="bulk-regen-approval-btn" aria-pressed="true" onclick="Comp._bulkRegenToggleApproval(this)">' +
-            '<span class="toggle-track" aria-hidden="true"></span>' +
-            '<span class="lock-label">On</span>' +
-          '</button>' +
-        '</div>' +
-      '</div>';
+      Comp._buildScopeSection(langRows, bulkApprovalBlock);
 
     const bodyEl = document.getElementById('modalBulkRegenBody');
     bodyEl.innerHTML = '';
@@ -2131,8 +2129,17 @@ const Comp = {
     const module = Comp._bulkRegenModule;
     const cfg    = Comp.BULK_MODULE_CONFIG[module];
     const selectedSectionIds = [...document.querySelectorAll('.bulk-regen-section:checked')].map(c => c.value);
-    const selectedLangs      = [...document.querySelectorAll('.bulk-regen-lang:checked')].map(c => c.value);
     const manualApproval     = Comp._bulkRegenManualApproval !== false;
+
+    // Scope
+    const scopeEl    = document.querySelector('[data-regen-scope].selected');
+    const isAllScope = !scopeEl || scopeEl.dataset.regenScope === 'all';
+    const selectedLangs = isAllScope
+      ? ['English','German','French','Italian','Spanish','Polish','Dutch']
+      : [...document.querySelectorAll('.rl-lang-check:checked')].map(c => c.value);
+    const selectedAudiences = isAllScope
+      ? (Comp.AUDIENCE_TYPES ? [...Comp.AUDIENCE_TYPES] : [])
+      : [...document.querySelectorAll('.rl-audience-check:checked')].map(c => c.value);
 
     // Build per-section selected fields map
     const sectionFields = {};
@@ -2143,11 +2150,12 @@ const Comp = {
     });
 
     if(selectedSectionIds.length === 0){ Comp.showToast('Select at least one section.', 'danger'); return; }
-    if(selectedLangs.length === 0){ Comp.showToast('Select at least one language.', 'danger'); return; }
+    if(!isAllScope && selectedLangs.length === 0){ Comp.showToast('Select at least one language.', 'danger'); return; }
 
     const ids  = [...Comp.getBulkSelection(module)];
     const list = DATA[cfg.dataKey];
     const generatedAt = new Date().toLocaleString();
+    const scopeLbl = isAllScope ? 'all languages & audience types' : selectedLangs.join(', ');
     ids.forEach(id => {
       const rec = list.find(r => r.id === id);
       if(!rec) return;
@@ -2160,12 +2168,12 @@ const Comp = {
           labels:     { ['__bulk__' + sectionId]: sectionLabel }
         };
       });
-      Comp.logRecord(rec, 'AI regeneration queued for ' + selectedSectionIds.length + ' section' + (selectedSectionIds.length === 1 ? '' : 's') + ' in ' + selectedLangs.join(', ') + ' — fields: ' + Object.values(sectionFields).flat().join(', ') + ' (bulk action)');
+      Comp.logRecord(rec, 'AI regeneration queued for ' + selectedSectionIds.length + ' section' + (selectedSectionIds.length === 1 ? '' : 's') + ' in ' + scopeLbl + ' — fields: ' + Object.values(sectionFields).flat().join(', ') + ' (bulk action)');
     });
     Comp.closeModal('modalBulkRegen');
     Comp.getBulkSelection(module).clear();
     let msg = 'Regeneration queued for ' + ids.length + ' ' + cfg.label + (ids.length === 1 ? '' : 's') +
-              ' · ' + selectedLangs.join(', ');
+              ' · ' + scopeLbl;
     if(manualApproval) msg += ' — review pending approvals on each record';
     Comp.showToast(msg + '.', 'success');
     render();
@@ -5778,7 +5786,7 @@ const Comp = {
   },
 
   // ---- Country listing filter drawer ----
-  _countryFilters: {status:'', continent:'', tier:''},
+  _countryFilters: {status:'', continent:'', tier:'', indexability:'', gsc:''},
   openCountryFilterDrawer(){
     const f = Comp._countryFilters;
     const continents = [...new Set(DATA.countries.map(c => c.continent || 'Other'))].sort();
@@ -5806,18 +5814,37 @@ const Comp = {
           opt('', f.tier, 'All tiers') +
           tiers.map(t => opt(t, f.tier)).join('') +
         '</select>' +
+      '</div>' +
+      '<div class="filter-drawer-group">' +
+        '<label for="cf-indexability">Indexability</label>' +
+        '<select id="cf-indexability" class="filter-select w-full">' +
+          opt('', f.indexability, 'All') +
+          opt('Indexable', f.indexability) +
+          opt('Noindex', f.indexability) +
+        '</select>' +
+      '</div>' +
+      '<div class="filter-drawer-group">' +
+        '<label for="cf-gsc">Google Index (GSC)</label>' +
+        '<select id="cf-gsc" class="filter-select w-full">' +
+          opt('', f.gsc, 'All') +
+          opt('Indexed', f.gsc) +
+          opt('Not indexed', f.gsc) +
+          opt('—', f.gsc, 'Unknown / No data') +
+        '</select>' +
       '</div>';
     Comp.openFilterDrawer('Filters', html,
       () => {
         Comp._countryFilters = {
-          status:    document.getElementById('cf-status').value,
-          continent: document.getElementById('cf-continent').value,
-          tier:      document.getElementById('cf-tier').value
+          status:       document.getElementById('cf-status').value,
+          continent:    document.getElementById('cf-continent').value,
+          tier:         document.getElementById('cf-tier').value,
+          indexability: document.getElementById('cf-indexability').value,
+          gsc:          document.getElementById('cf-gsc').value
         };
         Comp._applyCountryFilters();
       },
       () => {
-        Comp._countryFilters = {status:'', continent:'', tier:''};
+        Comp._countryFilters = {status:'', continent:'', tier:'', indexability:'', gsc:''};
         document.getElementById('filterCountries').value = '';
         Comp._applyCountryFilters();
       }
@@ -5832,18 +5859,22 @@ const Comp = {
     tbl.querySelectorAll('tr:not(.no-results-row)').forEach(tr => {
       const text = tr.textContent.toLowerCase();
       const cells = tr.querySelectorAll('td');
-      const statusCell    = cells[8] ? cells[8].textContent.trim() : '';
-      const continentCell = cells[5] ? cells[5].textContent.trim() : '';
-      const tierCell      = cells[6] ? cells[6].textContent.trim() : '';
+      const continentCell    = cells[5]  ? cells[5].textContent.trim()  : '';
+      const tierCell         = cells[6]  ? cells[6].textContent.trim()  : '';
+      const indexabilityCell = cells[7]  ? cells[7].textContent.trim()  : '';
+      const gscCell          = cells[8]  ? cells[8].textContent.trim()  : '';
+      const statusCell       = cells[10] ? cells[10].textContent.trim() : '';
       const ok =
         (!q || text.includes(q.toLowerCase())) &&
-        (!f.status    || statusCell.toLowerCase()    === f.status.toLowerCase()) &&
-        (!f.continent || continentCell               === f.continent) &&
-        (!f.tier      || tierCell                    === f.tier);
+        (!f.status       || statusCell.toLowerCase()       === f.status.toLowerCase()) &&
+        (!f.continent    || continentCell                  === f.continent) &&
+        (!f.tier         || tierCell                       === f.tier) &&
+        (!f.indexability || indexabilityCell               === f.indexability) &&
+        (!f.gsc          || gscCell.startsWith(f.gsc));
       tr.style.display = ok ? '' : 'none';
       if(ok) visible++;
     });
-    const activeCount = [f.status, f.continent, f.tier].filter(Boolean).length;
+    const activeCount = [f.status, f.continent, f.tier, f.indexability, f.gsc].filter(Boolean).length;
     Comp._updateFilterBadge('filterCountries', activeCount);
     const table = document.querySelector('#filterCountries')?.closest('.page')?.querySelector('table.data-table');
     if(!table) return;
@@ -5860,7 +5891,7 @@ const Comp = {
   },
 
   // ---- Region listing filter drawer ----
-  _regionFilters: {status:'', country:'', tier:''},
+  _regionFilters: {status:'', country:'', tier:'', indexability:'', gsc:''},
   openRegionFilterDrawer(){
     const f = Comp._regionFilters;
     const countries = [...new Set(DATA.regions.map(r => r.country).filter(Boolean))].sort();
@@ -5888,18 +5919,37 @@ const Comp = {
           opt('', f.tier, 'All tiers') +
           tiers.map(t => opt(t, f.tier)).join('') +
         '</select>' +
+      '</div>' +
+      '<div class="filter-drawer-group">' +
+        '<label for="rf-indexability">Indexability</label>' +
+        '<select id="rf-indexability" class="filter-select w-full">' +
+          opt('', f.indexability, 'All') +
+          opt('Indexable', f.indexability) +
+          opt('Noindex', f.indexability) +
+        '</select>' +
+      '</div>' +
+      '<div class="filter-drawer-group">' +
+        '<label for="rf-gsc">Google Index (GSC)</label>' +
+        '<select id="rf-gsc" class="filter-select w-full">' +
+          opt('', f.gsc, 'All') +
+          opt('Indexed', f.gsc) +
+          opt('Not indexed', f.gsc) +
+          opt('—', f.gsc, 'Unknown / No data') +
+        '</select>' +
       '</div>';
     Comp.openFilterDrawer('Filters', html,
       () => {
         Comp._regionFilters = {
-          status:  document.getElementById('rf-status').value,
-          country: document.getElementById('rf-country').value,
-          tier:    document.getElementById('rf-tier').value
+          status:       document.getElementById('rf-status').value,
+          country:      document.getElementById('rf-country').value,
+          tier:         document.getElementById('rf-tier').value,
+          indexability: document.getElementById('rf-indexability').value,
+          gsc:          document.getElementById('rf-gsc').value
         };
         Comp._applyRegionFilters();
       },
       () => {
-        Comp._regionFilters = {status:'', country:'', tier:''};
+        Comp._regionFilters = {status:'', country:'', tier:'', indexability:'', gsc:''};
         document.getElementById('filterRegions').value = '';
         Comp._applyRegionFilters();
       }
@@ -5914,18 +5964,22 @@ const Comp = {
     tbl.querySelectorAll('tr:not(.no-results-row)').forEach(tr => {
       const text = tr.textContent.toLowerCase();
       const cells = tr.querySelectorAll('td');
-      const statusCell  = cells[9]  ? cells[9].textContent.trim()  : '';
-      const countryCell = cells[2]  ? cells[2].textContent.trim()  : '';
-      const tierCell    = cells[5]  ? cells[5].textContent.trim()  : '';
+      const countryCell      = cells[2]  ? cells[2].textContent.trim()  : '';
+      const tierCell         = cells[5]  ? cells[5].textContent.trim()  : '';
+      const indexabilityCell = cells[6]  ? cells[6].textContent.trim()  : '';
+      const gscCell          = cells[7]  ? cells[7].textContent.trim()  : '';
+      const statusCell       = cells[10] ? cells[10].textContent.trim() : '';
       const ok =
         (!q || text.includes(q.toLowerCase())) &&
-        (!f.status  || statusCell.toLowerCase()  === f.status.toLowerCase()) &&
-        (!f.country || countryCell               === f.country) &&
-        (!f.tier    || tierCell                  === f.tier);
+        (!f.status       || statusCell.toLowerCase()       === f.status.toLowerCase()) &&
+        (!f.country      || countryCell                    === f.country) &&
+        (!f.tier         || tierCell                       === f.tier) &&
+        (!f.indexability || indexabilityCell               === f.indexability) &&
+        (!f.gsc          || gscCell.startsWith(f.gsc));
       tr.style.display = ok ? '' : 'none';
       if(ok) visible++;
     });
-    const activeCount = [f.status, f.country, f.tier].filter(Boolean).length;
+    const activeCount = [f.status, f.country, f.tier, f.indexability, f.gsc].filter(Boolean).length;
     Comp._updateFilterBadge('filterRegions', activeCount);
     const table = document.querySelector('#filterRegions')?.closest('.page')?.querySelector('table.data-table');
     if(!table) return;
@@ -6475,12 +6529,14 @@ const Comp = {
     Comp._regenManualApproval = true;
 
     const sectionTitle = card.getAttribute('aria-label') || card.querySelector('.card-title')?.textContent || 'Section';
-    const currentLang = Comp._getCurrentLang();
+    const currentLang  = Comp._getCurrentLang();
+    const route        = Router.route;
+    const isDestPage   = route === 'countryDetails' || route === 'regionDetails';
 
     document.getElementById('modalRegenLangDesc').textContent = sectionTitle;
 
     // --- Dynamic fields from card ---
-    const fieldEls = [...card.querySelectorAll('.card-input[data-field-label]')];
+    const fieldEls  = [...card.querySelectorAll('.card-input[data-field-label]')];
     const fieldRows = fieldEls.length
       ? fieldEls.map(el => {
           const label = el.getAttribute('data-field-label') || el.id || 'Field';
@@ -6511,31 +6567,91 @@ const Comp = {
       '</label>';
     }).join('');
 
+    // --- Audience types (Country/Region only) ---
+    const audienceRows = (Comp.AUDIENCE_TYPES || []).map(a =>
+      '<label class="opt-check">' +
+        '<input type="checkbox" class="rl-audience-check" value="' + Comp._escAttr(a) + '">' +
+        '<span>' + Comp._escHtml(a) + '</span>' +
+      '</label>'
+    ).join('');
+
+    // --- Generation scope section (Country/Region only) ---
+    const scopeSection = isDestPage
+      ? '<p class="opt-sub" style="margin-top:0;">Generation scope</p>' +
+        '<div style="background:var(--surface-sunken);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 14px;margin-bottom:0;">' +
+          '<div class="radio-option selected" data-regen-scope="all" role="radio" tabindex="0" onclick="Comp._regenScopeSelect(this)">' +
+            '<div class="radio-circle"></div>' +
+            '<div><p class="rtitle">Generate for all languages &amp; audience types</p><p class="rsub">Regenerate across all 7 languages and all audience types at once.</p></div>' +
+          '</div>' +
+          '<div class="radio-option" data-regen-scope="specific" role="radio" tabindex="0" onclick="Comp._regenScopeSelect(this)">' +
+            '<div class="radio-circle"></div>' +
+            '<div><p class="rtitle">Select specific languages &amp; audience types</p><p class="rsub">Choose which languages and audience types to regenerate for.</p></div>' +
+          '</div>' +
+        '</div>' +
+        '<div id="rl-specific-panel" style="display:none;margin-top:16px;">'
+      : '';
+
+    const specificPanelClose = isDestPage ? '</div>' : '';
+
+    const approvalBlock =
+      '<div class="action-row action-row--between mt-3" style="border-top:1px solid var(--border);padding-top:12px;">' +
+        '<div>' +
+          '<p style="font-size:var(--fs-sm);font-weight:600;margin:0 0 2px;">Require manual approval</p>' +
+          '<p class="field-hint mt-0">If enabled, results will require approval before being applied.</p>' +
+        '</div>' +
+        '<button type="button" class="btn-lock is-on" id="rl-approval-btn" aria-pressed="true" onclick="Comp._rlToggleApproval(this)">' +
+          '<span class="toggle-track" aria-hidden="true"></span>' +
+          '<span class="lock-label">On</span>' +
+        '</button>' +
+      '</div>';
+
+    const specificContent = isDestPage
+      ? '<p class="opt-sub" style="margin-top:0;">Target languages</p>' +
+        '<div style="background:var(--surface-sunken);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 14px;">' +
+          langRows + approvalBlock +
+        '</div>' +
+        '<p class="opt-sub">Audience types</p>' +
+        '<div style="background:var(--surface-sunken);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 14px;">' +
+          audienceRows +
+        '</div>'
+      : '<p class="opt-sub">Target languages</p>' +
+        '<div style="background:var(--surface-sunken);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 14px;">' +
+          langRows + approvalBlock +
+        '</div>';
+
+    // For non-dest pages — approval is outside specific panel
+    const nonDestApproval = !isDestPage
+      ? '' : '';
+
     const body =
       '<p class="opt-sub" style="margin-top:0;">Select fields</p>' +
       '<div style="background:var(--surface-sunken);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 14px;">' +
         fieldRows +
       '</div>' +
-
-      '<p class="opt-sub">Target languages</p>' +
-      '<div style="background:var(--surface-sunken);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 14px;">' +
-        langRows +
-        '<div class="action-row action-row--between mt-3" style="border-top:1px solid var(--border);padding-top:12px;">' +
-          '<div>' +
-            '<p style="font-size:var(--fs-sm);font-weight:600;margin:0 0 2px;">Require manual approval</p>' +
-            '<p class="field-hint mt-0">If enabled, results will require approval before being applied.</p>' +
-          '</div>' +
-          '<button type="button" class="btn-lock is-on" id="rl-approval-btn" aria-pressed="true" onclick="Comp._rlToggleApproval(this)">' +
-            '<span class="toggle-track" aria-hidden="true"></span>' +
-            '<span class="lock-label">On</span>' +
-          '</button>' +
-        '</div>' +
-      '</div>';
+      (isDestPage
+        ? scopeSection + specificContent + specificPanelClose +
+          '<div style="background:var(--surface-sunken);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 14px;margin-top:16px;" id="rl-all-approval">' +
+            approvalBlock +
+          '</div>'
+        : specificContent);
 
     const bodyEl = document.getElementById('modalRegenLangBody');
     bodyEl.innerHTML = '';
     bodyEl.innerHTML = body;
     Comp.openModal('modalRegenLang');
+  },
+
+  _regenScopeSelect(el){
+    const body = document.getElementById('modalRegenLangBody');
+    if(!body) return;
+    body.querySelectorAll('[data-regen-scope]').forEach(r => {
+      r.classList.toggle('selected', r === el);
+    });
+    const isSpecific = el.dataset.regenScope === 'specific';
+    const specificPanel = document.getElementById('rl-specific-panel');
+    const allApproval   = document.getElementById('rl-all-approval');
+    if(specificPanel) specificPanel.style.display = isSpecific ? 'block' : 'none';
+    if(allApproval)   allApproval.style.display   = isSpecific ? 'none'  : 'block';
   },
 
   _openRegenLangModalMulti(){
@@ -6592,10 +6708,22 @@ const Comp = {
 
   _confirmRegen(){
     const selectedFields = [...document.querySelectorAll('.rl-field-check:checked')].map(el => el.value);
-    const selectedLangs  = [...document.querySelectorAll('.rl-lang-check:checked')].map(el => el.value);
     const manualApproval = Comp._regenManualApproval !== false;
 
-    if(!selectedLangs.length){
+    // Determine scope (country/region pages only)
+    const scopeEl   = document.querySelector('[data-regen-scope].selected');
+    const isAllScope = !scopeEl || scopeEl.dataset.regenScope === 'all';
+
+    let selectedLangs, selectedAudiences;
+    if(isAllScope){
+      selectedLangs     = ['English','German','French','Italian','Spanish','Polish','Dutch'];
+      selectedAudiences = Comp.AUDIENCE_TYPES ? [...Comp.AUDIENCE_TYPES] : [];
+    } else {
+      selectedLangs     = [...document.querySelectorAll('.rl-lang-check:checked')].map(el => el.value);
+      selectedAudiences = [...document.querySelectorAll('.rl-audience-check:checked')].map(el => el.value);
+    }
+
+    if(!isAllScope && !selectedLangs.length){
       Comp.showToast('Select at least one language to regenerate.', 'danger');
       return;
     }
@@ -6608,7 +6736,8 @@ const Comp = {
       if(!selectedIds.length){ Comp.showToast('Select at least one section.', 'danger'); return; }
       const cards = selectedIds.map(id => document.querySelector('.card[data-card-id="' + id + '"]')).filter(Boolean);
       cards.forEach(c => Comp.regenerateCard(c));
-      let msg = 'Regenerating ' + cards.length + ' section' + (cards.length===1?'':'s') + ' for: ' + selectedLangs.join(', ');
+      const scopeLbl = isAllScope ? 'all languages & audience types' : selectedLangs.join(', ');
+      let msg = 'Regenerating ' + cards.length + ' section' + (cards.length===1?'':'s') + ' for: ' + scopeLbl;
       if(manualApproval) msg += ' — results will need approval';
       Comp.showToast(msg + '.', 'success');
       return;
@@ -6655,7 +6784,8 @@ const Comp = {
     Comp.regenerateCard(card);
     const sectionTitle = card.getAttribute('aria-label') || 'Section';
     const fieldsPart   = selectedFields.length ? ' [' + selectedFields.join(', ') + ']' : '';
-    let msg = sectionTitle + fieldsPart + ' regenerating for: ' + selectedLangs.join(', ');
+    const audPart      = selectedAudiences.length && !isAllScope ? ' · Audience: ' + selectedAudiences.join(', ') : '';
+    let msg = sectionTitle + fieldsPart + ' regenerating for: ' + (isAllScope ? 'all languages & audience types' : selectedLangs.join(', ') + audPart);
     if(manualApproval) msg += ' — results will need approval';
     Comp.showToast(msg + '.', 'success');
   },
@@ -6885,6 +7015,45 @@ const Comp = {
   // on just the selected ones. Review still goes through the existing
   // shared mechanism (pendingApprovalsBanner + openAcceptAllModal) —
   // nothing here bypasses that.
+  // Shared scope section (Generate all vs Specific) for Regenerate modals
+  _buildScopeSection(langRows, approvalBlock){
+    const audienceRows = (Comp.AUDIENCE_TYPES || []).map(a =>
+      '<label class="opt-check">' +
+        '<input type="checkbox" class="rl-audience-check" value="' + Comp._escAttr(a) + '">' +
+        '<span>' + Comp._escHtml(a) + '</span>' +
+      '</label>'
+    ).join('');
+
+    return (
+      '<p class="opt-sub">Generation scope</p>' +
+      '<div style="background:var(--surface-sunken);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 14px;">' +
+        '<div class="radio-option selected" data-regen-scope="all" role="radio" tabindex="0" onclick="Comp._regenScopeSelect(this)">' +
+          '<div class="radio-circle"></div>' +
+          '<div><p class="rtitle">Generate for all languages &amp; audience types</p>' +
+            '<p class="rsub">Regenerate across all 7 languages and all audience types at once.</p></div>' +
+        '</div>' +
+        '<div class="radio-option" data-regen-scope="specific" role="radio" tabindex="0" onclick="Comp._regenScopeSelect(this)">' +
+          '<div class="radio-circle"></div>' +
+          '<div><p class="rtitle">Select specific languages &amp; audience types</p>' +
+            '<p class="rsub">Choose which languages and audience types to regenerate for.</p></div>' +
+        '</div>' +
+      '</div>' +
+      '<div id="rl-specific-panel" style="display:none;margin-top:16px;">' +
+        '<p class="opt-sub" style="margin-top:0;">Target languages</p>' +
+        '<div style="background:var(--surface-sunken);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 14px;">' +
+          langRows + approvalBlock +
+        '</div>' +
+        '<p class="opt-sub">Audience types</p>' +
+        '<div style="background:var(--surface-sunken);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 14px;">' +
+          audienceRows +
+        '</div>' +
+      '</div>' +
+      '<div id="rl-all-approval" style="background:var(--surface-sunken);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 14px;margin-top:16px;">' +
+        approvalBlock +
+      '</div>'
+    );
+  },
+
   _openDestRegenModal(){
     const cards = [...document.querySelectorAll('.card[data-card-id]')].filter(c =>
       c.querySelectorAll('.card-input[data-field-label]').length > 0
@@ -6930,23 +7099,22 @@ const Comp = {
       '</label>';
     }).join('');
 
+    const approvalBlock =
+      '<div class="action-row action-row--between mt-3" style="border-top:1px solid var(--border);padding-top:12px;">' +
+        '<div>' +
+          '<p style="font-size:var(--fs-sm);font-weight:600;margin:0 0 2px;">Require manual approval</p>' +
+          '<p class="field-hint mt-0">If enabled, results will require approval before being applied.</p>' +
+        '</div>' +
+        '<button type="button" class="btn-lock is-on" id="rl-approval-btn" aria-pressed="true" onclick="Comp._rlToggleApproval(this)">' +
+          '<span class="toggle-track" aria-hidden="true"></span>' +
+          '<span class="lock-label">On</span>' +
+        '</button>' +
+      '</div>';
+
     const body =
       '<p class="opt-sub" style="margin-top:0;">Select fields</p>' +
       '<div class="field-stack" style="gap:0;">' + sectionRows + '</div>' +
-      '<p class="opt-sub">Target languages</p>' +
-      '<div style="background:var(--surface-sunken);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 14px;">' +
-        langRows +
-        '<div class="action-row action-row--between mt-3" style="border-top:1px solid var(--border);padding-top:12px;">' +
-          '<div>' +
-            '<p style="font-size:var(--fs-sm);font-weight:600;margin:0 0 2px;">Require manual approval</p>' +
-            '<p class="field-hint mt-0">If enabled, results will require approval before being applied.</p>' +
-          '</div>' +
-          '<button type="button" class="btn-lock is-on" id="rl-approval-btn" aria-pressed="true" onclick="Comp._rlToggleApproval(this)">' +
-            '<span class="toggle-track" aria-hidden="true"></span>' +
-            '<span class="lock-label">On</span>' +
-          '</button>' +
-        '</div>' +
-      '</div>';
+      Comp._buildScopeSection(langRows, approvalBlock);
 
     Comp._regenManualApproval = true;
     Comp._regenCard = null;
@@ -8584,6 +8752,7 @@ function pageCountryDetails(params){
         ${Comp.Button((country.indexability||'Noindex')==='Indexable' ? '● Indexable' : '○ Noindex', {variant:(country.indexability||'Noindex')==='Indexable' ? 'btn-primary' : '', onclick:`Comp.toggleIndexability('country','${country.id}')`})}
         ${Comp.Button(country.status==='Active' ? 'Deactivate' : 'Activate', {variant:'btn-amber', onclick:`Comp.confirmToggleCountryStatus('${country.id}')`})}`, level:'h2'})}
     ${Comp.pendingApprovalsBanner()}
+    ${(()=>{ const _iss=Comp._getDestIssues(country); return _iss.length ? `<div class="status-banner is-warning" style="cursor:pointer;" onclick="Comp.openDestIssues('country','${country.id}')">${ICON.warning}<span><strong>${_iss.length} issue${_iss.length===1?'':'s'} found</strong> — click to review</span></div>` : ''; })()}
     ${Comp.contentLanguageBar('country')}
     <div class="ops-tabs" role="tablist">
       ${tabs.map(t => `<button type="button" class="ops-tab ${tab===t.id?'is-active':''}" onclick="Router.go('countryDetails',{id:'${country.id}', tab:'${t.id}'})">${t.label}</button>`).join('')}
@@ -8866,6 +9035,7 @@ function pageRegionDetails(params){
         ${Comp.Button((region.indexability||'Noindex')==='Indexable' ? '● Indexable' : '○ Noindex', {variant:(region.indexability||'Noindex')==='Indexable' ? 'btn-primary' : '', onclick:`Comp.toggleIndexability('region','${region.id}')`})}
         ${Comp.Button(region.status==='Active' ? 'Deactivate' : 'Activate', {variant:'btn-amber', onclick:`Comp.confirmToggleRegionStatus('${region.id}')`})}`, level:'h2'})}
     ${Comp.pendingApprovalsBanner()}
+    ${(()=>{ const _iss=Comp._getDestIssues(region); return _iss.length ? `<div class="status-banner is-warning" style="cursor:pointer;" onclick="Comp.openDestIssues('region','${region.id}')">${ICON.warning}<span><strong>${_iss.length} issue${_iss.length===1?'':'s'} found</strong> — click to review</span></div>` : ''; })()}
     ${Comp.contentLanguageBar('region')}
     <div class="ops-tabs" role="tablist">
       ${tabs.map(t => `<button type="button" class="ops-tab ${tab===t.id?'is-active':''}" onclick="Router.go('regionDetails',{id:'${region.id}', tab:'${t.id}'})">${t.label}</button>`).join('')}
@@ -21471,12 +21641,18 @@ DATA.promptConfigurations = [
   {
     id:'pc-001', pageType:'country', sectionKey:'overview', isActive:true,
     prompt:'Generate an engaging overview for {{countryName}} that highlights its unique cultural identity, must-see destinations, and what makes it a compelling travel destination. Write in {{language}} and incorporate the keyword {{keyword}} naturally.',
-    createdAt:'12 Aug 2026, 10:00', updatedAt:'01 Sep 2026, 14:22', createdBy:'Admin', updatedBy:'SEO Lead'
+    createdAt:'12 Aug 2026, 10:00', updatedAt:'01 Sep 2026, 14:22', createdBy:'Admin', updatedBy:'SEO Lead',
+    versions:[
+      {num:3, prompt:'Generate an engaging overview for {{countryName}} that highlights its unique cultural identity, must-see destinations, and what makes it a compelling travel destination. Write in {{language}} and incorporate the keyword {{keyword}} naturally.', savedAt:'01 Sep 2026, 14:22', savedBy:'SEO Lead'},
+      {num:2, prompt:'Write an overview for {{countryName}} covering top attractions, local culture, and travel tips. Optimize for {{keyword}} in {{language}}.', savedAt:'20 Aug 2026, 11:30', savedBy:'Admin'},
+      {num:1, prompt:'Create a destination overview for {{countryName}}. Include key highlights and travel information. Language: {{language}}.', savedAt:'12 Aug 2026, 10:00', savedBy:'Admin'}
+    ]
   },
   {
     id:'pc-002', pageType:'country', sectionKey:'faq', isActive:true,
     prompt:'Generate a set of frequently asked questions for {{countryName}} covering visa requirements, best time to visit, local customs, currency, and transportation. Write answers in {{language}} optimized for the keyword {{keyword}}.',
-    createdAt:'12 Aug 2026, 10:05', updatedAt:'28 Aug 2026, 09:10', createdBy:'Admin', updatedBy:'Admin'
+    createdAt:'12 Aug 2026, 10:05', updatedAt:'28 Aug 2026, 09:10', createdBy:'Admin', updatedBy:'Admin',
+    versions:[]
   },
   {
     id:'pc-003', pageType:'country', sectionKey:'highlights', isActive:true,
@@ -21603,6 +21779,7 @@ function pagePromptEditor(params){
   const tabNav = `<div class="ops-tabs" role="tablist">
     <button type="button" class="ops-tab ${tab==='config'?'is-active':''}" onclick="Router.go('promptEditor',{pageType:'${pageType}',sectionKey:'${sectionKey}',tab:'config'})">Prompt Configuration</button>
     <button type="button" class="ops-tab ${tab==='log'?'is-active':''}" onclick="Router.go('promptEditor',{pageType:'${pageType}',sectionKey:'${sectionKey}',tab:'log'})">Activity Log</button>
+    <button type="button" class="ops-tab ${tab==='versions'?'is-active':''}" onclick="Router.go('promptEditor',{pageType:'${pageType}',sectionKey:'${sectionKey}',tab:'versions'})">Versions</button>
   </div>`;
 
   // ---- STATUS SIDEBAR ----
@@ -21731,6 +21908,35 @@ function pagePromptEditor(params){
     body = `<div style="flex:1;min-width:0;">${logCard}</div>`;
   }
 
+  // ---- VERSIONS TAB ----
+  if(tab === 'versions'){
+    const versions = (cfg && cfg.versions) ? [...cfg.versions].slice().reverse() : [];
+    const rows = versions.length
+      ? versions.map(v =>
+          `<tr>
+            <td class="cell-name">v${v.num}</td>
+            <td class="cell-secondary">${Comp._escHtml(v.savedBy)}</td>
+            <td class="cell-secondary">${Comp._escHtml(v.savedAt)}</td>
+            <td><p class="field-hint" style="max-width:340px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin:0;">${Comp._escHtml(v.prompt.slice(0,80))}${v.prompt.length>80?'…':''}</p></td>
+            <td>${Comp.Button('Preview', {size:'btn-sm', onclick:`Comp.pmPreviewVersion('${pageType}','${sectionKey}',${v.num})`})}</td>
+          </tr>`
+        ).join('')
+      : '';
+    body = Comp.Card({title:'Version history', hint:'Each save creates a new version. Click Preview to view the prompt text at that point in time.', body:
+      Comp.Table({
+        columns:[
+          {label:'Version', width:'80px'},
+          {label:'Saved by', width:'160px'},
+          {label:'Saved at', width:'170px'},
+          {label:'Prompt preview'},
+          {label:'', width:'90px'}
+        ],
+        rows,
+        emptyText:'No versions yet. Save a prompt to create the first version.'
+      })
+    });
+  }
+
   return Comp.Shell(`
     ${Comp.Breadcrumb([
       {label:'Settings & Administration'},
@@ -21754,28 +21960,53 @@ Comp.pmSaveConfig = function(pageType, sectionKey){
   const prompt = textarea.value.trim();
   if(!prompt){ Comp.showToast('Prompt text cannot be empty.', 'danger'); return; }
 
-  // Resolve current user name from logged-in email
   const currentUser = DATA.users.find(u => u.email === Comp.CURRENT_USER_EMAIL);
   const actorName   = currentUser ? currentUser.name : (Comp.CURRENT_USER_EMAIL || 'Admin');
 
   const existing = pmGetConfig(pageType, sectionKey);
   const now = new Date().toLocaleString();
   if(existing){
+    // Store current version before overwriting
+    if(!existing.versions) existing.versions = [];
+    const nextNum = (existing.versions.length ? Math.max(...existing.versions.map(v=>v.num)) : 0) + 1;
+    existing.versions.push({num: nextNum, prompt, savedAt: now, savedBy: actorName});
     existing.prompt    = prompt;
     existing.updatedAt = now;
     existing.updatedBy = actorName;
-    Comp.showToast('Prompt updated successfully.', 'success');
+    Comp.showToast('Prompt updated. Version v' + nextNum + ' saved.', 'success');
   } else {
-    DATA.promptConfigurations.push({
+    const newCfg = {
       id: 'pc-' + String(Date.now()).slice(-6),
       pageType, sectionKey, isActive:true,
       prompt,
       createdAt: now, updatedAt: now,
-      createdBy: actorName, updatedBy: actorName
-    });
-    Comp.showToast('Prompt configured successfully.', 'success');
+      createdBy: actorName, updatedBy: actorName,
+      versions: [{num:1, prompt, savedAt: now, savedBy: actorName}]
+    };
+    DATA.promptConfigurations.push(newCfg);
+    Comp.showToast('Prompt configured. Version v1 saved.', 'success');
   }
-  Router.go('promptManagement', {pageType});
+  Router.go('promptEditor', {pageType, sectionKey, tab:'versions'});
+};
+
+Comp.pmPreviewVersion = function(pageType, sectionKey, versionNum){
+  const cfg = pmGetConfig(pageType, sectionKey);
+  if(!cfg || !cfg.versions) return;
+  const v = cfg.versions.find(x => x.num === versionNum);
+  if(!v) return;
+  Comp.openConfirm({
+    title: 'v' + v.num + ' — ' + pmSectionLabel(pageType, sectionKey),
+    desc: 'Saved ' + v.savedAt + ' by ' + v.savedBy,
+    warningHtml:
+      '<div style="margin-top:8px;">' +
+      '<textarea class="card-input" rows="10" readonly style="width:100%;resize:none;font-size:var(--fs-sm);line-height:1.6;">' +
+        Comp._escHtml(v.prompt) +
+      '</textarea>' +
+      '</div>',
+    confirmLabel: 'Close',
+    hideCancel: true,
+    onConfirm: function(){}
+  });
 };
 
 Comp.pmDeleteConfig = function(pageType, sectionKey){
