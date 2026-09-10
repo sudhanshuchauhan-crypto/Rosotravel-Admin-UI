@@ -394,7 +394,7 @@ const MODULE_SUBSECTIONS = {
   'Product Operations':        ['Inventory Explorer','Inventory Alerts','Algorithm Configuration'],
   'Bookings & Customers':      ['Bookings','Cancel Booking','Customers','Reviews','Discount Coupons'],
   'Redirect & Deprecation':    ['Redirect & Deprecation'],
-  'Settings & Administration': ['Users','Roles & Permissions']
+  'Settings & Administration': ['Users','Roles & Permissions','Prompt Management']
 };
 const MODULES = Object.keys(MODULE_SUBSECTIONS);
 // Sub-sections that grant a materially higher level of access than simply
@@ -1679,7 +1679,7 @@ const NavUI = {
     const productsRoutes = ['productListing','productDetails','bundleListing','bundleCreate','bundleDetails'];
     const productOpsRoutes = ['productOpsInventory','productOpsDetail','productOpsConfig','productOpsAlerts'];
     const bookingsCustomersRoutes = ['bookingListing','bookingDetails','customerListing','customerDetails','reviewListing','reviewDetail','couponListing','couponCreate','couponDetails'];
-    const settingsAdminRoutes = ['usersListing','usersCreate','usersDetails','rolesListing','rolesCreate','rolesDetails'];
+    const settingsAdminRoutes = ['usersListing','usersCreate','usersDetails','rolesListing','rolesCreate','rolesDetails','promptManagement','promptEditor'];
     const matches = [
       [marketingContentRoutes, 'marketingContent'], [productsRoutes, 'products'],
       [productOpsRoutes, 'productOps'], [bookingsCustomersRoutes, 'bookingsCustomers'],
@@ -2096,8 +2096,14 @@ const Comp = {
   _bulkRegenToggleSection(sectionChk){
     const sectionId = sectionChk.value;
     const checked   = sectionChk.checked;
-    // Toggle all sub-fields for this section
     document.querySelectorAll('.bulk-regen-subfield[data-section="' + sectionId + '"]')
+      .forEach(el => { el.checked = checked; });
+  },
+
+  _homeRegenToggleSection(sectionChk){
+    const sectionId = sectionChk.value;
+    const checked   = sectionChk.checked;
+    document.querySelectorAll('.home-regen-subfield[data-section="' + sectionId + '"]')
       .forEach(el => { el.checked = checked; });
   },
 
@@ -2309,6 +2315,7 @@ const Comp = {
           <button type="button" class="nav-sub" ${['usersListing','usersCreate','usersDetails'].includes(Router.route) ? 'aria-current="page"' : ''} onclick="Router.go('usersListing')">Users</button>
           <button type="button" class="nav-sub" ${['rolesListing','rolesCreate','rolesDetails'].includes(Router.route) ? 'aria-current="page"' : ''} onclick="Router.go('rolesListing')">Roles &amp; Permissions</button>
           <button type="button" class="nav-sub" ${['semrushConfiguration','semrushRules'].includes(Router.route) ? 'aria-current="page"' : ''} onclick="Router.go('semrushConfiguration')">SEMrush Configuration</button>
+          <button type="button" class="nav-sub" ${['promptManagement','promptEditor'].includes(Router.route) ? 'aria-current="page"' : ''} onclick="Router.go('promptManagement')">Prompt Management</button>
         </div>
       </nav>`;
   },
@@ -5413,7 +5420,6 @@ const Comp = {
     const fid = (idPrefix || 'countryAbout') + '-' + number;
     return `<div class="field">
       <label for="${fid}">${Comp._escHtml(heading)}</label>
-      <p class="field-hint" style="margin-top:-4px; margin-bottom:6px;">Fixed heading \u2014 write the copy that sits under it.</p>
       <textarea id="${fid}" class="card-input" data-field-label="${Comp._escAttr(heading)}" placeholder="Write this point\u2026">${value || ''}</textarea>
     </div>`;
   },
@@ -6593,10 +6599,46 @@ const Comp = {
       Comp.showToast('Select at least one language to regenerate.', 'danger');
       return;
     }
-
     Comp.closeModal('modalRegenLang');
 
-    // Multi-card mode (Regenerate all)
+    // Country/Region — Regenerate All mode (dest = destination)
+    if(Comp._destRegenAll){
+      Comp._destRegenAll = false;
+      const selectedIds = [...document.querySelectorAll('.dest-regen-section:checked')].map(el => el.value);
+      if(!selectedIds.length){ Comp.showToast('Select at least one section.', 'danger'); return; }
+      const cards = selectedIds.map(id => document.querySelector('.card[data-card-id="' + id + '"]')).filter(Boolean);
+      cards.forEach(c => Comp.regenerateCard(c));
+      let msg = 'Regenerating ' + cards.length + ' section' + (cards.length===1?'':'s') + ' for: ' + selectedLangs.join(', ');
+      if(manualApproval) msg += ' — results will need approval';
+      Comp.showToast(msg + '.', 'success');
+      return;
+    }
+
+    // Homepage — Regenerate All mode
+    if(Comp._homeRegenAll){
+      Comp._homeRegenAll = false;
+      const selectedSections = [...document.querySelectorAll('.home-regen-section:checked')].map(el => el.value);
+      if(!selectedSections.length){ Comp.showToast('Select at least one section.', 'danger'); return; }
+      setTimeout(() => Comp.homeStartRegenerate(selectedSections, selectedLangs), 0);
+      let msg = 'Regenerating ' + selectedSections.length + ' section' + (selectedSections.length===1?'':'s') + ' for: ' + selectedLangs.join(', ');
+      if(manualApproval) msg += ' — results will need approval';
+      Comp.showToast(msg + '.', 'success');
+      return;
+    }
+
+    // Homepage — single section mode
+    if(Comp._homeSectionRegenKey !== undefined){
+      const sectionKey = Comp._homeSectionRegenKey;
+      Comp._homeSectionRegenKey = undefined;
+      setTimeout(() => Comp.homeSectionStartGenerate(sectionKey, selectedLangs), 0);
+      const fieldsPart = selectedFields.length ? ' [' + selectedFields.join(', ') + ']' : '';
+      let msg = 'Regenerating' + fieldsPart + ' for: ' + selectedLangs.join(', ');
+      if(manualApproval) msg += ' — results will need approval';
+      Comp.showToast(msg + '.', 'success');
+      return;
+    }
+
+    // Multi-card mode (Regenerate all — non-homepage)
     if(Comp._regenAllCards && Comp._regenAllCards.length){
       const cards = Comp._regenAllCards;
       cards.forEach(c => Comp.regenerateCard(c));
@@ -6843,34 +6885,90 @@ const Comp = {
   // on just the selected ones. Review still goes through the existing
   // shared mechanism (pendingApprovalsBanner + openAcceptAllModal) —
   // nothing here bypasses that.
-  countryOpenRegenScopeModal(){
+  _openDestRegenModal(){
     const cards = [...document.querySelectorAll('.card[data-card-id]')].filter(c =>
       c.querySelectorAll('.card-input[data-field-label]').length > 0
     );
-    if (!cards.length) { Comp.showToast('No AI sections available to regenerate.', 'danger'); return; }
-    const rows = cards.map(c => {
-      const id = c.dataset.cardId;
-      const label = c.getAttribute('aria-label') || id;
+    if(!cards.length){ Comp.showToast('No AI sections available to regenerate.', 'danger'); return; }
+
+    // Section rows with nested sub-fields from card
+    const sectionRows = cards.map(c => {
+      const id     = c.dataset.cardId;
+      const label  = c.getAttribute('aria-label') || id;
       const locked = c.classList.contains('is-locked');
-      return '<label class="opt-check" style="' + (locked ? 'opacity:0.5;cursor:not-allowed;' : '') + '">' +
-        '<input type="checkbox" class="country-regen-scope-check" value="' + id + '"' + (locked ? ' disabled' : '') + '>' +
-        '<span class="flex-1">' + label + (locked ? ' <span class="field-hint" style="margin-left:6px;">(locked — unlock first)</span>' : '') + '</span>' +
+      const fieldEls = [...c.querySelectorAll('.card-input[data-field-label]')];
+      const subItems = fieldEls.map(el => {
+        const fl = el.getAttribute('data-field-label') || el.id || 'Field';
+        return '<label class="opt-check" style="padding:4px 0 4px 24px;">' +
+          '<input type="checkbox" class="dest-regen-subfield" data-section="' + Comp._escAttr(id) + '" value="' + Comp._escAttr(fl) + '"' + (locked ? ' disabled' : ' checked') + ' onchange="Comp._bulkRegenToggleSubfield(this)">' +
+          '<span style="font-size:var(--fs-sm);color:var(--text-secondary);">' + Comp._escHtml(fl) + '</span>' +
+        '</label>';
+      }).join('');
+      return '<label class="opt-check" style="font-weight:600;' + (locked ? 'opacity:0.6;' : '') + '">' +
+        '<input type="checkbox" class="dest-regen-section" value="' + Comp._escAttr(id) + '"' +
+          (locked ? ' disabled' : ' checked') + ' onchange="Comp._destRegenToggleSection(this)">' +
+        '<span>' + Comp._escHtml(label) + (locked ? ' <span class="field-hint" style="margin-left:6px;">(locked — unlock first)</span>' : '') + '</span>' +
+      '</label>' + subItems;
+    }).join('');
+
+    const allLangs = [
+      {label:'English',  mode:'Native SEO'},
+      {label:'German',   mode:'Native SEO adaptation'},
+      {label:'French',   mode:'Translation / localisation'},
+      {label:'Italian',  mode:'Translation / localisation'},
+      {label:'Spanish',  mode:'Translation / localisation'},
+      {label:'Polish',   mode:'Translation / localisation'},
+      {label:'Dutch',    mode:'Translation / localisation'}
+    ];
+    const currentLang = Comp._getCurrentLang();
+    const langRows = allLangs.map(l => {
+      const isCurrent = l.label === currentLang;
+      return '<label class="opt-check">' +
+        '<input type="checkbox" class="rl-lang-check" value="' + l.label + '"' + (isCurrent ? ' checked' : '') + '>' +
+        '<span class="flex-1">' + l.label + (isCurrent ? ' <span class="field-hint" style="margin-left:4px;">(current)</span>' : '') + '</span>' +
+        '<span class="badge badge-inactive">' + l.mode + '</span>' +
       '</label>';
     }).join('');
-    Comp.openConfirm({
-      title: 'Regenerate all sections',
-      desc: 'Select which section(s) to regenerate with AI.',
-      warningHtml: '<div style="margin-top:8px;">' + rows + '</div>',
-      confirmLabel: 'Continue',
-      onConfirm: () => {
-        const selectedIds = Array.prototype.map.call(document.querySelectorAll('.country-regen-scope-check:checked'), el => el.value);
-        if (!selectedIds.length) { Comp.showToast('No sections selected.', 'danger'); return; }
-        // Store selected cards and open language/approval modal
-        Comp._regenAllCards = selectedIds.map(id => document.querySelector('.card[data-card-id="' + id + '"]')).filter(Boolean);
-        Comp._regenCard = null; // multi-card mode
-        setTimeout(() => Comp._openRegenLangModalMulti(), 0);
-      }
-    });
+
+    const body =
+      '<p class="opt-sub" style="margin-top:0;">Select fields</p>' +
+      '<div class="field-stack" style="gap:0;">' + sectionRows + '</div>' +
+      '<p class="opt-sub">Target languages</p>' +
+      '<div style="background:var(--surface-sunken);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 14px;">' +
+        langRows +
+        '<div class="action-row action-row--between mt-3" style="border-top:1px solid var(--border);padding-top:12px;">' +
+          '<div>' +
+            '<p style="font-size:var(--fs-sm);font-weight:600;margin:0 0 2px;">Require manual approval</p>' +
+            '<p class="field-hint mt-0">If enabled, results will require approval before being applied.</p>' +
+          '</div>' +
+          '<button type="button" class="btn-lock is-on" id="rl-approval-btn" aria-pressed="true" onclick="Comp._rlToggleApproval(this)">' +
+            '<span class="toggle-track" aria-hidden="true"></span>' +
+            '<span class="lock-label">On</span>' +
+          '</button>' +
+        '</div>' +
+      '</div>';
+
+    Comp._regenManualApproval = true;
+    Comp._regenCard = null;
+    Comp._regenAllCards = null;
+    Comp._destRegenAll  = true;
+
+    document.getElementById('modalRegenLangTitle').textContent = 'Regenerate content';
+    document.getElementById('modalRegenLangDesc').textContent  = 'All sections';
+    const bodyEl = document.getElementById('modalRegenLangBody');
+    bodyEl.innerHTML = '';
+    bodyEl.innerHTML = body;
+    Comp.openModal('modalRegenLang');
+  },
+
+  countryOpenRegenScopeModal(){ Comp._openDestRegenModal(); },
+  regionOpenRegenScopeModal(){ Comp._openDestRegenModal(); },
+
+  _destRegenToggleSection(sectionChk){
+    const sectionId = sectionChk.value;
+    const checked   = sectionChk.checked;
+    document.querySelectorAll('.dest-regen-subfield[data-section="' + sectionId + '"]')
+      .forEach(el => { el.checked = checked; });
   },
   regenerateSelectedCards(selectedIds){
     const cards = selectedIds.map(id => document.querySelector(`.card[data-card-id="${id}"]`)).filter(Boolean);
@@ -8412,7 +8510,11 @@ function pageCountryDetails(params){
       <div class="field">
         <label id="whyVisitTagsLbl">Tags</label>
         <div id="whyVisitTaxonomyTag" class="tag-box" aria-labelledby="whyVisitTagsLbl">
-          ${(country.taxonomy || []).map(t => `<span class="tag" data-value="${t}">${t}</span>`).join('')}
+          ${(country.taxonomy || []).map(t => `<span class="tag" data-value="${t}">${t}<button type="button" class="tag-remove" aria-label="Remove ${t}">×</button></span>`).join('')}
+          <select class="region-add-select" aria-label="Add tag" onchange="Comp.addRegionTag(this)">
+            <option value="">+ Add tag</option>
+            ${DATA.categories.map(cat => `<option value="${Comp._escAttr(cat.name)}">${Comp._escHtml(cat.name)}</option>`).join('')}
+          </select>
         </div>
       </div>
     `})}
@@ -8688,7 +8790,11 @@ function pageRegionDetails(params){
       <div class="field">
         <label id="regionWhyVisitTagsLbl">Tags</label>
         <div id="regionWhyVisitTaxonomyTag" class="tag-box" aria-labelledby="regionWhyVisitTagsLbl">
-          ${(region.taxonomy || []).map(t => `<span class="tag" data-value="${t}">${t}</span>`).join('')}
+          ${(region.taxonomy || []).map(t => `<span class="tag" data-value="${t}">${t}<button type="button" class="tag-remove" aria-label="Remove ${t}">×</button></span>`).join('')}
+          <select class="region-add-select" aria-label="Add tag" onchange="Comp.addRegionTag(this)">
+            <option value="">+ Add tag</option>
+            ${DATA.categories.map(cat => `<option value="${Comp._escAttr(cat.name)}">${Comp._escHtml(cat.name)}</option>`).join('')}
+          </select>
         </div>
       </div>
     `})}
@@ -8756,6 +8862,7 @@ function pageRegionDetails(params){
   const body = `
     ${Comp.Breadcrumb([{label:'Regions', route:'regionListing'}, {label:region.name}])}
     ${Comp.PageHeader({title:`${region.name}`, actions:`
+        ${Comp.Button('\u21bb Regenerate all', {onclick:'Comp.regionOpenRegenScopeModal()'})}
         ${Comp.Button((region.indexability||'Noindex')==='Indexable' ? '● Indexable' : '○ Noindex', {variant:(region.indexability||'Noindex')==='Indexable' ? 'btn-primary' : '', onclick:`Comp.toggleIndexability('region','${region.id}')`})}
         ${Comp.Button(region.status==='Active' ? 'Deactivate' : 'Activate', {variant:'btn-amber', onclick:`Comp.confirmToggleRegionStatus('${region.id}')`})}`, level:'h2'})}
     ${Comp.pendingApprovalsBanner()}
@@ -17199,17 +17306,14 @@ function pageHomeManagement(params){
         <div class="field">
           <label>Heading \u2014 line 1</label>
           <div style="padding:2px 0; font-size:var(--fs-base); color:var(--text-primary);">${Comp._escHtml(h.whyChooseUs.headingLine1 || '')}</div>
-          <p class="field-hint mt-1">Read-only \u2014 contact a developer to change this heading.</p>
         </div>
         <div class="field">
           <label>Heading \u2014 line 2 (italic emphasis)</label>
           <div style="padding:2px 0; font-size:var(--fs-base); color:var(--text-primary);">${Comp._escHtml(h.whyChooseUs.headingLine2 || '')}</div>
-          <p class="field-hint mt-1">Read-only \u2014 contact a developer to change this heading.</p>
         </div>
         <div class="field">
           <label>Snippet</label>
           <div style="padding:2px 0; font-size:var(--fs-base); color:var(--text-primary); white-space:pre-wrap;">${h.whyChooseUs.snippet ? Comp._escHtml(h.whyChooseUs.snippet) : '<span style=\"color:var(--text-muted);\">Not set</span>'}</div>
-          <p class="field-hint mt-1">Read-only \u2014 contact a developer to change this text.</p>
         </div>`,
       extraHtml: `
         <div class="field">
@@ -17296,7 +17400,7 @@ function pageHomeManagement(params){
   return Comp.Shell(`
     ${Comp.PageHeader({title:`Home Management`, actions:`${Comp.homeRegenCtaHtml()}`})}
     ${Comp.homeReviewPendingBannerHtml()}
-    ${Comp.contentLanguageBar('home', false, {languages: DATA.HOME_LANGUAGES})}
+    ${Comp.contentLanguageBar('home', true, {languages: DATA.HOME_LANGUAGES})}
     <div class="ops-tabs" role="tablist">
       ${tabs.map(t => `<button type="button" class="ops-tab ${tab===t.id?'is-active':''}" onclick="Router.go('homeManagement',{tab:'${t.id}'})">${t.label}</button>`).join('')}
     </div>
@@ -20693,7 +20797,9 @@ const ROUTES = {
   usersDetails: pageUsersDetails,
   rolesListing: pageRolesListing,
   rolesCreate: pageRolesCreate,
-  rolesDetails: pageRolesDetails
+  rolesDetails: pageRolesDetails,
+  promptManagement: pagePromptManagement,
+  promptEditor: pagePromptEditor
 };
 
 function pageSitemapManagement(){
@@ -21085,7 +21191,7 @@ Comp.homeRegenCtaHtml = function(){
   if (Comp._homeRegenState === 'ready') {
     return Comp.Button('Review content', {variant:'btn-primary', onclick:'Comp.homeOpenRegenReviewFromPending()'});
   }
-  return Comp.Button('\u21bb Regenerate', {onclick:'Comp.homeOpenRegenScopeModal()'});
+  return Comp.Button('\u21bb Regenerate All', {onclick:'Comp.homeOpenRegenScopeModal()'});
 };
 Comp.homeReviewPendingBannerHtml = function(){
   const secLabels = {hero:'Hero', seo:'SEO data', whyChooseUs:'Why Travelers Choose Rosotravel'};
@@ -21100,156 +21206,148 @@ Comp.homeReviewPendingBannerHtml = function(){
 Comp.homeOpenRegenScopeModal = function(){
   const h = DATA.homepage;
   const scopes = [
-    {id:'hero', label:'Hero', locked: !!h.sectionLocks.hero},
-    {id:'seo', label:'SEO data', locked: !!h.sectionLocks.seo},
-    {id:'why', label:'Why Travelers Choose Rosotravel', locked: !!h.sectionLocks.whyChooseUs}
+    {id:'hero', label:'Hero',                            locked: !!h.sectionLocks.hero},
+    {id:'seo',  label:'SEO data',                        locked: !!h.sectionLocks.seo},
+    {id:'why',  label:'Why Travelers Choose Rosotravel', locked: !!h.sectionLocks.whyChooseUs}
   ];
-  const rows = scopes.map(s => `
-    <label style="display:flex; align-items:center; gap:8px; padding:8px 0; border-bottom:1px solid var(--border); cursor:${s.locked?'not-allowed':'pointer'};">
-      <input type="checkbox" class="home-regen-scope-check" value="${s.id}" ${s.locked?'disabled':'checked'}>
-      <span>${s.label}${s.locked ? ' <span class="field-hint" style="margin-left:6px;">(locked \u2014 unlock first)</span>' : ''}</span>
-    </label>`).join('');
-  Comp.openConfirm({
-    title: 'Regenerate homepage content',
-    desc: 'Select which section(s) to regenerate with AI.',
-    warningHtml: `<div style="margin-top:8px;">${rows}</div>`,
-    confirmLabel: 'Continue',
-    onConfirm: () => {
-      const selected = Array.prototype.map.call(document.querySelectorAll('.home-regen-scope-check:checked'), el => el.value);
-      if (!selected.length) { Comp.showToast('No sections selected.', 'danger'); return; }
-      setTimeout(() => Comp.homeOpenRegenLangModal(selected), 0);
-    }
-  });
-};
-Comp.homeOpenRegenLangModal = function(selectedScopes){
-  const langs = DATA.HOME_LANGUAGES.slice(1); // exclude English
-  const rows = langs.map(lang => `
-    <label style="display:flex; align-items:center; gap:8px; padding:6px 0; border-bottom:1px solid var(--border); cursor:pointer;">
-      <input type="checkbox" class="home-regen-lang-check" value="${lang}">
-      <span>${lang}</span>
-    </label>`).join('');
-  const selectAll = `<label style="display:flex; align-items:center; gap:8px; padding:5px 0 10px; cursor:pointer; border-bottom:2px solid var(--border); margin-bottom:4px;"><input type="checkbox" onchange="document.querySelectorAll('.home-regen-lang-check').forEach(function(c){c.checked=this.checked;},this)"> <span style="font-weight:600;">Select all</span></label>`;
-  const liveNote = `<p class="field-hint" style="margin-top:10px; color:var(--danger-600);">Once done, the changes will be applied on the live page.</p>`;
-  Comp.openConfirm({
-    title: 'Translate the regenerated content?',
-    desc: 'Optional \u2014 select languages to translate into once the new content is accepted. Leave all unchecked to skip.',
-    warningHtml: `<div style="margin-top:8px;">${selectAll}${rows}${liveNote}</div>`,
-    confirmLabel: 'Continue',
-    onConfirm: () => {
-      const selectedLangs = Array.prototype.map.call(document.querySelectorAll('.home-regen-lang-check:checked'), el => el.value);
-      setTimeout(() => Comp.homeStartRegenerate(selectedScopes, selectedLangs), 0);
-    }
-  });
-};
-Comp.homeStartRegenerate = function(selectedScopes, selectedLangs){
-  const h = DATA.homepage;
-  let fields = [];
-  if (selectedScopes.includes('hero')) {
-    fields.push({key:'hero_h1', label:'Hero \u2014 H1', current:h.hero.h1});
-  }
-  if (selectedScopes.includes('seo')) {
-    fields.push({key:'seo_metaTitle', label:'Meta Title', current:h.metaTitle||''});
-    fields.push({key:'seo_metaDescription', label:'Meta Description', current:h.metaDescription||''});
-  }
-  if (selectedScopes.includes('why')) {
-    h.whyChooseUs.bullets.forEach((b,i) => fields.push({key:'why_bullet'+i, label:`Why Travelers Choose \u2014 Point ${i+1}`, current:b}));
-  }
-  Comp._homeRegenState = 'loading';
-  Comp._homeRegenPending = {fields, selectedLangs};
-  render();
-  // Simulate AI generation taking a moment before suggestions are ready to review.
-  setTimeout(() => {
-    Comp._homeRegenState = 'ready';
-    render();
-  }, 900);
-};
-Comp.homeOpenRegenReviewFromPending = function(){
-  const pending = Comp._homeRegenPending;
-  if (!pending) { Comp._homeRegenState = 'idle'; render(); return; }
-  const h = DATA.homepage;
-  Comp.openRegenReview(pending.fields, (accepted) => {
-    let count = 0;
-    Object.entries(accepted).forEach(([key, val]) => {
-      count++;
-      if (key === 'hero_h1') h.hero.h1 = val;
-      else if (key === 'seo_metaTitle') h.metaTitle = val;
-      else if (key === 'seo_metaDescription') h.metaDescription = val;
-      else if (key.indexOf('why_bullet') === 0) { const idx = parseInt(key.replace('why_bullet',''),10); h.whyChooseUs.bullets[idx] = val; }
-    });
-    h.history = h.history || [];
-    h.history.unshift({label:`Homepage regenerated with AI (${count} field${count===1?'':'s'} accepted)`, time:new Date().toLocaleString(), actor:'AI (Admin-approved)'});
-    let toastMsg = `${count} field${count===1?'':'s'} accepted and saved.`;
-    if (pending.selectedLangs && pending.selectedLangs.length) {
-      h.translations = h.translations || {};
-      pending.selectedLangs.forEach(lang => {
-        h.translations[lang] = h.translations[lang] || {};
-        h.translations[lang]._pending = {state:'pending review', updatedAt:new Date().toLocaleString()};
-      });
-      h.history.unshift({label:'Translated to: ' + pending.selectedLangs.join(', '), time:new Date().toLocaleString(), actor:'Admin (you)'});
-      toastMsg += ` Translating to ${pending.selectedLangs.join(', ')}.`;
-    }
-    Comp.showToast(toastMsg, 'success');
-    Comp._homeRegenState = 'idle';
-    Comp._homeRegenPending = null;
-    render();
-  });
-};
-
-
-// ---- Shared per-section Regenerate flow (Hero / SEO data / Why Choose) ----
-// Same 3-step pattern as the page-level Regenerate CTA: pick languages to
-// translate into -> loading state on the section's own button -> review.
-Comp._homeBuildRegenFields = function(sectionKey){
-  const h = DATA.homepage;
-  if (sectionKey === 'hero') {
-    return [
-      {key:'hero_h1', label:'Hero \u2014 H1', current:h.hero.h1}
-    ];
-  }
-  if (sectionKey === 'seo') {
-    return [
-      {key:'seo_metaTitle', label:'Meta Title', current:h.metaTitle||''},
-      {key:'seo_metaDescription', label:'Meta Description', current:h.metaDescription||''}
-    ];
-  }
-  if (sectionKey === 'whyChooseUs') {
-    return h.whyChooseUs.bullets.map((b,i) => ({key:'why_bullet'+i, label:`Point ${i+1}`, current:b}));
-  }
-  return [];
-};
-Comp._homeApplyRegenAccepted = function(accepted){
-  const h = DATA.homepage;
-  let count = 0;
-  Object.entries(accepted).forEach(([key, val]) => {
-    count++;
-    if (key === 'hero_h1') h.hero.h1 = val;
-    else if (key === 'seo_metaTitle') h.metaTitle = val;
-    else if (key === 'seo_metaDescription') h.metaDescription = val;
-    else if (key.indexOf('why_bullet') === 0) { const idx = parseInt(key.replace('why_bullet',''),10); h.whyChooseUs.bullets[idx] = val; }
-  });
-  return count;
+  const SCOPE_FIELDS = {
+    hero: ['H1','Supporting snippet'],
+    seo:  ['Meta title','Meta description'],
+    why:  ['Point 1','Point 2','Point 3']
+  };
+  const sectionRows = scopes.map(s => {
+    const subItems = (SCOPE_FIELDS[s.id] || []).map(f =>
+      '<label class="opt-check" style="padding:4px 0 4px 24px;">' +
+        '<input type="checkbox" class="home-regen-subfield" data-section="' + s.id + '" value="' + Comp._escAttr(f) + '"' +
+          (s.locked ? ' disabled' : ' checked') + ' onchange="Comp._bulkRegenToggleSubfield(this)">' +
+        '<span style="font-size:var(--fs-sm);color:var(--text-secondary);">' + Comp._escHtml(f) + '</span>' +
+      '</label>'
+    ).join('');
+    return '<label class="opt-check" style="font-weight:600;">' +
+      '<input type="checkbox" class="home-regen-section" value="' + s.id + '"' +
+        (s.locked ? ' disabled' : ' checked') + ' onchange="Comp._homeRegenToggleSection(this)">' +
+      '<span>' + s.label + (s.locked ? ' <span class="field-hint" style="margin-left:6px;">(locked — unlock first)</span>' : '') + '</span>' +
+    '</label>' + subItems;
+  }).join('');
+  const allLangs = [
+    {label:'English',  mode:'Native SEO'},
+    {label:'German',   mode:'Native SEO adaptation'},
+    {label:'French',   mode:'Translation / localisation'},
+    {label:'Italian',  mode:'Translation / localisation'},
+    {label:'Spanish',  mode:'Translation / localisation'},
+    {label:'Polish',   mode:'Translation / localisation'},
+    {label:'Dutch',    mode:'Translation / localisation'}
+  ];
+  const langRows = allLangs.map(l => {
+    const isCurrent = l.label === 'English';
+    return '<label class="opt-check">' +
+      '<input type="checkbox" class="rl-lang-check" value="' + l.label + '"' + (isCurrent ? ' checked' : '') + '>' +
+      '<span class="flex-1">' + l.label + (isCurrent ? ' <span class="field-hint" style="margin-left:4px;">(current)</span>' : '') + '</span>' +
+      '<span class="badge badge-inactive">' + l.mode + '</span>' +
+    '</label>';
+  }).join('');
+  const body =
+    '<p class="opt-sub" style="margin-top:0;">Select fields</p>' +
+    '<div class="field-stack" style="gap:0;">' + sectionRows + '</div>' +
+    '<p class="opt-sub">Target languages</p>' +
+    '<div style="background:var(--surface-sunken);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 14px;">' +
+      langRows +
+      '<div class="action-row action-row--between mt-3" style="border-top:1px solid var(--border);padding-top:12px;">' +
+        '<div>' +
+          '<p style="font-size:var(--fs-sm);font-weight:600;margin:0 0 2px;">Require manual approval</p>' +
+          '<p class="field-hint mt-0">If enabled, results will require approval before being applied.</p>' +
+        '</div>' +
+        '<button type="button" class="btn-lock is-on" id="rl-approval-btn" aria-pressed="true" onclick="Comp._rlToggleApproval(this)">' +
+          '<span class="toggle-track" aria-hidden="true"></span>' +
+          '<span class="lock-label">On</span>' +
+        '</button>' +
+      '</div>' +
+    '</div>';
+  Comp._regenManualApproval = true;
+  Comp._regenCard = null;
+  Comp._regenAllCards = null;
+  Comp._homeRegenAll = true;
+  document.getElementById('modalRegenLangTitle').textContent = 'Regenerate content';
+  document.getElementById('modalRegenLangDesc').textContent  = 'Homepage';
+  const bodyEl = document.getElementById('modalRegenLangBody');
+  bodyEl.innerHTML = '';
+  bodyEl.innerHTML = body;
+  Comp.openModal('modalRegenLang');
 };
 Comp.homeSectionRegenStart = function(sectionKey){
   const h = DATA.homepage;
-  if (h.sectionLocks && h.sectionLocks[sectionKey]) { Comp.showToast('This section is locked \u2014 unlock it first to regenerate.', 'danger'); return; }
-  const langs = DATA.HOME_LANGUAGES.slice(1);
-  const rows = langs.map(lang => `
-    <label style="display:flex; align-items:center; gap:8px; padding:6px 0; border-bottom:1px solid var(--border); cursor:pointer;">
-      <input type="checkbox" class="home-sec-regen-lang-check" value="${lang}">
-      <span>${lang}</span>
-    </label>`).join('');
-  const selectAll = `<label style="display:flex; align-items:center; gap:8px; padding:5px 0 10px; cursor:pointer; border-bottom:2px solid var(--border); margin-bottom:4px;"><input type="checkbox" onchange="document.querySelectorAll('.home-sec-regen-lang-check').forEach(function(c){c.checked=this.checked;},this)"> <span style="font-weight:600;">Select all</span></label>`;
-  const liveNote = `<p class="field-hint" style="margin-top:10px; color:var(--danger-600);">Once done, the changes will be applied on the live page.</p>`;
-  Comp.openConfirm({
-    title: 'Translate the regenerated content?',
-    desc: 'Optional \u2014 select languages to translate into once the new content is accepted. Leave all unchecked to skip.',
-    warningHtml: `<div style="margin-top:8px;">${selectAll}${rows}${liveNote}</div>`,
-    confirmLabel: 'Continue',
-    onConfirm: () => {
-      const selectedLangs = Array.prototype.map.call(document.querySelectorAll('.home-sec-regen-lang-check:checked'), el => el.value);
-      setTimeout(() => Comp.homeSectionStartGenerate(sectionKey, selectedLangs), 0);
-    }
-  });
+  if(h.sectionLocks && h.sectionLocks[sectionKey]){
+    Comp.showToast('This section is locked — unlock it first to regenerate.', 'danger');
+    return;
+  }
+  const SECTION_LABELS = {
+    hero: 'Hero', seo: 'SEO data', whyChooseUs: 'Why Travelers Choose Rosotravel'
+  };
+  const SECTION_FIELDS = {
+    hero:         ['H1','Supporting snippet'],
+    seo:          ['Meta title','Meta description'],
+    whyChooseUs:  ['Point 1','Point 2','Point 3']
+  };
+  const sectionTitle = SECTION_LABELS[sectionKey] || sectionKey;
+  const fields = SECTION_FIELDS[sectionKey] || [];
+
+  const fieldRows = fields.map(f =>
+    '<label class="opt-check">' +
+      '<input type="checkbox" class="rl-field-check" value="' + Comp._escAttr(f) + '" checked>' +
+      '<span>' + Comp._escHtml(f) + '</span>' +
+    '</label>'
+  ).join('');
+
+  const allLangs = [
+    {label:'English',  mode:'Native SEO'},
+    {label:'German',   mode:'Native SEO adaptation'},
+    {label:'French',   mode:'Translation / localisation'},
+    {label:'Italian',  mode:'Translation / localisation'},
+    {label:'Spanish',  mode:'Translation / localisation'},
+    {label:'Polish',   mode:'Translation / localisation'},
+    {label:'Dutch',    mode:'Translation / localisation'}
+  ];
+  const langRows = allLangs.map(l => {
+    const isCurrent = l.label === 'English';
+    return '<label class="opt-check">' +
+      '<input type="checkbox" class="rl-lang-check" value="' + l.label + '"' + (isCurrent ? ' checked' : '') + '>' +
+      '<span class="flex-1">' + l.label + (isCurrent ? ' <span class="field-hint" style="margin-left:4px;">(current)</span>' : '') + '</span>' +
+      '<span class="badge badge-inactive">' + l.mode + '</span>' +
+    '</label>';
+  }).join('');
+
+  const body =
+    '<p class="opt-sub" style="margin-top:0;">Select fields</p>' +
+    '<div style="background:var(--surface-sunken);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 14px;margin-bottom:0;">' +
+      (fieldRows || '<p class="field-hint" style="margin:4px 0;">All content in this section will be regenerated.</p>') +
+    '</div>' +
+    '<p class="opt-sub">Target languages</p>' +
+    '<div style="background:var(--surface-sunken);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 14px;">' +
+      langRows +
+      '<div class="action-row action-row--between mt-3" style="border-top:1px solid var(--border);padding-top:12px;">' +
+        '<div>' +
+          '<p style="font-size:var(--fs-sm);font-weight:600;margin:0 0 2px;">Require manual approval</p>' +
+          '<p class="field-hint mt-0">If enabled, results will require approval before being applied.</p>' +
+        '</div>' +
+        '<button type="button" class="btn-lock is-on" id="rl-approval-btn" aria-pressed="true" onclick="Comp._rlToggleApproval(this)">' +
+          '<span class="toggle-track" aria-hidden="true"></span>' +
+          '<span class="lock-label">On</span>' +
+        '</button>' +
+      '</div>' +
+    '</div>';
+
+  Comp._regenManualApproval = true;
+  Comp._regenCard = null;
+  Comp._regenAllCards = null;
+  Comp._homeRegenAll = false;
+  Comp._homeSectionRegenKey = sectionKey;
+
+  document.getElementById('modalRegenLangTitle').textContent = 'Regenerate content';
+  document.getElementById('modalRegenLangDesc').textContent  = sectionTitle;
+  const bodyEl = document.getElementById('modalRegenLangBody');
+  bodyEl.innerHTML = '';
+  bodyEl.innerHTML = body;
+  Comp.openModal('modalRegenLang');
 };
 Comp.homeSectionStartGenerate = function(sectionKey, selectedLangs){
   const fields = Comp._homeBuildRegenFields(sectionKey);
@@ -21324,6 +21422,390 @@ Comp._homeShowTranslatePopup = function(){
 };
 
 
+// ============================================================
+// PROMPT MANAGEMENT
+// Configure AI prompts per page type + section combination.
+// Source of truth for page types and sections reused from app config.
+// ============================================================
+
+// Page types and their sections — single source of truth
+DATA.PM_PAGE_TYPES = [
+  {id:'country',    label:'Country Page'},
+  {id:'region',     label:'Region Page'},
+  {id:'city',       label:'City Page'},
+  {id:'attraction', label:'Attraction Page'},
+  {id:'category',   label:'Category Page'},
+  {id:'product',    label:'Product Page'},
+  {id:'nearpage',   label:'Near Page'},
+  {id:'blog',       label:'Blog Page'},
+  {id:'homepage',   label:'Homepage'}
+];
+
+DATA.PM_SECTIONS = {
+  country:    [{id:'overview',     label:'Overview'},{id:'seo_data',    label:'SEO Data'},{id:'faq',         label:'FAQ'},{id:'highlights',   label:'Highlights'},{id:'facts',        label:'Facts & Curiosities'},{id:'about',        label:'About Rosotravel'}],
+  region:     [{id:'overview',     label:'Overview'},{id:'seo_data',    label:'SEO Data'},{id:'faq',         label:'FAQ'},{id:'highlights',   label:'Highlights'},{id:'facts',        label:'Facts & Curiosities'},{id:'about',        label:'About Rosotravel'}],
+  city:       [{id:'overview',     label:'Overview'},{id:'seo_data',    label:'SEO Data'},{id:'faq',         label:'FAQ'},{id:'highlights',   label:'Highlights'},{id:'facts',        label:'Facts & Curiosities'},{id:'about',        label:'About Rosotravel'},{id:'local_tips',   label:'Local Tips'}],
+  attraction: [{id:'overview',     label:'Overview'},{id:'seo_data',    label:'SEO Data'},{id:'faq',         label:'FAQ'},{id:'highlights',   label:'Highlights'},{id:'about',        label:'About Rosotravel'}],
+  category:   [{id:'overview',     label:'Overview'},{id:'seo_data',    label:'SEO Data'},{id:'faq',         label:'FAQ'}],
+  product:    [{id:'overview',     label:'Overview'},{id:'seo_data',    label:'SEO Data'},{id:'faq',         label:'FAQ'},{id:'highlights',   label:'Highlights'},{id:'itinerary',    label:'Itinerary'}],
+  nearpage:   [{id:'overview',     label:'Overview'},{id:'seo_data',    label:'SEO Data'}],
+  blog:       [{id:'title',        label:'Title'},{id:'introduction', label:'Introduction'},{id:'body',        label:'Body'},{id:'summary',      label:'Summary'}],
+  homepage:   [{id:'hero',         label:'Hero'},{id:'seo_data',    label:'SEO Data'},{id:'why_choose',   label:'Why Travelers Choose Rosotravel'}]
+};
+
+// Placeholders available per page type
+DATA.PM_PLACEHOLDERS = {
+  country:    ['{{countryName}}','{{language}}','{{keyword}}','{{destinationName}}','{{continent}}'],
+  region:     ['{{regionName}}','{{countryName}}','{{language}}','{{keyword}}','{{destinationName}}'],
+  city:       ['{{cityName}}','{{regionName}}','{{countryName}}','{{language}}','{{keyword}}','{{destinationName}}'],
+  attraction: ['{{attractionName}}','{{cityName}}','{{countryName}}','{{language}}','{{keyword}}'],
+  category:   ['{{categoryName}}','{{language}}','{{keyword}}'],
+  product:    ['{{productName}}','{{cityName}}','{{countryName}}','{{language}}','{{keyword}}'],
+  nearpage:   ['{{destinationName}}','{{language}}','{{keyword}}'],
+  blog:       ['{{blogTitle}}','{{language}}','{{keyword}}','{{topic}}'],
+  homepage:   ['{{siteName}}','{{language}}','{{keyword}}']
+};
+
+// Prompt configurations data store
+DATA.promptConfigurations = [
+  {
+    id:'pc-001', pageType:'country', sectionKey:'overview', isActive:true,
+    prompt:'Generate an engaging overview for {{countryName}} that highlights its unique cultural identity, must-see destinations, and what makes it a compelling travel destination. Write in {{language}} and incorporate the keyword {{keyword}} naturally.',
+    createdAt:'12 Aug 2026, 10:00', updatedAt:'01 Sep 2026, 14:22', createdBy:'Admin', updatedBy:'SEO Lead'
+  },
+  {
+    id:'pc-002', pageType:'country', sectionKey:'faq', isActive:true,
+    prompt:'Generate a set of frequently asked questions for {{countryName}} covering visa requirements, best time to visit, local customs, currency, and transportation. Write answers in {{language}} optimized for the keyword {{keyword}}.',
+    createdAt:'12 Aug 2026, 10:05', updatedAt:'28 Aug 2026, 09:10', createdBy:'Admin', updatedBy:'Admin'
+  },
+  {
+    id:'pc-003', pageType:'country', sectionKey:'highlights', isActive:true,
+    prompt:'Write 3-5 compelling travel highlights for {{countryName}}. Each highlight should be 2-3 sentences, inspiring, and focused on what makes this destination memorable for travelers. Language: {{language}}.',
+    createdAt:'15 Aug 2026, 11:30', updatedAt:'15 Aug 2026, 11:30', createdBy:'SEO Lead', updatedBy:'SEO Lead'
+  },
+  {
+    id:'pc-004', pageType:'city', sectionKey:'overview', isActive:true,
+    prompt:'Generate a vivid overview for {{cityName}}, {{countryName}}. Describe the city\'s character, key attractions, and why travelers should visit. Include the keyword {{keyword}} naturally. Language: {{language}}.',
+    createdAt:'20 Aug 2026, 09:00', updatedAt:'05 Sep 2026, 16:45', createdBy:'Admin', updatedBy:'Content Editor'
+  },
+  {
+    id:'pc-005', pageType:'city', sectionKey:'faq', isActive:true,
+    prompt:'Create an FAQ section for {{cityName}} answering common traveler questions about getting around, top attractions, local food, and accommodation options. Optimize for {{keyword}} in {{language}}.',
+    createdAt:'20 Aug 2026, 09:15', updatedAt:'20 Aug 2026, 09:15', createdBy:'Admin', updatedBy:'Admin'
+  },
+  {
+    id:'pc-006', pageType:'blog', sectionKey:'introduction', isActive:true,
+    prompt:'Write an engaging introduction for a blog post titled "{{blogTitle}}". Hook the reader in the first sentence, establish the topic clearly, and set expectations for what they will learn. Write in {{language}} targeting the keyword {{keyword}}.',
+    createdAt:'25 Aug 2026, 14:00', updatedAt:'25 Aug 2026, 14:00', createdBy:'Content Editor', updatedBy:'Content Editor'
+  }
+];
+
+function pmGetConfig(pageType, sectionKey){
+  return DATA.promptConfigurations.find(c => c.pageType === pageType && c.sectionKey === sectionKey && c.isActive) || null;
+}
+
+function pmPageLabel(pageType){
+  return (DATA.PM_PAGE_TYPES.find(p => p.id === pageType)||{}).label || pageType;
+}
+
+function pmSectionLabel(pageType, sectionKey){
+  const secs = DATA.PM_SECTIONS[pageType] || [];
+  return (secs.find(s => s.id === sectionKey)||{}).label || sectionKey;
+}
+
+// ---- LIST PAGE ----
+function pagePromptManagement(params){
+  const selectedPT = (params && params.pageType) || DATA.PM_PAGE_TYPES[0].id;
+  const sections   = DATA.PM_SECTIONS[selectedPT] || [];
+  const placeholders = DATA.PM_PLACEHOLDERS[selectedPT] || [];
+
+  const pageTypeOpts = DATA.PM_PAGE_TYPES.map(pt =>
+    `<option value="${pt.id}" ${pt.id === selectedPT ? 'selected' : ''}>${Comp._escHtml(pt.label)}</option>`
+  ).join('');
+
+  const rows = sections.map(sec => {
+    const cfg = pmGetConfig(selectedPT, sec.id);
+    const statusBadge = cfg ? Comp.Badge('Configured', true) : Comp.Badge('Not configured', false);
+    const preview = cfg ? `<span class="field-hint" style="display:block;max-width:360px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${Comp._escHtml(cfg.prompt.slice(0,80))}…</span>` : '';
+    const actionBtn = cfg
+      ? Comp.Button('Edit', {size:'btn-sm', onclick:`Router.go('promptEditor',{pageType:'${selectedPT}',sectionKey:'${sec.id}'})`})
+      : Comp.Button('Add prompt', {size:'btn-sm', variant:'btn-primary', onclick:`Router.go('promptEditor',{pageType:'${selectedPT}',sectionKey:'${sec.id}'})`});
+    const menuItems = cfg
+      ? [
+          {label:'Edit', handler:() => Router.go('promptEditor',{pageType:selectedPT, sectionKey:sec.id})},
+          {label:'Delete / Reset', danger:true, handler:() => Comp.pmDeleteConfig(selectedPT, sec.id)}
+        ]
+      : [{label:'Add prompt', handler:() => Router.go('promptEditor',{pageType:selectedPT, sectionKey:sec.id})}];
+
+    return `<tr>
+      <td class="cell-name">${Comp._escHtml(sec.label)}</td>
+      <td>${statusBadge}${preview}</td>
+      <td class="cell-secondary">${cfg ? Comp._escHtml(cfg.updatedAt) : '—'}</td>
+      <td class="cell-secondary">${cfg ? Comp._escHtml(cfg.updatedBy) : '—'}</td>
+      <td style="white-space:nowrap;">${actionBtn}</td>
+      <td onclick="event.stopPropagation()">${Comp.RowMenu(sec.label, menuItems)}</td>
+    </tr>`;
+  }).join('');
+
+  const configured = sections.filter(s => pmGetConfig(selectedPT, s.id)).length;
+  const total      = sections.length;
+
+  return Comp.Shell(`
+    ${Comp.Breadcrumb([{label:'Settings & Administration'}, {label:'Prompt Management'}])}
+    ${Comp.PageHeader({
+      title:'Prompt Management',
+      subtitle:'Configure AI prompts for each section of every page type.',
+      subtitleClass:'field-hint'
+    })}
+
+    <div class="card" style="margin-bottom:20px;">
+      <div class="action-row" style="gap:16px;flex-wrap:wrap;align-items:center;">
+        <div class="field" style="flex:0 0 auto;margin:0;">
+          <label for="pm-pt-select" style="font-size:var(--fs-sm);font-weight:600;margin-bottom:4px;display:block;">Page type</label>
+          <select id="pm-pt-select" class="card-input" style="width:220px;" onchange="Router.go('promptManagement',{pageType:this.value})">
+            ${pageTypeOpts}
+          </select>
+        </div>
+        <div style="display:flex;gap:12px;margin-left:auto;">
+          ${Comp.Badge(configured + ' / ' + total + ' configured', configured === total)}
+        </div>
+      </div>
+    </div>
+
+    ${Comp.Table({
+      columns:[
+        {label:'Section',       width:'200px'},
+        {label:'Prompt preview'},
+        {label:'Last updated',  width:'160px'},
+        {label:'Updated by',    width:'140px'},
+        {label:'Action',        width:'120px'},
+        {label:'',              width:'48px'}
+      ],
+      rows,
+      emptyText:'No sections defined for this page type.'
+    })}
+  `);
+}
+
+// ---- EDITOR PAGE ----
+function pagePromptEditor(params){
+  const pageType   = params && params.pageType   ? params.pageType   : DATA.PM_PAGE_TYPES[0].id;
+  const sectionKey = params && params.sectionKey ? params.sectionKey : (DATA.PM_SECTIONS[pageType]||[])[0]?.id;
+  const tab        = (params && params.tab)      || 'config';
+  const cfg        = pmGetConfig(pageType, sectionKey);
+  const ptLabel    = pmPageLabel(pageType);
+  const secLabel   = pmSectionLabel(pageType, sectionKey);
+  const placeholders = DATA.PM_PLACEHOLDERS[pageType] || [];
+
+  const promptValue = cfg ? cfg.prompt : '';
+  const charCount   = promptValue.length;
+
+  const tabNav = `<div class="ops-tabs" role="tablist">
+    <button type="button" class="ops-tab ${tab==='config'?'is-active':''}" onclick="Router.go('promptEditor',{pageType:'${pageType}',sectionKey:'${sectionKey}',tab:'config'})">Prompt Configuration</button>
+    <button type="button" class="ops-tab ${tab==='log'?'is-active':''}" onclick="Router.go('promptEditor',{pageType:'${pageType}',sectionKey:'${sectionKey}',tab:'log'})">Activity Log</button>
+  </div>`;
+
+  // ---- STATUS SIDEBAR ----
+  const lastUpdated = cfg
+    ? `<p class="field-hint mt-0">Last updated <strong>${Comp._escHtml(cfg.updatedAt)}</strong> by <strong>${Comp._escHtml(cfg.updatedBy)}</strong></p>`
+    : `<p class="field-hint mt-0">No prompt configured yet for this section.</p>`;
+
+  const statusCard = Comp.Card({title:'Status', body:`
+    <div class="field-stack">
+      <div class="action-row action-row--between">
+        <span style="font-size:var(--fs-sm);font-weight:600;">Configuration</span>
+        ${cfg ? Comp.Badge('Configured', true) : Comp.Badge('Not configured', false)}
+      </div>
+      ${lastUpdated}
+      ${cfg ? `<div>
+        <p style="font-size:var(--fs-sm);font-weight:600;margin:0 0 2px;">Created</p>
+        <p class="field-hint mt-0">${Comp._escHtml(cfg.createdAt)}<br>by ${Comp._escHtml(cfg.createdBy)}</p>
+      </div>` : ''}
+    </div>
+  `});
+
+  // ---- TIPS SIDEBAR ----
+  const tipsCard = Comp.Card({title:'Tips', body:`
+    <div class="field-stack" style="gap:12px;">
+      <div style="display:flex;gap:10px;align-items:flex-start;">
+        <span style="flex-shrink:0;color:var(--accent-600);">${ICON.info}</span>
+        <p class="field-hint mt-0">Placeholders like {{countryName}} are replaced with real values at generation time — do not resolve them manually.</p>
+      </div>
+      <div style="display:flex;gap:10px;align-items:flex-start;">
+        <span style="flex-shrink:0;color:var(--accent-600);">${ICON.info}</span>
+        <p class="field-hint mt-0">Keep each section prompt focused. Avoid combining multiple sections in one prompt.</p>
+      </div>
+      <div style="display:flex;gap:10px;align-items:flex-start;">
+        <span style="flex-shrink:0;color:var(--accent-600);">${ICON.info}</span>
+        <p class="field-hint mt-0">Use {{language}} to support multilingual generation.</p>
+      </div>
+    </div>
+  `});
+
+  let body = '';
+
+  // ---- PROMPT CONFIGURATION TAB ----
+  if(tab === 'config'){
+    const placeholderChips = placeholders.map(ph =>
+      `<button type="button" class="badge badge-inactive" style="cursor:pointer;font-family:monospace;padding:4px 10px;"
+        onclick="Comp.pmInsertPlaceholder('pm-prompt','${Comp._escAttr(ph)}')">${Comp._escHtml(ph)}</button>`
+    ).join(' ');
+
+    const configCard = Comp.Card({title:'Prompt configuration', hint:'Write the AI instruction for this section. Use placeholders to inject dynamic values at generation time.', body:`
+      <div class="field-stack">
+        <div class="field-row">
+          <div class="field">
+            <label>Page type</label>
+            <input class="card-input" value="${Comp._escHtml(ptLabel)}" disabled>
+          </div>
+          <div class="field">
+            <label>Section</label>
+            <input class="card-input" value="${Comp._escHtml(secLabel)}" disabled>
+          </div>
+        </div>
+        <div class="field">
+          <label for="pm-prompt">Prompt text <span class="required">*</span></label>
+          <textarea id="pm-prompt" class="card-input" rows="10" maxlength="4000"
+            placeholder="Write the AI instruction for this section..."
+            oninput="var c=document.getElementById('pm-cc');if(c)c.textContent=this.value.length+' / 4000'">${Comp._escHtml(promptValue)}</textarea>
+          <span id="pm-cc" class="char-counter">${charCount} / 4000</span>
+        </div>
+        <div class="field">
+          <label>Available placeholders</label>
+          <p class="field-hint mt-0">Click to insert at cursor position.</p>
+          <div class="tags-box" style="gap:6px;flex-wrap:wrap;">${placeholderChips || '<span class="field-hint">No placeholders for this page type.</span>'}</div>
+        </div>
+      </div>
+      <div class="action-row action-row--divided mt-4">
+        ${Comp.Button('← Back', {onclick:`Router.go('promptManagement',{pageType:'${pageType}'})`})}
+        <div style="display:flex;gap:8px;">
+          ${cfg ? Comp.Button('Reset prompt', {onclick:`Comp.pmDeleteConfig('${pageType}','${sectionKey}')`, variant:'btn-ghost'}) : ''}
+          ${Comp.Button('Save prompt', {variant:'btn-primary', onclick:`Comp.pmSaveConfig('${pageType}','${sectionKey}')`})}
+        </div>
+      </div>
+    `});
+
+    body = `
+      <div style="display:flex;gap:20px;align-items:flex-start;">
+        <div style="flex:1;min-width:0;">${configCard}</div>
+        <div style="width:280px;flex-shrink:0;display:flex;flex-direction:column;gap:16px;">
+          ${statusCard}
+          ${tipsCard}
+        </div>
+      </div>`;
+  }
+
+  // ---- ACTIVITY LOG TAB ----
+  if(tab === 'log'){
+    const history = cfg && cfg.history ? cfg.history : [];
+
+    // Seed some demo history from existing config data
+    const demoLog = cfg ? [
+      {time: cfg.updatedAt, actor: cfg.updatedBy, action: 'Prompt updated', detail: 'Prompt text modified and saved.'},
+      {time: cfg.createdAt, actor: cfg.createdBy, action: 'Prompt created', detail: 'Initial prompt configuration created for this section.'}
+    ] : [];
+
+    const logRows = demoLog.length
+      ? demoLog.map(h => `
+        <tr>
+          <td class="cell-secondary">${Comp._escHtml(h.time)}</td>
+          <td class="cell-name">${Comp._escHtml(h.action)}</td>
+          <td class="cell-secondary">${Comp._escHtml(h.actor)}</td>
+          <td class="cell-secondary">${Comp._escHtml(h.detail)}</td>
+        </tr>`).join('')
+      : '';
+
+    const logCard = Comp.Card({title:'Activity log', hint:'All changes made to this prompt configuration.', body:
+      Comp.Table({
+        columns:[
+          {label:'Time',    width:'170px'},
+          {label:'Action',  width:'160px'},
+          {label:'By',      width:'150px'},
+          {label:'Detail'}
+        ],
+        rows: logRows,
+        emptyText:'No activity recorded yet. Configure a prompt to start tracking changes.'
+      })
+    });
+
+    body = `<div style="flex:1;min-width:0;">${logCard}</div>`;
+  }
+
+  return Comp.Shell(`
+    ${Comp.Breadcrumb([
+      {label:'Settings & Administration'},
+      {label:'Prompt Management', route:'promptManagement', params:{pageType}},
+      {label: ptLabel + ' — ' + secLabel}
+    ])}
+    ${Comp.PageHeader({
+      title: secLabel,
+      subtitle: ptLabel,
+      subtitleClass: 'field-hint'
+    })}
+    ${tabNav}
+    ${body}
+  `);
+}
+
+// ---- Prompt Management helpers ----
+Comp.pmSaveConfig = function(pageType, sectionKey){
+  const textarea = document.getElementById('pm-prompt');
+  if(!textarea){ Comp.showToast('Prompt editor not found.', 'danger'); return; }
+  const prompt = textarea.value.trim();
+  if(!prompt){ Comp.showToast('Prompt text cannot be empty.', 'danger'); return; }
+
+  // Resolve current user name from logged-in email
+  const currentUser = DATA.users.find(u => u.email === Comp.CURRENT_USER_EMAIL);
+  const actorName   = currentUser ? currentUser.name : (Comp.CURRENT_USER_EMAIL || 'Admin');
+
+  const existing = pmGetConfig(pageType, sectionKey);
+  const now = new Date().toLocaleString();
+  if(existing){
+    existing.prompt    = prompt;
+    existing.updatedAt = now;
+    existing.updatedBy = actorName;
+    Comp.showToast('Prompt updated successfully.', 'success');
+  } else {
+    DATA.promptConfigurations.push({
+      id: 'pc-' + String(Date.now()).slice(-6),
+      pageType, sectionKey, isActive:true,
+      prompt,
+      createdAt: now, updatedAt: now,
+      createdBy: actorName, updatedBy: actorName
+    });
+    Comp.showToast('Prompt configured successfully.', 'success');
+  }
+  Router.go('promptManagement', {pageType});
+};
+
+Comp.pmDeleteConfig = function(pageType, sectionKey){
+  const secLabel = pmSectionLabel(pageType, sectionKey);
+  Comp.openConfirm({
+    title: 'Reset prompt?',
+    desc: 'The prompt for "' + secLabel + '" will be deleted. This section will show as Not Configured.',
+    confirmLabel: 'Delete prompt',
+    danger: true,
+    onConfirm: () => {
+      const idx = DATA.promptConfigurations.findIndex(c => c.pageType === pageType && c.sectionKey === sectionKey);
+      if(idx >= 0) DATA.promptConfigurations.splice(idx, 1);
+      Comp.showToast('Prompt deleted.', 'danger');
+      Router.go('promptManagement', {pageType});
+    }
+  });
+};
+
+Comp.pmInsertPlaceholder = function(textareaId, placeholder){
+  const el = document.getElementById(textareaId);
+  if(!el) return;
+  const start = el.selectionStart;
+  const end   = el.selectionEnd;
+  const val   = el.value;
+  el.value = val.slice(0, start) + placeholder + val.slice(end);
+  el.selectionStart = el.selectionEnd = start + placeholder.length;
+  el.focus();
+  const cc = document.getElementById('pm-cc');
+  if(cc) cc.textContent = el.value.length + ' / 4000';
+};
 </script>
 </body>
 </html>
