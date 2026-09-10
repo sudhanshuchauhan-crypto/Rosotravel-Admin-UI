@@ -2958,17 +2958,48 @@ const Comp = {
 
   confirmToggleCityStatus(id){
     const city = DATA.cities.find(c => c.id === id);
-    if (!city) return;
+    if(!city) return;
     const activating = city.status !== 'Active';
+
+    if(!activating){
+      Comp.openConfirm({
+        title: 'Deactivate city?',
+        desc: city.name + ' will be removed from public listing and automatically set to Noindex.',
+        confirmLabel: 'Deactivate',
+        danger: true,
+        onConfirm: () => {
+          city.status = 'Inactive';
+          city.indexability = 'Noindex';
+          Comp.showToast(city.name + ' deactivated and set to Noindex.', 'danger');
+          Comp.logRecord(city, 'City deactivated — Noindex applied automatically');
+          render();
+        }
+      });
+      return;
+    }
+
     Comp.openConfirm({
-      title: activating ? 'Activate city?' : 'Deactivate city?',
-      desc: activating ? `Are you sure you want to activate ${city.name}? Its pages will become publicly visible again.` : `Are you sure you want to deactivate ${city.name}? Its pages will be removed from public listing.`,
-      confirmLabel: activating ? 'Activate' : 'Deactivate',
-      danger: !activating,
+      title: 'Activate city?',
+      desc: city.name + ' will become publicly visible.',
+      warningHtml:
+        '<div class="action-row action-row--between mt-3" style="background:var(--surface-sunken);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 14px;">' +
+          '<div>' +
+            '<p style="font-size:var(--fs-sm);font-weight:600;margin:0 0 2px;">Make page indexable</p>' +
+            '<p class="field-hint mt-0">Allow search engines to index this page.</p>' +
+          '</div>' +
+          '<button type="button" class="btn-lock is-on" id="city-index-toggle" aria-pressed="true" onclick="Comp._toggleIndexConfirmBtn(this,\"city-index-toggle\")">' +
+            '<span class="toggle-track" aria-hidden="true"></span>' +
+            '<span class="lock-label">On</span>' +
+          '</button>' +
+        '</div>',
+      confirmLabel: 'Activate',
       onConfirm: () => {
-        city.status = activating ? 'Active' : 'Inactive';
-        Comp.showToast(`${city.name} ${activating ? 'activated' : 'deactivated'}.`, activating ? 'success' : 'danger');
-        Comp.logRecord(city, activating ? 'City activated' : 'City deactivated');
+        const toggleBtn = document.getElementById('city-index-toggle');
+        const makeIndexable = !toggleBtn || toggleBtn.getAttribute('aria-pressed') === 'true';
+        city.status = 'Active';
+        city.indexability = makeIndexable ? 'Indexable' : 'Noindex';
+        Comp.showToast(city.name + ' activated — ' + city.indexability + '.', 'success');
+        Comp.logRecord(city, 'City activated — indexability: ' + city.indexability);
         render();
       }
     });
@@ -5787,6 +5818,25 @@ const Comp = {
 
   // ---- Country listing filter drawer ----
   _countryFilters: {status:'', continent:'', tier:'', indexability:'', gsc:''},
+  // ---- Cascading filter helper ----
+  _cascadeFilter(containerSel, parentSel, childSel, getChildOptions){
+    const container = document.querySelector(containerSel);
+    if(!container) return;
+    const parentEl = container.querySelector(parentSel);
+    const childEl  = container.querySelector(childSel);
+    if(!parentEl || !childEl) return;
+    parentEl.addEventListener('change', () => {
+      const selectedParent = parentEl.value;
+      const opts = getChildOptions(selectedParent);
+      const curVal = childEl.value;
+      childEl.innerHTML = opts.map(o =>
+        `<option value="${o.val}" ${curVal===o.val?'selected':''}>${o.label}</option>`
+      ).join('');
+    });
+  },
+
+  // ---- Country listing filter ----
+  _countryFilters: {status:'', continent:'', tier:'', indexability:'', gsc:''},
   openCountryFilterDrawer(){
     const f = Comp._countryFilters;
     const continents = [...new Set(DATA.countries.map(c => c.continent || 'Other'))].sort();
@@ -5796,9 +5846,7 @@ const Comp = {
       '<div class="filter-drawer-group">' +
         '<label for="cf-status">Status</label>' +
         '<select id="cf-status" class="filter-select w-full">' +
-          opt('', f.status, 'All statuses') +
-          opt('Active', f.status) +
-          opt('Inactive', f.status) +
+          opt('', f.status, 'All statuses') + opt('Active', f.status) + opt('Inactive', f.status) +
         '</select>' +
       '</div>' +
       '<div class="filter-drawer-group">' +
@@ -5811,25 +5859,19 @@ const Comp = {
       '<div class="filter-drawer-group">' +
         '<label for="cf-tier">Tier level</label>' +
         '<select id="cf-tier" class="filter-select w-full">' +
-          opt('', f.tier, 'All tiers') +
-          tiers.map(t => opt(t, f.tier)).join('') +
+          opt('', f.tier, 'All tiers') + tiers.map(t => opt(t, f.tier)).join('') +
         '</select>' +
       '</div>' +
       '<div class="filter-drawer-group">' +
         '<label for="cf-indexability">Indexability</label>' +
         '<select id="cf-indexability" class="filter-select w-full">' +
-          opt('', f.indexability, 'All') +
-          opt('Indexable', f.indexability) +
-          opt('Noindex', f.indexability) +
+          opt('', f.indexability, 'All') + opt('Indexable', f.indexability) + opt('Noindex', f.indexability) +
         '</select>' +
       '</div>' +
       '<div class="filter-drawer-group">' +
         '<label for="cf-gsc">Google Index (GSC)</label>' +
         '<select id="cf-gsc" class="filter-select w-full">' +
-          opt('', f.gsc, 'All') +
-          opt('Indexed', f.gsc) +
-          opt('Not indexed', f.gsc) +
-          opt('—', f.gsc, 'Unknown / No data') +
+          opt('', f.gsc, 'All') + opt('Indexed', f.gsc) + opt('Not indexed', f.gsc) + opt('—', f.gsc, 'Unknown / No data') +
         '</select>' +
       '</div>';
     Comp.openFilterDrawer('Filters', html,
@@ -5857,19 +5899,18 @@ const Comp = {
     if(!tbl) return;
     let visible = 0;
     tbl.querySelectorAll('tr:not(.no-results-row)').forEach(tr => {
-      const text = tr.textContent.toLowerCase();
       const cells = tr.querySelectorAll('td');
+      const text  = tr.textContent.toLowerCase();
       const continentCell    = cells[5]  ? cells[5].textContent.trim()  : '';
       const tierCell         = cells[6]  ? cells[6].textContent.trim()  : '';
       const indexabilityCell = cells[7]  ? cells[7].textContent.trim()  : '';
       const gscCell          = cells[8]  ? cells[8].textContent.trim()  : '';
       const statusCell       = cells[10] ? cells[10].textContent.trim() : '';
-      const ok =
-        (!q || text.includes(q.toLowerCase())) &&
-        (!f.status       || statusCell.toLowerCase()       === f.status.toLowerCase()) &&
-        (!f.continent    || continentCell                  === f.continent) &&
-        (!f.tier         || tierCell                       === f.tier) &&
-        (!f.indexability || indexabilityCell               === f.indexability) &&
+      const ok = (!q || text.includes(q.toLowerCase())) &&
+        (!f.status       || statusCell.toLowerCase()  === f.status.toLowerCase()) &&
+        (!f.continent    || continentCell             === f.continent) &&
+        (!f.tier         || tierCell                  === f.tier) &&
+        (!f.indexability || indexabilityCell          === f.indexability) &&
         (!f.gsc          || gscCell.startsWith(f.gsc));
       tr.style.display = ok ? '' : 'none';
       if(ok) visible++;
@@ -5879,68 +5920,62 @@ const Comp = {
     const table = document.querySelector('#filterCountries')?.closest('.page')?.querySelector('table.data-table');
     if(!table) return;
     let empty = table.querySelector('.no-results-row');
-    if(visible === 0){
-      if(!empty){
-        const cols = table.querySelectorAll('thead th').length;
-        empty = document.createElement('tr');
-        empty.className = 'no-results-row';
-        empty.innerHTML = '<td colspan="' + cols + '" class="table-empty">No countries match your filters.</td>';
-        table.querySelector('tbody').appendChild(empty);
-      }
-    } else if(empty){ empty.remove(); }
+    if(visible === 0){ if(!empty){ const cols=table.querySelectorAll('thead th').length; empty=document.createElement('tr'); empty.className='no-results-row'; empty.innerHTML='<td colspan="'+cols+'" class="table-empty">No countries match your filters.</td>'; table.querySelector('tbody').appendChild(empty); } } else if(empty){ empty.remove(); }
   },
 
-  // ---- Region listing filter drawer ----
-  _regionFilters: {status:'', country:'', tier:'', indexability:'', gsc:''},
+  // ---- Region listing filter — Continent → Country cascading ----
+  _regionFilters: {status:'', continent:'', country:'', tier:'', indexability:'', gsc:''},
   openRegionFilterDrawer(){
     const f = Comp._regionFilters;
-    const countries = [...new Set(DATA.regions.map(r => r.country).filter(Boolean))].sort();
+    const continents = [...new Set(DATA.countries.map(c => c.continent || 'Other'))].sort();
+    const allCountries = [...new Set(DATA.regions.map(r => r.country).filter(Boolean))].sort();
+    const filteredCountries = f.continent
+      ? DATA.countries.filter(c => (c.continent || 'Other') === f.continent).map(c => c.name).filter(n => allCountries.includes(n)).sort()
+      : allCountries;
     const tiers = ['Tier 1','Tier 2','Tier 3','Tier 4','Unassigned'];
     const opt = (val, cur, label) => `<option value="${val}" ${cur===val?'selected':''}>${label||val||'All'}</option>`;
     const html =
       '<div class="filter-drawer-group">' +
         '<label for="rf-status">Status</label>' +
         '<select id="rf-status" class="filter-select w-full">' +
-          opt('', f.status, 'All statuses') +
-          opt('Active', f.status) +
-          opt('Inactive', f.status) +
+          opt('', f.status, 'All statuses') + opt('Active', f.status) + opt('Inactive', f.status) +
+        '</select>' +
+      '</div>' +
+      '<div class="filter-drawer-group">' +
+        '<label for="rf-continent">Continent</label>' +
+        '<select id="rf-continent" class="filter-select w-full" onchange="Comp._rfCascadeContinent(this.value)">' +
+          opt('', f.continent, 'All continents') + continents.map(c => opt(c, f.continent)).join('') +
         '</select>' +
       '</div>' +
       '<div class="filter-drawer-group">' +
         '<label for="rf-country">Country</label>' +
         '<select id="rf-country" class="filter-select w-full">' +
-          opt('', f.country, 'All countries') +
-          countries.map(c => opt(c, f.country)).join('') +
+          opt('', f.country, 'All countries') + filteredCountries.map(c => opt(c, f.country)).join('') +
         '</select>' +
       '</div>' +
       '<div class="filter-drawer-group">' +
         '<label for="rf-tier">Tier level</label>' +
         '<select id="rf-tier" class="filter-select w-full">' +
-          opt('', f.tier, 'All tiers') +
-          tiers.map(t => opt(t, f.tier)).join('') +
+          opt('', f.tier, 'All tiers') + tiers.map(t => opt(t, f.tier)).join('') +
         '</select>' +
       '</div>' +
       '<div class="filter-drawer-group">' +
         '<label for="rf-indexability">Indexability</label>' +
         '<select id="rf-indexability" class="filter-select w-full">' +
-          opt('', f.indexability, 'All') +
-          opt('Indexable', f.indexability) +
-          opt('Noindex', f.indexability) +
+          opt('', f.indexability, 'All') + opt('Indexable', f.indexability) + opt('Noindex', f.indexability) +
         '</select>' +
       '</div>' +
       '<div class="filter-drawer-group">' +
         '<label for="rf-gsc">Google Index (GSC)</label>' +
         '<select id="rf-gsc" class="filter-select w-full">' +
-          opt('', f.gsc, 'All') +
-          opt('Indexed', f.gsc) +
-          opt('Not indexed', f.gsc) +
-          opt('—', f.gsc, 'Unknown / No data') +
+          opt('', f.gsc, 'All') + opt('Indexed', f.gsc) + opt('Not indexed', f.gsc) + opt('—', f.gsc, 'Unknown / No data') +
         '</select>' +
       '</div>';
     Comp.openFilterDrawer('Filters', html,
       () => {
         Comp._regionFilters = {
           status:       document.getElementById('rf-status').value,
+          continent:    document.getElementById('rf-continent').value,
           country:      document.getElementById('rf-country').value,
           tier:         document.getElementById('rf-tier').value,
           indexability: document.getElementById('rf-indexability').value,
@@ -5949,11 +5984,20 @@ const Comp = {
         Comp._applyRegionFilters();
       },
       () => {
-        Comp._regionFilters = {status:'', country:'', tier:'', indexability:'', gsc:''};
+        Comp._regionFilters = {status:'', continent:'', country:'', tier:'', indexability:'', gsc:''};
         document.getElementById('filterRegions').value = '';
         Comp._applyRegionFilters();
       }
     );
+  },
+  _rfCascadeContinent(continent){
+    const countryEl = document.getElementById('rf-country');
+    if(!countryEl) return;
+    const allCountries = [...new Set(DATA.regions.map(r => r.country).filter(Boolean))].sort();
+    const filtered = continent
+      ? DATA.countries.filter(c => (c.continent||'Other') === continent).map(c => c.name).filter(n => allCountries.includes(n)).sort()
+      : allCountries;
+    countryEl.innerHTML = '<option value="">All countries</option>' + filtered.map(c => `<option value="${c}">${c}</option>`).join('');
   },
   _applyRegionFilters(){
     const f   = Comp._regionFilters;
@@ -5962,37 +6006,166 @@ const Comp = {
     if(!tbl) return;
     let visible = 0;
     tbl.querySelectorAll('tr:not(.no-results-row)').forEach(tr => {
-      const text = tr.textContent.toLowerCase();
       const cells = tr.querySelectorAll('td');
+      const text  = tr.textContent.toLowerCase();
       const countryCell      = cells[2]  ? cells[2].textContent.trim()  : '';
       const tierCell         = cells[5]  ? cells[5].textContent.trim()  : '';
       const indexabilityCell = cells[6]  ? cells[6].textContent.trim()  : '';
       const gscCell          = cells[7]  ? cells[7].textContent.trim()  : '';
       const statusCell       = cells[10] ? cells[10].textContent.trim() : '';
-      const ok =
-        (!q || text.includes(q.toLowerCase())) &&
-        (!f.status       || statusCell.toLowerCase()       === f.status.toLowerCase()) &&
-        (!f.country      || countryCell                    === f.country) &&
-        (!f.tier         || tierCell                       === f.tier) &&
-        (!f.indexability || indexabilityCell               === f.indexability) &&
+      // Continent — resolved from country name
+      const countryObj = DATA.countries.find(c => c.name === countryCell);
+      const continentVal = countryObj ? (countryObj.continent || 'Other') : '';
+      const ok = (!q || text.includes(q.toLowerCase())) &&
+        (!f.status       || statusCell.toLowerCase()  === f.status.toLowerCase()) &&
+        (!f.continent    || continentVal              === f.continent) &&
+        (!f.country      || countryCell               === f.country) &&
+        (!f.tier         || tierCell                  === f.tier) &&
+        (!f.indexability || indexabilityCell          === f.indexability) &&
         (!f.gsc          || gscCell.startsWith(f.gsc));
       tr.style.display = ok ? '' : 'none';
       if(ok) visible++;
     });
-    const activeCount = [f.status, f.country, f.tier, f.indexability, f.gsc].filter(Boolean).length;
+    const activeCount = [f.status, f.continent, f.country, f.tier, f.indexability, f.gsc].filter(Boolean).length;
     Comp._updateFilterBadge('filterRegions', activeCount);
     const table = document.querySelector('#filterRegions')?.closest('.page')?.querySelector('table.data-table');
     if(!table) return;
     let empty = table.querySelector('.no-results-row');
-    if(visible === 0){
-      if(!empty){
-        const cols = table.querySelectorAll('thead th').length;
-        empty = document.createElement('tr');
-        empty.className = 'no-results-row';
-        empty.innerHTML = '<td colspan="' + cols + '" class="table-empty">No regions match your filters.</td>';
-        table.querySelector('tbody').appendChild(empty);
+    if(visible === 0){ if(!empty){ const cols=table.querySelectorAll('thead th').length; empty=document.createElement('tr'); empty.className='no-results-row'; empty.innerHTML='<td colspan="'+cols+'" class="table-empty">No regions match your filters.</td>'; table.querySelector('tbody').appendChild(empty); } } else if(empty){ empty.remove(); }
+  },
+
+  // ---- City listing filter — Continent → Country → Region cascading ----
+  _cityFilters: {status:'', continent:'', country:'', region:'', tier:'', indexability:'', gsc:''},
+  openCityFilterDrawer(){
+    const f = Comp._cityFilters;
+    const continents = [...new Set(DATA.countries.map(c => c.continent || 'Other'))].sort();
+    const allCountries = [...new Set(DATA.cities.map(c => c.country).filter(Boolean))].sort();
+    const filteredCountries = f.continent
+      ? DATA.countries.filter(c => (c.continent||'Other') === f.continent).map(c => c.name).filter(n => allCountries.includes(n)).sort()
+      : allCountries;
+    const allRegions = [...new Set(DATA.cities.map(c => c.region).filter(Boolean))].sort();
+    const filteredRegions = f.country
+      ? [...new Set(DATA.cities.filter(c => c.country === f.country).map(c => c.region).filter(Boolean))].sort()
+      : allRegions;
+    const tiers = ['Tier 1','Tier 2','Tier 3','Tier 4','Unassigned'];
+    const opt = (val, cur, label) => `<option value="${val}" ${cur===val?'selected':''}>${label||val||'All'}</option>`;
+    const html =
+      '<div class="filter-drawer-group">' +
+        '<label for="ctf-status">Status</label>' +
+        '<select id="ctf-status" class="filter-select w-full">' +
+          opt('', f.status, 'All statuses') + opt('Active', f.status) + opt('Inactive', f.status) +
+        '</select>' +
+      '</div>' +
+      '<div class="filter-drawer-group">' +
+        '<label for="ctf-continent">Continent</label>' +
+        '<select id="ctf-continent" class="filter-select w-full" onchange="Comp._ctfCascadeContinent(this.value)">' +
+          opt('', f.continent, 'All continents') + continents.map(c => opt(c, f.continent)).join('') +
+        '</select>' +
+      '</div>' +
+      '<div class="filter-drawer-group">' +
+        '<label for="ctf-country">Country</label>' +
+        '<select id="ctf-country" class="filter-select w-full" onchange="Comp._ctfCascadeCountry(this.value)">' +
+          opt('', f.country, 'All countries') + filteredCountries.map(c => opt(c, f.country)).join('') +
+        '</select>' +
+      '</div>' +
+      '<div class="filter-drawer-group">' +
+        '<label for="ctf-region">Region</label>' +
+        '<select id="ctf-region" class="filter-select w-full">' +
+          opt('', f.region, 'All regions') + filteredRegions.map(r => opt(r, f.region)).join('') +
+        '</select>' +
+      '</div>' +
+      '<div class="filter-drawer-group">' +
+        '<label for="ctf-tier">Tier level</label>' +
+        '<select id="ctf-tier" class="filter-select w-full">' +
+          opt('', f.tier, 'All tiers') + tiers.map(t => opt(t, f.tier)).join('') +
+        '</select>' +
+      '</div>' +
+      '<div class="filter-drawer-group">' +
+        '<label for="ctf-indexability">Indexability</label>' +
+        '<select id="ctf-indexability" class="filter-select w-full">' +
+          opt('', f.indexability, 'All') + opt('Indexable', f.indexability) + opt('Noindex', f.indexability) +
+        '</select>' +
+      '</div>' +
+      '<div class="filter-drawer-group">' +
+        '<label for="ctf-gsc">Google Index (GSC)</label>' +
+        '<select id="ctf-gsc" class="filter-select w-full">' +
+          opt('', f.gsc, 'All') + opt('Indexed', f.gsc) + opt('Not indexed', f.gsc) + opt('—', f.gsc, 'Unknown / No data') +
+        '</select>' +
+      '</div>';
+    Comp.openFilterDrawer('Filters', html,
+      () => {
+        Comp._cityFilters = {
+          status:       document.getElementById('ctf-status').value,
+          continent:    document.getElementById('ctf-continent').value,
+          country:      document.getElementById('ctf-country').value,
+          region:       document.getElementById('ctf-region').value,
+          tier:         document.getElementById('ctf-tier').value,
+          indexability: document.getElementById('ctf-indexability').value,
+          gsc:          document.getElementById('ctf-gsc').value
+        };
+        Comp._applyCityFilters();
+      },
+      () => {
+        Comp._cityFilters = {status:'', continent:'', country:'', region:'', tier:'', indexability:'', gsc:''};
+        document.getElementById('filterCities').value = '';
+        Comp._applyCityFilters();
       }
-    } else if(empty){ empty.remove(); }
+    );
+  },
+  _ctfCascadeContinent(continent){
+    const countryEl = document.getElementById('ctf-country');
+    const regionEl  = document.getElementById('ctf-region');
+    if(!countryEl) return;
+    const allCountries = [...new Set(DATA.cities.map(c => c.country).filter(Boolean))].sort();
+    const filtered = continent
+      ? DATA.countries.filter(c => (c.continent||'Other') === continent).map(c => c.name).filter(n => allCountries.includes(n)).sort()
+      : allCountries;
+    countryEl.value = '';
+    countryEl.innerHTML = '<option value="">All countries</option>' + filtered.map(c => `<option value="${c}">${c}</option>`).join('');
+    if(regionEl){ regionEl.value=''; regionEl.innerHTML='<option value="">All regions</option>' + [...new Set(DATA.cities.map(c => c.region).filter(Boolean))].sort().map(r => `<option value="${r}">${r}</option>`).join(''); }
+  },
+  _ctfCascadeCountry(country){
+    const regionEl = document.getElementById('ctf-region');
+    if(!regionEl) return;
+    const filtered = country
+      ? [...new Set(DATA.cities.filter(c => c.country === country).map(c => c.region).filter(Boolean))].sort()
+      : [...new Set(DATA.cities.map(c => c.region).filter(Boolean))].sort();
+    regionEl.value = '';
+    regionEl.innerHTML = '<option value="">All regions</option>' + filtered.map(r => `<option value="${r}">${r}</option>`).join('');
+  },
+  _applyCityFilters(){
+    const f   = Comp._cityFilters;
+    const q   = (document.getElementById('filterCities') || {}).value || '';
+    const tbl = document.querySelector('#filterCities')?.closest('.page')?.querySelector('table.data-table tbody');
+    if(!tbl) return;
+    let visible = 0;
+    tbl.querySelectorAll('tr:not(.no-results-row)').forEach(tr => {
+      const cells = tr.querySelectorAll('td');
+      const text  = tr.textContent.toLowerCase();
+      const countryCell      = cells[2]  ? cells[2].textContent.trim()  : '';
+      const regionCell       = cells[3]  ? cells[3].textContent.trim()  : '';
+      const continentCell    = cells[4]  ? cells[4].textContent.trim()  : '';
+      const tierCell         = cells[6]  ? cells[6].textContent.trim()  : '';
+      const indexabilityCell = cells[7]  ? cells[7].textContent.trim()  : '';
+      const gscCell          = cells[8]  ? cells[8].textContent.trim()  : '';
+      const statusCell       = cells[10] ? cells[10].textContent.trim() : '';
+      const ok = (!q || text.includes(q.toLowerCase())) &&
+        (!f.status       || statusCell.toLowerCase()  === f.status.toLowerCase()) &&
+        (!f.continent    || continentCell             === f.continent) &&
+        (!f.country      || countryCell               === f.country) &&
+        (!f.region       || regionCell                === f.region) &&
+        (!f.tier         || tierCell                  === f.tier) &&
+        (!f.indexability || indexabilityCell          === f.indexability) &&
+        (!f.gsc          || gscCell.startsWith(f.gsc));
+      tr.style.display = ok ? '' : 'none';
+      if(ok) visible++;
+    });
+    const activeCount = [f.status, f.continent, f.country, f.region, f.tier, f.indexability, f.gsc].filter(Boolean).length;
+    Comp._updateFilterBadge('filterCities', activeCount);
+    const table = document.querySelector('#filterCities')?.closest('.page')?.querySelector('table.data-table');
+    if(!table) return;
+    let empty = table.querySelector('.no-results-row');
+    if(visible === 0){ if(!empty){ const cols=table.querySelectorAll('thead th').length; empty=document.createElement('tr'); empty.className='no-results-row'; empty.innerHTML='<td colspan="'+cols+'" class="table-empty">No cities match your filters.</td>'; table.querySelector('tbody').appendChild(empty); } } else if(empty){ empty.remove(); }
   },
   _updateFilterBadge(filterId, count){
     const input = document.getElementById(filterId);
@@ -6369,7 +6542,7 @@ const Comp = {
     const card = btn.closest('.card');
     const sectionTitle = card.getAttribute('aria-label') || card.querySelector('.card-title')?.textContent || 'Section';
     const route = Router.route;
-    const isCountryOrRegion = route === 'countryDetails' || route === 'regionDetails';
+    const isCountryOrRegion = route === 'countryDetails' || route === 'regionDetails' || route === 'cityDetails';
 
     // Already locked — skip modal, just save
     if(card.classList.contains('is-locked')){
@@ -6411,7 +6584,7 @@ const Comp = {
     Comp._saveChangesSectionTitle = sectionTitle;
     Comp._saveChangesManualApproval = true;
 
-    const idPrefix = Router.route === 'countryDetails' ? 'country' : 'region';
+    const idPrefix = Router.route === 'countryDetails' ? 'country' : Router.route === 'regionDetails' ? 'region' : 'city';
     const langEl = document.getElementById(idPrefix + '-lang');
     const currentLang = langEl ? langEl.value : 'English';
     Comp._saveChangesCurrentLang = currentLang;
@@ -6537,15 +6710,31 @@ const Comp = {
 
     // --- Dynamic fields from card ---
     const fieldEls  = [...card.querySelectorAll('.card-input[data-field-label]')];
-    const fieldRows = fieldEls.length
-      ? fieldEls.map(el => {
-          const label = el.getAttribute('data-field-label') || el.id || 'Field';
-          return '<label class="opt-check">' +
-            '<input type="checkbox" class="rl-field-check" value="' + Comp._escAttr(label) + '" checked>' +
-            '<span>' + Comp._escHtml(label) + '</span>' +
-          '</label>';
-        }).join('')
-      : '<p class="field-hint" style="margin:4px 0;">All content in this section will be regenerated.</p>';
+
+    // Group FAQ Question+Answer pairs into single FAQ N items
+    let fieldRows;
+    const isFaqCard = card.querySelector('.repeat-item') && fieldEls.some(el => el.getAttribute('data-field-label') === 'Question');
+    if(isFaqCard){
+      const faqItems = [...card.querySelectorAll('.repeat-item')];
+      fieldRows = faqItems.length
+        ? faqItems.map((item, i) =>
+            '<label class="opt-check">' +
+              '<input type="checkbox" class="rl-field-check" value="FAQ ' + (i+1) + '" checked>' +
+              '<span>FAQ ' + (i+1) + '</span>' +
+            '</label>'
+          ).join('')
+        : '<p class="field-hint" style="margin:4px 0;">All FAQ items will be regenerated.</p>';
+    } else {
+      fieldRows = fieldEls.length
+        ? fieldEls.map(el => {
+            const label = el.getAttribute('data-field-label') || el.id || 'Field';
+            return '<label class="opt-check">' +
+              '<input type="checkbox" class="rl-field-check" value="' + Comp._escAttr(label) + '" checked>' +
+              '<span>' + Comp._escHtml(label) + '</span>' +
+            '</label>';
+          }).join('')
+        : '<p class="field-hint" style="margin:4px 0;">All content in this section will be regenerated.</p>';
+    }
 
     // --- Languages ---
     const allLangs = [
@@ -6657,7 +6846,7 @@ const Comp = {
   _openRegenLangModalMulti(){
     Comp._regenManualApproval = true;
 
-    const idPrefix = Router.route === 'countryDetails' ? 'country' : 'region';
+    const idPrefix = Router.route === 'countryDetails' ? 'country' : Router.route === 'regionDetails' ? 'region' : 'city';
     const langEl   = document.getElementById(idPrefix + '-lang');
     const currentLang = langEl ? langEl.value : 'English';
     const count = (Comp._regenAllCards || []).length;
@@ -7066,13 +7255,27 @@ const Comp = {
       const label  = c.getAttribute('aria-label') || id;
       const locked = c.classList.contains('is-locked');
       const fieldEls = [...c.querySelectorAll('.card-input[data-field-label]')];
-      const subItems = fieldEls.map(el => {
-        const fl = el.getAttribute('data-field-label') || el.id || 'Field';
-        return '<label class="opt-check" style="padding:4px 0 4px 24px;">' +
-          '<input type="checkbox" class="dest-regen-subfield" data-section="' + Comp._escAttr(id) + '" value="' + Comp._escAttr(fl) + '"' + (locked ? ' disabled' : ' checked') + ' onchange="Comp._bulkRegenToggleSubfield(this)">' +
-          '<span style="font-size:var(--fs-sm);color:var(--text-secondary);">' + Comp._escHtml(fl) + '</span>' +
-        '</label>';
-      }).join('');
+
+      // Group FAQ Question+Answer pairs into FAQ N items
+      const isFaqCard = c.querySelector('.repeat-item') && fieldEls.some(el => el.getAttribute('data-field-label') === 'Question');
+      let subItems;
+      if(isFaqCard){
+        const faqItems = [...c.querySelectorAll('.repeat-item')];
+        subItems = faqItems.map((item, i) =>
+          '<label class="opt-check" style="padding:4px 0 4px 24px;">' +
+            '<input type="checkbox" class="dest-regen-subfield" data-section="' + Comp._escAttr(id) + '" value="FAQ ' + (i+1) + '"' + (locked ? ' disabled' : ' checked') + ' onchange="Comp._bulkRegenToggleSubfield(this)">' +
+            '<span style="font-size:var(--fs-sm);color:var(--text-secondary);">FAQ ' + (i+1) + '</span>' +
+          '</label>'
+        ).join('');
+      } else {
+        subItems = fieldEls.map(el => {
+          const fl = el.getAttribute('data-field-label') || el.id || 'Field';
+          return '<label class="opt-check" style="padding:4px 0 4px 24px;">' +
+            '<input type="checkbox" class="dest-regen-subfield" data-section="' + Comp._escAttr(id) + '" value="' + Comp._escAttr(fl) + '"' + (locked ? ' disabled' : ' checked') + ' onchange="Comp._bulkRegenToggleSubfield(this)">' +
+            '<span style="font-size:var(--fs-sm);color:var(--text-secondary);">' + Comp._escHtml(fl) + '</span>' +
+          '</label>';
+        }).join('');
+      }
       return '<label class="opt-check" style="font-weight:600;' + (locked ? 'opacity:0.6;' : '') + '">' +
         '<input type="checkbox" class="dest-regen-section" value="' + Comp._escAttr(id) + '"' +
           (locked ? ' disabled' : ' checked') + ' onchange="Comp._destRegenToggleSection(this)">' +
@@ -7188,8 +7391,62 @@ const Comp = {
   }
 };
 
+// ---- Manual Overrides tab — shared renderer ----
+Comp.renderOverridesTab = function(entity, sections){
+  const LANGS     = ['EN','DE','FR','IT','ES','PL','NL'];
+  const LANG_FULL = {EN:'English',DE:'German',FR:'French',IT:'Italian',ES:'Spanish',PL:'Polish',NL:'Dutch'};
+  const locks     = entity.sectionLocks || {};
+
+  const SECTION_LABELS = {
+    'seo':'SEO Data','info':'Country Information','faq':'FAQ','highlights':'Highlights',
+    'facts':'Facts & Curiosities','about':'About Rosotravel','whyvisit':'What makes this place special',
+    'region-seo':'SEO Data','region-info':'Region Information','region-faq':'FAQ',
+    'region-highlights':'Highlights','region-facts':'Facts & Curiosities',
+    'region-about':'About Rosotravel','region-whyvisit':'What makes this place special',
+    'city-seo':'SEO Data','city-info':'City Information','city-faq':'FAQ',
+    'city-localtips':'Local Tips','city-about':'About Rosotravel'
+  };
+
+  const headerRow = '<thead><tr>' +
+    '<th style="font-size:var(--fs-sm);font-weight:600;padding:10px 16px;text-align:left;border-bottom:1px solid var(--border);min-width:180px;">Section</th>' +
+    LANGS.map(l =>
+      '<th style="font-size:var(--fs-sm);font-weight:600;padding:10px 12px;text-align:center;border-bottom:1px solid var(--border);min-width:80px;">' + l + '</th>'
+    ).join('') +
+  '</tr></thead>';
+
+  const bodyRows = sections.map(s => {
+    const sLocks = locks[s] || {};
+    const sLabel = SECTION_LABELS[s] || s;
+    const cells = LANGS.map(l => {
+      const isLocked = !!sLocks[l];
+      return '<td style="text-align:center;padding:10px 12px;border-bottom:1px solid var(--border-subtle, var(--border));">' +
+        (isLocked
+          ? '<span class="badge badge-inactive" style="gap:5px;">' + ICON.lock + ' Locked</span>'
+          : '<span class="field-hint" style="font-size:var(--fs-xs);">—</span>') +
+      '</td>';
+    }).join('');
+    return '<tr><td style="font-size:var(--fs-sm);font-weight:500;padding:10px 16px;border-bottom:1px solid var(--border-subtle, var(--border));">' +
+      Comp._escHtml(sLabel) +
+    '</td>' + cells + '</tr>';
+  }).join('');
+
+  const anyLocked = sections.some(s => LANGS.some(l => !!(locks[s]||{})[l]));
+
+  return Comp.Card({
+    title: 'Manual Overrides',
+    hint: 'Read-only view of which sections are locked from AI editing per language. Use the Lock button on each section to change.',
+    body:
+      (!anyLocked
+        ? '<p class="empty-state" style="padding:24px 0;">No sections are currently locked from AI editing.</p>'
+        : '<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;">' +
+            headerRow + '<tbody>' + bodyRows + '</tbody>' +
+          '</table></div>'
+      )
+  });
+};
+
 Comp.toggleIndexability = function(entityType, id){
-  const list = entityType === 'country' ? DATA.countries : DATA.regions;
+  const list = entityType === 'country' ? DATA.countries : entityType === 'region' ? DATA.regions : DATA.cities;
   const entity = list.find(x => x.id === id);
   if(!entity) return;
   const current = entity.indexability || 'Noindex';
@@ -7255,7 +7512,7 @@ Comp._getDestIssues = function(entity){
 };
 
 Comp.openDestIssues = function(entityType, id){
-  const list   = entityType === 'country' ? DATA.countries : DATA.regions;
+  const list   = entityType === 'country' ? DATA.countries : entityType === 'region' ? DATA.regions : DATA.cities;
   const entity = list.find(x => x.id === id);
   if(!entity) return;
   const issues = Comp._getDestIssues(entity);
@@ -7347,7 +7604,6 @@ document.addEventListener('click', (e) => {
     const label = labelEl ? labelEl.textContent.replace(/#\d+$/, '').trim() : 'Item';
     item.remove();
     Comp.showToast(`${label} removed.`, 'danger');
-    if (card) Comp._refreshCardGenBtn(card);
   }
   if (e.target.classList && e.target.classList.contains('add-item-btn')) {
     const btn = e.target;
@@ -7378,7 +7634,6 @@ document.addEventListener('click', (e) => {
     }
     stack.insertBefore(wrap.firstElementChild, btn);
     const card = btn.closest('.card[data-card-id]');
-    if (card) Comp._refreshCardGenBtn(card);
   }
 });
 
@@ -7798,14 +8053,38 @@ DATA.regions.forEach(r => initDestinationRawFields(r, 'Region'));
 // Indexability — default Noindex for all countries and regions
 DATA.countries.forEach(c => { if(!c.indexability) c.indexability = 'Noindex'; });
 DATA.regions.forEach(r => { if(!r.indexability) r.indexability = 'Noindex'; });
+DATA.cities.forEach(c => { if(!c.indexability) c.indexability = 'Noindex'; });
 
 // GSC status defaults
 DATA.countries.forEach(c => { if(!c.gscStatus) c.gscStatus = {status:'—', lastChecked:null}; });
 DATA.regions.forEach(r =>   { if(!r.gscStatus) r.gscStatus = {status:'—', lastChecked:null}; });
+DATA.cities.forEach(c =>   { if(!c.gscStatus) c.gscStatus = {status:'—', lastChecked:null}; });
 
 // Demo: mark some countries/regions as content outdated
 DATA.countries.forEach((c,i) => { if(!('contentOutdated' in c)) c.contentOutdated = i % 3 === 0; });
 DATA.regions.forEach((r,i)   => { if(!('contentOutdated' in r)) r.contentOutdated = i % 4 === 0; });
+DATA.cities.forEach((c,i)    => { if(!('contentOutdated' in c)) c.contentOutdated = i % 5 === 0; });
+
+// Section locks — per entity, per section, per language
+// Structure: { sectionId: { EN: true/false, DE: true/false, ... } }
+const LOCK_LANGS = ['EN','DE','FR','IT','ES','PL','NL'];
+function initSectionLocks(entity, sections, seedFn){
+  if(!entity.sectionLocks) entity.sectionLocks = {};
+  sections.forEach((s,si) => {
+    if(!entity.sectionLocks[s]){
+      const locks = {};
+      LOCK_LANGS.forEach((l,li) => { locks[l] = seedFn ? seedFn(si, li) : false; });
+      entity.sectionLocks[s] = locks;
+    }
+  });
+}
+const COUNTRY_SECTIONS = ['seo','info','faq','highlights','facts','about','whyvisit'];
+const REGION_SECTIONS  = ['region-seo','region-info','region-faq','region-highlights','region-facts','region-about','region-whyvisit'];
+const CITY_SECTIONS    = ['city-seo','city-info','city-faq','city-localtips','city-about'];
+
+DATA.countries.forEach((c,ci) => initSectionLocks(c, COUNTRY_SECTIONS, (si,li) => (ci===0 && si===0 && li===0) || (ci===0 && si===2 && li<=1)));
+DATA.regions.forEach((r,ri)   => initSectionLocks(r, REGION_SECTIONS,  (si,li) => (ri===0 && si===0 && li===0)));
+DATA.cities.forEach((c,ci)    => initSectionLocks(c, CITY_SECTIONS,    (si,li) => (ci===0 && si===0 && li===0)));
 
 // Continent map — logic-based on country name
 (function(){
@@ -7850,6 +8129,12 @@ DATA.regions.forEach((r,i)   => { if(!('contentOutdated' in r)) r.contentOutdate
     if(!r.tierLevel){
       const count = DATA.products.filter(p => p.region === r.name && p.status === 'Active' && !p.blocked).length;
       r.tierLevel = calcTier(count);
+    }
+  });
+  DATA.cities.forEach(c => {
+    if(!c.tierLevel){
+      const count = DATA.products.filter(p => p.city === c.name && p.status === 'Active' && !p.blocked).length;
+      c.tierLevel = calcTier(count);
     }
   });
 })();
@@ -8298,19 +8583,6 @@ Comp.OptimizationPanel = function(opts){
       <p class="opt-sub">Schema (structured data)</p>
       <p class="meta-box-hint mb-3h">Add one or more JSON-LD schema nodes injected into the page &lt;head&gt;. Pick a type and generate, or edit the JSON directly.</p>
       <div class="field-stack">
-        <div class="field-row">
-          <div class="field" style="${opts.hideHreflang ? 'flex:1;' : ''}">
-            <label for="${p}-schematype">Schema type</label>
-            <select id="${p}-schematype" class="card-input" onchange="Comp.optRegenSchema('${p}')">
-              ${types.map(t => `<option ${t===selType?'selected':''}>${t}</option>`).join('')}
-            </select>
-          </div>
-          ${opts.hideHreflang ? '' : `
-          <div class="field">
-            <label for="${p}-hreflang">hreflang</label>
-            <input id="${p}-hreflang" class="card-input" value="${escAttr(opts.hreflang || 'en-US')}">
-          </div>`}
-        </div>
         <div class="field">
           <label for="${p}-schema">Page schema (JSON-LD)</label>
           <textarea id="${p}-schema" class="card-input schema-area">${schemaText}</textarea>
@@ -8323,15 +8595,6 @@ Comp.OptimizationPanel = function(opts){
           <div id="${p}-schemalist" class="mt-2h"></div>
         </div>
       </div>
-
-      ${showReadTime ? `
-      <p class="opt-sub">Article settings</p>
-      <div class="field-row">
-        <div class="field"><label for="${p}-readtime">Read Time (minutes)</label><input id="${p}-readtime" class="card-input" type="number" min="1" value="${opts.readTime || 8}"></div>
-        <div class="field"><label for="${p}-credits">Featured Image Credits</label><input id="${p}-credits" class="card-input" value="${escAttr(opts.imageCredits||'')}" placeholder="e.g. Photo by Unsplash / John Doe"></div>
-      </div>` : `
-      <p class="opt-sub">Featured Image Credits</p>
-      <div class="field"><label for="${p}-credits">Image Credits</label><input id="${p}-credits" class="card-input" value="${escAttr(opts.imageCredits||'')}" placeholder="e.g. Photo by Unsplash / John Doe"></div>`}
 
       ${showCta ? `
       <p class="opt-sub">Call-to-Action (CTA)</p>
@@ -8506,7 +8769,7 @@ function pageCountryListing(){
     const gscSub = gsc.lastChecked ? `<div style="font-size:11px;color:var(--text-muted);margin-top:2px;">Checked ${gsc.lastChecked}</div>` : '';
     const issues = Comp._getDestIssues(c);
     const issueCell = issues.length
-      ? `<td onclick="event.stopPropagation()"><button type="button" class="btn-sm-link" style="color:var(--warning-700);font-weight:600;" onclick="Comp.openDestIssues('country','${c.id}')">${issues.length} issue${issues.length===1?'':'s'}</button></td>`
+      ? `<td><span class="badge badge-warning">${issues.length} issue${issues.length===1?'':'s'}</span></td>`
       : '<td><span class="field-hint">—</span></td>';
     return `<tr class="row-clickable" tabindex="0" role="button" aria-label="View ${c.name} details"
         onclick="Router.go('countryDetails',{id:'${c.id}'})"
@@ -8601,9 +8864,10 @@ function pageCountryDetails(params){
     {id:'optimization', label:'Optimization'},
     {id:'relations',    label:'Relations'},
     {id:'keywords',     label:'Keyword Assign'},
+    {id:'overrides',    label:'Manual Overrides'},
     {id:'history',      label:'History / Audit'}
   ];
-  if (tab === 'assets' || tab === 'overrides') return pageCountryDetails(Object.assign({}, params, {tab:'seo'}));
+  if (tab === 'assets') return pageCountryDetails(Object.assign({}, params, {tab:'seo'}));
 
   let tabBody = '';
   if (tab === 'seo') {
@@ -8733,13 +8997,7 @@ function pageCountryDetails(params){
   } else if (tab === 'keywords') {
     tabBody = Comp.KeywordAssignTab(country.name, 'Country');
   } else if (tab === 'overrides') {
-    tabBody = `
-    ${Comp.Card({title:`Manual Overrides`, hint:`Sections locked from AI regeneration in this session are marked with ${ICON.lock} in SEO Content. Locking/unlocking requires a reason and is logged to History/Audit.`, body:`
-      ${Comp._infoTable([
-        ['Lockable sections', 'SEO data, Country information, FAQ, What makes this destination, About'],
-        ['Currency', 'Always derived — not lockable/editable'],
-        ['Manual edits this session', 'See ' + ICON.lock + ' icons in SEO Content tab']
-      ])}`})}`;
+    tabBody = Comp.renderOverridesTab(country, ['seo','info','faq','highlights','facts','about','whyvisit']);
   } else if (tab === 'history') {
     tabBody = Comp.Card({title:'History / Audit', body:`
       ${country.history && country.history.length ? Comp.Timeline(country.history) : `<p class="empty-state">No activity recorded yet for this country.</p>`}`});
@@ -8752,7 +9010,7 @@ function pageCountryDetails(params){
         ${Comp.Button((country.indexability||'Noindex')==='Indexable' ? '● Indexable' : '○ Noindex', {variant:(country.indexability||'Noindex')==='Indexable' ? 'btn-primary' : '', onclick:`Comp.toggleIndexability('country','${country.id}')`})}
         ${Comp.Button(country.status==='Active' ? 'Deactivate' : 'Activate', {variant:'btn-amber', onclick:`Comp.confirmToggleCountryStatus('${country.id}')`})}`, level:'h2'})}
     ${Comp.pendingApprovalsBanner()}
-    ${(()=>{ const _iss=Comp._getDestIssues(country); return _iss.length ? `<div class="status-banner is-warning" style="cursor:pointer;" onclick="Comp.openDestIssues('country','${country.id}')">${ICON.warning}<span><strong>${_iss.length} issue${_iss.length===1?'':'s'} found</strong> — click to review</span></div>` : ''; })()}
+    ${(()=>{ const _iss=Comp._getDestIssues(country); return _iss.length ? `<div class="status-banner is-danger"><span>${ICON.warning}</span><span>${_iss.length} issue${_iss.length===1?'':'s'}. <button type="button" class="btn-sm-link" onclick="Comp.openDestIssues('country','${country.id}')">View issues →</button></span></div>` : ''; })()}
     ${Comp.contentLanguageBar('country')}
     <div class="ops-tabs" role="tablist">
       ${tabs.map(t => `<button type="button" class="ops-tab ${tab===t.id?'is-active':''}" onclick="Router.go('countryDetails',{id:'${country.id}', tab:'${t.id}'})">${t.label}</button>`).join('')}
@@ -8795,7 +9053,7 @@ function pageRegionListing(params){
     const gscSub = gsc.lastChecked ? `<div style="font-size:11px;color:var(--text-muted);margin-top:2px;">Checked ${gsc.lastChecked}</div>` : '';
     const issues = Comp._getDestIssues(r);
     const issueCell = issues.length
-      ? `<td onclick="event.stopPropagation()"><button type="button" class="btn-sm-link" style="color:var(--warning-700);font-weight:600;" onclick="Comp.openDestIssues('region','${r.id}')">${issues.length} issue${issues.length===1?'':'s'}</button></td>`
+      ? `<td><span class="badge badge-warning">${issues.length} issue${issues.length===1?'':'s'}</span></td>`
       : '<td><span class="field-hint">—</span></td>';
     return `<tr class="row-clickable" tabindex="0" role="button" aria-label="View ${r.name} details"
         onclick="Router.go('regionDetails',{id:'${r.id}'})"
@@ -8899,9 +9157,10 @@ function pageRegionDetails(params){
     {id:'optimization', label:'Optimization'},
     {id:'relations',    label:'Relations'},
     {id:'keywords',     label:'Keyword Assign'},
+    {id:'overrides',    label:'Manual Overrides'},
     {id:'history',      label:'History / Audit'}
   ];
-  if (tab === 'assets' || tab === 'overrides') return pageRegionDetails(Object.assign({}, params, {tab:'seo'}));
+  if (tab === 'assets') return pageRegionDetails(Object.assign({}, params, {tab:'seo'}));
 
   let tabBody = '';
   if (tab === 'seo') {
@@ -9008,21 +9267,11 @@ function pageRegionDetails(params){
         ? {label:'Country (parent)', text:parentCountry.name, route:'countryDetails', filterParams:{id:parentCountry.id}, returnLabel:region.name}
         : {label:'Country (parent)', text:'No parent country assigned', disabled:true},
       {label:'Products', count:productCount, breakdown:productBreakdown, route:'productListing', filterParams:{filterType:'region', filterValue:region.name, filterLabel:'Region'}}
-    ])}
-    ${Comp.Card({title:`Relationship graph (read-only)`, body:`
-      ${Comp._infoTable([
-        ['Parent relation (country)', parentCountry ? parentCountry.name : 'None assigned'],
-        ['Relationship hash', region.relationshipHash || '—']
-      ])}`})}`;
+    ])}`;
   } else if (tab === 'keywords') {
     tabBody = Comp.KeywordAssignTab(region.name, 'Region');
   } else if (tab === 'overrides') {
-    tabBody = `
-    ${Comp.Card({title:`Manual Overrides`, hint:`Sections locked from AI regeneration in this session are marked with ${ICON.lock} in SEO Content. Locking/unlocking requires a reason and is logged to History/Audit.`, body:`
-      ${Comp._infoTable([
-        ['Lockable sections', 'SEO data, Region information, FAQ'],
-        ['Manual edits this session', 'See ' + ICON.lock + ' icons in SEO Content tab']
-      ])}`})}`;
+    tabBody = Comp.renderOverridesTab(region, ['region-seo','region-info','region-faq','region-highlights','region-facts','region-about','region-whyvisit']);
   } else if (tab === 'history') {
     tabBody = Comp.Card({title:'History / Audit', body:`
       ${region.history && region.history.length ? Comp.Timeline(region.history) : `<p class="empty-state">No activity recorded yet for this region.</p>`}`});
@@ -9035,7 +9284,7 @@ function pageRegionDetails(params){
         ${Comp.Button((region.indexability||'Noindex')==='Indexable' ? '● Indexable' : '○ Noindex', {variant:(region.indexability||'Noindex')==='Indexable' ? 'btn-primary' : '', onclick:`Comp.toggleIndexability('region','${region.id}')`})}
         ${Comp.Button(region.status==='Active' ? 'Deactivate' : 'Activate', {variant:'btn-amber', onclick:`Comp.confirmToggleRegionStatus('${region.id}')`})}`, level:'h2'})}
     ${Comp.pendingApprovalsBanner()}
-    ${(()=>{ const _iss=Comp._getDestIssues(region); return _iss.length ? `<div class="status-banner is-warning" style="cursor:pointer;" onclick="Comp.openDestIssues('region','${region.id}')">${ICON.warning}<span><strong>${_iss.length} issue${_iss.length===1?'':'s'} found</strong> — click to review</span></div>` : ''; })()}
+    ${(()=>{ const _iss=Comp._getDestIssues(region); return _iss.length ? `<div class="status-banner is-danger"><span>${ICON.warning}</span><span>${_iss.length} issue${_iss.length===1?'':'s'}. <button type="button" class="btn-sm-link" onclick="Comp.openDestIssues('region','${region.id}')">View issues →</button></span></div>` : ''; })()}
     ${Comp.contentLanguageBar('region')}
     <div class="ops-tabs" role="tablist">
       ${tabs.map(t => `<button type="button" class="ops-tab ${tab===t.id?'is-active':''}" onclick="Router.go('regionDetails',{id:'${region.id}', tab:'${t.id}'})">${t.label}</button>`).join('')}
@@ -9061,41 +9310,79 @@ function pageRegionHistoryLog(params){
    PAGES — MASTER DATA / CITY
    ============================================================= */
 function pageCityListing(params){
-  const filterType = params && params.filterType;
+  const filterType  = params && params.filterType;
   const filterValue = params && params.filterValue;
   const filterLabel = params && params.filterLabel;
   const cityList = (filterType && filterValue) ? DATA.cities.filter(c => c[filterType] === filterValue) : DATA.cities;
+
   const rows = cityList.map(c => {
-    const publishedCount = DATA.products.filter(p => p.city === c.name && p.status === 'Active' && !p.blocked).length;
-    return `
-    <tr class="row-clickable" tabindex="0" role="button" aria-label="View ${c.name} details"
+    // Continent from parent country
+    const parentCountry = DATA.countries.find(co => co.name === c.country);
+    const continent = parentCountry ? (parentCountry.continent || '—') : '—';
+
+    // Tier
+    const tierBadge = Comp._tierBadge(c.tierLevel);
+
+    // Indexability
+    const idxState = c.indexability || 'Noindex';
+    const idxBadge = Comp.Badge(idxState, idxState === 'Indexable');
+
+    // GSC
+    const gsc = c.gscStatus || {status:'—', lastChecked:null};
+    const gscBadge = gsc.status === 'Indexed' ? Comp.Badge('Indexed', true)
+      : gsc.status === 'Not indexed' ? Comp.Badge('Not indexed', false)
+      : '<span class="field-hint">—</span>';
+    const gscSub = gsc.lastChecked ? `<div style="font-size:11px;color:var(--text-muted);margin-top:2px;">Checked ${gsc.lastChecked}</div>` : '';
+
+    // Issues
+    const issues = Comp._getDestIssues(c);
+    const issueCell = issues.length
+      ? `<td><span class="badge badge-warning">${issues.length} issue${issues.length===1?'':'s'}</span></td>`
+      : '<td><span class="field-hint">—</span></td>';
+
+    return `<tr class="row-clickable" tabindex="0" role="button" aria-label="View ${c.name} details"
         onclick="Router.go('cityDetails',{id:'${c.id}'})"
         onkeydown="if(event.key==='Enter'){Router.go('cityDetails',{id:'${c.id}'})}">
       ${Comp.BulkCheckboxTd('city', c.id)}
       <td class="cell-name">${c.name}${Comp.ListingPendingBadge('cityDetails',{id:c.id})}</td>
       <td class="cell-secondary">${c.country}</td>
       <td class="cell-secondary">${c.region}</td>
+      <td class="cell-secondary">${continent}</td>
       ${Comp._productCountCell('city', c.name)}
+      <td>${tierBadge}</td>
+      <td>${idxBadge}</td>
+      <td>${gscBadge}${gscSub}</td>
+      ${issueCell}
       <td>${Comp.Badge(c.status, c.status==='Active')}</td>
       <td>${Comp.RowMenu(c.name, [
         {label:'View details', handler:() => Router.go('cityDetails',{id:c.id})},
-        {label:'Edit', handler:() => Router.go('cityDetails',{id:c.id})},
         {label: c.status==='Active' ? 'Deactivate' : 'Activate', danger: c.status==='Active', handler:() => Comp.confirmToggleCityStatus(c.id)}
       ])}</td>
     </tr>`;
   }).join('');
+
   return Comp.Shell(`
-    ${Comp.PageHeader({title:`Cities`, actions:`
-${Comp.Button('+ Add city', {variant:'btn-primary', onclick:"Router.go('cityCreate')"})}`})}
-    ${DATA.cities.some(c => c.status === 'Inactive') ? `<div class="status-banner is-info"><span>${ICON.info}</span><span><strong>${DATA.cities.filter(c => c.status === 'Inactive').length} inactive ${DATA.cities.filter(c => c.status === 'Inactive').length === 1 ? 'city is' : 'cities are'}</strong> pending review — select and use bulk Activate to publish (recommended: ${Comp.BULK_MODULE_CONFIG.city.stagedActivationCap} per batch).</span></div>` : ''}
+    ${Comp.PageHeader({title:'Cities', actions:Comp.Button('+ Add city', {variant:'btn-primary', onclick:"Router.go('cityCreate')"})})}
     ${filterType ? Comp.FilterChip(filterLabel, filterValue, 'cityListing') : ''}
-    ${Comp.FilterBar('Search cities', 'filterCities')}
+    ${Comp.FilterBar('Search cities', 'filterCities', "Comp.openCityFilterDrawer()")}
     ${Comp.BulkActionBar('city')}
-    ${Comp.Table({columns:[{label:Comp.BulkCheckboxTh('city'),width:'40px'},{label:'City name',width:'220px'},{label:'Country',width:'180px'},{label:'Region',width:'160px'},{label:'Products',width:'130px'},{label:'Status',width:'140px'},{label:'Action',width:'70px'}], rows, emptyText:'No cities found.'})}
+    ${Comp.Table({columns:[
+      {label:Comp.BulkCheckboxTh('city'), width:'40px'},
+      {label:'City name',          width:'180px'},
+      {label:'Country',            width:'140px'},
+      {label:'Region',             width:'140px'},
+      {label:'Continent',          width:'120px'},
+      {label:'Products',           width:'120px'},
+      {label:'Tier Level',         width:'110px'},
+      {label:'Indexability',       width:'120px'},
+      {label:'Google Index (GSC)', width:'150px'},
+      {label:'Issues',             width:'100px'},
+      {label:'Status',             width:'90px'},
+      {label:'Action',             width:'70px'}
+    ], rows, emptyText:'No cities found.'})}
     ${Comp.Pagination('Showing ' + cityList.length + ' of ' + DATA.cities.length + ' cities')}
   `);
 }
-
 function pageCityCreate(){
   Comp.clearCreateAiTracking();
   return Comp.Shell(`
@@ -9168,9 +9455,10 @@ function pageCityDetails(params){
     {id:'optimization', label:'Optimization'},
     {id:'relations',    label:'Relations'},
     {id:'keywords',     label:'Keyword Assign'},
+    {id:'overrides',    label:'Manual Overrides'},
     {id:'history',      label:'History / Audit'}
   ];
-  if (tab === 'assets' || tab === 'overrides') return pageCityDetails(Object.assign({}, params, {tab:'seo'}));
+  if (tab === 'assets') return pageCityDetails(Object.assign({}, params, {tab:'seo'}));
 
   let tabBody = '';
   if (tab === 'seo') {
@@ -9220,7 +9508,7 @@ function pageCityDetails(params){
         ${Comp.Button('+ Add block-out date', {size:'btn-sm', onclick:`Comp.addCityBlockOut('${city.id}')`})}
       </div>`})}
 
-    ${Comp.AiCard({id:'city-attractions', title:'Attractions', titleExtra:Comp.AddAttractionButton('cityDetails', city.name), fieldsHtml:
+    ${Comp.Card({title:'Attractions', titleExtra:Comp.AddAttractionButton('cityDetails', city.name), body:
       Comp.AttractionsBlock('cityDetailAttractions', city.attractionIds, city.name)
     })}
 
@@ -9249,6 +9537,13 @@ function pageCityDetails(params){
         <label id="cityAboutMediaLbl">Media upload</label>
         <div class="upload-area" role="button" tabindex="0" aria-labelledby="cityAboutMediaLbl"><div class="up-title">Click to upload</div><div class="up-sub">or drag and drop</div><div class="up-hint">PNG, JPG, WEBP or MP4 (max. 1200×400px)</div></div>
         <p class="field-hint">You can upload multiple images</p>
+      </div>` +
+      `<div class="field" style="margin-top:8px;"><p class="card-title">Quick answers about Rosotravel in ${city.name}</p></div>` +
+      `<div class="field-stack" data-max-items="3">` +
+        Comp.FaqItem(1, '', '', true) +
+        Comp.FaqItem(2, '', '', true) +
+        Comp.FaqItem(3, '', '', true) +
+      `<button type="button" class="add-item-btn" data-item-type="faq">+ Add Another FAQ</button>
       </div>`
     })}`;
     } else if (tab === 'optimization') {
@@ -9277,22 +9572,11 @@ function pageCityDetails(params){
       {label:'Products', count: productCount, breakdown: productBreakdown, route:'productListing', filterParams:{filterType:'city', filterValue:city.name, filterLabel:'City'}},
       {label:'Attractions', count: (city.attractionIds || []).length, route:'attractionListing', filterParams:{filterType:'city', filterValue:city.name, filterLabel:'City'}}
     ])}
-    <div style="margin:-14px 0 16px;"><button type="button" class="btn-sm-link" onclick="Comp.goToAddProductFromCity('${city.name.replace(/'/g,"&#39;")}')">+ Add product here (pre-fills Country, Region &amp; City)</button></div>
-    ${Comp.Card({title:`Relationship graph (read-only)`, body:`
-      ${Comp._infoTable([
-        ['Parent relation (country)', city.country || 'None assigned'],
-        ['Parent relation (region)', city.region || 'None assigned'],
-        ['Relationship hash', city.relationshipHash || '—']
-      ])}`})}`;
+    <div style="margin:-14px 0 16px;"><button type="button" class="btn-sm-link" onclick="Comp.goToAddProductFromCity('${city.name.replace(/'/g,"&#39;")}')">+ Add product here (pre-fills Country, Region &amp; City)</button></div>`;
   } else if (tab === 'keywords') {
     tabBody = Comp.KeywordAssignTab(city.name, 'City');
   } else if (tab === 'overrides') {
-    tabBody = `
-    ${Comp.Card({title:`Manual Overrides`, hint:`Sections locked from AI regeneration in this session are marked with ${ICON.lock} in SEO Content. Locking/unlocking requires a reason and is logged to History/Audit.`, body:`
-      ${Comp._infoTable([
-        ['Lockable sections', 'SEO data, City information, Attractions, FAQ, Local Tips, About'],
-        ['Manual edits this session', 'See ' + ICON.lock + ' icons in SEO Content tab']
-      ])}`})}`;
+    tabBody = Comp.renderOverridesTab(city, ['city-seo','city-info','city-faq','city-localtips','city-about']);
   } else if (tab === 'history') {
     tabBody = Comp.Card({title:'History / Audit', body:`
       ${city.history && city.history.length ? Comp.Timeline(city.history) : `<p class="empty-state">No activity recorded yet for this city.</p>`}`});
@@ -9301,8 +9585,11 @@ function pageCityDetails(params){
   const body = `
     ${Comp.Breadcrumb([{label:'Cities', route:'cityListing'}, {label:city.name}])}
     ${Comp.PageHeader({title:`${city.name}`, actions:`
+        ${Comp.Button('\u21bb Regenerate all', {onclick:'Comp._openDestRegenModal()'})}
+        ${Comp.Button((city.indexability||'Noindex')==='Indexable' ? '● Indexable' : '○ Noindex', {variant:(city.indexability||'Noindex')==='Indexable' ? 'btn-primary' : '', onclick:`Comp.toggleIndexability('city','${city.id}')`})}
         ${Comp.Button(city.status==='Active' ? 'Deactivate' : 'Activate', {variant:'btn-amber', onclick:`Comp.confirmToggleCityStatus('${city.id}')`})}`, level:'h2'})}
     ${Comp.pendingApprovalsBanner()}
+    ${(()=>{ const _iss=Comp._getDestIssues(city); return _iss.length ? `<div class="status-banner is-danger"><span>${ICON.warning}</span><span>${_iss.length} issue${_iss.length===1?'':'s'}. <button type="button" class="btn-sm-link" onclick="Comp.openDestIssues('city','${city.id}')">View issues →</button></span></div>` : ''; })()}
     ${Comp.contentLanguageBar('city')}
     <div class="ops-tabs" role="tablist">
       ${tabs.map(t => `<button type="button" class="ops-tab ${tab===t.id?'is-active':''}" onclick="Router.go('cityDetails',{id:'${city.id}', tab:'${t.id}'})">${t.label}</button>`).join('')}
@@ -9541,14 +9828,7 @@ function pageAttractionDetails(params){
     ${Comp.LinkedWithCard([
       {label:'Products', count: productCount, route:'productListing', filterParams:{filterType:'attraction', filterValue:attraction.name, filterLabel:'Attraction'}}
     ])}
-    <div style="margin:-14px 0 16px;"><button type="button" class="btn-sm-link" onclick="Comp.goToAddProductFromAttraction('${attraction.name}')">+ Add product for this attraction</button></div>
-    ${Comp.Card({title:`Relationship graph (read-only)`, body:`
-      ${Comp._infoTable([
-        ['Parent relation (city)', attraction.city || 'None assigned'],
-        ['Parent relation (country)', attraction.country || 'None assigned'],
-        ['Google Place ID', attraction.googlePlaceId || '—'],
-        ['Wikidata ID', attraction.wikidataId || '—']
-      ])}`})}`;
+    <div style="margin:-14px 0 16px;"><button type="button" class="btn-sm-link" onclick="Comp.goToAddProductFromAttraction('${attraction.name}')">+ Add product for this attraction</button></div>`;
   } else if (tab === 'keywords') {
     tabBody = Comp.KeywordAssignTab(attraction.name, 'Attraction');
   } else if (tab === 'overrides') {
@@ -9670,9 +9950,7 @@ function pageCategoryDetails(params){
     tabBody = `
     ${Comp.LinkedWithCard([{label:'Products', count: productCount,
       breakdown: Comp.statusBreakdown(DATA.products.filter(p => p.category === category.name)),
-      route:'productListing', filterParams:{filterType:'category', filterValue:category.name, filterLabel:'Category'}}])}
-    ${Comp.Card({title:'Relationship graph (read-only)',
-      body: Comp._infoTable([['Taxonomy name', category.name], ['Group', category.group || '—'], ['Products linked', productCount]])})}`;
+      route:'productListing', filterParams:{filterType:'category', filterValue:category.name, filterLabel:'Category'}}])}`;
   } else if (tab === 'keywords') {
     tabBody = Comp.KeywordAssignTab(category.name, 'Taxonomy');
   } else if (tab === 'overrides') {
@@ -21719,7 +21997,6 @@ function pagePromptManagement(params){
       <td class="cell-secondary">${cfg ? Comp._escHtml(cfg.updatedAt) : '—'}</td>
       <td class="cell-secondary">${cfg ? Comp._escHtml(cfg.updatedBy) : '—'}</td>
       <td style="white-space:nowrap;">${actionBtn}</td>
-      <td onclick="event.stopPropagation()">${Comp.RowMenu(sec.label, menuItems)}</td>
     </tr>`;
   }).join('');
 
@@ -21754,8 +22031,7 @@ function pagePromptManagement(params){
         {label:'Prompt preview'},
         {label:'Last updated',  width:'160px'},
         {label:'Updated by',    width:'140px'},
-        {label:'Action',        width:'120px'},
-        {label:'',              width:'48px'}
+        {label:'Action',        width:'120px'}
       ],
       rows,
       emptyText:'No sections defined for this page type.'
@@ -21856,7 +22132,6 @@ function pagePromptEditor(params){
       <div class="action-row action-row--divided mt-4">
         ${Comp.Button('← Back', {onclick:`Router.go('promptManagement',{pageType:'${pageType}'})`})}
         <div style="display:flex;gap:8px;">
-          ${cfg ? Comp.Button('Reset prompt', {onclick:`Comp.pmDeleteConfig('${pageType}','${sectionKey}')`, variant:'btn-ghost'}) : ''}
           ${Comp.Button('Save prompt', {variant:'btn-primary', onclick:`Comp.pmSaveConfig('${pageType}','${sectionKey}')`})}
         </div>
       </div>
