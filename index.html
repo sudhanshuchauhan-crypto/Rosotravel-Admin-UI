@@ -1080,12 +1080,13 @@ DATA.canonicalIssues = [
 
 // Marketing Panel — SEMrush Rules Panel (scope_part_2.pdf "6.4-6.7").
 DATA.semrushRules = {
+  usage: { used: 6700, total: 10000, alertAt80: true },
   allowedEndpoints: [
-    {endpoint:'batch_keyword_overview', unitCost:10, displayLimit:'—', note:'Default verification'},
-    {endpoint:'keyword_overview', unitCost:10, displayLimit:'—', note:'Single keyword verification'},
-    {endpoint:'phrase_fullsearch', unitCost:20, displayLimit:100, note:'Broad match'},
-    {endpoint:'related_keywords', unitCost:40, displayLimit:50, note:'Related keywords'},
-    {endpoint:'phrase_questions', unitCost:40, displayLimit:50, note:'People Also Ask style questions'}
+    {endpoint:'batch_keyword_overview', unitCost:10, maxResults:'—', note:'Default verification'},
+    {endpoint:'keyword_overview', unitCost:10, maxResults:'—', note:'Single keyword verification'},
+    {endpoint:'phrase_fullsearch', unitCost:20, maxResults:100, note:'Broad match'},
+    {endpoint:'related_keywords', unitCost:40, maxResults:50, note:'Related keywords'},
+    {endpoint:'phrase_questions', unitCost:40, maxResults:50, note:'People Also Ask style questions'}
   ],
   forbiddenEndpoints: ['keyword_history/*', 'keyword_historical_trends/*', 'domain_organic_historical/*', 'database_history/*'],
   intentAllowlist: [
@@ -1812,9 +1813,6 @@ const Comp = {
     ]
   },
 
-  checkRequiredFilled(ids){
-    return ids.every(id => { const el = document.getElementById(id); return el && el.value && el.value.trim(); });
-  },
 
   // Clears AI-generation tracking — call when a fresh Add/Create page is opened.
   clearCreateAiTracking(){ Comp._createAiFields = {}; },
@@ -1823,27 +1821,6 @@ const Comp = {
   // Called from finishCreateXxx after a new record is actually saved.
   // Queues a pending approval on the relevant section(s) of the new record's
   // Details page for every field that was filled via Generate-with-AI.
-  queueCreateAiApprovals(detailRoute, recordId){
-    const trackKeys = Object.keys(Comp._createAiFields);
-    if (trackKeys.length === 0) return false;
-    const generatedAt = new Date().toLocaleString();
-    const bySection = {};
-    trackKeys.forEach(tk => {
-      const { sectionId, value } = Comp._createAiFields[tk];
-      if (!bySection[sectionId]) bySection[sectionId] = [];
-      bySection[sectionId].push(value);
-    });
-    Object.keys(bySection).forEach(sectionId => {
-      const key = detailRoute + '|' + JSON.stringify({id: recordId}) + '|' + sectionId;
-      Comp._pendingApprovals[key] = {
-        generatedAt,
-        candidates: { [`__create__${sectionId}`]: bySection[sectionId].join(' ') },
-        labels: { [`__create__${sectionId}`]: 'AI-generated on creation' }
-      };
-    });
-    Comp.clearCreateAiTracking();
-    return true;
-  },
 
   // ============================================================
   // Generate-with-AI on Details pages (Country / Region / City /
@@ -6503,15 +6480,6 @@ const Comp = {
   // filled — Generate with AI can also regenerate/overwrite existing
   // content (with a confirmation), not just fill empty fields.
   SKIP_FIELD_LABELS: ['City name','Region name','Attraction name','Taxonomy name','Country name','Email','Mobile number'],
-  _cardHasGeneratableContent(card){
-    const cardId = card.dataset.cardId || '';
-    if (cardId.includes('faq')) {
-      const entity = Comp._entityFromCardId(cardId);
-      return !!Comp.AI_FAQ_BANK[entity];
-    }
-    const inputs = [...card.querySelectorAll('.card-input[data-field-label]')];
-    return inputs.some(el => !Comp.SKIP_FIELD_LABELS.includes(el.dataset.fieldLabel) && Comp.GENERIC_FIELD_TEMPLATES[el.dataset.fieldLabel]);
-  },
 
   // Generic page-level edit toggle — the single implementation reused by User Details
   // and Role Details (any page with a header-level Edit/Cancel/Save, governing one or
@@ -8378,25 +8346,6 @@ Comp.openRegenReview = function(fields, onApply){
     }
   });
 };
-Comp.SmartField = function(opts){
-  const { fieldId, label, value, isTextarea, locked, saveCall, lockCall, regenCall, required, hideLock } = opts;
-  return `<div class="field smart-field ${locked?'is-locked':''}" data-field-id="${fieldId}">
-    <label for="${fieldId}-input">${label}${required ? ' <span class="required">*</span>' : ''}</label>
-    <div id="${fieldId}-view" class="smart-field-view">${value ? Comp._escHtml(value) : '<span style="color:var(--text-muted);">Not set</span>'}</div>
-    ${isTextarea
-      ? `<textarea id="${fieldId}-input" class="card-input" style="display:none;">${Comp._escHtml(value)}</textarea>`
-      : `<input id="${fieldId}-input" class="card-input" style="display:none;" value="${Comp._escAttr(value)}">`}
-    <div id="${fieldId}-viewActions" style="display:flex; gap:8px; margin-top:8px;">
-      ${!locked ? Comp.Button('Edit', {size:'btn-sm', onclick:`Comp.smartFieldEdit('${fieldId}')`}) : ''}
-      ${hideLock ? '' : Comp.Button(`<span class="toggle-track" aria-hidden="true"></span><span class="lock-label">${locked ? 'Unlock' : 'Lock'}</span>`, {size:'btn-sm', variant: locked ? 'btn-lock is-on' : 'btn-lock', onclick: lockCall, extraAttrs:`aria-pressed="${!!locked}"`})}
-      ${!locked ? Comp.Button('↻ Regenerate', {size:'btn-sm', onclick: regenCall}) : ''}
-    </div>
-    <div id="${fieldId}-editActions" style="display:none; gap:8px; margin-top:8px;">
-      ${Comp.Button('Cancel', {size:'btn-sm', onclick:`Comp.smartFieldCancel('${fieldId}')`})}
-      ${Comp.Button('Save', {size:'btn-sm', variant:'btn-primary', onclick: saveCall})}
-    </div>
-  </div>`;
-};
 Comp.smartFieldEdit = function(fieldId){
   document.getElementById(fieldId+'-view').style.display = 'none';
   document.getElementById(fieldId+'-input').style.display = '';
@@ -8832,11 +8781,6 @@ function aiFieldWithCounter(label, value, tag, maxLen, id='', editable=false){
     ? `<textarea id="${fid}" class="card-input" ${readonlyAttr} maxlength="${maxLen}" data-field-label="${label}" oninput="Comp.updateCharCounter(this)">${value}</textarea>`
     : `<input id="${fid}" class="card-input" ${readonlyAttr} maxlength="${maxLen}" value="${value}" data-field-label="${label}" oninput="Comp.updateCharCounter(this)">`;
   return `<div class="field"><label for="${fid}">${label}</label>${field}<p class="char-counter" data-max="${maxLen}">${len}/${maxLen}</p></div>`;
-}
-
-function aiSelectField(label, options, selectedValue, id){
-  const opts = options.map(o => `<option ${o === selectedValue ? 'selected' : ''}>${o}</option>`).join('');
-  return `<div class="field"><label for="${id}">${label}</label><select id="${id}" class="card-input" disabled>${opts}</select></div>`;
 }
 
 const REGION_OPTIONS = DATA.regions.map(r => r.name);
@@ -12828,35 +12772,6 @@ Comp.addKeywordToEntity = function(slug, entityName){
 // RAW Data & Versioning — read-only Destination Preupload data model
 // (scope_part_3.pdf "4.3"). Country/Region only — City is explicitly NOT
 // preuploaded per scope, so this card is never used there.
-Comp._rawDataCard = function(entity){
-  if (!entity.stableCode) return '';
-  const ai = entity.aiVersion || 1;
-  const published = entity.publishedVersion || 1;
-  const hasUnpublishedDraft = ai > published;
-  return `<div class="card">
-    <p class="card-title">RAW Data &amp; Versioning (read-only)</p>
-    <p class="field-hint card-hint mt-0">Destination Preupload snapshot.</p>
-    ${hasUnpublishedDraft ? `<div class="status-banner is-incomplete"><span>${ICON.warning}</span><span><strong>AI has prepared v${ai}</strong> but the site is still showing the published v${published}. Open a section with the "⚠ Approval Needed" badge above to review and choose which version to publish.</span></div>` : ''}
-    ${Comp._infoTable([
-      ['Entity ID', entity.entityId],
-      ['Stable code', entity.stableCode],
-      ['RAW version', 'v' + entity.rawVersion + ' (from Viator/source, read-only)'],
-      ['AI version (draft)', 'v' + ai + (hasUnpublishedDraft ? ' — awaiting approval' : ' — same as published')],
-      ['Published version (live on site)', 'v' + published],
-      ['RAW ingested at', entity.rawIngestedAt],
-      ['Canonical name (EN)', entity.canonicalNameEn],
-      ['Destination URL', entity.destinationUrl],
-      ['Lookup ID', entity.lookupId],
-      ['Default currency', entity.defaultCurrencyCode],
-      ['Wikidata ID (QID)', entity.wikidataId],
-      ['Content hash', entity.contentHash],
-      ['Factual hash', entity.factualHash],
-      ['Media hash', entity.mediaHash],
-      ['Relationship hash', entity.relationshipHash]
-    ])}
-  </div>`;
-};
-
 Comp._opsOverviewTab = function(p){
   return `
     <div class="card">
@@ -13732,6 +13647,21 @@ Comp.kwRerunBatchAssignment = function(){
     }
   });
 };
+
+Comp.semrushSaveSettings = function(){
+  Comp.showToast('SEMrush settings saved successfully.', 'success');
+};
+
+Comp.semrushToggleAlert = function(btn){
+  const isOn = btn.getAttribute('aria-pressed') === 'true';
+  DATA.semrushRules.usage = DATA.semrushRules.usage || {};
+  DATA.semrushRules.usage.alertAt80 = !isOn;
+  btn.setAttribute('aria-pressed', String(!isOn));
+  btn.classList.toggle('is-on', !isOn);
+  btn.querySelector('.lock-label').textContent = !isOn ? 'On' : 'Off';
+  Comp.showToast('80% usage alert ' + (!isOn ? 'enabled' : 'disabled') + '.', 'success');
+};
+
 Comp.toggleLanguageKeywordMode = function(code){
   const l = DATA.strategySettings.languageKeywordSourcing.find(x => x.code === code);
   if (!l) return;
@@ -13946,43 +13876,6 @@ Comp.violationRollback = function(id){
 Comp.violationEscalate = function(id){
   const v = DATA.blockingViolations.find(x => x.id === id);
   Comp.openConfirm({ title:'Escalate to IT?', desc:'This violation will be escalated to the IT/Developer team for investigation.', confirmLabel:'Escalate', onConfirm:() => { Comp.showToast('Escalated to IT.', 'success'); } });
-};
-Comp.spEditBlock = function(pageId, key){
-  const p = DATA.staticPages.find(x => x.id === pageId);
-  const b = p.blocks.find(x => x.key === key);
-  if (b.source === 'LOCKED' || b.source === 'OUTDATED_LOCKED') { Comp.showToast('This block is locked. Unlock it first to edit.', 'danger'); return; }
-  Comp.openConfirm({
-    title: `Edit "${b.label}"`,
-    desc: 'Editing this block sets its state to EDITED.',
-    warningHtml: `<div class="field mt-2h"><label for="spBlockContent">Content</label><textarea id="spBlockContent">${b.content}</textarea></div>`,
-    confirmLabel: 'Save changes',
-    onConfirm: () => {
-      const el = document.getElementById('spBlockContent');
-      b.content = el ? el.value : b.content;
-      b.source = 'EDITED';
-      Comp.showToast(`"${b.label}" saved.`, 'success');
-      render();
-    }
-  });
-};
-Comp.spUnlockBlock = function(pageId, key){
-  const p = DATA.staticPages.find(x => x.id === pageId);
-  const b = p.blocks.find(x => x.key === key);
-  Comp.openConfirm({
-    title: 'Unlock this block?',
-    desc: 'Unlocking is role-gated (SEO Lead/Admin) and requires a reason.',
-    warningHtml: `<div class="field mt-2h"><label for="spUnlockReason">Reason <span class="required">*</span></label><textarea id="spUnlockReason" placeholder="Why does this block need to be unlocked?"></textarea></div>`,
-    confirmLabel: 'Unlock',
-    danger: true,
-    onConfirm: () => {
-      const reasonEl = document.getElementById('spUnlockReason');
-      const reason = reasonEl ? reasonEl.value.trim() : '';
-      if (!reason) { Comp.showToast('A reason is required to unlock.', 'danger'); return; }
-      b.source = b.source === 'OUTDATED_LOCKED' ? 'OUTDATED' : 'EDITED';
-      Comp.showToast(`"${b.label}" unlocked — reason: "${reason}"`, 'success');
-      render();
-    }
-  });
 };
 Comp.spLockBlock = function(pageId, key){
   const p = DATA.staticPages.find(x => x.id === pageId);
@@ -14425,30 +14318,6 @@ Comp.pipelineUpdateJobPreview = function(recordCount){
   const totalJobs = jobsPerBlock * checked.length;
   preview.innerHTML = `<span>${checked.length} block(s) selected, lowest cap ${lowestCap.toLocaleString()}/job → <strong>${totalJobs} job${totalJobs===1?'':'s'}</strong> will be created for ${recordCount} record${recordCount===1?'':'s'}.</span>`;
 };
-Comp.pipelineRegenerateSelected = function(batchId){
-  const ids = [...Comp.getBulkSelection('pipelineRecord')];
-  if (ids.length === 0) return;
-  if (ids.length > 50) { Comp.showToast('Max 50 records per operation. Narrow your selection.', 'danger'); return; }
-  const batch = DATA.pipelineBatches.find(b => b.id === batchId);
-  Comp.openConfirm({
-    title: `Regenerate ${ids.length} record${ids.length===1?'':'s'}?`,
-    desc: 'AI will generate new content for these records, respecting existing manual locks (locked blocks are skipped). This does not change keyword ownership.',
-    confirmLabel: 'Regenerate',
-    onConfirm: () => {
-      batch.records.forEach(r => {
-        if (ids.includes(r.id) && !r.locks) {
-          r.aiVersion += 1;
-          r.status = 'Attention';
-          r.lastChange = new Date().toLocaleString();
-        }
-      });
-      Comp.getBulkSelection('pipelineRecord').clear();
-      Comp.showToast(`Regeneration triggered for ${ids.length} record${ids.length===1?'':'s'} (locked records skipped).`, 'success');
-      render();
-    }
-  });
-};
-
 Comp.pipelineMarkReviewed = function(batchId){
   const ids = [...Comp.getBulkSelection('pipelineRecord')];
   if (ids.length === 0) return;
@@ -14953,116 +14822,118 @@ Comp.kwRerunBatchAssignment = function(){
   });
 };
 
-function pageSemrushConfiguration(){
-  const s = DATA.strategySettings;
-  const sr = DATA.semrushRules;
-  const versionsHtml = `<div class="timeline">
-    ${s.strategyVersions.map((v, idx) => `
-      <div class="timeline-item">
-        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
-          <div>
-            <p class="timeline-label">${v.versionId} — ${v.changedParams.join('; ')}</p>
-            <p class="timeline-time">${v.author} · ${v.timestamp} · Est. ${v.estimatedUnits.toLocaleString()} units, actual ${v.actualUnits.toLocaleString()}</p>
-          </div>
-          ${idx === 0 ? `<span class="badge badge-active">Current</span>` : ''}
-        </div>
-      </div>`).join('')}
+function pageSemrushConfiguration(params){
+  const tab = (params && params.tab) || 'config';
+  const s   = DATA.strategySettings;
+  const sr  = DATA.semrushRules;
+
+  const usage    = sr.usage || {used:0, total:10000, alertAt80:false};
+  const usedPct  = Math.round((usage.used / usage.total) * 100);
+  const isOver80 = usedPct >= 80;
+
+  const progressBar =
+    `<div style="margin-bottom:16px;">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;">
+        <span style="font-size:var(--fs-sm);font-weight:600;">${usedPct}% used</span>
+        <span class="field-hint">${usage.used.toLocaleString()} / ${usage.total.toLocaleString()} credits</span>
+      </div>
+      <div style="height:10px;background:var(--surface-sunken);border-radius:999px;overflow:hidden;">
+        <div style="height:100%;width:${usedPct}%;background:${isOver80?'var(--warning-600)':'var(--accent-500)'};border-radius:999px;"></div>
+      </div>
+    </div>
+    ${isOver80 ? `<div class="status-banner is-warning"><span>${ICON.warning}</span><span><strong>Usage has exceeded 80% of budget</strong> — consider increasing the cap or reducing run frequency.</span></div>` : ''}`;
+
+  const intentRows = sr.intentAllowlist.map(i =>
+    `<tr><td class="cell-name">${i.pageType}</td><td class="cell-secondary">${i.allowedIntents}</td><td class="cell-secondary">${i.mixedAllowed}</td></tr>`
+  ).join('');
+
+  const tabNav = `<div class="ops-tabs" role="tablist">
+    <button type="button" class="ops-tab ${tab==='config'?'is-active':''}" onclick="Router.go('semrushConfiguration',{tab:'config'})">Configuration</button>
+    <button type="button" class="ops-tab ${tab==='log'?'is-active':''}" onclick="Router.go('semrushConfiguration',{tab:'log'})">Activity Log</button>
   </div>`;
-  const endpointRows = sr.allowedEndpoints.map(e => `<tr><td class="cell-name">${e.endpoint}</td><td class="cell-secondary">${e.unitCost} units/line</td><td class="cell-secondary">${e.displayLimit}</td><td class="cell-secondary">${e.note}</td></tr>`).join('');
-  const intentRows = sr.intentAllowlist.map(i => `<tr><td class="cell-name">${i.pageType}</td><td class="cell-secondary">${i.allowedIntents}</td><td class="cell-secondary">${i.mixedAllowed}</td></tr>`).join('');
+
+  let tabBody = '';
+
+  if(tab === 'config'){
+    tabBody =
+      // API Usage & Alerts — read only indicator
+      Comp.Card({title:'API Usage & Alerts', body:`
+        ${progressBar}
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:14px;border-top:1px solid var(--border);">
+          <div>
+            <p style="font-size:var(--fs-sm);font-weight:600;margin:0 0 2px;">Alert at 80% of budget</p>
+            <p class="field-hint mt-0">A warning banner will appear on this page when usage reaches 80%.</p>
+          </div>
+          <button type="button" class="btn-lock ${usage.alertAt80?'is-on':''}" aria-pressed="${usage.alertAt80}" onclick="Comp.semrushToggleAlert(this)">
+            <span class="toggle-track" aria-hidden="true"></span>
+            <span class="lock-label">${usage.alertAt80?'On':'Off'}</span>
+          </button>
+        </div>
+      `}) +
+
+      // Editable settings grouped
+      Comp.Card({title:'Editable Settings', hint:'Changes here affect keyword discovery and assignment runs.', body:`
+        <p class="opt-sub" style="margin-top:0;">SEMrush Governance — Unit caps</p>
+        <p class="field-hint card-hint mt-0">If run_units_estimate > max_units_per_run, the run aborts before calling SEMrush.</p>
+        ${Comp._paramTable(s.semrushCaps)}
+
+        <p class="opt-sub">Language Keyword Sourcing</p>
+        <p class="field-hint card-hint mt-0">Most languages get keywords translated from the English pool. Some need their own dedicated SEMrush pool.</p>
+        ${Comp.Table({
+          columns:[{label:'Language'},{label:'Keyword Source'},{label:'Status'},{label:'Action'}],
+          rows: DATA.strategySettings.languageKeywordSourcing.map(l =>
+            `<tr>
+              <td class="cell-name">${l.lang}</td>
+              <td class="cell-secondary">${l.mode === 'native_pool' ? 'Dedicated SEMrush pool (native)' : 'Translated from English'}</td>
+              <td>${l.pending ? Comp.Badge('Pending', false) : Comp.Badge('Confirmed', true)}</td>
+              <td><button type="button" class="btn-sm-link" onclick="Comp.toggleLanguageKeywordMode('${l.code}')">Switch to ${l.mode === 'native_pool' ? 'Translated' : 'Dedicated pool'}</button></td>
+            </tr>`
+          ).join('')
+        })}
+
+        <div class="action-row action-row--divided mt-4">
+          <span></span>
+          ${Comp.Button('Save settings', {variant:'btn-primary', onclick:"Comp.semrushSaveSettings()"})}
+        </div>
+      `}) +
+
+      // Read-only reference cards
+      `<div class="card">
+        <p class="card-title">Intent &amp; Ownership Routing <span style="font-weight:400;color:var(--text-muted);font-size:var(--fs-xs);">(read-only)</span></p>
+        <p class="field-hint">"Mix of 2" is treated as two intents, never a new intent type.</p>
+        ${Comp.Table({columns:[{label:'Page type'},{label:'Allowed intents'},{label:'Mixed intent'}], rows:intentRows})}
+      </div>` +
+
+      `<div class="card">
+        <p class="card-title">Scale Controls <span style="font-weight:400;color:var(--text-muted);font-size:var(--fs-xs);">(read-only)</span></p>
+        ${Comp._infoTable([['Top-demand cities only', 'true'],['Hub threshold', '3 active cities minimum'],['Similarity dedupe threshold', '0.86'],['Volume vs relevance weight', '60 / 40']])}
+      </div>`;
+  }
+
+  if(tab === 'log'){
+    const versionsHtml = `<div class="timeline">
+      ${s.strategyVersions.map((v, idx) =>
+        `<div class="timeline-item">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;">
+            <div>
+              <p class="timeline-label">${v.versionId} — ${v.changedParams.join('; ')}</p>
+              <p class="timeline-time">${v.author} · ${v.timestamp} · Est. ${v.estimatedUnits.toLocaleString()} units, actual ${v.actualUnits.toLocaleString()}</p>
+            </div>
+            ${idx === 0 ? '<span class="badge badge-active">Current</span>' : ''}
+          </div>
+        </div>`
+      ).join('')}
+    </div>`;
+    tabBody = Comp.Card({title:'Strategy Version History', hint:'Every parameter change is versioned. No strategy change → no re-run.', body: versionsHtml});
+  }
 
   return Comp.Shell(`
     ${Comp.Breadcrumb([{label:'Settings & Administration'}, {label:'SEMrush Configuration'}])}
-    ${Comp.PageHeader({title:`SEMrush Configuration`, subtitle:`Bounded, versioned inputs that drive keyword discovery and assignment. No strategy change → no re-run, unless an explicit override reason is given.`})}
-    <div class="card">
-      <p class="card-title">1. SEMrush Governance — Unit caps <span style="font-weight:400; color:var(--text-muted); font-size:var(--fs-xs);">(SEO Admin — bounded)</span></p>
-      <p class="field-hint card-hint mt-0">If run_units_estimate &gt; max_units_per_run, the run aborts before calling SEMrush.</p>
-      ${Comp._paramTable(s.semrushCaps)}
-    </div>
-    <div class="card">
-      <p class="card-title">Allowed endpoints <span style="font-weight:400; color:var(--text-muted); font-size:var(--fs-xs);">(read-only — managed by Dev)</span></p>
-      ${Comp.Table({columns:[{label:'Endpoint'},{label:'Unit cost',width:'130px'},{label:'Display limit',width:'120px'},{label:'Note'}], rows:endpointRows})}
-    </div>
-    <div class="card">
-      <p class="card-title">Forbidden endpoints <span style="font-weight:400; color:var(--text-muted); font-size:var(--fs-xs);">(hard-banned — historical data, ~5× cost)</span></p>
-      <ul class="param-locked-list">${sr.forbiddenEndpoints.map(e => `<li>🚫 ${e}</li>`).join('')}</ul>
-    </div>
-    <div class="card">
-      <p class="card-title">2. Intent &amp; Ownership Routing</p>
-      <p class="field-hint">"Mix of 2" is treated as two intents, never a new intent type. Mixed-intent pairs must be explicitly allowlisted or denylisted per page type.</p>
-      ${Comp.Table({columns:[{label:'Page type'},{label:'Allowed intents'},{label:'Mixed intent'}], rows:intentRows})}
-    </div>
-    <div class="card">
-      <p class="card-title">2.5. Language Keyword Sourcing</p>
-      <p class="field-hint card-hint mt-0">Most languages get keywords translated from the English pool. Some languages need their own dedicated SEMrush pool instead — set per language below.</p>
-      ${DATA.strategySettings.languageKeywordSourcing.some(l => l.pending) ? `<div class="status-banner is-incomplete"><span>⚠️</span><span><strong>Open action item (Jul 23, 2026 client call):</strong> exact conversion workflow for dedicated-pool languages still needs confirmation from the AI engineer team before this goes live.</span></div>` : ''}
-      ${Comp.Table({
-        columns:[{label:'Language'},{label:'Keyword Source'},{label:'Status'},{label:'Action'}],
-        rows: DATA.strategySettings.languageKeywordSourcing.map(l => `
-          <tr>
-            <td class="cell-name">${l.lang}</td>
-            <td class="cell-secondary">${l.mode === 'native_pool' ? 'Dedicated SEMrush pool (native)' : 'Translated from English'}</td>
-            <td>${l.pending ? Comp.Badge('Pending AI team confirmation', false) : Comp.Badge('Confirmed', true)}</td>
-            <td><button type="button" class="btn-sm-link" onclick="Comp.toggleLanguageKeywordMode('${l.code}')">Switch to ${l.mode === 'native_pool' ? 'Translated' : 'Dedicated pool'}</button></td>
-          </tr>`).join('')
-      })}
-    </div>
-    <div class="card">
-      <p class="card-title">3. Scoring &amp; Similarity <span style="font-weight:400; color:var(--text-muted); font-size:var(--fs-xs);">(read-only)</span></p>
-      ${Comp._infoTable([['Similarity dedupe threshold', '0.86'], ['Volume vs relevance weight', '60 / 40']])}
-    </div>
-    <div class="card">
-      <p class="card-title">4. Scale Controls <span style="font-weight:400; color:var(--text-muted); font-size:var(--fs-xs);">(read-only)</span></p>
-      ${Comp._infoTable([['Top-demand cities only', 'true'], ['Hub threshold', '3 active cities minimum']])}
-    </div>
-    <div class="card">
-      <p class="card-title">5. Versioning &amp; Audit</p>
-      ${versionsHtml}
-    </div>
-    <div style="display:flex; justify-content:flex-end; margin-top:8px; margin-bottom:40px;">
-      ${Comp.Button('Save strategy settings', {variant:'btn-primary', onclick:'Comp.saveStrategySettings()'})}
-    </div>
+    ${Comp.PageHeader({title:'SEMrush Configuration'})}
+    ${tabNav}
+    ${tabBody}
   `);
 }
-
-Comp.toggleLanguageKeywordMode = function(code){
-  const l = DATA.strategySettings.languageKeywordSourcing.find(x => x.code === code);
-  if (!l) return;
-  l.mode = l.mode === 'native_pool' ? 'translated' : 'native_pool';
-  Comp.showToast(`${l.lang} keyword sourcing set to ${l.mode === 'native_pool' ? 'dedicated SEMrush pool' : 'translated from English'}. Still pending AI engineer team confirmation before going live.`, 'success');
-  render();
-};
-
-Comp.saveStrategySettings = function(){
-  const s = DATA.strategySettings;
-  let changed = false;
-  s.semrushCaps.forEach(param => {
-    const el = document.getElementById('param_' + param.id);
-    if (el) {
-      const v = parseFloat(el.value);
-      if (!isNaN(v) && v >= param.min && v <= param.max && v !== param.value) { param.value = v; changed = true; }
-    }
-  });
-  if (!changed) { Comp.showToast('No changes to save.', 'danger'); return; }
-  Comp.openConfirm({
-    title: 'Save strategy settings?',
-    desc: 'This creates a new strategy version. Keyword ownership re-runs based on this change require SEO Lead/Admin approval.',
-    confirmLabel: 'Save',
-    onConfirm: () => {
-      const versionId = 'sv' + (DATA.strategySettings.strategyVersions.length + 1);
-      DATA.strategySettings.strategyVersions.unshift({versionId, changedParams:['SEMrush unit caps updated'], author:'SEO Admin (you)', timestamp:new Date().toLocaleString(), estimatedUnits:0, actualUnits:0});
-      Comp.showToast(`Strategy settings saved as ${versionId}.`, 'success');
-      render();
-    }
-  });
-};
-
-// ============================================================
-// Marketing Panel — Module 4: Near-Page Control Panel (High Risk)
-// Per scope_part_2.pdf. Hard limits are system-enforced and read-only —
-// there is deliberately NO "Create manually" option anywhere here.
-// ============================================================
-
 function pageNearPageControl(params){
   const p = params || {};
   const cities = [...new Set(DATA.nearPages.map(n => n.city))];
@@ -17715,7 +17586,7 @@ function pageHomeManagement(params){
     ${Comp.SmartSection({
       sectionId:'homehero', title:'Hero', locked:!!h.sectionLocks.hero,
       hint:'The H1, supporting snippet and hero media are the homepage\u2019s primary content block. A missing hero image is a blocking indexing issue under SEO Governance.',
-      bannerHtml: heroMissing ? `<div class="status-banner is-danger"><span>${ICON.warning}</span><span><strong>No hero image set</strong> \u2014 the homepage cannot be indexed until one is chosen.</span></div>` : '',
+      bannerHtml: '',
       fields:[
         {key:'h1', label:'H1', value:h.hero.h1, required:true},
       ],
@@ -17748,21 +17619,8 @@ function pageHomeManagement(params){
     })}
     ${Comp.SmartSection({
       sectionId:'homewhychoose', title:'Why Travelers Choose Rosotravel', locked:!!h.sectionLocks.whyChooseUs,
-      hint:'Two-line heading, checkmark bullet list, and a supporting photo or video \u2014 matches the front-end trust section.',
-      fields:(h.whyChooseUs.bullets || []).map((b, i) => ({key:'bullet'+i, label:`Point ${i+1}`, value:b})),
-      topExtraHtml: `
-        <div class="field">
-          <label>Heading \u2014 line 1</label>
-          <div style="padding:2px 0; font-size:var(--fs-base); color:var(--text-primary);">${Comp._escHtml(h.whyChooseUs.headingLine1 || '')}</div>
-        </div>
-        <div class="field">
-          <label>Heading \u2014 line 2 (italic emphasis)</label>
-          <div style="padding:2px 0; font-size:var(--fs-base); color:var(--text-primary);">${Comp._escHtml(h.whyChooseUs.headingLine2 || '')}</div>
-        </div>
-        <div class="field">
-          <label>Snippet</label>
-          <div style="padding:2px 0; font-size:var(--fs-base); color:var(--text-primary); white-space:pre-wrap;">${h.whyChooseUs.snippet ? Comp._escHtml(h.whyChooseUs.snippet) : '<span style=\"color:var(--text-muted);\">Not set</span>'}</div>
-        </div>`,
+      fields:(h.whyChooseUs.bullets || []).slice(0,4).map((b, i) => ({key:'bullet'+i, label:['Guides who truly know their city','Smooth plans, fewer worries','Shortlists that save hours of research','Only proven quality makes the cut'][i]||`Point ${i+1}`, value:b})),
+      topExtraHtml: '',
       extraHtml: `
         <div class="field">
           <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
@@ -17772,7 +17630,6 @@ function pageHomeManagement(params){
               ${(h.whyChooseUs.bullets || []).length > 1 ? Comp.Button('Remove last', {size:'btn-sm', variant:'btn-amber', onclick:'Comp.homeRemoveWhyBullet()'}) : ''}
             </div>`}
           </div>
-          <p class="field-hint mt-1">${(h.whyChooseUs.bullets || []).length} point${(h.whyChooseUs.bullets||[]).length===1?'':'s'}, each shown with a checkmark icon on the front end.</p>
         </div>
         <div class="field">
           <label for="whyGuidePicker">Featured guides</label>
@@ -18173,22 +18030,6 @@ Comp.homeUploadHeroFromDevice = function(){
     });
   });
 };
-Comp.homeRemoveHeroMedia = function(){
-  Comp.openConfirm({
-    title:'Remove the hero media?',
-    desc:'Without hero media the homepage is treated as having a blocking indexing issue under SEO Governance rules.',
-    confirmLabel:'Remove',
-    danger:true,
-    onConfirm: () => {
-      DATA.homepage.hero.mediaId = '';
-      DATA.homepage.history = DATA.homepage.history || [];
-      DATA.homepage.history.unshift({label:'Hero media removed', time:new Date().toLocaleString(), actor:'Admin (you)'});
-      Comp.showToast('Hero media removed \u2014 the homepage now has a blocking indexing issue.', 'danger');
-      render();
-    }
-  });
-};
-
 Comp.homeSaveWhyChooseUs = function(){
   const h = DATA.homepage;
   // SmartSection names its inputs `${sectionId}-${key}-input`.
@@ -18213,7 +18054,7 @@ Comp.homeSaveWhyChooseUs = function(){
 Comp.homeAddWhyBullet = function(){
   const h = DATA.homepage;
   h.whyChooseUs.bullets = h.whyChooseUs.bullets || [];
-  if (h.whyChooseUs.bullets.length >= 8) { Comp.showToast('Maximum 8 points.', 'danger'); return; }
+  if (h.whyChooseUs.bullets.length >= 4) { Comp.showToast('Maximum 4 points allowed.', 'danger'); return; }
   h.whyChooseUs.bullets.push('');
   Comp.showToast('Point added \u2014 edit the section to fill it in.', 'success');
   render();
@@ -19449,14 +19290,6 @@ Comp.spAddSnippet = function(pageId){
   if(h1i>=0) p.blocks.splice(h1i+1,0,nb); else p.blocks.unshift(nb);
   p.history=p.history||[];p.history.unshift({label:'Snippet / Intro block added',time:new Date().toLocaleString(),actor:'Admin (you)'});
   Comp.showToast('Snippet block added.','success');render();
-};
-Comp.spRemoveSnippet = function(pageId){
-  const p=DATA.staticPages.find(x=>x.id===pageId); if(!p) return;
-  Comp.openConfirm({title:'Remove Snippet block?',desc:'The snippet content will be deleted.',confirmLabel:'Remove',onConfirm:function(){
-    p.blocks=p.blocks.filter(x=>x.key!=='snippet');
-    p.history=p.history||[];p.history.unshift({label:'Snippet / Intro block removed',time:new Date().toLocaleString(),actor:'Admin (you)'});
-    Comp.showToast('Snippet removed.','success');render();
-  }});
 };
 Comp.spPickOgImage = function(pageId){
   var fi=document.getElementById('sp-og-file-'+pageId);
