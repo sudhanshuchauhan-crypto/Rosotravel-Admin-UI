@@ -5794,7 +5794,7 @@ const Comp = {
   },
 
   // ---- Country listing filter drawer ----
-  _countryFilters: {status:'', continent:'', tier:'', indexability:'', gsc:''},
+  _countryFilters: {status:'', continent:'', tier:'', indexability:'', gsc:'', issue:''},
   // ---- Cascading filter helper ----
   _cascadeFilter(containerSel, parentSel, childSel, getChildOptions){
     const container = document.querySelector(containerSel);
@@ -5850,6 +5850,13 @@ const Comp = {
         '<select id="cf-gsc" class="filter-select w-full">' +
           opt('', f.gsc, 'All') + opt('Indexed', f.gsc) + opt('Not indexed', f.gsc) + opt('—', f.gsc, 'Unknown / No data') +
         '</select>' +
+      '</div>' +
+      '<div class="filter-drawer-group">' +
+        '<label for="cf-issue">Outdated Issues</label>' +
+        '<select id="cf-issue" class="filter-select w-full">' +
+          opt('', f.issue, 'All issues') +
+          ['SEO data missing','Hero image missing','FAQ missing','Content outdated'].map(i => opt(i, f.issue)).join('') +
+        '</select>' +
       '</div>';
     Comp.openFilterDrawer('Filters', html,
       () => {
@@ -5858,12 +5865,13 @@ const Comp = {
           continent:    document.getElementById('cf-continent').value,
           tier:         document.getElementById('cf-tier').value,
           indexability: document.getElementById('cf-indexability').value,
-          gsc:          document.getElementById('cf-gsc').value
+          gsc:          document.getElementById('cf-gsc').value,
+          issue:        document.getElementById('cf-issue').value
         };
         Comp._applyCountryFilters();
       },
       () => {
-        Comp._countryFilters = {status:'', continent:'', tier:'', indexability:'', gsc:''};
+        Comp._countryFilters = {status:'', continent:'', tier:'', indexability:'', gsc:'', issue:''};
         document.getElementById('filterCountries').value = '';
         Comp._applyCountryFilters();
       }
@@ -5883,16 +5891,21 @@ const Comp = {
       const indexabilityCell = cells[7]  ? cells[7].textContent.trim()  : '';
       const gscCell          = cells[8]  ? cells[8].textContent.trim()  : '';
       const statusCell       = cells[10] ? cells[10].textContent.trim() : '';
+      // Issue filter — resolve from data
+      const rowId = tr.querySelector('td')?.nextElementSibling?.textContent?.trim();
+      const cEntity = DATA.countries.find(c => c.name === rowId);
+      const cIssues = cEntity ? Comp._getDestIssues(cEntity).map(i => i.label) : [];
       const ok = (!q || text.includes(q.toLowerCase())) &&
         (!f.status       || statusCell.toLowerCase()  === f.status.toLowerCase()) &&
         (!f.continent    || continentCell             === f.continent) &&
         (!f.tier         || tierCell                  === f.tier) &&
         (!f.indexability || indexabilityCell          === f.indexability) &&
-        (!f.gsc          || gscCell.startsWith(f.gsc));
+        (!f.gsc          || gscCell.startsWith(f.gsc)) &&
+        (!f.issue        || cIssues.includes(f.issue));
       tr.style.display = ok ? '' : 'none';
       if(ok) visible++;
     });
-    const activeCount = [f.status, f.continent, f.tier, f.indexability, f.gsc].filter(Boolean).length;
+    const activeCount = [f.status, f.continent, f.tier, f.indexability, f.gsc, f.issue].filter(Boolean).length;
     Comp._updateFilterBadge('filterCountries', activeCount);
     const table = document.querySelector('#filterCountries')?.closest('.page')?.querySelector('table.data-table');
     if(!table) return;
@@ -5901,7 +5914,7 @@ const Comp = {
   },
 
   // ---- Region listing filter — Continent → Country cascading ----
-  _regionFilters: {status:'', continent:'', country:'', tier:'', indexability:'', gsc:''},
+  _regionFilters: {status:'', continent:'', country:'', tier:'', indexability:'', gsc:'', issue:''},
   openRegionFilterDrawer(){
     const f = Comp._regionFilters;
     const continents = [...new Set(DATA.countries.map(c => c.continent || 'Other'))].sort();
@@ -5947,6 +5960,13 @@ const Comp = {
         '<select id="rf-gsc" class="filter-select w-full">' +
           opt('', f.gsc, 'All') + opt('Indexed', f.gsc) + opt('Not indexed', f.gsc) + opt('—', f.gsc, 'Unknown / No data') +
         '</select>' +
+      '</div>' +
+      '<div class="filter-drawer-group">' +
+        '<label for="rf-issue">Outdated Issues</label>' +
+        '<select id="rf-issue" class="filter-select w-full">' +
+          opt('', f.issue, 'All issues') +
+          ['SEO data missing','Hero image missing','FAQ missing','Content outdated'].map(i => opt(i, f.issue)).join('') +
+        '</select>' +
       '</div>';
     Comp.openFilterDrawer('Filters', html,
       () => {
@@ -5956,12 +5976,13 @@ const Comp = {
           country:      document.getElementById('rf-country').value,
           tier:         document.getElementById('rf-tier').value,
           indexability: document.getElementById('rf-indexability').value,
-          gsc:          document.getElementById('rf-gsc').value
+          gsc:          document.getElementById('rf-gsc').value,
+          issue:        document.getElementById('rf-issue').value
         };
         Comp._applyRegionFilters();
       },
       () => {
-        Comp._regionFilters = {status:'', continent:'', country:'', tier:'', indexability:'', gsc:''};
+        Comp._regionFilters = {status:'', continent:'', country:'', tier:'', indexability:'', gsc:'', issue:''};
         document.getElementById('filterRegions').value = '';
         Comp._applyRegionFilters();
       }
@@ -5990,20 +6011,23 @@ const Comp = {
       const indexabilityCell = cells[6]  ? cells[6].textContent.trim()  : '';
       const gscCell          = cells[7]  ? cells[7].textContent.trim()  : '';
       const statusCell       = cells[10] ? cells[10].textContent.trim() : '';
-      // Continent — resolved from country name
       const countryObj = DATA.countries.find(c => c.name === countryCell);
       const continentVal = countryObj ? (countryObj.continent || 'Other') : '';
+      const rowName = cells[1] ? cells[1].textContent.trim() : '';
+      const rEntity = DATA.regions.find(r => r.name === rowName);
+      const rIssues = rEntity ? Comp._getDestIssues(rEntity).map(i => i.label) : [];
       const ok = (!q || text.includes(q.toLowerCase())) &&
         (!f.status       || statusCell.toLowerCase()  === f.status.toLowerCase()) &&
         (!f.continent    || continentVal              === f.continent) &&
         (!f.country      || countryCell               === f.country) &&
         (!f.tier         || tierCell                  === f.tier) &&
         (!f.indexability || indexabilityCell          === f.indexability) &&
-        (!f.gsc          || gscCell.startsWith(f.gsc));
+        (!f.gsc          || gscCell.startsWith(f.gsc)) &&
+        (!f.issue        || rIssues.includes(f.issue));
       tr.style.display = ok ? '' : 'none';
       if(ok) visible++;
     });
-    const activeCount = [f.status, f.continent, f.country, f.tier, f.indexability, f.gsc].filter(Boolean).length;
+    const activeCount = [f.status, f.continent, f.country, f.tier, f.indexability, f.gsc, f.issue].filter(Boolean).length;
     Comp._updateFilterBadge('filterRegions', activeCount);
     const table = document.querySelector('#filterRegions')?.closest('.page')?.querySelector('table.data-table');
     if(!table) return;
@@ -6012,7 +6036,7 @@ const Comp = {
   },
 
   // ---- City listing filter — Continent → Country → Region cascading ----
-  _cityFilters: {status:'', continent:'', country:'', region:'', tier:'', indexability:'', gsc:''},
+  _cityFilters: {status:'', continent:'', country:'', region:'', tier:'', indexability:'', gsc:'', issue:''},
   openCityFilterDrawer(){
     const f = Comp._cityFilters;
     const continents = [...new Set(DATA.countries.map(c => c.continent || 'Other'))].sort();
@@ -6068,6 +6092,13 @@ const Comp = {
         '<select id="ctf-gsc" class="filter-select w-full">' +
           opt('', f.gsc, 'All') + opt('Indexed', f.gsc) + opt('Not indexed', f.gsc) + opt('—', f.gsc, 'Unknown / No data') +
         '</select>' +
+      '</div>' +
+      '<div class="filter-drawer-group">' +
+        '<label for="ctf-issue">Outdated Issues</label>' +
+        '<select id="ctf-issue" class="filter-select w-full">' +
+          opt('', f.issue, 'All issues') +
+          ['SEO data missing','Hero image missing','FAQ missing','Content outdated'].map(i => opt(i, f.issue)).join('') +
+        '</select>' +
       '</div>';
     Comp.openFilterDrawer('Filters', html,
       () => {
@@ -6078,12 +6109,13 @@ const Comp = {
           region:       document.getElementById('ctf-region').value,
           tier:         document.getElementById('ctf-tier').value,
           indexability: document.getElementById('ctf-indexability').value,
-          gsc:          document.getElementById('ctf-gsc').value
+          gsc:          document.getElementById('ctf-gsc').value,
+          issue:        document.getElementById('ctf-issue').value
         };
         Comp._applyCityFilters();
       },
       () => {
-        Comp._cityFilters = {status:'', continent:'', country:'', region:'', tier:'', indexability:'', gsc:''};
+        Comp._cityFilters = {status:'', continent:'', country:'', region:'', tier:'', indexability:'', gsc:'', issue:''};
         document.getElementById('filterCities').value = '';
         Comp._applyCityFilters();
       }
@@ -6126,6 +6158,9 @@ const Comp = {
       const indexabilityCell = cells[7]  ? cells[7].textContent.trim()  : '';
       const gscCell          = cells[8]  ? cells[8].textContent.trim()  : '';
       const statusCell       = cells[10] ? cells[10].textContent.trim() : '';
+      const cityName = cells[1] ? cells[1].textContent.trim() : '';
+      const ctEntity = DATA.cities.find(c => c.name === cityName);
+      const ctIssues = ctEntity ? Comp._getDestIssues(ctEntity).map(i => i.label) : [];
       const ok = (!q || text.includes(q.toLowerCase())) &&
         (!f.status       || statusCell.toLowerCase()  === f.status.toLowerCase()) &&
         (!f.continent    || continentCell             === f.continent) &&
@@ -6133,11 +6168,12 @@ const Comp = {
         (!f.region       || regionCell                === f.region) &&
         (!f.tier         || tierCell                  === f.tier) &&
         (!f.indexability || indexabilityCell          === f.indexability) &&
-        (!f.gsc          || gscCell.startsWith(f.gsc));
+        (!f.gsc          || gscCell.startsWith(f.gsc)) &&
+        (!f.issue        || ctIssues.includes(f.issue));
       tr.style.display = ok ? '' : 'none';
       if(ok) visible++;
     });
-    const activeCount = [f.status, f.continent, f.country, f.region, f.tier, f.indexability, f.gsc].filter(Boolean).length;
+    const activeCount = [f.status, f.continent, f.country, f.region, f.tier, f.indexability, f.gsc, f.issue].filter(Boolean).length;
     Comp._updateFilterBadge('filterCities', activeCount);
     const table = document.querySelector('#filterCities')?.closest('.page')?.querySelector('table.data-table');
     if(!table) return;
@@ -9716,13 +9752,25 @@ function pageAttractionDetails(params){
     ${Comp.AiCard({id:'attraction-seo', title:'SEO data', fieldsHtml:`
       ${aiField('Meta title', `${attraction.name} — ${attraction.city} Travel Guide &amp; Tickets`)}
       ${aiField('Meta description', `Plan your visit to ${attraction.name} in ${attraction.city}. Opening hours, tickets and tours.`, 'textarea')}
-      ${aiField('URL slug', attraction.slug || attraction.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'))}
     `})}
 
     ${Comp.AiCard({id:'list-row__body', title:'Attraction information', fieldsHtml:`
-      ${aiField('Short description', `${attraction.name} is one of the most visited landmarks in ${attraction.city}.`)}
-      ${aiField('Long description', `Set in the heart of ${attraction.city}, ${attraction.name} draws visitors from across the world. This section is factual and is used across product and city pages.`, 'textarea')}
+      ${aiField('H1', `${attraction.name} is one of the most visited landmarks in ${attraction.city}.`)}
+      <div class="field">
+        <label id="attractionHeroLbl">Hero image</label>
+        <div class="upload-area" role="button" tabindex="0" aria-labelledby="attractionHeroLbl">
+          <div class="up-title">Click to upload</div>
+          <div class="up-sub">or drag and drop</div>
+          <div class="up-hint">PNG, JPG, WEBP (recommended 1200×630px)</div>
+        </div>
+      </div>
+      ${aiField('Overview', `Set in the heart of ${attraction.city}, ${attraction.name} draws visitors from across the world. This section is factual and is used across product and city pages.`, 'textarea')}
     `})}
+
+    ${Comp.AiCard({id:'attraction-localtips', title:`Local Tips for ${attraction.name}`, fieldsHtml:
+      Comp.LocalTipItem(1, 'Best time to visit', `The best time to visit ${attraction.name} is early morning to avoid crowds and make the most of your experience.`, false) +
+      `<button type="button" class="add-item-btn" data-item-type="localtip">+ Add Another Tip</button>`
+    })}
 
     ${Comp.AiCard({id:'attraction-faq', title:'Frequently asked questions', stackAttrs:'data-max-items="10"', fieldsHtml:
       faqItemsHtml + `<button type="button" class="add-item-btn" data-item-type="faq">+ Add Another FAQ</button>`
