@@ -9882,7 +9882,7 @@ function pageAttractionListing(params){
   return Comp.Shell(`
     ${Comp.PageHeader({title:`Attractions`, actions:`
 ${Comp.Button('+ Add attraction', {variant:'btn-primary', onclick:"Comp.clearReturnContext(); Router.go('attractionCreate')"})}`})}
-    ${DATA.masterAttractions.some(a => a.status === 'Inactive') ? `<div class="status-banner is-info"><span>${ICON.info}</span><span><strong>${DATA.masterAttractions.filter(a => a.status === 'Inactive').length} inactive ${DATA.masterAttractions.filter(a => a.status === 'Inactive').length === 1 ? 'attraction is' : 'attractions are'}</strong> pending review — select and use bulk Activate to publish (recommended: ${Comp.BULK_MODULE_CONFIG.attraction.stagedActivationCap} per batch).</span></div>` : ''}
+    
     ${filterType ? Comp.FilterChip(filterLabel, filterValue, 'attractionListing') : ''}
     <div class="filter-bar mb-4" role="search">
       <label for="filterAttractions" class="visually-hidden">Search attractions</label>
@@ -10030,11 +10030,6 @@ function pageAttractionDetails(params){
     ${Comp.AiCard({id:'attraction-faq', title:'Frequently asked questions', stackAttrs:'data-max-items="10"', fieldsHtml:
       faqItemsHtml + `<button type="button" class="add-item-btn" data-item-type="faq">+ Add Another FAQ</button>`
     })}
-
-    ${Comp.AiCard({id:'attraction-about', title:"There's more here than you'll expect", fieldsHtml:`
-      ${aiField('Short description', `Beyond the obvious, ${attraction.name} rewards visitors who look a little closer.`)}
-      ${aiField('Long description', `From its architecture to the stories behind it, ${attraction.name} has more to offer than a single photo stop.`, 'textarea')}
-    `})}
 
     ${Comp.Card({title:`Plan your visit with confidence`, hint:`Practical moments a visitor should know about before arriving.`, body:`
       <div id="attractionPlanVisitStack" class="field-stack">
