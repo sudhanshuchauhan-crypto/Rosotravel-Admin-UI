@@ -267,8 +267,9 @@
     <p class="desc" id="modalCompareDesc"></p>
     <div id="modalCompareBody"></div>
     <div class="modal-actions">
-      <button type="button" class="btn" onclick="Comp.keepCurrentVersion()">Keep current version</button>
-      <button type="button" class="btn btn-primary" onclick="Comp.acceptAiVersion()">Accept AI version</button>
+      <button type="button" class="btn btn-danger" onclick="Comp.denyAiVersion()">Denied</button>
+      <button type="button" class="btn" onclick="Comp.closeModal('modalCompare')">Cancel</button>
+      <button type="button" class="btn btn-primary" onclick="Comp.acceptAiVersion()">Accept Version</button>
     </div>
   </div>
 </div>
@@ -1520,7 +1521,17 @@ DATA.bundles.forEach((b, i) => {
 
 DATA.homepage = {
   hero: {
-    mediaId: '', h1: 'Outstanding memories — chosen by people who live the experience.',
+    mediaId: '',
+    audienceH1: {
+      'First-Time Visitor':           'Outstanding memories — chosen by people who live the experience.',
+      'Family Trip':                  'Create family memories that last a lifetime.',
+      'Couple Trip':                  'Romantic escapes, expertly curated for two.',
+      'Solo Trip':                    'Your journey, your rules — we handle the rest.',
+      'Premium & Comfortable':        'Luxury travel, without the guesswork.',
+      'Culture & History':            'Discover the stories behind the destinations.',
+      'Activities & Local Experiences':'Go beyond the tourist trail.'
+    },
+    snippet: 'Curated experiences, expert local guides, and seamless booking — all in one place.',
 
   },
   decisionStrip: {
@@ -2759,6 +2770,15 @@ const Comp = {
     Comp.closeModal('modalCompare');
     Comp.showToast('Kept current version. AI suggestion dismissed.', 'success');
     Comp.logCurrentRecord(`AI suggestion dismissed for ${cardId} section — kept current version`);
+    render();
+  },
+  denyAiVersion(){
+    const cardId = Comp._compareCardId;
+    const key = Comp.cardKey(cardId);
+    delete Comp._pendingApprovals[key];
+    Comp.closeModal('modalCompare');
+    Comp.showToast('AI suggestion denied. Current content preserved.', 'danger');
+    Comp.logCurrentRecord(`AI suggestion denied for ${cardId} section`);
     render();
   },
 
@@ -6474,7 +6494,10 @@ const Comp = {
 
   AiCard({id, title, fieldsHtml, titleExtra, stackAttrs}){
     const pending = Comp._pendingApprovals[Comp.cardKey(id)];
-    const approvalBadge = pending ? `<button type="button" class="approval-badge" onclick="Comp.openApprovalCompare('${id}')">⚠ Approval Needed</button>` : '';
+    const approvalBadge = pending ? `<button type="button" class="approval-badge" onclick="Comp.openApprovalCompare('${id}')">⚠ Review pending</button>` : '';
+    const regenBtn = pending
+      ? Comp.Button('↻ Review content', {size:'btn-sm', variant:'btn-primary', onclick:`Comp.openApprovalCompare('${id}')`})
+      : Comp.Button('↻ Regenerate', {size:'btn-sm', onclick:'Comp.startRegen(this)'});
     return `
       <section class="card" data-card-id="${id}" aria-label="${title}">
         <div class="section-header-row">
@@ -6489,7 +6512,7 @@ const Comp = {
           <div class="default-actions">
             ${Comp.Button('Edit section', {size:'btn-sm', onclick:'Comp.editCard(this)'})}
             ${Comp.Button('<span class="toggle-track" aria-hidden="true"></span><span class="lock-label">Lock</span>', {variant:'btn-lock', size:'btn-sm', onclick:'Comp.toggleLock(this)', extraAttrs:'aria-pressed="false"'})}
-            ${Comp.Button('↻ Regenerate', {size:'btn-sm', onclick:'Comp.startRegen(this)'})}
+            ${regenBtn}
           </div>
           <div class="edit-actions">
             ${Comp.Button('Cancel', {size:'btn-sm', onclick:'Comp.cancelCard(this)'})}
@@ -6984,10 +7007,7 @@ const Comp = {
   },
 
   _confirmSaveChanges(){
-    const card  = Comp._saveChangesCard;
     const title = Comp._saveChangesSectionTitle || 'Section';
-    if(!card){ Comp.closeModal('modalSaveChanges'); return; }
-
     const aiEl       = document.querySelector('[data-sc-ai].selected');
     const aiChoice   = aiEl ? aiEl.dataset.scAi : 'allow';
     const langEl     = document.querySelector('[data-sc-lang].selected');
@@ -6996,6 +7016,59 @@ const Comp = {
       ? [...document.querySelectorAll('.sc-lang-check:checked')].map(el => el.value)
       : [];
     const manualApproval = Comp._saveChangesManualApproval !== false;
+
+    // Homepage save — no card, use _homePendingSaveKey
+    if(!Comp._saveChangesCard && Comp._homePendingSaveKey){
+      const sectionKey = Comp._homePendingSaveKey;
+      const saveType   = Comp._homePendingSaveType;
+      Comp._homePendingSaveKey  = null;
+      Comp._homePendingSaveType = null;
+
+      const h = DATA.homepage;
+      const now = new Date().toLocaleString();
+      h.history = h.history || [];
+
+      if(saveType === 'hero'){
+        const g = (key) => { const el = document.getElementById('homehero-' + key + '-input'); return el ? el.value : null; };
+        // Save per-audience H1s
+        h.hero.audienceH1 = h.hero.audienceH1 || {};
+        Comp.AUDIENCE_TYPES.forEach(a => {
+          const key = 'h1_' + a.toLowerCase().replace(/[^a-z0-9]+/g,'_');
+          const val = g(key);
+          if(val !== null) h.hero.audienceH1[a] = val;
+        });
+        const snippetVal = g('snippet');
+        if(snippetVal !== null) h.hero.snippet = snippetVal;
+        h.history.unshift({label:'Hero updated', time:now, actor:'Admin (you)'});
+      } else if(saveType === 'whyChooseUs'){
+        const g = (key) => { const el = document.getElementById('homewhychoose-' + key + '-input'); return el ? el.value.trim() : null; };
+        h.whyChooseUs.bullets = (h.whyChooseUs.bullets || []).map((b, i) => { const v = g('bullet'+i); return v === null ? b : v; }).filter(b => b !== '');
+        h.history.unshift({label:'Why Travelers Choose Rosotravel updated', time:now, actor:'Admin (you)'});
+      } else {
+        const defs = Comp.HOME_SECTION_FIELDS[sectionKey] || [];
+        const sectionId = Comp.HOME_SECTION_ID_MAP[sectionKey];
+        for(const f of defs){
+          const el = document.getElementById(sectionId + '-' + f.key + '-input');
+          if(el) f.target(h)[f.targetKey] = el.value;
+        }
+        h.history.unshift({label: title + ' updated', time:now, actor:'Admin (you)'});
+      }
+
+      let msg = title + ' saved';
+      if(aiChoice === 'lock') msg += ' and locked from AI';
+      if(selectedLangs.length > 0){
+        msg += '. Update queued for: ' + selectedLangs.join(', ');
+        if(manualApproval) msg += ' (awaiting approval)';
+      }
+      Comp.showToast(msg + '.', 'success');
+      Comp.closeModal('modalSaveChanges');
+      render();
+      return;
+    }
+
+    // Normal AiCard save
+    const card = Comp._saveChangesCard;
+    if(!card){ Comp.closeModal('modalSaveChanges'); return; }
 
     card.classList.remove('is-editing');
     Comp._setCardInputsEditable(card, false);
@@ -8257,11 +8330,12 @@ Comp.SmartSection = function(opts){
   let regenBtnHtml = '';
   if (regenCall) {
     if (regenState === 'loading') regenBtnHtml = Comp.Button('\u23f3 Regenerating\u2026', {size:'btn-sm', disabled:true});
-    else if (regenState === 'ready') regenBtnHtml = Comp.Button('Review content', {size:'btn-sm', variant:'btn-primary', onclick: regenReviewCall});
+    else if (regenState === 'ready') regenBtnHtml = Comp.Button('\u21bb Review content', {size:'btn-sm', variant:'btn-primary', onclick: regenReviewCall});
     else regenBtnHtml = Comp.Button('\u21bb Regenerate', {size:'btn-sm', onclick: regenCall});
   }
+  const reviewBadge = regenState === 'ready' ? `<button type="button" class="approval-badge" onclick="${regenReviewCall}">⚠ Review pending</button>` : '';
   return `<section class="card smart-section ${locked?'is-locked':''}" data-section-id="${sectionId}">
-    <p class="card-title">${title}</p>
+    <p class="card-title">${title}${reviewBadge}</p>
     ${hint ? `<p class="field-hint card-hint card-hint--loose">${hint}</p>` : ''}
     ${bannerHtml || ''}
     ${topExtraHtml ? `<div class="mb-5">${topExtraHtml}</div>` : ''}
@@ -17636,7 +17710,13 @@ function pageHomeManagement(params){
       hint:'The H1, supporting snippet and hero media are the homepage\u2019s primary content block. A missing hero image is a blocking indexing issue under SEO Governance.',
       bannerHtml: '',
       fields:[
-        {key:'h1', label:'H1', value:h.hero.h1, required:true},
+        ...Comp.AUDIENCE_TYPES.map(a => ({
+          key: 'h1_' + a.toLowerCase().replace(/[^a-z0-9]+/g,'_'),
+          label: 'H1 — ' + a,
+          value: (h.hero.audienceH1 && h.hero.audienceH1[a]) || '',
+          required: true
+        })),
+        {key:'snippet', label:'Supporting snippet', value:h.hero.snippet || '', required:true},
       ],
       extraHtml: `
         <div class="field">
@@ -17673,39 +17753,7 @@ function pageHomeManagement(params){
         <div class="field">
           <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
             <label class="m-0">Points</label>
-            ${h.sectionLocks.whyChooseUs ? '' : `<div class="edit-actions" style="display:none; gap:6px;">
-              ${Comp.Button('+ Add point', {size:'btn-sm', onclick:'Comp.homeAddWhyBullet()'})}
-              ${(h.whyChooseUs.bullets || []).length > 1 ? Comp.Button('Remove last', {size:'btn-sm', variant:'btn-amber', onclick:'Comp.homeRemoveWhyBullet()'}) : ''}
-            </div>`}
           </div>
-        </div>
-        <div class="field">
-          <label for="whyGuidePicker">Featured guides</label>
-          ${(() => {
-            const selected = (h.whyChooseUs.guideIds || []).map(id => DATA.partners.find(p2 => p2.id === id)).filter(Boolean);
-            // Source of truth is the Gooru Guide programme in Partners, so a
-            // guide cannot be featured here unless they are an approved partner.
-            const available = DATA.partners.filter(p2 => p2.type === 'gooru_guide_program' && p2.status === 'approved'
-              && !(h.whyChooseUs.guideIds || []).includes(p2.id));
-            const suspended = selected.filter(g => g.status !== 'approved');
-            const viewChips = selected.length ? `<div class="product-tags-wrap mb-2 smart-field-view" style="display:block;">
-              ${selected.map(g => `<span class="product-tag-chip tag-selected">${Comp._escHtml(g.name)}${g.status !== 'approved' ? ' \u00b7 ' + g.status : ''}</span>`).join('')}
-            </div>` : '<p class="empty-state mb-2 smart-field-view" style="display:block;">No guides selected.</p>';
-            const editChips = h.sectionLocks.whyChooseUs ? '' : `<div class="edit-actions" style="display:none; flex-direction:column; width:100%;">
-              ${selected.length ? `<div class="product-tags-wrap mb-2">
-                ${selected.map(g => `<span class="product-tag-chip tag-selected">${Comp._escHtml(g.name)}${g.status !== 'approved' ? ' \u00b7 ' + g.status : ''} <button type="button" style="background:none;border:none;cursor:pointer;padding:0 0 0 6px;" aria-label="Remove ${Comp._escAttr(g.name)}" onclick="Comp.homeRemoveWhyGuide('${g.id}')">\u2715</button></span>`).join('')}
-              </div>` : '<p class="empty-state mb-2">No guides selected.</p>'}
-              ${available.length
-                ? `<select id="whyGuidePicker" class="card-input" onchange="Comp.homeAddWhyGuide(this.value); this.value='';">
-                    <option value="">Select a guide to add\u2026</option>
-                    ${available.map(g => `<option value="${g.id}">${Comp._escHtml(g.name)} \u2014 ${Comp._escHtml(g.country)}</option>`).join('')}
-                  </select>`
-                : `<p class="field-hint">${DATA.partners.some(p2 => p2.type === 'gooru_guide_program' && p2.status === 'approved') ? 'Every approved Gooru Guide is already selected.' : 'No approved Gooru Guides yet \u2014 approve one under Sales: Partners first.'}</p>`}
-            </div>`;
-            return viewChips + editChips +
-            (suspended.length ? `<div class="status-banner is-incomplete"><span>${ICON.warning}</span><span>${suspended.map(g => Comp._escHtml(g.name)).join(', ')} ${suspended.length===1?'is':'are'} no longer an approved Gooru Guide \u2014 remove ${suspended.length===1?'them':'these'} or reinstate the partner.</span></div>` : '') +
-            `<p class="field-hint mt-1h">Pick one or more. The list comes from approved Gooru Guides in Sales \u2192 Partners.</p>`;
-          })()}
         </div>
         <div class="field">
           <label for="whyMediaHeader">Media header</label>
@@ -17740,7 +17788,7 @@ function pageHomeManagement(params){
       title:'Page Optimization', idPrefix:'homeopt',
       saveTarget:{array:'homepage', id:'homepage'},
       schemaType:'WebSite', schemaTypes:['WebSite','WebPage','Organization','BreadcrumbList'],
-      schemaData:{ name:'Rosotravel', description:h.hero.h1, url:'https://rosotravel.com/' },
+      schemaData:{ name:'Rosotravel', description:(h.hero.audienceH1 && h.hero.audienceH1['First-Time Visitor']) || '', url:'https://rosotravel.com/' },
       showReadTime:false, showCta:false
     });
   } else if (tab === 'keywords') {
@@ -17752,14 +17800,76 @@ function pageHomeManagement(params){
 
   return Comp.Shell(`
     ${Comp.PageHeader({title:`Home Management`, actions:`${Comp.homeRegenCtaHtml()}`})}
-    ${Comp.homeReviewPendingBannerHtml()}
-    ${Comp.contentLanguageBar('home', true, {languages: DATA.HOME_LANGUAGES})}
+        ${Comp.contentLanguageBar('home', true, {languages: DATA.HOME_LANGUAGES})}
     <div class="ops-tabs" role="tablist">
       ${tabs.map(t => `<button type="button" class="ops-tab ${tab===t.id?'is-active':''}" onclick="Router.go('homeManagement',{tab:'${t.id}'})">${t.label}</button>`).join('')}
     </div>
     ${tabBody}
   `);
 }
+// Apply accepted AI regen fields to DATA.homepage
+Comp._homeApplyRegenAccepted = function(accepted){
+  const h = DATA.homepage;
+  let count = 0;
+  Object.keys(accepted).forEach(key => {
+    const val = accepted[key];
+    // audience H1 fields: h1_first_time_visitor etc.
+    if(key.startsWith('h1_')){
+      const audienceKey = Comp.AUDIENCE_TYPES.find(a =>
+        'h1_' + a.toLowerCase().replace(/[^a-z0-9]+/g,'_') === key
+      );
+      if(audienceKey){
+        h.hero.audienceH1 = h.hero.audienceH1 || {};
+        h.hero.audienceH1[audienceKey] = val;
+        count++;
+      }
+    } else if(key === 'snippet'){
+      h.hero.snippet = val; count++;
+    } else if(key === 'metaTitle'){
+      h.metaTitle = val; count++;
+    } else if(key === 'metaDescription'){
+      h.metaDescription = val; count++;
+    } else if(key.startsWith('bullet')){
+      const idx = parseInt(key.replace('bullet',''), 10);
+      h.whyChooseUs.bullets = h.whyChooseUs.bullets || [];
+      h.whyChooseUs.bullets[idx] = val; count++;
+    }
+  });
+  return count;
+};
+
+// Build regen fields for a given homepage section key
+Comp._homeBuildRegenFields = function(sectionKey){
+  const h = DATA.homepage;
+  const HOME_REGEN_FIELDS = {
+    hero: [
+      ...Comp.AUDIENCE_TYPES.map(a => ({
+        key:   'h1_' + a.toLowerCase().replace(/[^a-z0-9]+/g,'_'),
+        label: 'H1 — ' + a,
+        get:   () => (h.hero.audienceH1 && h.hero.audienceH1[a]) || '',
+        set:   (v) => { h.hero.audienceH1 = h.hero.audienceH1 || {}; h.hero.audienceH1[a] = v; }
+      })),
+      { key:'snippet', label:'Supporting snippet', get:() => h.hero.snippet || '', set:(v) => { h.hero.snippet = v; } }
+    ],
+    seo: [
+      { key:'metaTitle',       label:'Meta title',       get:() => h.metaTitle       || '', set:(v) => { h.metaTitle = v; } },
+      { key:'metaDescription', label:'Meta description', get:() => h.metaDescription || '', set:(v) => { h.metaDescription = v; } }
+    ],
+    whyChooseUs: [
+      { key:'bullet0', label:'Guides who truly know their city',      get:() => (h.whyChooseUs.bullets||[])[0]||'', set:(v) => { h.whyChooseUs.bullets = h.whyChooseUs.bullets||[]; h.whyChooseUs.bullets[0]=v; } },
+      { key:'bullet1', label:'Smooth plans, fewer worries',            get:() => (h.whyChooseUs.bullets||[])[1]||'', set:(v) => { h.whyChooseUs.bullets[1]=v; } },
+      { key:'bullet2', label:'Shortlists that save hours of research', get:() => (h.whyChooseUs.bullets||[])[2]||'', set:(v) => { h.whyChooseUs.bullets[2]=v; } },
+      { key:'bullet3', label:'Only proven quality makes the cut',      get:() => (h.whyChooseUs.bullets||[])[3]||'', set:(v) => { h.whyChooseUs.bullets[3]=v; } }
+    ]
+  };
+  return (HOME_REGEN_FIELDS[sectionKey] || []).map(f => ({
+    key:   f.key,
+    label: f.label,
+    value: f.get(),
+    set:   f.set
+  }));
+};
+
 Comp.HOME_SECTION_FIELDS = {
   seo: [
     {key:'metaTitle', target:(h)=>h, targetKey:'metaTitle'},
@@ -17901,7 +18011,7 @@ Comp.openHomePreview = function(lang){
       ? 'Source version. This is what renders when no translation exists for a visitor\u2019s language.'
       : `${st.covered} of ${st.total} sections published in ${language}. Unpublished sections fall back to English on the live site.`,
     warningHtml: `${Comp._infoTable([
-      sectionRow('hero', 'Hero H1', h.hero.h1),
+      sectionRow('hero', 'Hero H1', Object.values(h.hero.audienceH1||{}).filter(Boolean)[0] || ''),
       sectionRow('decisionStrip', 'Decision strip', `${h.decisionStrip.line1} ${h.decisionStrip.line2}`),
       sectionRow('whyChooseUs', 'Why travelers choose us', `${h.whyChooseUs.headingLine1} ${h.whyChooseUs.headingLine2}`),
       sectionRow('seo', 'Meta title', h.metaTitle || 'Rosotravel \u2014 Curated Travel Experiences'),
@@ -17926,29 +18036,79 @@ Comp.markHomeTranslationsOutdated = function(sectionKey){
   return n;
 };
 Comp.homeSaveSection = function(sectionKey){
-  const h = DATA.homepage;
-  const defs = Comp.HOME_SECTION_FIELDS[sectionKey];
-  const sectionId = Comp.HOME_SECTION_ID_MAP[sectionKey];
-  const displayValues = {};
-  for (const f of defs) {
-    const el = document.getElementById(`${sectionId}-${f.key}-input`);
-    if (!el) continue;
-    const val = el.value;
-    f.target(h)[f.targetKey] = val;
-    displayValues[f.key] = val;
-  }
-  h.history = h.history || [];
   const sectionLabels = {seo:'SEO data', info:'Section 1', section2:'Section 2', section3:'Section 3'};
-  h.history.unshift({label:`${sectionLabels[sectionKey] || sectionKey} updated`, time:new Date().toLocaleString(), actor:'Admin (you)'});
-  // HOME-01 — English is the source. Editing it makes every published
-  // translation of that section stale, so they are marked outdated rather
-  // than silently continuing to serve old copy.
-  const stale = Comp.markHomeTranslationsOutdated(sectionKey);
-  Comp.smartSectionShowSaved(sectionId, displayValues);
-  Comp.showToast(stale
-    ? `Saved. ${stale} translation${stale===1?'':'s'} of this section marked outdated.`
-    : 'Saved.', 'success');
-  Comp._homeShowTranslatePopup();
+  const sectionTitle = sectionLabels[sectionKey] || sectionKey;
+
+  // Store pending save context
+  Comp._homePendingSaveKey = sectionKey;
+  Comp._homePendingSaveType = 'section';
+
+  // Open same modalSaveChanges as country/region
+  Comp._saveChangesCard = null;
+  Comp._saveChangesSectionTitle = sectionTitle;
+  Comp._saveChangesManualApproval = true;
+  Comp._saveChangesCurrentLang = 'English';
+
+  document.getElementById('modalSaveChangesTitle').textContent = 'Save changes';
+  document.getElementById('modalSaveChangesDesc').textContent = 'English / ' + sectionTitle;
+
+  const otherLangs = [
+    {label:'German',   mode:'Native SEO adaptation'},
+    {label:'French',   mode:'Translation / localisation'},
+    {label:'Italian',  mode:'Translation / localisation'},
+    {label:'Spanish',  mode:'Translation / localisation'},
+    {label:'Polish',   mode:'Translation / localisation'},
+    {label:'Dutch',    mode:'Translation / localisation'}
+  ];
+
+  const langRows = otherLangs.map(l =>
+    '<label class="opt-check">' +
+      '<input type="checkbox" class="sc-lang-check" value="' + l.label + '">' +
+      '<span class="flex-1">' + l.label + '</span>' +
+      '<span class="badge badge-inactive">' + l.mode + '</span>' +
+    '</label>'
+  ).join('');
+
+  const body =
+    '<p class="opt-sub">Future AI edits</p>' +
+    '<div class="radio-option selected" data-sc-ai="allow" role="radio" tabindex="0" onclick="Comp._scSelectAI(this)">' +
+      '<div class="radio-circle"></div>' +
+      '<div><p class="rtitle">Allow AI to update this item</p></div>' +
+    '</div>' +
+    '<div class="radio-option" data-sc-ai="lock" role="radio" tabindex="0" onclick="Comp._scSelectAI(this)">' +
+      '<div class="radio-circle"></div>' +
+      '<div><p class="rtitle">Lock this item from AI</p></div>' +
+    '</div>' +
+    '<p class="opt-sub">Update other language versions?</p>' +
+    '<div class="radio-option selected" data-sc-lang="no" role="radio" tabindex="0" onclick="Comp._scSelectLang(this,false)">' +
+      '<div class="radio-circle"></div>' +
+      '<div><p class="rtitle">No, save only in English</p></div>' +
+    '</div>' +
+    '<div class="radio-option" data-sc-lang="yes" role="radio" tabindex="0" onclick="Comp._scSelectLang(this,true)">' +
+      '<div class="radio-circle"></div>' +
+      '<div><p class="rtitle">Yes, update selected languages</p></div>' +
+    '</div>' +
+    '<div id="sc-lang-panel" style="display:none;margin-top:12px;">' +
+      '<div style="background:var(--surface-sunken);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 14px;">' +
+        '<div style="margin-bottom:0;">' + langRows + '</div>' +
+        '<div class="action-row action-row--between mt-3" style="border-top:1px solid var(--border);padding-top:12px;">' +
+          '<div>' +
+            '<p style="font-size:var(--fs-sm);font-weight:600;margin:0 0 2px;">Require manual approval</p>' +
+            '<p class="field-hint mt-0">Update only matching items. Preserve local keywords and existing locks.</p>' +
+          '</div>' +
+          '<button type="button" class="btn-lock is-on" id="sc-approval-btn" aria-pressed="true" onclick="Comp._scToggleApproval(this)">' +
+            '<span class="toggle-track" aria-hidden="true"></span>' +
+            '<span class="lock-label">On</span>' +
+          '</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+
+  const bodyEl = document.getElementById('modalSaveChangesBody');
+  bodyEl.innerHTML = '';
+  bodyEl.innerHTML = body;
+  document.getElementById('modalSaveChangesConfirmBtn').textContent = 'Save changes';
+  Comp.openModal('modalSaveChanges');
 };
 Comp.homeLockSection = function(sectionKey){
   const h = DATA.homepage;
@@ -18039,20 +18199,17 @@ Comp.confirmUnlock = function(){
 // already flagged a missing hero image as a blocking indexing issue.
 Comp.homeSaveHero = function(){
   const h = DATA.homepage;
-  // SmartSection names its inputs `${sectionId}-${key}-input`.
-  const g = (key) => { const el = document.getElementById('homehero-' + key + '-input'); return el ? el.value : null; };
-  const h1 = g('h1');
-  if (h1 !== null && !h1.trim()) { Comp.showToast('H1 is required \u2014 the homepage cannot publish without one.', 'danger'); return; }
-  if (h1 !== null) h.hero.h1 = h1;
-  h.history = h.history || [];
-  h.history.unshift({label:'Hero updated', time:new Date().toLocaleString(), actor:'Admin (you)'});
-  // Hero copy is source content, so translations of it go stale.
-  const stale = Comp.markHomeTranslationsOutdated('hero');
-  Comp.showToast(stale
-    ? `Hero saved. ${stale} translation${stale===1?'':'s'} marked outdated.`
-    : 'Hero saved.', 'success');
-  render();
-  Comp._homeShowTranslatePopup();
+
+  Comp._homePendingSaveKey = 'hero';
+  Comp._homePendingSaveType = 'hero';
+  Comp._saveChangesSectionTitle = 'Hero';
+  Comp._saveChangesManualApproval = true;
+  Comp._saveChangesCurrentLang = 'English';
+
+  document.getElementById('modalSaveChangesTitle').textContent = 'Save changes';
+  document.getElementById('modalSaveChangesDesc').textContent = 'English / Hero';
+
+  Comp._openSaveChangesModal(null, 'Hero');
 };
 Comp.homeSetHeroMedia = function(){
   Comp.openMediaLibraryPicker((asset) => {
@@ -18079,23 +18236,9 @@ Comp.homeUploadHeroFromDevice = function(){
   });
 };
 Comp.homeSaveWhyChooseUs = function(){
-  const h = DATA.homepage;
-  // SmartSection names its inputs `${sectionId}-${key}-input`.
-  const g = (key) => { const el = document.getElementById('homewhychoose-' + key + '-input'); return el ? el.value.trim() : null; };
-  // Bullet count is no longer fixed at five, so read whatever is rendered.
-  h.whyChooseUs.bullets = (h.whyChooseUs.bullets || []).map((b, i) => {
-    const v = g('bullet' + i);
-    return v === null ? b : v;
-  }).filter(b => b !== '');
-  const mh = g('mediaHeader');
-  if (mh !== null) h.whyChooseUs.mediaHeader = mh;
-  h.history.unshift({label:'Why Travelers Choose Rosotravel updated', time:new Date().toLocaleString(), actor:'Admin (you)'});
-  const stale = Comp.markHomeTranslationsOutdated('whyChooseUs');
-  Comp.showToast(stale
-    ? `Section saved. ${stale} translation(s) marked outdated.`
-    : 'Section saved.', 'success');
-  render();
-  Comp._homeShowTranslatePopup();
+  Comp._homePendingSaveKey = 'whyChooseUs';
+  Comp._homePendingSaveType = 'whyChooseUs';
+  Comp._openSaveChangesModal(null, 'Why Travelers Choose Rosotravel');
 };
 // The bullet list used to be hard-coded to exactly five inputs, so a shorter or
 // longer trust list was impossible to express.
@@ -20939,8 +21082,10 @@ function pageRolesCreate(){
     const moduleRow = `
     <tr style="background:var(--surface-2);">
       <td><strong>${m}</strong>${subs.length > 1 ? ` <span class="field-hint inline">${subs.length} sub-sections</span>` : ''}</td>
-      <td class="text-center"><input type="checkbox" id="v${i}" aria-label="View ${m}" onchange="Comp.roleToggleModule(${i}, this.checked, 'v')" checked></td>
-      <td class="text-center"><input type="checkbox" id="e${i}" aria-label="Edit ${m}" onchange="Comp.roleToggleModule(${i}, this.checked, 'e')"></td>
+      <td class="text-center"><input type="checkbox" id="c${i}" aria-label="Create ${m}" onchange="Comp.roleToggleModule(${i}, this.checked, 'c')"></td>
+      <td class="text-center"><input type="checkbox" id="r${i}" aria-label="Read ${m}" onchange="Comp.roleToggleModule(${i}, this.checked, 'r')" checked></td>
+      <td class="text-center"><input type="checkbox" id="u${i}" aria-label="Update ${m}" onchange="Comp.roleToggleModule(${i}, this.checked, 'u')"></td>
+      <td class="text-center"><input type="checkbox" id="d${i}" aria-label="Delete ${m}" onchange="Comp.roleToggleModule(${i}, this.checked, 'd')"></td>
     </tr>`;
     // A module with a single same-named sub-section adds nothing, so only
     // expand genuinely sub-divided modules.
@@ -20949,8 +21094,10 @@ function pageRolesCreate(){
       const sensitive = SENSITIVE_SUBSECTIONS.includes(sub);
       return `<tr>
         <td style="padding-left:28px; color:var(--text-secondary);">${sub}${sensitive ? ' <span class="badge badge-amber">Sensitive</span>' : ''}</td>
-        <td class="text-center"><input type="checkbox" id="v${i}_${si}" aria-label="View ${sub}" checked></td>
-        <td class="text-center"><input type="checkbox" id="e${i}_${si}" aria-label="Edit ${sub}" ${sensitive ? '' : ''}></td>
+        <td class="text-center"><input type="checkbox" id="c${i}_${si}" aria-label="Create ${sub}"></td>
+        <td class="text-center"><input type="checkbox" id="r${i}_${si}" aria-label="Read ${sub}" checked></td>
+        <td class="text-center"><input type="checkbox" id="u${i}_${si}" aria-label="Update ${sub}" ${sensitive ? '' : ''}></td>
+        <td class="text-center"><input type="checkbox" id="d${i}_${si}" aria-label="Delete ${sub}" ${sensitive ? '' : ''}></td>
       </tr>`;
     }).join('');
   }).join('');
@@ -20964,7 +21111,7 @@ function pageRolesCreate(){
           <div class="field"><label for="rDesc">Description</label><textarea id="rDesc" placeholder="Enter a brief description of this role..."></textarea></div>
         </div>`})}
       ${Comp.Card({title:`Assign permissions`, body:`
-        ${Comp.Table({columns:[{label:'Module'},{label:'View',width:'100px'},{label:'Edit',width:'100px'}], rows:permRows})}
+        ${Comp.Table({columns:[{label:'Module'},{label:'Create',width:'90px'},{label:'Read',width:'90px'},{label:'Update',width:'90px'},{label:'Delete',width:'90px'}], rows:permRows})}
         <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:24px;">
           ${Comp.Button('Cancel', {onclick:"Router.go('rolesListing')"})}
           <button type="submit" class="btn btn-primary" disabled>Create role</button>
@@ -20981,7 +21128,7 @@ Comp.roleToggleModule = function(moduleIndex, checked, kind){
   (MODULE_SUBSECTIONS[m] || []).forEach((sub, si) => {
     const el = document.getElementById(kind + moduleIndex + '_' + si);
     if (!el) return;
-    if (kind === 'e' && checked && SENSITIVE_SUBSECTIONS.includes(sub)) { el.checked = false; return; }
+    if ((kind === 'u' || kind === 'd') && checked && SENSITIVE_SUBSECTIONS.includes(sub)) { el.checked = false; return; }
     el.checked = checked;
   });
 };
@@ -20995,15 +21142,19 @@ function pageRolesDetails(params){
     const moduleRow = `
     <tr style="background:var(--surface-2);">
       <td><strong>${p.module}</strong> <span class="field-hint inline">${subs.length} sub-section${subs.length===1?'':'s'}</span></td>
-      <td class="text-center"><input type="checkbox" class="card-input" id="permView${i}" aria-label="View ${p.module}" ${p.view ? 'checked' : ''} disabled></td>
-      <td class="text-center"><input type="checkbox" class="card-input" id="permEdit${i}" aria-label="Edit ${p.module}" ${p.edit ? 'checked' : ''} disabled></td>
+      <td class="text-center"><input type="checkbox" class="card-input" id="permCreate${i}" aria-label="Create ${p.module}" ${p.create ? 'checked' : ''} disabled></td>
+      <td class="text-center"><input type="checkbox" class="card-input" id="permRead${i}" aria-label="Read ${p.module}" ${p.read !== false ? 'checked' : ''} disabled></td>
+      <td class="text-center"><input type="checkbox" class="card-input" id="permUpdate${i}" aria-label="Update ${p.module}" ${p.update || p.edit ? 'checked' : ''} disabled></td>
+      <td class="text-center"><input type="checkbox" class="card-input" id="permDelete${i}" aria-label="Delete ${p.module}" ${p.delete ? 'checked' : ''} disabled></td>
     </tr>`;
     const subRows = subs.map((sub, si) => {
       const sensitive = SENSITIVE_SUBSECTIONS.includes(sub.name);
       return `<tr>
         <td style="padding-left:28px; color:var(--text-secondary);">${Comp._escHtml(sub.name)}${sensitive ? ' <span class="badge badge-amber">Sensitive</span>' : ''}</td>
-        <td class="text-center"><input type="checkbox" class="card-input" id="permView${i}_${si}" aria-label="View ${sub.name}" ${sub.view ? 'checked' : ''} disabled></td>
-        <td class="text-center"><input type="checkbox" class="card-input" id="permEdit${i}_${si}" aria-label="Edit ${sub.name}" ${sub.edit ? 'checked' : ''} disabled></td>
+        <td class="text-center"><input type="checkbox" class="card-input" id="permCreate${i}_${si}" aria-label="Create ${sub.name}" ${sub.create ? 'checked' : ''} disabled></td>
+        <td class="text-center"><input type="checkbox" class="card-input" id="permRead${i}_${si}" aria-label="Read ${sub.name}" ${sub.read !== false ? 'checked' : ''} disabled></td>
+        <td class="text-center"><input type="checkbox" class="card-input" id="permUpdate${i}_${si}" aria-label="Update ${sub.name}" ${sub.update || sub.edit ? 'checked' : ''} disabled></td>
+        <td class="text-center"><input type="checkbox" class="card-input" id="permDelete${i}_${si}" aria-label="Delete ${sub.name}" ${sub.delete ? 'checked' : ''} disabled></td>
       </tr>`;
     }).join('');
     return moduleRow + subRows;
@@ -21034,7 +21185,7 @@ function pageRolesDetails(params){
         </div>
       </div>
       ${Comp.Card({title:`Assigned permissions`, body:`
-        ${Comp.Table({columns:[{label:'Module'},{label:'View',width:'100px'},{label:'Edit',width:'100px'}], rows:permRows})}`})}
+        ${Comp.Table({columns:[{label:'Module'},{label:'Create',width:'90px'},{label:'Read',width:'90px'},{label:'Update',width:'90px'},{label:'Delete',width:'90px'}], rows:permRows})}`})}
     </form>
   `);
 }
@@ -21615,7 +21766,7 @@ Comp.homeSectionRegenStart = function(sectionKey){
   const SECTION_FIELDS = {
     hero:         ['H1','Supporting snippet'],
     seo:          ['Meta title','Meta description'],
-    whyChooseUs:  ['Point 1','Point 2','Point 3']
+    whyChooseUs:  ['Guides who truly know their city','Smooth plans, fewer worries','Shortlists that save hours of research','Only proven quality makes the cut']
   };
   const sectionTitle = SECTION_LABELS[sectionKey] || sectionKey;
   const fields = SECTION_FIELDS[sectionKey] || [];
@@ -21850,12 +22001,18 @@ function pmSectionLabel(pageType, sectionKey){
 
 // ---- LIST PAGE ----
 function pagePromptManagement(params){
-  const selectedPT = (params && params.pageType) || DATA.PM_PAGE_TYPES[0].id;
-  const sections   = DATA.PM_SECTIONS[selectedPT] || [];
-  const placeholders = DATA.PM_PLACEHOLDERS[selectedPT] || [];
+  const selectedPT   = (params && params.pageType) || DATA.PM_PAGE_TYPES[0].id;
+  const selectedLang = (params && params.language) || 'English';
+  const sections     = DATA.PM_SECTIONS[selectedPT] || [];
+
+  const PROMPT_LANGS = ['English','German','French','Italian','Spanish','Polish','Dutch'];
 
   const pageTypeOpts = DATA.PM_PAGE_TYPES.map(pt =>
     `<option value="${pt.id}" ${pt.id === selectedPT ? 'selected' : ''}>${Comp._escHtml(pt.label)}</option>`
+  ).join('');
+
+  const langOpts = PROMPT_LANGS.map(l =>
+    `<option value="${l}" ${l === selectedLang ? 'selected' : ''}>${Comp._escHtml(l)}</option>`
   ).join('');
 
   const rows = sections.map(sec => {
@@ -21863,14 +22020,8 @@ function pagePromptManagement(params){
     const statusBadge = cfg ? Comp.Badge('Configured', true) : Comp.Badge('Not configured', false);
     const preview = cfg ? `<span class="field-hint" style="display:block;max-width:360px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${Comp._escHtml(cfg.prompt.slice(0,80))}…</span>` : '';
     const actionBtn = cfg
-      ? Comp.Button('Edit', {size:'btn-sm', onclick:`Router.go('promptEditor',{pageType:'${selectedPT}',sectionKey:'${sec.id}'})`})
-      : Comp.Button('Add prompt', {size:'btn-sm', variant:'btn-primary', onclick:`Router.go('promptEditor',{pageType:'${selectedPT}',sectionKey:'${sec.id}'})`});
-    const menuItems = cfg
-      ? [
-          {label:'Edit', handler:() => Router.go('promptEditor',{pageType:selectedPT, sectionKey:sec.id})},
-          {label:'Delete / Reset', danger:true, handler:() => Comp.pmDeleteConfig(selectedPT, sec.id)}
-        ]
-      : [{label:'Add prompt', handler:() => Router.go('promptEditor',{pageType:selectedPT, sectionKey:sec.id})}];
+      ? Comp.Button('Edit', {size:'btn-sm', onclick:`Router.go('promptEditor',{pageType:'${selectedPT}',sectionKey:'${sec.id}',language:'${selectedLang}'})`})
+      : Comp.Button('Add prompt', {size:'btn-sm', variant:'btn-primary', onclick:`Router.go('promptEditor',{pageType:'${selectedPT}',sectionKey:'${sec.id}',language:'${selectedLang}'})`});
 
     return `<tr>
       <td class="cell-name">${Comp._escHtml(sec.label)}</td>
@@ -21896,8 +22047,14 @@ function pagePromptManagement(params){
       <div class="action-row" style="gap:16px;flex-wrap:wrap;align-items:center;">
         <div class="field" style="flex:0 0 auto;margin:0;">
           <label for="pm-pt-select" style="font-size:var(--fs-sm);font-weight:600;margin-bottom:4px;display:block;">Page type</label>
-          <select id="pm-pt-select" class="card-input" style="width:220px;" onchange="Router.go('promptManagement',{pageType:this.value})">
+          <select id="pm-pt-select" class="card-input" style="width:220px;" onchange="Router.go('promptManagement',{pageType:this.value,language:'${selectedLang}'})">
             ${pageTypeOpts}
+          </select>
+        </div>
+        <div class="field" style="flex:0 0 auto;margin:0;">
+          <label for="pm-lang-select" style="font-size:var(--fs-sm);font-weight:600;margin-bottom:4px;display:block;">Language</label>
+          <select id="pm-lang-select" class="card-input" style="width:180px;" onchange="Router.go('promptManagement',{pageType:'${selectedPT}',language:this.value})">
+            ${langOpts}
           </select>
         </div>
         <div style="display:flex;gap:12px;margin-left:auto;">
@@ -21925,6 +22082,7 @@ function pagePromptEditor(params){
   const pageType   = params && params.pageType   ? params.pageType   : DATA.PM_PAGE_TYPES[0].id;
   const sectionKey = params && params.sectionKey ? params.sectionKey : (DATA.PM_SECTIONS[pageType]||[])[0]?.id;
   const tab        = (params && params.tab)      || 'config';
+  const language   = (params && params.language) || 'English';
   const cfg        = pmGetConfig(pageType, sectionKey);
   const ptLabel    = pmPageLabel(pageType);
   const secLabel   = pmSectionLabel(pageType, sectionKey);
@@ -21997,6 +22155,10 @@ function pagePromptEditor(params){
             <input class="card-input" value="${Comp._escHtml(secLabel)}" disabled>
           </div>
         </div>
+        <div class="field" style="max-width:220px;">
+          <label>Language</label>
+          <input class="card-input" value="${Comp._escHtml(language)}" disabled>
+        </div>
         <div class="field">
           <label for="pm-prompt">Prompt text <span class="required">*</span></label>
           <textarea id="pm-prompt" class="card-input" rows="10" maxlength="4000"
@@ -22011,7 +22173,7 @@ function pagePromptEditor(params){
         </div>
       </div>
       <div class="action-row action-row--divided mt-4">
-        ${Comp.Button('← Back', {onclick:`Router.go('promptManagement',{pageType:'${pageType}'})`})}
+        ${Comp.Button('← Back', {onclick:`Router.go('promptManagement',{pageType:'${pageType}',language:'${language}'})`})}
         <div style="display:flex;gap:8px;">
           ${Comp.Button('Save prompt', {variant:'btn-primary', onclick:`Comp.pmSaveConfig('${pageType}','${sectionKey}')`})}
         </div>
@@ -22096,12 +22258,12 @@ function pagePromptEditor(params){
   return Comp.Shell(`
     ${Comp.Breadcrumb([
       {label:'Settings & Administration'},
-      {label:'Prompt Management', route:'promptManagement', params:{pageType}},
-      {label: ptLabel + ' — ' + secLabel}
+      {label:'Prompt Management', route:'promptManagement', params:{pageType, language}},
+      {label: ptLabel + ' — ' + language + ' — ' + secLabel}
     ])}
     ${Comp.PageHeader({
       title: secLabel,
-      subtitle: ptLabel,
+      subtitle: ptLabel + ' · ' + language,
       subtitleClass: 'field-hint'
     })}
     ${tabNav}
