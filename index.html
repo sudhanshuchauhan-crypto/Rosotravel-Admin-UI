@@ -8289,6 +8289,28 @@ Comp._plainTextToHtml = function(text){
 // Model C traveler profile (S2-04 \u00a74.9.10.2).
 Comp.AUDIENCE_TYPES = ['First-Time Visitor','Family Trip','Couple Trip','Solo Trip','Premium & Comfortable','Culture & History','Activities & Local Experiences'];
 Comp.AUDIENCE_DEFAULT = 'First-Time Visitor';
+// Shared read-only URL & Canonical card — language aware
+Comp._urlLangCodes = {
+  'English':'en','German':'de','French':'fr',
+  'Italian':'it','Spanish':'es','Polish':'pl','Dutch':'nl',
+  'Arabic':'ar','Hindi':'hi'
+};
+
+Comp._renderUrlCanonicalCard = function(idPrefix, slugFn){
+  const LANG_CODES = Comp._urlLangCodes;
+  const el = document.getElementById(idPrefix + '-lang');
+  const currentLang = el ? el.value : 'English';
+  const langCode = LANG_CODES[currentLang] || 'en';
+  const data = slugFn(langCode, currentLang);
+  return `<div class="card" style="margin-bottom:16px;" id="${idPrefix}-url-card">
+    <p class="card-title" style="margin-bottom:10px;">URL &amp; Canonical</p>
+    ${Comp._infoTable([
+      ['URL slug',      `<span style="font-family:monospace;font-size:var(--fs-sm);color:var(--text-primary);">${Comp._escHtml(data.slug)}</span>`],
+      ['Canonical URL', `<span style="font-family:monospace;font-size:var(--fs-sm);color:var(--text-primary);">${Comp._escHtml(data.canonical)}</span>`]
+    ])}
+  </div>`;
+};
+
 Comp.contentLanguageBar = function(idPrefix, hideAudience, opts){
   const onLangChange = opts && opts.onLanguageChange ? ` onchange="(${opts.onLanguageChange})(this.value)"` : '';
   const langOptions = (opts && opts.languages) || ['English','Arabic','Hindi'];
@@ -8934,6 +8956,8 @@ function pageCountryDetails(params){
     `})}
 
     ${Comp.AiCard({id:'info', title:'Country information', fieldsHtml:`
+      ${aiField('H1', country.h1 || `Visit ${country.name} — Top Destinations & Travel Guide`)}
+      ${aiField('Supporting snippet', country.snippet || `Explore ${country.name} with Rosotravel — discover top cities, attractions, and travel guides.`, 'textarea')}
       <div class="field-row">
         <div class="field">
           <label for="continentSelect">Continent</label>
@@ -9066,6 +9090,11 @@ function pageCountryDetails(params){
     ${Comp.pendingApprovalsBanner()}
     ${(()=>{ const _iss=Comp._getDestIssues(country); return _iss.length ? `<div class="status-banner is-danger"><span>${ICON.warning}</span><span>${_iss.length} issue${_iss.length===1?'':'s'}. <button type="button" class="btn-sm-link" onclick="Comp.openDestIssues('country','${country.id}')">View issues →</button></span></div>` : ''; })()}
     ${Comp.contentLanguageBar('country')}
+    ${Comp._renderUrlCanonicalCard('country', (code, lang) => {
+      const slug = (country.slug || country.name.toLowerCase().replace(/[^a-z0-9]+/g,'-'));
+      const langSlug = code === 'en' ? slug : slug;
+      return {slug: langSlug, canonical: `https://rosotravel.com/${code}/${langSlug}/`};
+    })}
     <div class="ops-tabs" role="tablist">
       ${tabs.map(t => `<button type="button" class="ops-tab ${tab===t.id?'is-active':''}" onclick="Router.go('countryDetails',{id:'${country.id}', tab:'${t.id}'})">${t.label}</button>`).join('')}
     </div>
@@ -9237,6 +9266,8 @@ function pageRegionDetails(params){
         <p class="field-hint">ⓘ Each region belongs to exactly one country.</p>
       </div>
       ${aiField('Region name', region.name)}
+      ${aiField('H1', region.h1 || `${region.name} — Travel Guide & Top Destinations`)}
+      ${aiField('Supporting snippet', region.snippet || `Explore ${region.name} with Rosotravel — discover cities, attractions, and local travel guides.`, 'textarea')}
       <div class="field">
         <label id="regionDetailHeroLbl">Hero image</label>
         <div class="upload-area" role="button" tabindex="0" aria-labelledby="regionDetailHeroLbl"><div class="up-title">Click to upload</div><div class="up-sub">or drag and drop</div><div class="up-hint">PNG, JPG or WEBP (max. 1200×400px)</div></div>
@@ -9340,6 +9371,11 @@ function pageRegionDetails(params){
     ${Comp.pendingApprovalsBanner()}
     ${(()=>{ const _iss=Comp._getDestIssues(region); return _iss.length ? `<div class="status-banner is-danger"><span>${ICON.warning}</span><span>${_iss.length} issue${_iss.length===1?'':'s'}. <button type="button" class="btn-sm-link" onclick="Comp.openDestIssues('region','${region.id}')">View issues →</button></span></div>` : ''; })()}
     ${Comp.contentLanguageBar('region')}
+    ${Comp._renderUrlCanonicalCard('region', (code, lang) => {
+      const countrySlug = (region.country || '').toLowerCase().replace(/[^a-z0-9]+/g,'-');
+      const slug = (region.slug || region.name.toLowerCase().replace(/[^a-z0-9]+/g,'-'));
+      return {slug: slug, canonical: `https://rosotravel.com/${code}/${countrySlug}/${slug}/`};
+    })}
     <div class="ops-tabs" role="tablist">
       ${tabs.map(t => `<button type="button" class="ops-tab ${tab===t.id?'is-active':''}" onclick="Router.go('regionDetails',{id:'${region.id}', tab:'${t.id}'})">${t.label}</button>`).join('')}
     </div>
@@ -9543,6 +9579,8 @@ function pageCityDetails(params){
         </div>
       </div>
       ${aiField('City name', city.name)}
+      ${aiField('H1', city.h1 || `${city.name} — Travel Guide, Attractions & Tours`)}
+      ${aiField('Supporting snippet', city.snippet || `Explore ${city.name} with Rosotravel — find top attractions, guided tours, and local experiences.`, 'textarea')}
       <div class="field">
         <label id="cityDetailHeroLbl">Hero image</label>
         <div class="upload-area" role="button" tabindex="0" aria-labelledby="cityDetailHeroLbl"><div class="up-title">Click to upload</div><div class="up-sub">or drag and drop</div><div class="up-hint">PNG, JPG or WEBP (max. 1200×400px)</div></div>
@@ -9645,6 +9683,11 @@ function pageCityDetails(params){
     ${Comp.pendingApprovalsBanner()}
     ${(()=>{ const _iss=Comp._getDestIssues(city); return _iss.length ? `<div class="status-banner is-danger"><span>${ICON.warning}</span><span>${_iss.length} issue${_iss.length===1?'':'s'}. <button type="button" class="btn-sm-link" onclick="Comp.openDestIssues('city','${city.id}')">View issues →</button></span></div>` : ''; })()}
     ${Comp.contentLanguageBar('city')}
+    ${Comp._renderUrlCanonicalCard('city', (code, lang) => {
+      const countrySlug = (city.country || '').toLowerCase().replace(/[^a-z0-9]+/g,'-');
+      const slug = (city.slug || city.name.toLowerCase().replace(/[^a-z0-9]+/g,'-'));
+      return {slug: slug, canonical: `https://rosotravel.com/${code}/${countrySlug}/${slug}/`};
+    })}
     <div class="ops-tabs" role="tablist">
       ${tabs.map(t => `<button type="button" class="ops-tab ${tab===t.id?'is-active':''}" onclick="Router.go('cityDetails',{id:'${city.id}', tab:'${t.id}'})">${t.label}</button>`).join('')}
     </div>
@@ -17801,6 +17844,10 @@ function pageHomeManagement(params){
   return Comp.Shell(`
     ${Comp.PageHeader({title:`Home Management`, actions:`${Comp.homeRegenCtaHtml()}`})}
         ${Comp.contentLanguageBar('home', true, {languages: DATA.HOME_LANGUAGES})}
+        ${Comp._renderUrlCanonicalCard('home', (code) => ({
+          slug: '',
+          canonical: `https://rosotravel.com/${code}/`
+        }))}
     <div class="ops-tabs" role="tablist">
       ${tabs.map(t => `<button type="button" class="ops-tab ${tab===t.id?'is-active':''}" onclick="Router.go('homeManagement',{tab:'${t.id}'})">${t.label}</button>`).join('')}
     </div>
@@ -19266,6 +19313,10 @@ function pageStaticPageEditor(params){
     ${Comp.PageHeader({title:`${p.name}`, subtitle:`<span class="sp-chips">${Comp.spStatusBadgesHtml(p)}${pendingLangLabel && pub.hasDraftPending ? Comp.Badge(pendingLangLabel, 'info') : ''}</span>`, subtitleClass:'page-sub', actions: headerActions})}
     <div class="sp-toolbar">${modeSwitcher}${isLiveMode && liveVer ? '<span class="sp-live-note">Published '+Comp._escHtml(liveVer.publishedAt)+' by '+Comp._escHtml(liveVer.publishedBy)+'</span>' : ''}</div>
     ${(isLiveMode || isActivityMode) ? '' : Comp.contentLanguageBar('sp', true, {languages: SP_LANGS.map(function(c){return c;}), selected: _activeLang, onLanguageChange: '(v) => Comp._spOnLangChange(v)'})}
+    ${(isLiveMode || isActivityMode) ? '' : Comp._renderUrlCanonicalCard('sp', (code) => {
+      const base = (p.canonicalUrl || '/' + p.name.toLowerCase().replace(/[^a-z0-9]+/g,'-') + '/');
+      return {slug: base.replace(/^\/|\/$/g,''), canonical: `https://rosotravel.com/${code}${base}`};
+    })}
     ${!isActivityMode ? `<div class="ops-tabs" role="tablist">
       ${tabs.map(t => `<button type="button" class="ops-tab ${tab===t.id?'is-active':''}" onclick="Comp.spGoEditor('${p.id}',{id:'${p.id}', tab:'${t.id}', mode:'${isLiveMode?'live':'draft'}'})">${t.label}</button>`).join('')}
     </div>` : ''}
