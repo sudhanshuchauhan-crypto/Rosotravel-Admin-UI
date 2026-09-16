@@ -2730,7 +2730,19 @@ const Comp = {
     render();
   },
   acceptAiVersion(){
-    const cardId = Comp._compareCardId;
+    // regenReview context (homepage / SmartSection)
+    if(Comp._compareCardId === '__regenReview__'){
+      const changed  = Comp._regenReviewChanged || [];
+      const accepted = {};
+      document.querySelectorAll('.regen-review-check').forEach(cb => {
+        if(cb.checked){ const f = changed.find(x => x.key === cb.dataset.key); if(f) accepted[f.key] = f.candidate; }
+      });
+      Comp.closeModal('modalCompare');
+      if(Object.keys(accepted).length === 0){ Comp.showToast('No fields selected — nothing applied.', 'danger'); return; }
+      if(Comp._regenReviewOnApply) Comp._regenReviewOnApply(accepted);
+      Comp._compareCardId = null;
+      return;
+    }
     const key = Comp.cardKey(cardId);
     const pending = Comp._pendingApprovals[key];
     if (pending) {
@@ -2773,6 +2785,15 @@ const Comp = {
     render();
   },
   denyAiVersion(){
+    // regenReview context
+    if(Comp._compareCardId === '__regenReview__'){
+      Comp.closeModal('modalCompare');
+      if(Comp._regenReviewOnDeny) Comp._regenReviewOnDeny();
+      Comp._compareCardId = null;
+      Comp.showToast('AI suggestion denied. Current content preserved.', 'danger');
+      render();
+      return;
+    }
     const cardId = Comp._compareCardId;
     const key = Comp.cardKey(cardId);
     delete Comp._pendingApprovals[key];
@@ -8448,7 +8469,7 @@ Comp.smartSectionShowSaved = function(sectionId, values){
 // saved to the real record until the admin explicitly accepts it (per-field).
 // `fields`: [{key, label, current}]. `onApply(acceptedValues)` is called
 // with only the accepted {key: newValue} pairs to actually persist.
-Comp.openRegenReview = function(fields, onApply){
+Comp.openRegenReview = function(fields, onApply, onDeny){
   const candidates = fields.map(f => ({...f, candidate: Comp.simulateAiRewrite(f.label, f.current)}));
   const changed = candidates.filter(f => f.candidate !== f.current);
   if (changed.length === 0) { Comp.showToast('No changes suggested this time.', 'success'); return; }
@@ -8463,20 +8484,16 @@ Comp.openRegenReview = function(fields, onApply){
         </span>
       </label>
     </div>`).join('');
-  Comp.openConfirm({
-    title: 'Review AI suggestions',
-    desc: 'Uncheck any field you don\'t want to apply, then accept the rest.',
-    warningHtml: `<div style="max-height:50vh; overflow-y:auto;">${rowsHtml}</div>`,
-    confirmLabel: 'Accept selected',
-    onConfirm: () => {
-      const accepted = {};
-      document.querySelectorAll('.regen-review-check').forEach(cb => {
-        if (cb.checked) { const f = changed.find(x => x.key === cb.dataset.key); accepted[f.key] = f.candidate; }
-      });
-      if (Object.keys(accepted).length === 0) { Comp.showToast('No fields accepted — nothing changed.', 'success'); return; }
-      onApply(accepted);
-    }
-  });
+
+  Comp._regenReviewOnApply  = onApply;
+  Comp._regenReviewOnDeny   = onDeny || null;
+  Comp._regenReviewChanged  = changed;
+  Comp._compareCardId       = '__regenReview__';
+
+  document.getElementById('modalCompareTitle').textContent = 'Review AI suggestion';
+  document.getElementById('modalCompareDesc').textContent  = "Uncheck any field you don't want to apply, then accept the rest.";
+  document.getElementById('modalCompareBody').innerHTML    = '<div style="max-height:50vh; overflow-y:auto;">' + rowsHtml + '</div>';
+  Comp.openModal('modalCompare');
 };
 Comp.smartFieldEdit = function(fieldId){
   document.getElementById(fieldId+'-view').style.display = 'none';
