@@ -9310,9 +9310,9 @@ function pageCountryDetails(params){
         ${Comp.Button('\u21bb Regenerate all', {onclick:'Comp.countryOpenRegenScopeModal()'})}
         ${Comp.Button((country.indexability||'Noindex')==='Indexable' ? '● Indexable' : '○ Noindex', {variant:(country.indexability||'Noindex')==='Indexable' ? 'btn-primary' : '', onclick:`Comp.toggleIndexability('country','${country.id}')`})}
         ${Comp.Button(country.status==='Active' ? 'Deactivate' : 'Activate', {variant:'btn-amber', onclick:`Comp.confirmToggleCountryStatus('${country.id}')`})}`, level:'h2'})}
-    ${Comp.pendingApprovalsBanner()}
     ${(()=>{ const _iss=Comp._getDestIssues(country); return _iss.length ? `<div class="status-banner is-danger"><span>${ICON.warning}</span><span>${_iss.length} issue${_iss.length===1?'':'s'}. <button type="button" class="btn-sm-link" onclick="Comp.openDestIssues('country','${country.id}')">View issues →</button></span></div>` : ''; })()}
     ${Comp.contentLanguageBar('country')}
+    ${Comp.pendingApprovalsBanner()}
     ${Comp._renderUrlCanonicalCard('country', (code, lang) => {
       const slug = (country.slug || country.name.toLowerCase().replace(/[^a-z0-9]+/g,'-'));
       const langSlug = code === 'en' ? slug : slug;
@@ -9593,9 +9593,9 @@ function pageRegionDetails(params){
         ${Comp.Button('\u21bb Regenerate all', {onclick:'Comp.regionOpenRegenScopeModal()'})}
         ${Comp.Button((region.indexability||'Noindex')==='Indexable' ? '● Indexable' : '○ Noindex', {variant:(region.indexability||'Noindex')==='Indexable' ? 'btn-primary' : '', onclick:`Comp.toggleIndexability('region','${region.id}')`})}
         ${Comp.Button(region.status==='Active' ? 'Deactivate' : 'Activate', {variant:'btn-amber', onclick:`Comp.confirmToggleRegionStatus('${region.id}')`})}`, level:'h2'})}
-    ${Comp.pendingApprovalsBanner()}
     ${(()=>{ const _iss=Comp._getDestIssues(region); return _iss.length ? `<div class="status-banner is-danger"><span>${ICON.warning}</span><span>${_iss.length} issue${_iss.length===1?'':'s'}. <button type="button" class="btn-sm-link" onclick="Comp.openDestIssues('region','${region.id}')">View issues →</button></span></div>` : ''; })()}
     ${Comp.contentLanguageBar('region')}
+    ${Comp.pendingApprovalsBanner()}
     ${Comp._renderUrlCanonicalCard('region', (code, lang) => {
       const countrySlug = (region.country || '').toLowerCase().replace(/[^a-z0-9]+/g,'-');
       const slug = (region.slug || region.name.toLowerCase().replace(/[^a-z0-9]+/g,'-'));
@@ -9905,9 +9905,9 @@ function pageCityDetails(params){
         ${Comp.Button('\u21bb Regenerate all', {onclick:'Comp._openDestRegenModal()'})}
         ${Comp.Button((city.indexability||'Noindex')==='Indexable' ? '● Indexable' : '○ Noindex', {variant:(city.indexability||'Noindex')==='Indexable' ? 'btn-primary' : '', onclick:`Comp.toggleIndexability('city','${city.id}')`})}
         ${Comp.Button(city.status==='Active' ? 'Deactivate' : 'Activate', {variant:'btn-amber', onclick:`Comp.confirmToggleCityStatus('${city.id}')`})}`, level:'h2'})}
-    ${Comp.pendingApprovalsBanner()}
     ${(()=>{ const _iss=Comp._getDestIssues(city); return _iss.length ? `<div class="status-banner is-danger"><span>${ICON.warning}</span><span>${_iss.length} issue${_iss.length===1?'':'s'}. <button type="button" class="btn-sm-link" onclick="Comp.openDestIssues('city','${city.id}')">View issues →</button></span></div>` : ''; })()}
     ${Comp.contentLanguageBar('city')}
+    ${Comp.pendingApprovalsBanner()}
     ${Comp._renderUrlCanonicalCard('city', (code, lang) => {
       const countrySlug = (city.country || '').toLowerCase().replace(/[^a-z0-9]+/g,'-');
       const slug = (city.slug || city.name.toLowerCase().replace(/[^a-z0-9]+/g,'-'));
@@ -18058,9 +18058,8 @@ function pageHomeManagement(params){
 
   return Comp.Shell(`
     ${Comp.PageHeader({title:`Home Management`, actions:`${Comp.homeRegenCtaHtml()}`})}
-        ${Comp.pendingApprovalsBanner()}
         ${Comp.contentLanguageBar('home', true, {languages: DATA.HOME_LANGUAGES})}
-        ${Comp._renderUrlCanonicalCard('home', (code) => ({
+        ${Comp.pendingApprovalsBanner()}        ${Comp._renderUrlCanonicalCard('home', (code) => ({
           slug: '',
           canonical: `https://rosotravel.com/${code}/`
         }))}
