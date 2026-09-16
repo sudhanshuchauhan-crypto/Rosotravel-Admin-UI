@@ -1953,27 +1953,64 @@ const Comp = {
     const cfg = Comp.BULK_MODULE_CONFIG[module];
     const ids = [...Comp.getBulkSelection(module)];
     if (ids.length === 0) return;
-    const activeLabel = cfg.activeLabel || 'Activate';
+    const activeLabel   = cfg.activeLabel   || 'Activate';
     const inactiveLabel = cfg.inactiveLabel || 'Deactivate';
     const overCap = activate && cfg.stagedActivationCap && ids.length > cfg.stagedActivationCap;
+
+    const isDestModule = module === 'country' || module === 'region' || module === 'city';
+
+    const indexToggleHtml = (activate && isDestModule)
+      ? '<div class="action-row action-row--between mt-3" style="background:var(--surface-sunken);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 14px;">' +
+          '<div>' +
+            '<p style="font-size:var(--fs-sm);font-weight:600;margin:0 0 2px;">Make pages indexable</p>' +
+            '<p class="field-hint mt-0">Allow search engines to index these pages.</p>' +
+          '</div>' +
+          '<button type="button" class="btn-lock is-on" id="bulk-index-toggle" aria-pressed="true" onclick="Comp._toggleIndexConfirmBtn(this,\'bulk-index-toggle\')">' +
+            '<span class="toggle-track" aria-hidden="true"></span>' +
+            '<span class="lock-label">On</span>' +
+          '</button>' +
+        '</div>'
+      : '';
+
+    const warningBlock = overCap
+      ? `<div class="status-banner is-incomplete"><span>${ICON.warning}</span><span><strong>Staged rollout recommended</strong> — publishing ${ids.length} ${cfg.label}s at once risks an indexing/crawl-budget spike. Recommended cap is ${cfg.stagedActivationCap} per batch.</span></div>`
+      : '';
+
     Comp.openConfirm({
-      title: activate ? `${activeLabel} ${ids.length} ${cfg.label}${ids.length===1?'':'s'}?` : `${inactiveLabel} ${ids.length} ${cfg.label}${ids.length===1?'':'s'}?`,
-      desc: cfg.statusDesc ? cfg.statusDesc(activate) : (activate ? 'Their pages will become publicly visible again.' : 'Their pages will be removed from public listing.'),
-      warningHtml: overCap ? `<div class="status-banner is-incomplete"><span>${ICON.warning}</span><span><strong>Staged rollout recommended</strong> — publishing ${ids.length} ${cfg.label}s at once risks an indexing/crawl-budget spike. Recommended cap is ${cfg.stagedActivationCap} per batch (roll out the rest over following days). You can still proceed if you understand the risk.</span></div>` : '',
+      title: activate
+        ? `${activeLabel} ${ids.length} ${cfg.label}${ids.length===1?'':'s'}?`
+        : `${inactiveLabel} ${ids.length} ${cfg.label}${ids.length===1?'':'s'}?`,
+      desc: cfg.statusDesc
+        ? cfg.statusDesc(activate)
+        : activate ? 'Their pages will become publicly visible.' : 'Their pages will be removed from public listing and set to Noindex.',
+      warningHtml: warningBlock + indexToggleHtml,
       confirmLabel: activate ? (overCap ? `${activeLabel} anyway` : activeLabel) : inactiveLabel,
       danger: !activate || overCap,
       onConfirm: () => {
+        const makeIndexable = activate && isDestModule
+          ? (() => { const btn = document.getElementById('bulk-index-toggle'); return !btn || btn.getAttribute('aria-pressed') === 'true'; })()
+          : false;
         const list = DATA[cfg.dataKey];
         ids.forEach(id => {
           const rec = list.find(r => r.id === id);
-          if (rec) {
-            if (cfg.customStatusSetter) cfg.customStatusSetter(rec, activate);
+          if(rec){
+            if(cfg.customStatusSetter) cfg.customStatusSetter(rec, activate);
             else rec.status = activate ? 'Active' : 'Inactive';
-            Comp.logRecord(rec, activate ? `${cfg.label} ${activeLabel.toLowerCase()}d (bulk action)` : `${cfg.label} ${inactiveLabel.toLowerCase()}d (bulk action)`);
+            if(isDestModule){
+              if(activate) rec.indexability = makeIndexable ? 'Indexable' : 'Noindex';
+              else         rec.indexability = 'Noindex';
+            }
+            Comp.logRecord(rec, activate
+              ? `${cfg.label} ${activeLabel.toLowerCase()}d (bulk)${isDestModule ? ' — indexability: ' + (makeIndexable ? 'Indexable' : 'Noindex') : ''}`
+              : `${cfg.label} ${inactiveLabel.toLowerCase()}d (bulk) — Noindex applied`);
           }
         });
         Comp.getBulkSelection(module).clear();
-        Comp.showToast(`${ids.length} ${cfg.label}${ids.length===1?'':'s'} ${activate?activeLabel.toLowerCase()+'d':inactiveLabel.toLowerCase()+'d'}.`, activate ? 'success' : 'danger');
+        Comp.showToast(
+          `${ids.length} ${cfg.label}${ids.length===1?'':'s'} ${activate ? activeLabel.toLowerCase()+'d' : inactiveLabel.toLowerCase()+'d'}` +
+          (isDestModule && activate ? ` — ${makeIndexable ? 'Indexable' : 'Noindex'}` : '') + '.',
+          activate ? 'success' : 'danger'
+        );
         render();
       }
     });
@@ -2655,75 +2692,107 @@ const Comp = {
   // until the admin confirms "Accept selected".
   openAcceptAllModal(){
     const items = Comp.getPendingApprovalsForCurrentRecord();
-    if (!items.length) return;
+    if(!items.length) return;
     const totalFields = items.reduce((sum, it) => sum + Object.keys(it.pending.candidates).length, 0);
-    document.getElementById('modalAcceptAllDesc').textContent = `AI generated new content for ${items.length} section${items.length===1?'':'s'} on this record (${totalFields} field${totalFields===1?'':'s'} total). Check the fields you want to apply, then Accept selected.`;
-    const sectionsHtml = items.map(({cardId, pending}) => {
+
+    // Section label map for homepage
+    const HOME_LABELS = {
+      'home-hero':'Hero', 'home-seo':'SEO data',
+      'home-whyChooseUs':'Why Travelers Choose Rosotravel'
+    };
+
+    const rowsHtml = items.map(({cardId, pending}) => {
       const cardEl = document.querySelector(`[data-card-id="${cardId}"]`);
-      const sectionTitle = cardEl ? (cardEl.getAttribute('aria-label') || cardId) : cardId;
-      const fields = Object.keys(pending.candidates).map(fk => {
-        const label = pending.labels[fk];
-        const fieldEl = [...document.querySelectorAll('.card-input[data-field-label]')].find(el => el.dataset.fieldLabel === label);
-        const currentVal = Comp._fieldOverrides[fk] !== undefined ? Comp._fieldOverrides[fk] : (fieldEl ? fieldEl.value : '');
-        const diff = Comp.wordDiff(currentVal, pending.candidates[fk]);
-        return { fk, label, currentHtml: diff.currentHtml, candidateHtml: diff.candidateHtml };
-      });
-      return `<div class="card mb-3">
-        <p class="card-title" style="font-size:var(--fs-base);">${sectionTitle}</p>
-        <div class="compare-grid">
-          <div class="compare-col">
-            <div class="compare-col-header"><span class="compare-col-title">Current</span></div>
-            ${fields.map(f => `<p class="compare-field-label">${f.label}</p><div class="compare-value">${f.currentHtml}</div>`).join('')}
-          </div>
-          <div class="compare-col ai-col">
-            <div class="compare-col-header"><span class="compare-col-title">AI Suggestion</span></div>
-            ${fields.map(f => `
-              <label class="compare-field-check">
-                <input type="checkbox" class="accept-all-checkbox" data-card="${encodeURIComponent(cardId)}" data-fk="${encodeURIComponent(f.fk)}" checked>
-                <span class="compare-field-label m-0">${f.label}</span>
-              </label>
-              <div class="compare-value">${f.candidateHtml}</div>
-            `).join('')}
-          </div>
+      const rawTitle = cardEl ? (cardEl.getAttribute('aria-label') || cardId) : cardId;
+      // Resolve friendly label — strip recordKey prefix from cardId
+      const shortId = cardId.split('|').pop();
+      const sectionTitle = HOME_LABELS[shortId] || rawTitle;
+
+      const fieldRows = Object.keys(pending.candidates).map((fk, i) => {
+        const label    = pending.labels[fk] || fk;
+        const fieldEl  = [...document.querySelectorAll('.card-input[data-field-label]')].find(el => el.dataset.fieldLabel === label);
+        const currentVal   = Comp._fieldOverrides[fk] !== undefined ? Comp._fieldOverrides[fk] : (fieldEl ? fieldEl.value : '');
+        const candidateVal = pending.candidates[fk];
+        const diff = Comp.wordDiff(currentVal, candidateVal);
+        return `<div style="padding:10px 0;border-top:${i>0?'1px solid var(--border)':'none'};">
+          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;">
+            <input type="checkbox" class="regen-review-check accept-all-checkbox mt-1" data-card="${encodeURIComponent(cardId)}" data-key="${encodeURIComponent(fk)}" data-fk="${encodeURIComponent(fk)}" checked>
+            <span class="flex-1">
+              <strong style="display:block;margin-bottom:5px;">${Comp._escHtml(label)}</strong>
+              <span style="display:block;font-size:13px;color:var(--text-muted);text-decoration:line-through;margin-bottom:3px;">${currentVal ? Comp._escHtml(currentVal) : '(empty)'}</span>
+              <span style="display:block;font-size:14px;color:var(--accent-700);">${ICON.sparkles} ${diff.candidateHtml}</span>
+            </span>
+          </label>
+        </div>`;
+      }).join('');
+
+      return `<div style="margin-bottom:16px;">
+        <p style="font-size:var(--fs-sm);font-weight:700;margin:0 0 8px;color:var(--text-primary);">${Comp._escHtml(sectionTitle)}</p>
+        <div style="background:var(--surface-sunken);border:1px solid var(--border);border-radius:var(--radius-md);padding:8px 14px;">
+          ${fieldRows}
         </div>
       </div>`;
     }).join('');
-    document.getElementById('modalAcceptAllBody').innerHTML = sectionsHtml;
-    Comp.openModal('modalAcceptAll');
+
+    // Use modalCompare — consistent with single-section review
+    document.getElementById('modalCompareTitle').textContent = 'Review AI suggestions';
+    document.getElementById('modalCompareDesc').textContent  = `AI generated new content for ${items.length} section${items.length===1?'':'s'} (${totalFields} field${totalFields===1?'':'s'} total). Uncheck any field you don't want to apply.`;
+    document.getElementById('modalCompareBody').innerHTML    = `<div style="max-height:55vh;overflow-y:auto;">${rowsHtml}</div>`;
+
+    // Flag as accept-all context
+    Comp._compareCardId = '__acceptAll__';
+    Comp.openModal('modalCompare');
   },
   confirmAcceptAllSelected(){
     const checkboxes = [...document.querySelectorAll('.accept-all-checkbox')];
     const checkedByCard = {};
     checkboxes.forEach(cb => {
-      if (!cb.checked) return;
+      if(!cb.checked) return;
       const cardId = decodeURIComponent(cb.dataset.card);
-      const fk = decodeURIComponent(cb.dataset.fk);
+      const fk     = decodeURIComponent(cb.dataset.fk || cb.dataset.key);
       (checkedByCard[cardId] = checkedByCard[cardId] || new Set()).add(fk);
     });
     const items = Comp.getPendingApprovalsForCurrentRecord();
-    let acceptedCount = 0, sectionsFullyCleared = 0;
+    let acceptedCount = 0, sectionsCleared = 0;
     items.forEach(({key, cardId, pending}) => {
       const checkedFks = checkedByCard[cardId] || new Set();
-      const remainingCandidates = {}; const remainingLabels = {};
+      const remaining = {}; const remainingLabels = {};
       Object.keys(pending.candidates).forEach(fk => {
-        if (checkedFks.has(fk)) { Comp._fieldOverrides[fk] = pending.candidates[fk]; acceptedCount++; }
-        else { remainingCandidates[fk] = pending.candidates[fk]; remainingLabels[fk] = pending.labels[fk]; }
+        if(checkedFks.has(fk)){
+          // Apply to card input if present
+          const label = pending.labels[fk];
+          const el = [...document.querySelectorAll('.card-input[data-field-label]')].find(e => e.dataset.fieldLabel === label);
+          if(el) el.value = pending.candidates[fk];
+          else Comp._fieldOverrides[fk] = pending.candidates[fk];
+          acceptedCount++;
+        } else {
+          remaining[fk] = pending.candidates[fk];
+          remainingLabels[fk] = pending.labels[fk];
+        }
       });
-      if (Object.keys(remainingCandidates).length > 0) {
-        Comp._pendingApprovals[key] = { generatedAt: pending.generatedAt, candidates: remainingCandidates, labels: remainingLabels };
+      if(Object.keys(remaining).length > 0){
+        Comp._pendingApprovals[key] = {generatedAt:pending.generatedAt, candidates:remaining, labels:remainingLabels};
       } else {
         delete Comp._pendingApprovals[key];
-        sectionsFullyCleared++;
+        sectionsCleared++;
       }
     });
-    const rec = Comp.getCurrentRecord();
-    if (rec && rec.stableCode && rec.aiVersion && Comp.getPendingApprovalsForCurrentRecord().length === 0) rec.publishedVersion = rec.aiVersion;
-    Comp.closeModal('modalAcceptAll');
-    Comp.showToast(acceptedCount > 0 ? `${acceptedCount} field${acceptedCount===1?'':'s'} accepted and published.` : 'No fields were selected — nothing applied.', acceptedCount > 0 ? 'success' : 'danger');
-    Comp.logCurrentRecord(`AI suggestions accepted via Accept All (${acceptedCount} field${acceptedCount===1?'':'s'} across ${sectionsFullyCleared} section${sectionsFullyCleared===1?'':'s'})`);
+    Comp.closeModal('modalCompare');
+    Comp.showToast(acceptedCount > 0
+      ? `${acceptedCount} field${acceptedCount===1?'':'s'} accepted and applied.`
+      : 'No fields selected — nothing applied.',
+      acceptedCount > 0 ? 'success' : 'danger');
+    Comp.logCurrentRecord(`AI suggestions accepted via Accept All (${acceptedCount} field${acceptedCount===1?'':'s'} across ${sectionsCleared} section${sectionsCleared===1?'':'s'})`);
     render();
   },
   acceptAiVersion(){
+    // Accept All context
+    if(Comp._compareCardId === '__acceptAll__'){
+      Comp.confirmAcceptAllSelected();
+      Comp._compareCardId = null;
+      return;
+    }
+
     // regenReview context (homepage / SmartSection)
     if(Comp._compareCardId === '__regenReview__'){
       const changed  = Comp._regenReviewChanged || [];
@@ -2782,6 +2851,17 @@ const Comp = {
     render();
   },
   denyAiVersion(){
+    // Accept All — Denied clears all pending for current record
+    if(Comp._compareCardId === '__acceptAll__'){
+      const items = Comp.getPendingApprovalsForCurrentRecord();
+      items.forEach(({key}) => delete Comp._pendingApprovals[key]);
+      Comp.closeModal('modalCompare');
+      Comp._compareCardId = null;
+      Comp.showToast('All AI suggestions denied. Current content preserved.', 'danger');
+      render();
+      return;
+    }
+
     // regenReview context
     if(Comp._compareCardId === '__regenReview__'){
       Comp.closeModal('modalCompare');
@@ -6876,14 +6956,19 @@ const Comp = {
   },
 
   _regenScopeSelect(el){
-    const body = document.getElementById('modalRegenLangBody');
+    // Find the containing modal body — works for both modalRegenLang and modalBulkRegen
+    const body = el.closest('#modalRegenLangBody, #modalBulkRegenBody, .modal-body, .modal-inner') ||
+                 document.getElementById('modalRegenLangBody') ||
+                 document.getElementById('modalBulkRegenBody');
     if(!body) return;
     body.querySelectorAll('[data-regen-scope]').forEach(r => {
       r.classList.toggle('selected', r === el);
     });
     const isSpecific = el.dataset.regenScope === 'specific';
-    const specificPanel = document.getElementById('rl-specific-panel');
-    const allApproval   = document.getElementById('rl-all-approval');
+    // Find panels relative to the radio option's container
+    const container = el.closest('[id$="Body"], .modal-inner') || body;
+    const specificPanel = container.querySelector('#rl-specific-panel');
+    const allApproval   = container.querySelector('#rl-all-approval');
     if(specificPanel) specificPanel.style.display = isSpecific ? 'block' : 'none';
     if(allApproval)   allApproval.style.display   = isSpecific ? 'none'  : 'block';
   },
@@ -6982,7 +7067,9 @@ const Comp = {
       Comp._homeRegenAll = false;
       const selectedSections = [...document.querySelectorAll('.home-regen-section:checked')].map(el => el.value);
       if(!selectedSections.length){ Comp.showToast('Select at least one section.', 'danger'); return; }
-      setTimeout(() => Comp.homeStartRegenerate(selectedSections, selectedLangs), 0);
+      setTimeout(() => {
+        selectedSections.forEach(sKey => Comp.homeSectionStartGenerate(sKey, selectedLangs));
+      }, 0);
       let msg = 'Regenerating ' + selectedSections.length + ' section' + (selectedSections.length===1?'':'s') + ' for: ' + selectedLangs.join(', ');
       if(manualApproval) msg += ' — results will need approval';
       Comp.showToast(msg + '.', 'success');
@@ -17971,6 +18058,7 @@ function pageHomeManagement(params){
 
   return Comp.Shell(`
     ${Comp.PageHeader({title:`Home Management`, actions:`${Comp.homeRegenCtaHtml()}`})}
+        ${Comp.pendingApprovalsBanner()}
         ${Comp.contentLanguageBar('home', true, {languages: DATA.HOME_LANGUAGES})}
         ${Comp._renderUrlCanonicalCard('home', (code) => ({
           slug: '',
@@ -22015,6 +22103,25 @@ Comp.homeSectionStartGenerate = function(sectionKey, selectedLangs){
   render();
   setTimeout(() => {
     Comp._homeSectionRegenState[sectionKey] = 'ready';
+    // Also store in _pendingApprovals so pendingApprovalsBanner picks it up
+    const candidates = {};
+    const labels = {};
+    fields.forEach(f => {
+      const candidate = Comp.simulateAiRewrite(f.label, f.value);
+      if(candidate !== f.value){
+        const key = Comp.fieldKey(f.label);
+        candidates[key] = candidate;
+        labels[key] = f.label;
+      }
+    });
+    if(Object.keys(candidates).length){
+      const cardKey = Comp.cardKey('home-' + sectionKey);
+      Comp._pendingApprovals[cardKey] = {
+        generatedAt: new Date().toLocaleString(),
+        candidates,
+        labels
+      };
+    }
     render();
   }, 900);
 };
