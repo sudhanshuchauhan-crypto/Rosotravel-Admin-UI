@@ -1828,6 +1828,44 @@ const Comp = {
   // Clears AI-generation tracking — call when a fresh Add/Create page is opened.
   clearCreateAiTracking(){ Comp._createAiFields = {}; },
 
+  // "✨ Generate with AI" on Create forms — simulates AI fill of description/FAQ
+  triggerCreateAiGenerate(btn){
+    const form = btn.closest('form');
+    if(!form){ Comp.showToast('Form not found.', 'danger'); return; }
+    const nameInput = form.querySelector('[id$="CreateName"], [id$="attrCreateName"]');
+    const name = nameInput ? nameInput.value.trim() : '';
+    if(!name){ Comp.showToast('Enter a name first before generating with AI.', 'danger'); return; }
+    // Simulate AI filling description and FAQ fields
+    const descInput = form.querySelector('[id$="CreateDesc"], [id$="attrCreateDesc"]');
+    if(descInput){
+      const generated = `${name} — a destination known for its character, culture, and local experiences. Curated by Rosotravel for travelers who want more than the standard itinerary.`;
+      descInput.value = generated;
+      Comp._createAiFields[descInput.id] = generated;
+    }
+    // Enable submit button
+    const submitBtn = form.querySelector('button[type="submit"]');
+    if(submitBtn) submitBtn.disabled = false;
+    Comp.showToast(`AI content generated for "${name}". Review and adjust before saving.`, 'success');
+  },
+
+  // After entity creation — move any AI-generated content into _pendingApprovals for the new entity
+  queueCreateAiApprovals(route, entityId){
+    const fields = Comp._createAiFields;
+    if(!Object.keys(fields).length) return false;
+    const recordPrefix = route + '|' + JSON.stringify({id:entityId}) + '|';
+    Object.keys(fields).forEach(fieldId => {
+      const label = fieldId.replace(/[a-z]Create/i, '').toLowerCase();
+      const key = recordPrefix + label;
+      Comp._pendingApprovals[key] = {
+        generatedAt: new Date().toLocaleString(),
+        candidates: {[label]: fields[fieldId]},
+        labels: {[label]: label.charAt(0).toUpperCase() + label.slice(1)}
+      };
+    });
+    Comp._createAiFields = {};
+    return true;
+  },
+
   // Entry point for the section-level "✨ Generate with AI" buttons.
   // Called from finishCreateXxx after a new record is actually saved.
   // Queues a pending approval on the relevant section(s) of the new record's
@@ -1875,21 +1913,42 @@ const Comp = {
       {id:'blog-seo', label:'SEO Data'}, {id:'blog-meta', label:'Meta'}
     ]},
     country: { dataKey:'countries', detailRoute:'countryDetails', label:'country', sections:[
-      {id:'seo', label:'SEO Data'}, {id:'info', label:'Country Information'}, {id:'faq', label:'FAQ'},
-      {id:'whyvisit', label:'What Makes This Destination Unforgettable'}, {id:'about', label:'About Rosotravel in the Country'}
+      {id:'seo',            label:'SEO Data'},
+      {id:'info',           label:'Country Information'},
+      {id:'highlights',     label:'Highlights'},
+      {id:'countryfacts',   label:'Facts & Curiosities'},
+      {id:'countrybestseason', label:'Best season for the way you travel'},
+      {id:'whyvisit',       label:'What makes this place special'},
+      {id:'faq',            label:'FAQ'},
+      {id:'about',          label:'About Rosotravel in the Country'}
     ]},
     region: { dataKey:'regions', detailRoute:'regionDetails', label:'region', sections:[
-      {id:'region-seo', label:'SEO Data'}, {id:'region-info', label:'Region Information'}, {id:'region-faq', label:'FAQ'},
-      {id:'region-highlights', label:'Highlights'}, {id:'region-facts', label:'Facts and Curiosities'},
-      {id:'region-whyvisit', label:'What Makes This Destination Unforgettable'}, {id:'region-about', label:'About Rosotravel in the Region'}
+      {id:'region-seo',        label:'SEO Data'},
+      {id:'region-info',       label:'Region Information'},
+      {id:'region-highlights', label:'Highlights'},
+      {id:'region-facts',      label:'Facts & Curiosities'},
+      {id:'regionbestseason',  label:'Best season for the way you travel'},
+      {id:'region-whyvisit',   label:'What makes this place special'},
+      {id:'region-faq',        label:'FAQ'},
+      {id:'region-about',      label:'About Rosotravel in the Region'}
     ]},
     city: { dataKey:'cities', detailRoute:'cityDetails', label:'city', stagedActivationCap:50, sections:[
-      {id:'city-seo', label:'SEO Data'}, {id:'city-info', label:'City Information'}, {id:'city-faq', label:'FAQ'},
-      {id:'city-localtips', label:'Local Tips'}, {id:'city-about', label:'About Rosotravel in the City'}
+      {id:'city-seo',       label:'SEO Data'},
+      {id:'city-info',      label:'City Information'},
+      {id:'highlights',     label:'Highlights'},
+      {id:'facts',          label:'Facts & Curiosities'},
+      {id:'city-localtips', label:'Local Tips'},
+      {id:'city-whyvisit',  label:'What makes this place special'},
+      {id:'city-faq',       label:'FAQ'},
+      {id:'city-about',     label:'About Rosotravel in the City'}
     ]},
     attraction: { dataKey:'masterAttractions', detailRoute:'attractionDetails', label:'attraction', stagedActivationCap:50, sections:[
-      {id:'attraction-seo', label:'SEO Data'}, {id:'list-row__body', label:'Attraction Information'},
-      {id:'attraction-faq', label:'FAQ'}, {id:'attraction-about', label:"There's more here than you'll expect"}
+      {id:'attraction-seo',      label:'SEO Data'},
+      {id:'list-row__body',      label:'Attraction Information'},
+      {id:'attraction-localtips',label:'Local Tips'},
+      {id:'attraction-faq',      label:'FAQ'},
+      {id:'attraction-whysee',   label:"What You'll See & Why It Matters"},
+      {id:'attraction-planvisit',label:'Plan your visit with confidence'}
     ]},
     category: { dataKey:'categories', detailRoute:'categoryDetails', label:'taxonomy', sections:[
       {id:'category-seo', label:'SEO Data'}, {id:'category-info', label:'Taxonomy Information'}
@@ -2027,33 +2086,45 @@ const Comp = {
 
     // Sub-field map per section id
     const SECTION_FIELDS = {
-      'seo':               ['H1 / tagline','Meta title','Meta description'],
-      'region-seo':        ['H1 / tagline','Meta title','Meta description'],
-      'city-seo':          ['H1 / tagline','Meta title','Meta description'],
-      'attraction-seo':    ['H1 / tagline','Meta title','Meta description'],
-      'blog-seo':          ['H1 / tagline','Meta title','Meta description'],
-      'category-seo':      ['H1 / tagline','Meta title','Meta description'],
-      'prodseo':           ['Title (H1)','Meta Title','Meta Description'],
-      'info':              ['Country overview','Key facts','Travel tips'],
-      'region-info':       ['Region overview','Key facts','Travel tips'],
-      'city-info':         ['City overview','Key facts','Local tips'],
-      'city-localtips':    ['Tip 1','Tip 2','Tip 3'],
-      'faq':               ['FAQ 1','FAQ 2','FAQ 3'],
-      'region-faq':        ['FAQ 1','FAQ 2','FAQ 3'],
-      'city-faq':          ['FAQ 1','FAQ 2','FAQ 3'],
-      'attraction-faq':    ['FAQ 1','FAQ 2','FAQ 3'],
-      'blog-meta':         ['Introduction','Summary'],
-      'content':           ['Itinerary Overview','Highlights'],
-      'highlights':        ['Highlight 1','Highlight 2','Highlight 3'],
-      'region-highlights': ['Highlight 1','Highlight 2','Highlight 3'],
-      'region-facts':      ['Fact 1','Fact 2','Fact 3'],
-      'whyvisit':          ['Why visit overview','Key points'],
-      'region-whyvisit':   ['Why visit overview','Key points'],
-      'about':             ['About snippet','About points'],
-      'region-about':      ['About snippet','About points'],
-      'city-about':        ['About snippet','About points'],
-      'attraction-about':  ['About snippet'],
-      'list-row__body':    ['Attraction overview','Key details']
+      // Country
+      'seo':                 ['H1','Supporting snippet','Meta title','Meta description'],
+      'info':                ['H1','Supporting snippet','Description'],
+      'highlights':          ['Highlight 1','Highlight 2','Highlight 3'],
+      'countryfacts':        ['Fact 1','Fact 2','Fact 3'],
+      'countrybestseason':   ['Spring','Summer','Autumn','Winter'],
+      'whyvisit':            ['Short description','Long description'],
+      'faq':                 ['FAQ 1','FAQ 2','FAQ 3'],
+      'about':               ['About snippet','About points'],
+      // Region
+      'region-seo':          ['H1','Supporting snippet','Meta title','Meta description'],
+      'region-info':         ['H1','Supporting snippet','Description'],
+      'region-highlights':   ['Highlight 1','Highlight 2','Highlight 3'],
+      'region-facts':        ['Fact 1','Fact 2','Fact 3'],
+      'regionbestseason':    ['Spring','Summer','Autumn','Winter'],
+      'region-whyvisit':     ['Short description','Long description'],
+      'region-faq':          ['FAQ 1','FAQ 2','FAQ 3'],
+      'region-about':        ['About snippet','About points'],
+      // City
+      'city-seo':            ['H1','Supporting snippet','Meta title','Meta description'],
+      'city-info':           ['H1','Supporting snippet','Description'],
+      'city-localtips':      ['Tip 1','Tip 2','Tip 3'],
+      'city-whyvisit':       ['Short description','Long description'],
+      'city-faq':            ['FAQ 1','FAQ 2','FAQ 3'],
+      'city-about':          ['About snippet','About points'],
+      // Attraction
+      'attraction-seo':      ['H1','Supporting snippet','Meta title','Meta description'],
+      'list-row__body':      ['H1','Supporting snippet','Overview'],
+      'attraction-localtips':['Tip 1','Tip 2','Tip 3'],
+      'attraction-faq':      ['FAQ 1','FAQ 2','FAQ 3'],
+      'attraction-whysee':   ['Snippet','The Arena','The Hypogeum','Seating & Circulation System','Museum & Exhibition Areas','A Building with Almost 2,000 Years of History','Overview'],
+      'attraction-planvisit':['Opening Hours','Visit Duration','Tickets','Address','Accessibility','Getting There'],
+      // Blog / Category / Product
+      'blog-seo':            ['H1 / tagline','Meta title','Meta description'],
+      'blog-meta':           ['Introduction','Summary'],
+      'category-seo':        ['H1 / tagline','Meta title','Meta description'],
+      'category-info':       ['Overview'],
+      'prodseo':             ['Title (H1)','Meta title','Meta description'],
+      'content':             ['Itinerary overview','Highlights'],
     };
 
     const sectionRows = cfg.sections.map(s => {
@@ -5063,7 +5134,7 @@ const Comp = {
       <div class="field-stack" style="gap:12px;">
         <div class="field">
           <label for="${fid}" class="visually-hidden">Highlight ${number}</label>
-          <textarea id="${fid}" class="card-input" data-field-label="Highlight" placeholder="Describe a highlight of this country\u2026">${description}</textarea>
+          <textarea id="${fid}" class="card-input" readonly data-field-label="Highlight" placeholder="Describe a highlight of this country\u2026">${description}</textarea>
         </div>
       </div>
     `, removable);
@@ -5078,7 +5149,7 @@ const Comp = {
       <div class="field-stack" style="gap:12px;">
         <div class="field">
           <label for="${fid}" class="visually-hidden">Fact or curiosity ${number}</label>
-          <textarea id="${fid}" class="card-input" data-field-label="Fact or curiosity" placeholder="Add a fact or curiosity about this country\u2026">${fact}</textarea>
+          <textarea id="${fid}" class="card-input" readonly data-field-label="Fact or curiosity" placeholder="Add a fact or curiosity about this country\u2026">${fact}</textarea>
         </div>
       </div>
     `, removable);
@@ -5089,7 +5160,7 @@ const Comp = {
         ${aiField('Name', name, 'input', '', true)}
         <div class="field">
           <label id="localTipIconLbl${number}">Icon / Image</label>
-          <div class="upload-area" role="button" tabindex="0" aria-labelledby="localTipIconLbl${number}"><div class="up-title">Click to upload</div><div class="up-sub">or drag and drop</div><div class="up-hint">PNG, JPG, SVG or WEBP (max. 400×400px)</div></div>
+          <div class="upload-area" role="button" tabindex="0" aria-labelledby="localTipIconLbl${number}" onclick="Comp.handleUploadAreaClick(this, function(filename, altText){ Comp.showToast('Media uploaded: ' + filename + ' (Alt: ' + altText + ')', 'success'); })"><div class="up-title">Click to upload</div><div class="up-sub">or drag and drop</div><div class="up-hint">PNG, JPG, SVG or WEBP (max. 400×400px)</div></div>
         </div>
         ${aiField('Description', description, 'textarea', '', true)}
       </div>
@@ -5554,7 +5625,7 @@ const Comp = {
     const fid = (idPrefix || 'countryAbout') + '-' + number;
     return `<div class="field">
       <label for="${fid}">${Comp._escHtml(heading)}</label>
-      <textarea id="${fid}" class="card-input" data-field-label="${Comp._escAttr(heading)}" placeholder="Write this point\u2026">${value || ''}</textarea>
+      <textarea id="${fid}" class="card-input" readonly data-field-label="${Comp._escAttr(heading)}" placeholder="Write this point\u2026">${value || ''}</textarea>
     </div>`;
   },
   // Compact attraction row (thumbnail + name + url + edit/delete) — data kept on the element itself
@@ -6976,13 +7047,70 @@ const Comp = {
   _openRegenLangModalMulti(){
     Comp._regenManualApproval = true;
 
-    const idPrefix = Router.route === 'countryDetails' ? 'country' : Router.route === 'regionDetails' ? 'region' : 'city';
-    const langEl   = document.getElementById(idPrefix + '-lang');
+    const route     = Router.route;
+    const idPrefix  = route === 'countryDetails' ? 'country' : route === 'regionDetails' ? 'region' : route === 'cityDetails' ? 'city' : route === 'attractionDetails' ? 'attraction' : 'country';
+    const langEl    = document.getElementById(idPrefix + '-lang');
     const currentLang = langEl ? langEl.value : 'English';
-    const count = (Comp._regenAllCards || []).length;
+    const entityName = (() => {
+      if(route === 'countryDetails')    { const c = DATA.countries.find(x=>x.id===(Router.params&&Router.params.id)); return c ? c.name : 'this country'; }
+      if(route === 'regionDetails')     { const r = DATA.regions.find(x=>x.id===(Router.params&&Router.params.id)); return r ? r.name : 'this region'; }
+      if(route === 'cityDetails')       { const c = DATA.cities.find(x=>x.id===(Router.params&&Router.params.id)); return c ? c.name : 'this city'; }
+      if(route === 'attractionDetails') { const a = DATA.masterAttractions.find(x=>x.id===(Router.params&&Router.params.id)); return a ? a.name : 'this attraction'; }
+      return 'this page';
+    })();
 
-    document.getElementById('modalRegenLangDesc').textContent =
-      count + ' section' + (count === 1 ? '' : 's') + ' selected';
+    // Real sections per page type
+    const PAGE_SECTIONS = {
+      countryDetails: [
+        {id:'seo',          label:'SEO data',                         items:['H1','Supporting snippet','Meta title','Meta description']},
+        {id:'highlights',   label:'Highlights',                       items:['Highlight items']},
+        {id:'facts',        label:'Facts & Curiosities',              items:['Fact items']},
+        {id:'bestseason',   label:'Best season for the way you travel',items:['Spring','Summer','Autumn','Winter']},
+        {id:'whyvisit',     label:'What makes this place special',    items:['Short description','Long description']},
+        {id:'faq',          label:'Frequently asked questions',       items:['FAQ items']},
+        {id:'about',        label:'About Rosotravel in ' + entityName,items:['About snippet','About points']}
+      ],
+      regionDetails: [
+        {id:'seo',          label:'SEO data',                         items:['H1','Supporting snippet','Meta title','Meta description']},
+        {id:'highlights',   label:'Highlights',                       items:['Highlight items']},
+        {id:'facts',        label:'Facts & Curiosities',              items:['Fact items']},
+        {id:'bestseason',   label:'Best season for the way you travel',items:['Spring','Summer','Autumn','Winter']},
+        {id:'whyvisit',     label:'What makes this place special',    items:['Short description','Long description']},
+        {id:'faq',          label:'Frequently asked questions',       items:['FAQ items']},
+        {id:'about',        label:'About Rosotravel in ' + entityName,items:['About snippet','About points']}
+      ],
+      cityDetails: [
+        {id:'seo',          label:'SEO data',                         items:['H1','Supporting snippet','Meta title','Meta description']},
+        {id:'highlights',   label:'Highlights',                       items:['Highlight items']},
+        {id:'facts',        label:'Facts & Curiosities',              items:['Fact items']},
+        {id:'localtips',    label:'Local Tips',                       items:['Tip items']},
+        {id:'whyvisit',     label:'What makes this place special',    items:['Short description','Long description']},
+        {id:'faq',          label:'Frequently asked questions',       items:['FAQ items']},
+        {id:'about',        label:'About Rosotravel in ' + entityName,items:['About snippet','About points']}
+      ],
+      attractionDetails: [
+        {id:'seo',          label:'SEO data',                         items:['H1','Supporting snippet','Meta title','Meta description']},
+        {id:'localtips',    label:'Local Tips',                       items:['Tip items']},
+        {id:'faq',          label:'Frequently asked questions',       items:['FAQ items']},
+        {id:'whysee',       label:"What You'll See & Why It Matters", items:['Snippet','The Arena','The Hypogeum','Seating & Circulation System','Museum & Exhibition Areas','A Building with Almost 2,000 Years of History','Overview']},
+        {id:'planvisit',    label:'Plan your visit with confidence',  items:['Opening Hours','Visit Duration','Tickets','Address','Accessibility','Security','Getting There']}
+      ]
+    };
+
+    const sections = PAGE_SECTIONS[route] || PAGE_SECTIONS.countryDetails;
+
+    const sectionRows = sections.map(s => {
+      const subItems = s.items.map(f =>
+        '<label class="opt-check" style="padding:4px 0 4px 24px;">' +
+          '<input type="checkbox" class="rl-field-check" value="' + Comp._escAttr(f) + '" checked onchange="Comp._bulkRegenToggleSubfield(this)" data-section="' + s.id + '">' +
+          '<span style="font-size:var(--fs-sm);color:var(--text-secondary);">' + Comp._escHtml(f) + '</span>' +
+        '</label>'
+      ).join('');
+      return '<label class="opt-check" style="font-weight:600;">' +
+        '<input type="checkbox" class="home-regen-section" value="' + s.id + '" checked onchange="Comp._homeRegenToggleSection(this)">' +
+        '<span>' + Comp._escHtml(s.label) + '</span>' +
+      '</label>' + subItems;
+    }).join('');
 
     const allLangs = [
       {label:'English',  mode:'Native SEO'},
@@ -7003,25 +7131,27 @@ const Comp = {
       '</label>';
     }).join('');
 
-    const body =
-      '<p class="opt-sub" style="margin-top:0;">Target languages</p>' +
-      '<div style="background:var(--surface-sunken);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 14px;">' +
-        langRows +
-        '<div class="action-row action-row--between mt-3" style="border-top:1px solid var(--border);padding-top:12px;">' +
-          '<div>' +
-            '<p style="font-size:var(--fs-sm);font-weight:600;margin:0 0 2px;">Require manual approval</p>' +
-            '<p class="field-hint mt-0">If enabled, results will require approval before being applied.</p>' +
-          '</div>' +
-          '<button type="button" class="btn-lock is-on" id="rl-approval-btn" aria-pressed="true" onclick="Comp._rlToggleApproval(this)">' +
-            '<span class="toggle-track" aria-hidden="true"></span>' +
-            '<span class="lock-label">On</span>' +
-          '</button>' +
+    const approvalBlock =
+      '<div class="action-row action-row--between mt-3" style="border-top:1px solid var(--border);padding-top:12px;">' +
+        '<div>' +
+          '<p style="font-size:var(--fs-sm);font-weight:600;margin:0 0 2px;">Require manual approval</p>' +
+          '<p class="field-hint mt-0">If enabled, results will require approval before being applied.</p>' +
         '</div>' +
+        '<button type="button" class="btn-lock is-on" id="rl-approval-btn" aria-pressed="true" onclick="Comp._rlToggleApproval(this)">' +
+          '<span class="toggle-track" aria-hidden="true"></span>' +
+          '<span class="lock-label">On</span>' +
+        '</button>' +
       '</div>';
+
+    const body =
+      '<p class="opt-sub" style="margin-top:0;">Select sections & fields</p>' +
+      '<div class="field-stack" style="gap:0;background:var(--surface-sunken);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 14px;margin-bottom:12px;">' + sectionRows + '</div>' +
+      Comp._buildScopeSection(langRows, approvalBlock);
 
     const bodyEl = document.getElementById('modalRegenLangBody');
     bodyEl.innerHTML = '';
     bodyEl.innerHTML = body;
+    document.getElementById('modalRegenLangDesc').textContent = 'Regenerate all sections for ' + entityName;
     Comp.openModal('modalRegenLang');
   },
 
@@ -7426,37 +7556,54 @@ const Comp = {
   },
 
   _openDestRegenModal(){
+    // Special read-only cards (BestSeasonCard, PlanVisitCard) have no card-input fields — include explicitly
+    const SPECIAL_CARDS = {
+      'countrybestseason':   {label:'Best season for the way you travel', items:['Spring','Summer','Autumn','Winter']},
+      'regionbestseason':    {label:'Best season for the way you travel', items:['Spring','Summer','Autumn','Winter']},
+      'attraction-planvisit':{label:'Plan your visit with confidence',    items:['Opening Hours','Visit Duration','Tickets','Address','Accessibility','Getting There']}
+    };
+
     const cards = [...document.querySelectorAll('.card[data-card-id]')].filter(c =>
-      c.querySelectorAll('.card-input[data-field-label]').length > 0
+      c.querySelectorAll('.card-input[data-field-label]').length > 0 || SPECIAL_CARDS[c.dataset.cardId]
     );
     if(!cards.length){ Comp.showToast('No AI sections available to regenerate.', 'danger'); return; }
 
     // Section rows with nested sub-fields from card
     const sectionRows = cards.map(c => {
       const id     = c.dataset.cardId;
-      const label  = c.getAttribute('aria-label') || id;
+      const special = SPECIAL_CARDS[id];
+      const label  = special ? special.label : (c.getAttribute('aria-label') || id);
       const locked = c.classList.contains('is-locked');
       const fieldEls = [...c.querySelectorAll('.card-input[data-field-label]')];
 
-      // Group FAQ Question+Answer pairs into FAQ N items
-      const isFaqCard = c.querySelector('.repeat-item') && fieldEls.some(el => el.getAttribute('data-field-label') === 'Question');
       let subItems;
-      if(isFaqCard){
-        const faqItems = [...c.querySelectorAll('.repeat-item')];
-        subItems = faqItems.map((item, i) =>
+      if(special){
+        subItems = special.items.map(f =>
           '<label class="opt-check" style="padding:4px 0 4px 24px;">' +
-            '<input type="checkbox" class="dest-regen-subfield" data-section="' + Comp._escAttr(id) + '" value="FAQ ' + (i+1) + '"' + (locked ? ' disabled' : ' checked') + ' onchange="Comp._bulkRegenToggleSubfield(this)">' +
-            '<span style="font-size:var(--fs-sm);color:var(--text-secondary);">FAQ ' + (i+1) + '</span>' +
+            '<input type="checkbox" class="dest-regen-subfield" data-section="' + Comp._escAttr(id) + '" value="' + Comp._escAttr(f) + '"' + (locked ? ' disabled' : ' checked') + ' onchange="Comp._bulkRegenToggleSubfield(this)">' +
+            '<span style="font-size:var(--fs-sm);color:var(--text-secondary);">' + Comp._escHtml(f) + '</span>' +
           '</label>'
         ).join('');
       } else {
-        subItems = fieldEls.map(el => {
-          const fl = el.getAttribute('data-field-label') || el.id || 'Field';
-          return '<label class="opt-check" style="padding:4px 0 4px 24px;">' +
-            '<input type="checkbox" class="dest-regen-subfield" data-section="' + Comp._escAttr(id) + '" value="' + Comp._escAttr(fl) + '"' + (locked ? ' disabled' : ' checked') + ' onchange="Comp._bulkRegenToggleSubfield(this)">' +
-            '<span style="font-size:var(--fs-sm);color:var(--text-secondary);">' + Comp._escHtml(fl) + '</span>' +
-          '</label>';
-        }).join('');
+        // Group FAQ Question+Answer pairs into FAQ N items
+        const isFaqCard = c.querySelector('.repeat-item') && fieldEls.some(el => el.getAttribute('data-field-label') === 'Question');
+        if(isFaqCard){
+          const faqItems = [...c.querySelectorAll('.repeat-item')];
+          subItems = faqItems.map((item, i) =>
+            '<label class="opt-check" style="padding:4px 0 4px 24px;">' +
+              '<input type="checkbox" class="dest-regen-subfield" data-section="' + Comp._escAttr(id) + '" value="FAQ ' + (i+1) + '"' + (locked ? ' disabled' : ' checked') + ' onchange="Comp._bulkRegenToggleSubfield(this)">' +
+              '<span style="font-size:var(--fs-sm);color:var(--text-secondary);">FAQ ' + (i+1) + '</span>' +
+            '</label>'
+          ).join('');
+        } else {
+          subItems = fieldEls.map(el => {
+            const fl = el.getAttribute('data-field-label') || el.id || 'Field';
+            return '<label class="opt-check" style="padding:4px 0 4px 24px;">' +
+              '<input type="checkbox" class="dest-regen-subfield" data-section="' + Comp._escAttr(id) + '" value="' + Comp._escAttr(fl) + '"' + (locked ? ' disabled' : ' checked') + ' onchange="Comp._bulkRegenToggleSubfield(this)">' +
+              '<span style="font-size:var(--fs-sm);color:var(--text-secondary);">' + Comp._escHtml(fl) + '</span>' +
+            '</label>';
+          }).join('');
+        }
       }
       return '<label class="opt-check" style="font-weight:600;' + (locked ? 'opacity:0.6;' : '') + '">' +
         '<input type="checkbox" class="dest-regen-section" value="' + Comp._escAttr(id) + '"' +
@@ -7644,7 +7791,7 @@ Comp.renderOverridesTab = function(entity, sections){
 };
 
 Comp.toggleIndexability = function(entityType, id){
-  const list = entityType === 'country' ? DATA.countries : entityType === 'region' ? DATA.regions : DATA.cities;
+  const list = entityType === 'country' ? DATA.countries : entityType === 'region' ? DATA.regions : entityType === 'attraction' ? DATA.masterAttractions : DATA.cities;
   const entity = list.find(x => x.id === id);
   if(!entity) return;
   const current = entity.indexability || 'Noindex';
@@ -8263,6 +8410,26 @@ DATA.countries.forEach((c,i) => { if(!('contentOutdated' in c)) c.contentOutdate
 DATA.regions.forEach((r,i)   => { if(!('contentOutdated' in r)) r.contentOutdated = i % 4 === 0; });
 DATA.cities.forEach((c,i)    => { if(!('contentOutdated' in c)) c.contentOutdated = i % 5 === 0; });
 
+// Plan visit info seed for attractions
+DATA.masterAttractions.forEach(a => {
+  if(!a.planVisitInfo) a.planVisitInfo = {
+    openingHours:    'Mar–Oct 9:00 AM – 7:00 PM Daily',
+    visitDuration:   '1.5–2.5 hours',
+    admissionModel:  'Paid entry, pre-booking recommended',
+    requiredTickets: 'Timed entry slot required',
+    mainEntrance:    'Main entrance on south side',
+    address:         a.city || 'See official website',
+    accessibility:   'Partial wheelchair access',
+    security:        'Mandatory bag screening at entry',
+    bagPolicy:       'Small bags only, no large backpacks',
+    photography:     'Photos allowed, no flash or tripods',
+    lastAdmission:   '1 hour before closing',
+    officialWebsite: 'See official website',
+    gettingThere:    'Public transport available nearby',
+    dresscode:       'Casual, comfortable walking shoes'
+  };
+});
+
 // Best season seed data for countries/regions
 DATA.countries.forEach(c => {
   if(!c.bestSeason) c.bestSeason = {
@@ -8441,8 +8608,19 @@ Comp._urlLangCodes = {
 
 // Best Season Card — read-only preview with Lock + Regenerate only
 Comp.BestSeasonCard = function(entity, cardId){
+  // Ensure bestSeason is always populated — fallback if seed hasn't run
+  if(!entity.bestSeason || !entity.bestSeason.seasons || !entity.bestSeason.seasons.length){
+    entity.bestSeason = {
+      seasons:[
+        {name:'Spring', months:'March — May', tags:['City Walks','Food Lovers','Adventure Seekers','Budgeted','Solo Friendly'], temp:'15°C – 22°C', crowds:'Moderate', recommendation:'Spring brings mild weather perfect for exploring on foot — blooming gardens, shorter museum lines, and better rates before the summer rush.'},
+        {name:'Summer', months:'June — August', tags:['Family Friendly','Beach Lovers','Adventure Seekers'], temp:'28°C – 35°C', crowds:'High (peak season)', recommendation:'Summer is peak season with the most activity and longest daylight hours, ideal for outdoor experiences and festivals.'},
+        {name:'Autumn', months:'September — November', tags:['Culture & History','Food Lovers','Solo Friendly','Budget Travellers'], temp:'12°C – 20°C', crowds:'Low to moderate', recommendation:'Autumn offers cooler weather, harvest festivals, and fewer crowds — a great time for culture and cuisine focused trips.'},
+        {name:'Winter', months:'December — February', tags:['Premium & Comfortable','Couples','City Breaks'], temp:'2°C – 10°C', crowds:'Low', recommendation:'Winter brings a quieter, more local feel with festive markets and off-season rates — ideal for city breaks and indoor cultural experiences.'}
+      ]
+    };
+  }
   const bs = entity.bestSeason;
-  const seasons = bs && bs.seasons ? bs.seasons : [];
+  const seasons = bs.seasons;
 
   const pending = Comp._pendingApprovals[Comp.cardKey(cardId)];
   const reviewBadge = pending ? `<button type="button" class="approval-badge" onclick="Comp.openApprovalCompare('${cardId}')">⚠ Review pending</button>` : '';
@@ -8504,6 +8682,77 @@ Comp.BestSeasonCard = function(entity, cardId){
 };
 
 Comp._bestSeasonRegen = function(cardId){
+  const card = document.querySelector(`.card[data-card-id="${cardId}"]`);
+  if(!card){ Comp.showToast('Section not found.', 'danger'); return; }
+  Comp._openRegenLangModal(card);
+};
+
+// Plan your visit with confidence — read-only, Lock + Regenerate only
+Comp.PlanVisitCard = function(entity, cardId){
+  const info = entity.planVisitInfo || {};
+  const pending = Comp._pendingApprovals[Comp.cardKey(cardId)];
+  const reviewBadge = pending ? `<button type="button" class="approval-badge" onclick="Comp.openApprovalCompare('${cardId}')">⚠ Review pending</button>` : '';
+  const regenBtn = pending
+    ? Comp.Button('↻ Review content', {size:'btn-sm', variant:'btn-primary', onclick:`Comp.openApprovalCompare('${cardId}')`})
+    : Comp.Button('↻ Regenerate', {size:'btn-sm', onclick:`Comp._planVisitRegen('${cardId}')`});
+
+  const rows = [
+    ['Opening Hours',                     info.openingHours],
+    ['Typical Visit Duration',            info.visitDuration],
+    ['Tickets / Admission Model',         info.admissionModel],
+    ['Required Tickets',                  info.requiredTickets],
+    ['Main Entrance / Where to Enter',    info.mainEntrance],
+    ['Address',                           info.address],
+    ['Accessibility',                     info.accessibility],
+    ['Security Screening',                info.security],
+    ['Bag Policy',                        info.bagPolicy],
+    ['Photography Rules',                 info.photography],
+    ['Last Admission',                    info.lastAdmission],
+    ['Official Website',                  info.officialWebsite],
+    ['Getting There / Nearest Transport', info.gettingThere],
+    ['Dress Code',                        info.dresscode]
+  ].filter(r => r[1]);
+
+  const tableHtml = rows.length
+    ? `<div style="border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;">
+        ${rows.map((r,i) => `
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;padding:12px 16px;${i>0?'border-top:1px solid var(--border-subtle,var(--border));':''}">
+            <span style="font-size:var(--fs-sm);font-weight:600;color:var(--text-primary);flex-shrink:0;min-width:180px;">${Comp._escHtml(r[0])}</span>
+            <span style="font-size:var(--fs-sm);color:var(--text-secondary);text-align:right;">${Comp._escHtml(r[1])}</span>
+          </div>`).join('')}
+      </div>
+      <div style="margin-top:16px;">
+        <p style="font-size:var(--fs-sm);font-weight:600;margin:0 0 8px;">Moments</p>
+        ${(entity.planVisit && entity.planVisit.moments || []).length
+          ? (entity.planVisit.moments.map((m,i) =>
+              `<div class="list-row items-center" style="margin-bottom:8px;">
+                <div class="list-thumb" aria-hidden="true"></div>
+                <div class="list-row__body flex-1">
+                  <p class="list-row__title">${Comp._escHtml(m.title||'Untitled moment')}</p>
+                  <p class="list-row__meta">Alt: ${Comp._escHtml(m.altText||'—')}</p>
+                </div>
+              </div>`).join(''))
+          : '<p class="field-hint">No moments added yet.</p>'}
+        <button type="button" class="btn btn-sm" style="margin-top:8px;" onclick="Comp.captureAltText('moment', function(altText){ Comp.showToast('Moment added with alt text: ' + altText, \'success\'); })">+ Add Moment from Media Library</button>
+      </div>`
+    : `<p class="field-hint">No visit info yet — use Regenerate to populate.</p>`;
+
+  return `<section class="card" data-card-id="${cardId}" aria-label="Plan your visit with confidence">
+    <div class="section-header-row">
+      <p class="card-title">Plan your visit with confidence${reviewBadge}</p>
+    </div>
+    <div style="margin-bottom:20px;">${tableHtml}</div>
+    <div class="sec-actions">
+      <div class="lock-status-note">${ICON.lock} Locked from AI edits</div>
+      <div class="default-actions">
+        ${Comp.Button('<span class="toggle-track" aria-hidden="true"></span><span class="lock-label">Lock</span>', {variant:'btn-lock', size:'btn-sm', onclick:'Comp.toggleLock(this)', extraAttrs:'aria-pressed="false"'})}
+        ${regenBtn}
+      </div>
+    </div>
+  </section>`;
+};
+
+Comp._planVisitRegen = function(cardId){
   const card = document.querySelector(`.card[data-card-id="${cardId}"]`);
   if(!card){ Comp.showToast('Section not found.', 'danger'); return; }
   Comp._openRegenLangModal(card);
@@ -9212,7 +9461,7 @@ function pageCountryDetails(params){
       </div>
       <div class="field">
         <label id="heroLbl">Hero image or video</label>
-        <div class="upload-area" role="button" tabindex="0" aria-labelledby="heroLbl"><div class="up-title">Click to upload</div><div class="up-sub">or drag and drop</div><div class="up-hint">PNG, JPG, WEBP or MP4 (max. 1200×400px)</div></div>
+        <div class="upload-area" role="button" tabindex="0" aria-labelledby="heroLbl" onclick="Comp.handleUploadAreaClick(this, function(filename, altText){ Comp.showToast('Media uploaded: ' + filename + ' (Alt: ' + altText + ')', 'success'); })"><div class="up-title">Click to upload</div><div class="up-sub">or drag and drop</div><div class="up-hint">PNG, JPG, WEBP or MP4 (max. 1200×400px)</div></div>
       </div>
       ${aiField('Description', `The ${country.name} offers a rich variety of destinations and experiences for every kind of traveler.`, 'textarea')}
     `})}
@@ -9255,7 +9504,7 @@ function pageCountryDetails(params){
     ${Comp.AiCard({id:'about', title:`About Rosotravel in ${country.name}`, fieldsHtml:
       `<div class="field">
         <label for="countryAboutSnippet">Snippet</label>
-        <textarea id="countryAboutSnippet" class="card-input" data-field-label="About snippet" placeholder="Short intro that sits above the four points\u2026">${`Rosotravel has been curating experiences in ${country.name} since day one \u2014 here is how we work, and what that means for your trip.`}</textarea>
+        <textarea id="countryAboutSnippet" class="card-input" readonly data-field-label="About snippet" placeholder="Short intro that sits above the four points\u2026">${`Rosotravel has been curating experiences in ${country.name} since day one \u2014 here is how we work, and what that means for your trip.`}</textarea>
       </div>` +
       Comp.EntityAboutPoint(1, country.name, `Rosotravel operates across ${country.name}, from its best-known cities to the regions travellers rarely reach on their own.`, 'countryAbout') +
       Comp.EntityAboutPoint(2, country.name, `Curated tours, skip-the-line entry and private transfers \u2014 chosen for reliability, not just availability.`, 'countryAbout') +
@@ -9263,7 +9512,7 @@ function pageCountryDetails(params){
       Comp.EntityAboutPoint(4, country.name, `We shortlist what is genuinely worth your time in ${country.name}, so planning takes minutes instead of evenings.`, 'countryAbout') +
       `<div class="field">
         <label id="aboutMediaLbl">Media upload</label>
-        <div class="upload-area" role="button" tabindex="0" aria-labelledby="aboutMediaLbl"><div class="up-title">Click to upload</div><div class="up-sub">or drag and drop</div><div class="up-hint">PNG, JPG, WEBP or MP4 (max. 1200×400px)</div></div>
+        <div class="upload-area" role="button" tabindex="0" aria-labelledby="aboutMediaLbl" onclick="Comp.handleUploadAreaClick(this, function(filename, altText){ Comp.showToast('Media uploaded: ' + filename + ' (Alt: ' + altText + ')', 'success'); })"><div class="up-title">Click to upload</div><div class="up-sub">or drag and drop</div><div class="up-hint">PNG, JPG, WEBP or MP4 (max. 1200×400px)</div></div>
         <p class="field-hint">You can upload multiple images</p>
       </div>`
     })}`;
@@ -9406,8 +9655,7 @@ function pageRegionListing(params){
 function pageRegionCreate(){
   Comp.clearCreateAiTracking();
   return Comp.Shell(`
-    ${Comp.PageHeader({title:`Create region`, actions:`
-`})}
+    ${Comp.PageHeader({title:`Create region`, actions:Comp.Button('✨ Generate with AI', {variant:'btn-ghost', onclick:'Comp.triggerCreateAiGenerate(this)'})})}
     ${Comp.Breadcrumb([{label:'Regions', route:'regionListing'}, {label:'Create region'}])}
     <form data-validate onsubmit="event.preventDefault(); Comp.finishCreateRegion();">
       <div class="card">
@@ -9426,7 +9674,7 @@ function pageRegionCreate(){
           <div class="field"><label for="regionCreateName">Region name <span class="required">*</span></label><input id="regionCreateName" placeholder="Enter region name" required></div>
           <div class="field">
             <label id="regionCreateHeroLbl">Hero image</label>
-            <div class="upload-area" role="button" tabindex="0" aria-labelledby="regionCreateHeroLbl"><div class="up-title">Click to upload</div><div class="up-sub">or drag and drop</div><div class="up-hint">PNG, JPG or WEBP (max. 1200×400px)</div></div>
+            <div class="upload-area" role="button" tabindex="0" aria-labelledby="regionCreateHeroLbl" onclick="Comp.handleUploadAreaClick(this, function(filename, altText){ Comp.showToast('Media uploaded: ' + filename + ' (Alt: ' + altText + ')', 'success'); })"><div class="up-title">Click to upload</div><div class="up-sub">or drag and drop</div><div class="up-hint">PNG, JPG or WEBP (max. 1200×400px)</div></div>
           </div>
           <div class="field"><label for="regionCreateDesc">Description</label><textarea id="regionCreateDesc" placeholder="Enter description"></textarea></div>
         </div>
@@ -9493,7 +9741,7 @@ function pageRegionDetails(params){
       ${aiField('Supporting snippet', region.snippet || `Explore ${region.name} with Rosotravel — discover cities, attractions, and local travel guides.`, 'textarea')}
       <div class="field">
         <label id="regionDetailHeroLbl">Hero image</label>
-        <div class="upload-area" role="button" tabindex="0" aria-labelledby="regionDetailHeroLbl"><div class="up-title">Click to upload</div><div class="up-sub">or drag and drop</div><div class="up-hint">PNG, JPG or WEBP (max. 1200×400px)</div></div>
+        <div class="upload-area" role="button" tabindex="0" aria-labelledby="regionDetailHeroLbl" onclick="Comp.handleUploadAreaClick(this, function(filename, altText){ Comp.showToast('Media uploaded: ' + filename + ' (Alt: ' + altText + ')', 'success'); })"><div class="up-title">Click to upload</div><div class="up-sub">or drag and drop</div><div class="up-hint">PNG, JPG or WEBP (max. 1200×400px)</div></div>
       </div>
       ${aiField('Description', region.description, 'textarea')}
     `})}
@@ -9536,7 +9784,7 @@ function pageRegionDetails(params){
     ${Comp.AiCard({id:'region-about', title:`About Rosotravel in ${region.name}`, fieldsHtml:
       `<div class="field">
         <label for="regionAboutSnippet">Snippet</label>
-        <textarea id="regionAboutSnippet" class="card-input" data-field-label="About snippet" placeholder="Short intro that sits above the four points\u2026">${`Rosotravel works across ${region.name} with people who know it well \u2014 here is how we operate, and what that means for your trip.`}</textarea>
+        <textarea id="regionAboutSnippet" class="card-input" readonly data-field-label="About snippet" placeholder="Short intro that sits above the four points\u2026">${`Rosotravel works across ${region.name} with people who know it well \u2014 here is how we operate, and what that means for your trip.`}</textarea>
       </div>` +
       Comp.EntityAboutPoint(1, region.name, `Rosotravel covers ${region.name} end to end, from its headline destinations to the smaller places worth the detour.`, 'regionAbout') +
       Comp.EntityAboutPoint(2, region.name, 'Guided tours, timed entry and transfers \u2014 selected for reliability rather than whatever happens to be bookable.', 'regionAbout') +
@@ -9544,7 +9792,7 @@ function pageRegionDetails(params){
       Comp.EntityAboutPoint(4, region.name, `We shortlist what is genuinely worth your time in ${region.name}, so planning takes minutes instead of evenings.`, 'regionAbout') +
       `<div class="field">
         <label id="regionAboutMediaLbl">Media upload</label>
-        <div class="upload-area" role="button" tabindex="0" aria-labelledby="regionAboutMediaLbl"><div class="up-title">Click to upload</div><div class="up-sub">or drag and drop</div><div class="up-hint">PNG, JPG, WEBP or MP4 (max. 1200\u00d7400px)</div></div>
+        <div class="upload-area" role="button" tabindex="0" aria-labelledby="regionAboutMediaLbl" onclick="Comp.handleUploadAreaClick(this, function(filename, altText){ Comp.showToast('Media uploaded: ' + filename + ' (Alt: ' + altText + ')', 'success'); })"><div class="up-title">Click to upload</div><div class="up-sub">or drag and drop</div><div class="up-hint">PNG, JPG, WEBP or MP4 (max. 1200\u00d7400px)</div></div>
         <p class="field-hint">You can upload multiple images</p>
       </div>`
     })}`;
@@ -9701,8 +9949,7 @@ function pageCityListing(params){
 function pageCityCreate(){
   Comp.clearCreateAiTracking();
   return Comp.Shell(`
-    ${Comp.PageHeader({title:`Create city`, actions:`
-`})}
+    ${Comp.PageHeader({title:`Create city`, actions:Comp.Button('✨ Generate with AI', {variant:'btn-ghost', onclick:'Comp.triggerCreateAiGenerate(this)'})})}
     ${Comp.Breadcrumb([{label:'Cities', route:'cityListing'}, {label:'Create city'}])}
     <form data-validate onsubmit="event.preventDefault(); Comp.finishCreateCity();">
       <div class="card">
@@ -9731,7 +9978,7 @@ function pageCityCreate(){
           <div class="field"><label for="cityNameInput">City name <span class="required">*</span></label><input id="cityNameInput" placeholder="Enter city name" required></div>
           <div class="field">
             <label id="cityHeroLbl">Hero image</label>
-            <div class="upload-area" role="button" tabindex="0" aria-labelledby="cityHeroLbl"><div class="up-title">Click to upload</div><div class="up-sub">or drag and drop</div><div class="up-hint">PNG, JPG or WEBP (max. 1200×400px)</div></div>
+            <div class="upload-area" role="button" tabindex="0" aria-labelledby="cityHeroLbl" onclick="Comp.handleUploadAreaClick(this, function(filename, altText){ Comp.showToast('Media uploaded: ' + filename + ' (Alt: ' + altText + ')', 'success'); })"><div class="up-title">Click to upload</div><div class="up-sub">or drag and drop</div><div class="up-hint">PNG, JPG or WEBP (max. 1200×400px)</div></div>
           </div>
           <div class="field"><label for="cityDescInput">Description</label><textarea id="cityDescInput" placeholder="Enter description"></textarea></div>
         </div>
@@ -9808,7 +10055,7 @@ function pageCityDetails(params){
       ${aiField('Supporting snippet', city.snippet || `Explore ${city.name} with Rosotravel — find top attractions, guided tours, and local experiences.`, 'textarea')}
       <div class="field">
         <label id="cityDetailHeroLbl">Hero image</label>
-        <div class="upload-area" role="button" tabindex="0" aria-labelledby="cityDetailHeroLbl"><div class="up-title">Click to upload</div><div class="up-sub">or drag and drop</div><div class="up-hint">PNG, JPG or WEBP (max. 1200×400px)</div></div>
+        <div class="upload-area" role="button" tabindex="0" aria-labelledby="cityDetailHeroLbl" onclick="Comp.handleUploadAreaClick(this, function(filename, altText){ Comp.showToast('Media uploaded: ' + filename + ' (Alt: ' + altText + ')', 'success'); })"><div class="up-title">Click to upload</div><div class="up-sub">or drag and drop</div><div class="up-hint">PNG, JPG or WEBP (max. 1200×400px)</div></div>
       </div>
       ${aiField('Description', `${city.name}${city.country ? ', ' + city.country : ''} — a vibrant destination known for its culture, landmarks, and unique local experiences.`, 'textarea')}
     `})}
@@ -9844,7 +10091,7 @@ function pageCityDetails(params){
     ${Comp.AiCard({id:'city-about', title:`About Rosotravel in ${city.name}`, fieldsHtml:
       `<div class="field">
         <label for="cityAboutSnippet">Snippet</label>
-        <textarea id="cityAboutSnippet" class="card-input" data-field-label="About snippet" placeholder="Short intro that sits above the four points\u2026">${`Rosotravel operates in ${city.name} with guides who live there \u2014 here is how we work, and what that means for your trip.`}</textarea>
+        <textarea id="cityAboutSnippet" class="card-input" readonly data-field-label="About snippet" placeholder="Short intro that sits above the four points\u2026">${`Rosotravel operates in ${city.name} with guides who live there \u2014 here is how we work, and what that means for your trip.`}</textarea>
       </div>` +
       Comp.EntityAboutPoint(1, city.name, `Rosotravel covers ${city.name} from its landmark sights to the neighbourhoods most itineraries skip.`, 'cityAbout') +
       Comp.EntityAboutPoint(2, city.name, 'Guided tours, timed entry and transfers \u2014 selected for reliability rather than whatever happens to be bookable.', 'cityAbout') +
@@ -9852,7 +10099,7 @@ function pageCityDetails(params){
       Comp.EntityAboutPoint(4, city.name, `We shortlist what is genuinely worth your time in ${city.name}, so planning takes minutes instead of evenings.`, 'cityAbout') +
       `<div class="field">
         <label id="cityAboutMediaLbl">Media upload</label>
-        <div class="upload-area" role="button" tabindex="0" aria-labelledby="cityAboutMediaLbl"><div class="up-title">Click to upload</div><div class="up-sub">or drag and drop</div><div class="up-hint">PNG, JPG, WEBP or MP4 (max. 1200×400px)</div></div>
+        <div class="upload-area" role="button" tabindex="0" aria-labelledby="cityAboutMediaLbl" onclick="Comp.handleUploadAreaClick(this, function(filename, altText){ Comp.showToast('Media uploaded: ' + filename + ' (Alt: ' + altText + ')', 'success'); })"><div class="up-title">Click to upload</div><div class="up-sub">or drag and drop</div><div class="up-hint">PNG, JPG, WEBP or MP4 (max. 1200×400px)</div></div>
         <p class="field-hint">You can upload multiple images</p>
       </div>` +
       `<div class="field" style="margin-top:8px;"><p class="card-title">Quick answers about Rosotravel in ${city.name}</p></div>` +
@@ -9940,23 +10187,49 @@ function pageCityHistoryLog(params){
 function pageAttractionListing(params){
   Comp.clearReturnContext();
   const p = params || {};
-  const filterType = p.filterType;
+  const filterType  = p.filterType;
   const filterValue = p.filterValue;
   const filterLabel = p.filterLabel;
-  let attractionList = (filterType && filterValue) ? DATA.masterAttractions.filter(a => a[filterType] === filterValue) : DATA.masterAttractions;
-  if (p.fCountry) attractionList = attractionList.filter(a => a.country === p.fCountry);
-  if (p.fCity) attractionList = attractionList.filter(a => a.city === p.fCity);
+
+  let attractionList = (filterType && filterValue)
+    ? DATA.masterAttractions.filter(a => a[filterType] === filterValue)
+    : DATA.masterAttractions;
+  if (p.fContinent)    attractionList = attractionList.filter(a => { const c = DATA.countries.find(x => x.name === a.country); return c && c.continent === p.fContinent; });
+  if (p.fCountry)      attractionList = attractionList.filter(a => a.country === p.fCountry);
+  if (p.fRegion)       attractionList = attractionList.filter(a => a.region  === p.fRegion);
+  if (p.fCity)         attractionList = attractionList.filter(a => a.city    === p.fCity);
+  if (p.fTier)         attractionList = attractionList.filter(a => (a.tierLevel||'Unassigned') === p.fTier);
+  if (p.fIndexability) attractionList = attractionList.filter(a => (a.indexability||'Noindex') === p.fIndexability);
+  if (p.fStatus)       attractionList = attractionList.filter(a => a.status === p.fStatus);
+
+  const continents = [...new Set(DATA.countries.map(c => c.continent).filter(Boolean))].sort();
+  const tiers      = ['Tier 1','Tier 2','Tier 3','Unassigned'];
+
   const rows = attractionList.map(a => {
-    const publishedCount = DATA.products.filter(p => p.attraction === a.name && p.city === a.city && p.status === 'Active' && !p.blocked).length;
+    const countryObj   = DATA.countries.find(c => c.name === a.country);
+    const continent    = countryObj ? countryObj.continent : '\u2014';
+    const region       = a.region || '\u2014';
+    const tierLevel    = a.tierLevel || 'Unassigned';
+    const indexability = a.indexability || 'Noindex';
+    const gsc          = a.gscStatus || {status:'Not submitted'};
+    const gscBadge     = gsc.status === 'Indexed'     ? Comp.Badge('Indexed', true)
+                       : gsc.status === 'Not indexed'  ? Comp.Badge('Not indexed', false)
+                       : `<span class="field-hint">${gsc.status}</span>`;
+    const idxBadge = indexability === 'Indexable' ? Comp.Badge('Indexable', true) : Comp.Badge('Noindex', false);
     return `
     <tr class="row-clickable" tabindex="0" role="button" aria-label="View ${a.name} details"
         onclick="Router.go('attractionDetails',{id:'${a.id}'})"
         onkeydown="if(event.key==='Enter'){Router.go('attractionDetails',{id:'${a.id}'})}">
       ${Comp.BulkCheckboxTd('attraction', a.id)}
       <td class="cell-name">${a.name}${Comp.ListingPendingBadge('attractionDetails',{id:a.id})}</td>
-      <td class="cell-secondary">${a.city}</td>
-      <td class="cell-secondary">${a.country}</td>
+      <td class="cell-secondary">${Comp._escHtml(continent)}</td>
+      <td class="cell-secondary">${Comp._escHtml(a.country||'\u2014')}</td>
+      <td class="cell-secondary">${Comp._escHtml(region)}</td>
+      <td class="cell-secondary">${Comp._escHtml(a.city||'\u2014')}</td>
       ${Comp._productCountCell('attraction', a.name)}
+      <td>${Comp._tierBadge(tierLevel)}</td>
+      <td>${idxBadge}</td>
+      <td>${gscBadge}</td>
       <td>${Comp.Badge(a.status, a.status==='Active')}</td>
       <td>${Comp.RowMenu(a.name, [
         {label:'View details', handler:() => Router.go('attractionDetails',{id:a.id})},
@@ -9965,33 +10238,53 @@ function pageAttractionListing(params){
       ])}</td>
     </tr>`;
   }).join('');
-  const baseParamsAttr = encodeURIComponent(JSON.stringify({filterType, filterValue, filterLabel, fCountry:p.fCountry||'', fCity:p.fCity||''}));
+
+  const filterParamsKeys = ['fContinent','fCountry','fRegion','fCity','fTier','fIndexability','fStatus'];
+  const filterVals = Object.fromEntries(filterParamsKeys.map(k => [k, p[k]||'']));
+  const baseParamsAttr = encodeURIComponent(JSON.stringify({filterType, filterValue, filterLabel, ...filterVals}));
+  const filterDefs = [
+    {id:'fContinent',    label:'Continent',    value:p.fContinent||'',    options:[{value:'',label:'All continents'}, ...continents.map(c=>({value:c,label:c}))]},
+    {id:'fCountry',      label:'Country',      value:p.fCountry||'',      options:[{value:'',label:'All countries'}, ...DATA.countries.map(c=>({value:c.name,label:c.name}))]},
+    {id:'fRegion',       label:'Region',       value:p.fRegion||'',       options:[{value:'',label:'All regions'}, ...DATA.regions.map(r=>({value:r.name,label:r.name}))]},
+    {id:'fCity',         label:'City',         value:p.fCity||'',         options:[{value:'',label:'All cities'}, ...DATA.cities.map(c=>({value:c.name,label:c.name}))]},
+    {id:'fTier',         label:'Tier Level',   value:p.fTier||'',         options:[{value:'',label:'All tiers'}, ...tiers.map(t=>({value:t,label:t}))]},
+    {id:'fIndexability', label:'Indexability', value:p.fIndexability||'', options:[{value:'',label:'All'},{value:'Indexable',label:'Indexable'},{value:'Noindex',label:'Noindex'}]},
+    {id:'fStatus',       label:'Status',       value:p.fStatus||'',       options:[{value:'',label:'All statuses'},{value:'Active',label:'Active'},{value:'Inactive',label:'Inactive'}]}
+  ];
+  const activeCount = filterParamsKeys.filter(k => p[k]).length;
+
   return Comp.Shell(`
-    ${Comp.PageHeader({title:`Attractions`, actions:`
-${Comp.Button('+ Add attraction', {variant:'btn-primary', onclick:"Comp.clearReturnContext(); Router.go('attractionCreate')"})}`})}
-    
+    ${Comp.PageHeader({title:'Attractions', actions:Comp.Button('+ Add attraction', {variant:'btn-primary', onclick:"Comp.clearReturnContext(); Router.go('attractionCreate')" })})}
     ${filterType ? Comp.FilterChip(filterLabel, filterValue, 'attractionListing') : ''}
     <div class="filter-bar mb-4" role="search">
       <label for="filterAttractions" class="visually-hidden">Search attractions</label>
       <input id="filterAttractions" class="search-box" placeholder="Search attractions" oninput="Comp.filterTable('filterAttractions')">
-      ${Comp.FilterIconButton(Comp.activeRouteFilterCount(p, ['fCountry','fCity']), `Comp.openRouteFilterDrawer('attractionListing', '${baseParamsAttr}', '${encodeURIComponent(JSON.stringify([
-        {id:'fCountry', label:'Country', value:p.fCountry||'', options:[{value:'',label:'All countries'}, ...DATA.countries.map(c=>({value:c.name,label:c.name}))]},
-        {id:'fCity', label:'City', value:p.fCity||'', options:[{value:'',label:'All cities'}, ...DATA.cities.filter(c => !p.fCountry || c.country === p.fCountry).map(c=>({value:c.name,label:c.name}))]}
-      ]))}')`)}
+      ${Comp.FilterIconButton(activeCount, "Comp.openRouteFilterDrawer('attractionListing', '" + baseParamsAttr + "', '" + encodeURIComponent(JSON.stringify(filterDefs)) + "')")}
     </div>
     ${Comp.BulkActionBar('attraction')}
-    ${Comp.Table({columns:[{label:Comp.BulkCheckboxTh('attraction'),width:'40px'},{label:'Attraction name',width:'220px'},{label:'City',width:'160px'},{label:'Country',width:'180px'},{label:'Products',width:'90px'},{label:'Status',width:'140px'},{label:'Action',width:'70px'}], rows, emptyText:'No attractions found.'})}
+    ${Comp.Table({columns:[
+      {label:Comp.BulkCheckboxTh('attraction'), width:'40px'},
+      {label:'Attraction name',  width:'200px'},
+      {label:'Continent',        width:'120px'},
+      {label:'Country',          width:'130px'},
+      {label:'Region',           width:'120px'},
+      {label:'City',             width:'120px'},
+      {label:'Products',         width:'90px'},
+      {label:'Tier Level',       width:'100px'},
+      {label:'Indexability',     width:'110px'},
+      {label:'GSC',              width:'110px'},
+      {label:'Status',           width:'90px'},
+      {label:'Action',           width:'70px'}
+    ], rows, emptyText:'No attractions found.'})}
     ${Comp.Pagination('Showing ' + attractionList.length + ' of ' + DATA.masterAttractions.length + ' attractions')}
   `);
 }
-
 function pageAttractionCreate(){
   Comp.clearCreateAiTracking();
   Comp._attractionGooglePlaceId = null;
   Comp._attractionCreatePlanVisit = Comp._attractionCreatePlanVisit || {featureMedia:null, moments:[]};
   return Comp.Shell(`
-    ${Comp.PageHeader({title:`Create attraction`, actions:`
-`})}
+    ${Comp.PageHeader({title:`Create attraction`, actions:Comp.Button('✨ Generate with AI', {variant:'btn-ghost', onclick:'Comp.triggerCreateAiGenerate(this)'})})}
     ${Comp.Breadcrumb([Comp.returnBreadcrumbItem('Attractions', 'attractionListing'), {label:'Create attraction'}])}
     <form data-validate onsubmit="event.preventDefault(); Comp.finishCreateAttraction();">
       <div class="card">
@@ -10032,7 +10325,7 @@ function pageAttractionCreate(){
           </div>
           <div class="field">
             <label id="attrCreateImgLbl">Attraction image</label>
-            <div class="upload-area" role="button" tabindex="0" aria-labelledby="attrCreateImgLbl"><div class="up-title">Click to upload</div><div class="up-sub">or drag and drop</div><div class="up-hint">PNG, JPG or WEBP (max. 800×600px)</div></div>
+            <div class="upload-area" role="button" tabindex="0" aria-labelledby="attrCreateImgLbl" onclick="Comp.handleUploadAreaClick(this, function(filename, altText){ Comp.showToast('Media uploaded: ' + filename + ' (Alt: ' + altText + ')', 'success'); })"><div class="up-title">Click to upload</div><div class="up-sub">or drag and drop</div><div class="up-hint">PNG, JPG or WEBP (max. 800×600px)</div></div>
           </div>
           <div class="field"><label for="attrCreateDesc">Description (optional)</label><textarea id="attrCreateDesc" placeholder="Enter description"></textarea></div>
         </div>
@@ -10079,10 +10372,11 @@ function pageAttractionDetails(params){
     {id:'optimization', label:'Optimization'},
     {id:'relations',    label:'Relations'},
     {id:'keywords',     label:'Keyword Assign'},
+    {id:'overrides',    label:'Manual Overrides'},
     {id:'history',      label:'History / Audit'}
   ];
   const tab = (params && params.tab) || 'seo';
-  if (tab === 'assets' || tab === 'overrides') return pageAttractionDetails(Object.assign({}, params, {tab:'seo'}));
+  if (tab === 'assets') return pageAttractionDetails(Object.assign({}, params, {tab:'seo'}));
   const productCount = DATA.products.filter(p => p.attraction === attraction.name).length;
   const heroMissing = !attraction.heroMediaId;
 
@@ -10098,9 +10392,10 @@ function pageAttractionDetails(params){
 
     ${Comp.AiCard({id:'list-row__body', title:'Attraction information', fieldsHtml:`
       ${aiField('H1', `${attraction.name} is one of the most visited landmarks in ${attraction.city}.`)}
+      ${aiField('Supporting snippet', `Plan your visit to ${attraction.name} — discover opening hours, tickets, and guided tours with Rosotravel.`, 'textarea')}
       <div class="field">
         <label id="attractionHeroLbl">Hero image</label>
-        <div class="upload-area" role="button" tabindex="0" aria-labelledby="attractionHeroLbl">
+        <div class="upload-area" role="button" tabindex="0" aria-labelledby="attractionHeroLbl" onclick="Comp.handleUploadAreaClick(this, function(filename, altText){ Comp.showToast('Media uploaded: ' + filename + ' (Alt: ' + altText + ')', 'success'); })">
           <div class="up-title">Click to upload</div>
           <div class="up-sub">or drag and drop</div>
           <div class="up-hint">PNG, JPG, WEBP (recommended 1200×630px)</div>
@@ -10108,6 +10403,8 @@ function pageAttractionDetails(params){
       </div>
       ${aiField('Overview', `Set in the heart of ${attraction.city}, ${attraction.name} draws visitors from across the world. This section is factual and is used across product and city pages.`, 'textarea')}
     `})}
+
+    ${Comp.PlanVisitCard(attraction, 'attraction-planvisit')}
 
     ${Comp.AiCard({id:'attraction-localtips', title:`Local Tips for ${attraction.name}`, fieldsHtml:
       Comp.LocalTipItem(1, 'Best time to visit', `The best time to visit ${attraction.name} is early morning to avoid crowds and make the most of your experience.`, false) +
@@ -10118,19 +10415,23 @@ function pageAttractionDetails(params){
       faqItemsHtml + `<button type="button" class="add-item-btn" data-item-type="faq">+ Add Another FAQ</button>`
     })}
 
-    ${Comp.Card({title:`Plan your visit with confidence`, hint:`Practical moments a visitor should know about before arriving.`, body:`
-      <div id="attractionPlanVisitStack" class="field-stack">
-        ${(attraction.planVisit && attraction.planVisit.moments || []).map((m, i) => `
-          <div class="list-row items-center">
-            <div class="list-thumb" aria-hidden="true"></div>
-            <div class="list-row__body flex-1">
-              <p class="list-row__title">${Comp._escHtml(m.title || 'Untitled moment')}</p>
-              <p class="list-row__meta">${Comp._escHtml(m.description || '')}</p>
-            </div>
-            ${Comp.Button('Remove', {size:'btn-sm', variant:'btn-danger', onclick:`Comp.removeAttractionPlanVisitMoment('${attraction.id}', ${i})`})}
-          </div>`).join('') || '<p class="empty-state">No moments added yet.</p>'}
+    ${Comp.AiCard({id:'attraction-whysee', title:`What You'll See & Why It Matters`, fieldsHtml:`
+      ${aiField('Snippet', `There is more to ${attraction.name} than the headline — here is what most visitors miss and why it matters.`)}
+      ${aiField('The Arena', '', 'textarea')}
+      ${aiField('The Hypogeum', '', 'textarea')}
+      ${aiField('Seating & Circulation System', '', 'textarea')}
+      ${aiField('Museum & Exhibition Areas', '', 'textarea')}
+      ${aiField('A Building with Almost 2,000 Years of History', '', 'textarea')}
+      ${aiField('Overview', `From its history to the details that reward a closer look, ${attraction.name} offers layers of meaning that go beyond the obvious.`, 'textarea')}
+      <div class="field">
+        <label id="attractionWhySeeMediaLbl">Media upload</label>
+        <div class="upload-area" role="button" tabindex="0" aria-labelledby="attractionWhySeeMediaLbl" onclick="Comp.handleUploadAreaClick(this, function(filename, altText){ Comp.showToast('Media uploaded: ' + filename + ' (Alt: ' + altText + ')', 'success'); })">
+          <div class="up-title">Click to upload</div>
+          <div class="up-sub">or drag and drop</div>
+          <div class="up-hint">PNG, JPG or WEBP (max. 1200×630px)</div>
+        </div>
       </div>
-      <div class="mt-2">${Comp.Button('+ Add Moment from Media Library', {size:'btn-sm', onclick:`Comp.addAttractionPlanVisitMoment('${attraction.id}')`})}</div>`})}
+    `})}
 
     ${Comp.attractionHighlightsCard(attraction)}
     ${Comp.attractionVisitorInfoCard(attraction)}`;
@@ -10169,6 +10470,8 @@ function pageAttractionDetails(params){
         ['Visitor info source overrides', `${Comp.VISITOR_INFO_FIELDS.filter(f => (attraction.visitorInfo || {})[f.key] && attraction.visitorInfo[f.key].locked).length} field(s) locked from external sync`]
       ])}`})}
     ${Comp.attractionBlockOutCard(attraction)}`;
+  } else if (tab === 'overrides') {
+    tabBody = Comp.renderOverridesTab(attraction, ['attraction-seo','list-row__body','attraction-localtips','attraction-faq','attraction-whysee']);
   } else if (tab === 'history') {
     tabBody = Comp.versionHistoryCard(attraction, 'masterAttractions') + `
     ${Comp.Card({title:`History / Audit`, body:`
@@ -10178,10 +10481,17 @@ function pageAttractionDetails(params){
   const body = `
     ${Comp.Breadcrumb([Comp.returnBreadcrumbItem('Attractions', 'attractionListing'), {label:attraction.name}])}
     ${Comp.PageHeader({title:`${attraction.name}`, actions:`
-        ${Comp.Button('History log', {onclick:`Router.go('attractionHistoryLog',{id:'${attraction.id}'})`})}
+        ${Comp.Button('↻ Regenerate all', {onclick:'Comp._openRegenLangModalMulti()'})}
+        ${Comp.Button((attraction.indexability||'Noindex')==='Indexable' ? '● Indexable' : '○ Noindex', {variant:(attraction.indexability||'Noindex')==='Indexable' ? 'btn-primary' : '', onclick:`Comp.toggleIndexability('attraction','${attraction.id}')`})}
         ${Comp.Button(attraction.status==='Active' ? 'Deactivate' : 'Activate', {variant:'btn-amber', onclick:`Comp.toggleAttractionStatus('${attraction.id}')`})}`, level:'h2'})}
-    ${Comp.pendingApprovalsBanner()}
     ${Comp.contentLanguageBar('attraction')}
+    ${Comp.pendingApprovalsBanner()}
+    ${Comp._renderUrlCanonicalCard('attraction', (code) => {
+      const countrySlug = (attraction.country||'').toLowerCase().replace(/[^a-z0-9]+/g,'-');
+      const citySlug    = (attraction.city||'').toLowerCase().replace(/[^a-z0-9]+/g,'-');
+      const slug        = (attraction.slug || attraction.name.toLowerCase().replace(/[^a-z0-9]+/g,'-'));
+      return {slug: slug, canonical: `https://rosotravel.com/${code}/${countrySlug}/${citySlug}/${slug}/`};
+    })}
     <div class="ops-tabs" role="tablist">
       ${tabs.map(t => `<button type="button" class="ops-tab ${tab===t.id?'is-active':''}" role="tab" aria-selected="${tab===t.id}" onclick="Router.go('attractionDetails',{id:'${attraction.id}', tab:'${t.id}'})">${t.label}</button>`).join('')}
     </div>
@@ -10255,7 +10565,7 @@ function pageCategoryDetails(params){
     ${Comp.AiCard({id:'category-info', title:'Taxonomy information', fieldsHtml:`
       <div class="field">
         <label id="categoryDetailIconLbl">Taxonomy icon or image</label>
-        <div class="upload-area" role="button" tabindex="0" aria-labelledby="categoryDetailIconLbl"><div class="up-title">Click to upload</div><div class="up-sub">or drag and drop</div><div class="up-hint">PNG, SVG or WEBP (max. 400×400px)</div></div>
+        <div class="upload-area" role="button" tabindex="0" aria-labelledby="categoryDetailIconLbl" onclick="Comp.handleUploadAreaClick(this, function(filename, altText){ Comp.showToast('Media uploaded: ' + filename + ' (Alt: ' + altText + ')', 'success'); })"><div class="up-title">Click to upload</div><div class="up-sub">or drag and drop</div><div class="up-hint">PNG, SVG or WEBP (max. 400×400px)</div></div>
       </div>
       ${aiField('Description', category.description, 'textarea')}
     `})}`;
@@ -20255,7 +20565,7 @@ function pageProductCreate(){
         <div class="field"><label for="gaRef">${ga.guideMode === 'Exact Guide' ? 'Guide' : 'Guide team'}</label><input id="gaRef" placeholder="Search or enter ${ga.guideMode === 'Exact Guide' ? 'guide' : 'guide team'} name" value="${ga.guideRef}" oninput="Comp._productDraft.guideAnchor.guideRef=this.value;"></div>` : ''}
         <div class="field">
           <label id="gaImgLbl">Guide anchor image (if not from guide profile)</label>
-          <div class="upload-area" role="button" tabindex="0" aria-labelledby="gaImgLbl"><div class="up-title">Click to upload</div><div class="up-sub">or drag and drop</div><div class="up-hint">PNG, JPG or WEBP</div></div>
+          <div class="upload-area" role="button" tabindex="0" aria-labelledby="gaImgLbl" onclick="Comp.handleUploadAreaClick(this, function(filename, altText){ Comp.showToast('Media uploaded: ' + filename + ' (Alt: ' + altText + ')', 'success'); })"><div class="up-title">Click to upload</div><div class="up-sub">or drag and drop</div><div class="up-hint">PNG, JPG or WEBP</div></div>
         </div>
         <div class="field"><label for="gaCredential">Short credential line</label><input id="gaCredential" placeholder="e.g. 12 years guiding in Rome" maxlength="100" value="${ga.credentialLine}" oninput="Comp._productDraft.guideAnchor.credentialLine=this.value;"></div>
         <div class="field"><label for="gaQuote">Optional quote</label><textarea id="gaQuote" placeholder="A short quote from the guide" oninput="Comp._productDraft.guideAnchor.quote=this.value;">${ga.quote}</textarea></div>
@@ -20266,7 +20576,7 @@ function pageProductCreate(){
       <div class="field-stack">
         <div class="field">
           <label id="smUploadLbl">Upload photo / video</label>
-          <div class="upload-area" role="button" tabindex="0" aria-labelledby="smUploadLbl" onclick="Comp._productDraft.snapshotMedia.uploaded=true; Router.go('productCreate');"><div class="up-title">${sm.uploaded ? '✓ 1 file attached' : 'Click to upload'}</div><div class="up-sub">or drag and drop</div><div class="up-hint">JPG, PNG, MP4, MOV</div></div>
+          <div class="upload-area" role="button" tabindex="0" aria-labelledby="smUploadLbl" onclick="Comp._productDraft.snapshotMedia.uploaded=true; Router.go('productCreate');" onclick="Comp.handleUploadAreaClick(this, function(filename, altText){ Comp.showToast('Media uploaded: ' + filename + ' (Alt: ' + altText + ')', 'success'); })"><div class="up-title">${sm.uploaded ? '✓ 1 file attached' : 'Click to upload'}</div><div class="up-sub">or drag and drop</div><div class="up-hint">JPG, PNG, MP4, MOV</div></div>
         </div>
         <div class="field"><label>Source type</label><p style="margin:0; color:var(--text-muted);">admin_snapshot <span style="font-size:var(--fs-xs);">(read-only)</span></p></div>
         <div class="field"><label>Linked product</label><p style="margin:0; color:var(--text-muted);">${d.name || '(this product, once saved)'}</p></div>
@@ -21904,8 +22214,61 @@ Comp.homeCaptureAltText = function(filename, onDone){
     }
   });
 };
-// Device upload — opens a native file picker, then routes into the
-// same ALT text capture flow as a Media Library pick.
+// Generic ALT text capture — reused across all upload areas in the platform.
+// Call after any media select or upload. onDone(altText) is called with the confirmed value.
+Comp.captureAltText = function(filename, onDone){
+  var html = '<div class="field" style="margin-top:8px;">' +
+    '<label for="globalAltTextInput">Alt text <span class="required">*</span></label>' +
+    '<input id="globalAltTextInput" class="card-input" placeholder="Describe the image for screen readers and SEO">' +
+    '<p class="field-hint mt-1">Required for indexation. Cannot be edited after saving — only changed by replacing the media.</p>' +
+    '</div>';
+  Comp.openConfirm({
+    title: 'Add alt text',
+    desc: '"' + filename + '" — describe what this image/video shows.',
+    warningHtml: html,
+    confirmLabel: 'Save',
+    onConfirm: function(){
+      var el = document.getElementById('globalAltTextInput');
+      var val = el ? el.value.trim() : '';
+      if (!val) { Comp.showToast('Alt text is required.', 'danger'); return; }
+      onDone(val);
+    }
+  });
+};
+
+// Keep homeCaptureAltText as alias for backward compatibility
+Comp.homeCaptureAltText = function(filename, onDone){
+  Comp.captureAltText(filename, onDone);
+};
+
+// Generic upload from device — opens file picker then routes into captureAltText
+Comp.uploadFromDevice = function(onSelect){
+  var input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/png,image/jpeg,image/webp,video/mp4';
+  input.onchange = function(){
+    var file = input.files[0];
+    if (!file) return;
+    var asset = {filename: file.name, id: 'upload-' + Date.now(), url: URL.createObjectURL(file)};
+    onSelect(asset);
+  };
+  input.click();
+};
+
+// Generic upload area click handler — wires upload-area divs to captureAltText
+// Usage: onclick="Comp.handleUploadAreaClick(this, function(filename, altText){ ... })"
+Comp.handleUploadAreaClick = function(areaEl, onComplete){
+  Comp.uploadFromDevice(function(asset){
+    Comp.captureAltText(asset.filename, function(altText){
+      onComplete(asset.filename, altText);
+      // Show uploaded state in the upload area
+      var label = areaEl.querySelector('.up-title');
+      if(label) label.textContent = asset.filename;
+      var sub = areaEl.querySelector('.up-sub');
+      if(sub) sub.textContent = 'Alt: ' + altText;
+    });
+  });
+};
 Comp.homeUploadFromDevice = function(onSelect){
   var input = document.createElement('input');
   input.type = 'file';
@@ -21957,9 +22320,9 @@ Comp.homeOpenRegenScopeModal = function(){
     {id:'why',  label:'Why Travelers Choose Rosotravel', locked: !!h.sectionLocks.whyChooseUs}
   ];
   const SCOPE_FIELDS = {
-    hero: ['H1','Supporting snippet'],
+    hero: ['H1 — First-Time Visitor','H1 — Family Trip','H1 — Couple Trip','H1 — Solo Trip','H1 — Premium & Comfortable','H1 — Culture & History','H1 — Activities & Local Experiences','Supporting snippet'],
     seo:  ['Meta title','Meta description'],
-    why:  ['Point 1','Point 2','Point 3']
+    why:  ['Guides who truly know their city','Smooth plans, fewer worries','Shortlists that save hours of research','Only proven quality makes the cut']
   };
   const sectionRows = scopes.map(s => {
     const subItems = (SCOPE_FIELDS[s.id] || []).map(f =>
@@ -22030,7 +22393,7 @@ Comp.homeSectionRegenStart = function(sectionKey){
     hero: 'Hero', seo: 'SEO data', whyChooseUs: 'Why Travelers Choose Rosotravel'
   };
   const SECTION_FIELDS = {
-    hero:         ['H1','Supporting snippet'],
+    hero:         ['H1 — First-Time Visitor','H1 — Family Trip','H1 — Couple Trip','H1 — Solo Trip','H1 — Premium & Comfortable','H1 — Culture & History','H1 — Activities & Local Experiences','Supporting snippet'],
     seo:          ['Meta title','Meta description'],
     whyChooseUs:  ['Guides who truly know their city','Smooth plans, fewer worries','Shortlists that save hours of research','Only proven quality makes the cut']
   };
@@ -22402,32 +22765,10 @@ function pagePromptEditor(params){
   `});
 
   // ---- TIPS SIDEBAR ----
-  const tipsCard = Comp.Card({title:'Tips', body:`
-    <div class="field-stack" style="gap:12px;">
-      <div style="display:flex;gap:10px;align-items:flex-start;">
-        <span style="flex-shrink:0;color:var(--accent-600);">${ICON.info}</span>
-        <p class="field-hint mt-0">Placeholders like {{countryName}} are replaced with real values at generation time — do not resolve them manually.</p>
-      </div>
-      <div style="display:flex;gap:10px;align-items:flex-start;">
-        <span style="flex-shrink:0;color:var(--accent-600);">${ICON.info}</span>
-        <p class="field-hint mt-0">Keep each section prompt focused. Avoid combining multiple sections in one prompt.</p>
-      </div>
-      <div style="display:flex;gap:10px;align-items:flex-start;">
-        <span style="flex-shrink:0;color:var(--accent-600);">${ICON.info}</span>
-        <p class="field-hint mt-0">Use {{language}} to support multilingual generation.</p>
-      </div>
-    </div>
-  `});
-
   let body = '';
 
   // ---- PROMPT CONFIGURATION TAB ----
   if(tab === 'config'){
-    const placeholderChips = placeholders.map(ph =>
-      `<button type="button" class="badge badge-inactive" style="cursor:pointer;font-family:monospace;padding:4px 10px;"
-        onclick="Comp.pmInsertPlaceholder('pm-prompt','${Comp._escAttr(ph)}')">${Comp._escHtml(ph)}</button>`
-    ).join(' ');
-
     const configCard = Comp.Card({title:'Prompt configuration', hint:'Write the AI instruction for this section. Use placeholders to inject dynamic values at generation time.', body:`
       <div class="field-stack">
         <div class="field-row">
@@ -22451,11 +22792,7 @@ function pagePromptEditor(params){
             oninput="var c=document.getElementById('pm-cc');if(c)c.textContent=this.value.length+' / 4000'">${Comp._escHtml(promptValue)}</textarea>
           <span id="pm-cc" class="char-counter">${charCount} / 4000</span>
         </div>
-        <div class="field">
-          <label>Available placeholders</label>
-          <p class="field-hint mt-0">Click to insert at cursor position.</p>
-          <div class="tags-box" style="gap:6px;flex-wrap:wrap;">${placeholderChips || '<span class="field-hint">No placeholders for this page type.</span>'}</div>
-        </div>
+
       </div>
       <div class="action-row action-row--divided mt-4">
         ${Comp.Button('← Back', {onclick:`Router.go('promptManagement',{pageType:'${pageType}',language:'${language}'})`})}
@@ -22470,7 +22807,6 @@ function pagePromptEditor(params){
         <div style="flex:1;min-width:0;">${configCard}</div>
         <div style="width:280px;flex-shrink:0;display:flex;flex-direction:column;gap:16px;">
           ${statusCard}
-          ${tipsCard}
         </div>
       </div>`;
   }
