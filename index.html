@@ -65,7 +65,7 @@
     border:1px solid var(--border); background:var(--surface-card); color:var(--text-primary);
     display:inline-flex; align-items:center; gap:6px; transition:background var(--dur), border-color var(--dur);
     white-space:nowrap;
-  }.btn:hover{background:var(--surface-sunken); border-color:var(--border-strong);}.btn:active{transform:translateY(0.5px);}.btn:disabled{opacity:.5; cursor:not-allowed; pointer-events:none;}.btn-sm{height:30px; padding:0 12px; font-size:var(--fs-xs); border-radius:var(--radius-sm);}.btn-primary{background:var(--accent-500); border-color:var(--accent-500); color:#fff;}.btn-primary:hover{background:var(--accent-600); border-color:var(--accent-600);}.btn-primary:disabled{background:var(--n-200); border-color:var(--n-200); color:var(--text-muted);}.btn-ghost{border-color:transparent; background:none;}.btn-ghost:hover{background:var(--surface-sunken);}.btn-amber{color:var(--warning-700); border-color:var(--warning-600); background:var(--warning-50);}.btn-amber:hover{background:var(--warning-50);}.btn-danger{color:var(--danger-700); border-color:var(--danger-600); background:var(--danger-50);}.btn-block{width:100%; justify-content:center;}.card{background:var(--surface-card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:24px; margin-bottom:20px; box-shadow:var(--shadow-sm);}.card.is-editing, form.is-editing .card{border-width:2px; border-color:var(--accent-500);}.card.is-locked{border-color:var(--warning-600); box-shadow:0 0 0 1px var(--warning-600), var(--shadow-sm);}.card.is-regenerating{border-color:var(--accent-500); box-shadow:0 0 0 1px var(--accent-500), var(--shadow-sm);}.card-title{font-size:var(--fs-md); font-weight:600; margin:0 0 18px; color:var(--text-primary);}.field{display:flex; flex-direction:column; gap:6px; flex:1; min-width:0;}.field-row{display:flex; gap:20px; flex-wrap:wrap;}.field-row .field{min-width:200px;}/* Single reusable vertical rhythm for any stack of fields/rows inside a card —
+  }.btn:hover{background:var(--surface-sunken); border-color:var(--border-strong);}.btn:active{transform:translateY(0.5px);}.btn:disabled{opacity:.5; cursor:not-allowed; pointer-events:none;}.btn-sm{height:30px; padding:0 12px; font-size:var(--fs-xs); border-radius:var(--radius-sm);}.btn-primary{background:var(--accent-500); border-color:var(--accent-500); color:#fff;}.btn-primary:hover{background:var(--accent-600); border-color:var(--accent-600);}.btn-primary:disabled{background:var(--n-200); border-color:var(--n-200); color:var(--text-muted);}.btn-ghost{border-color:transparent; background:none;}.btn-ghost:hover{background:var(--surface-sunken);}.btn-amber{color:var(--warning-700); border-color:var(--warning-600); background:var(--warning-50);}.btn-amber:hover{background:var(--warning-50);}.btn-danger{color:var(--danger-700); border-color:var(--danger-600); background:var(--danger-50);}.btn-danger-outline{color:var(--danger-700); border-color:var(--danger-600); background:transparent;}.btn-danger-outline:hover{background:var(--danger-50);}.btn-block{width:100%; justify-content:center;}.card{background:var(--surface-card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:24px; margin-bottom:20px; box-shadow:var(--shadow-sm);}.card.is-editing, form.is-editing .card{border-width:2px; border-color:var(--accent-500);}.card.is-locked{border-color:var(--warning-600); box-shadow:0 0 0 1px var(--warning-600), var(--shadow-sm);}.card.is-regenerating{border-color:var(--accent-500); box-shadow:0 0 0 1px var(--accent-500), var(--shadow-sm);}.card-title{font-size:var(--fs-md); font-weight:600; margin:0 0 18px; color:var(--text-primary);}.field{display:flex; flex-direction:column; gap:6px; flex:1; min-width:0;}.field-row{display:flex; gap:20px; flex-wrap:wrap;}.field-row .field{min-width:200px;}/* Single reusable vertical rhythm for any stack of fields/rows inside a card —
      used by every card body so spacing never has to be set ad hoc per field. */
   .field-stack{display:flex; flex-direction:column; gap:20px;}.field label{font-size:var(--fs-sm); font-weight:600; color:var(--text-primary);}.field .required{color:var(--danger-600); margin-left:2px;}.field input:not([type="checkbox"]):not([type="radio"]){
     height:40px; border:1px solid var(--border); border-radius:var(--radius-md); padding:0 12px; font-size:var(--fs-base);
@@ -263,13 +263,13 @@
 <!-- AI Regeneration Approval — Compare view -->
 <div class="overlay" id="modalCompare" role="dialog" aria-modal="true" aria-labelledby="modalCompareTitle">
   <div class="modal" style="width:640px;">
-    <h3 id="modalCompareTitle">Review AI suggestion</h3>
-    <p class="desc" id="modalCompareDesc"></p>
+    <h3 id="modalCompareTitle">Review AI suggestions</h3>
+    <p class="desc" id="modalCompareDesc">Uncheck any field you don't want to apply, then accept the rest.</p>
     <div id="modalCompareBody"></div>
     <div class="modal-actions">
-      <button type="button" class="btn btn-danger" onclick="Comp.denyAiVersion()">Denied</button>
       <button type="button" class="btn" onclick="Comp.closeModal('modalCompare')">Cancel</button>
-      <button type="button" class="btn btn-primary" onclick="Comp.acceptAiVersion()">Accept Version</button>
+      <button type="button" class="btn btn-danger-outline" onclick="Comp.denyAiVersion()">Denied</button>
+      <button type="button" class="btn btn-primary" onclick="Comp.acceptAiVersion()">Accept changes</button>
     </div>
   </div>
 </div>
@@ -2601,36 +2601,30 @@ const Comp = {
     const pending = Comp._pendingApprovals[key];
     if (!pending) return;
     Comp._compareCardId = cardId;
-    document.getElementById('modalCompareDesc').textContent = `AI generated new content for this section on ${pending.generatedAt}. Check the fields you want to apply, then Accept.`;
+    Comp._regenReviewChanged = null; // not a regenReview context
+
     const fieldKeys = Object.keys(pending.candidates);
-    const currentCol = fieldKeys.map((fk, i) => {
-      const label = pending.labels[fk];
-      const fieldEl = [...document.querySelectorAll('.card-input[data-field-label]')].find(el => el.dataset.fieldLabel === label);
-      const currentVal = Comp._fieldOverrides[fk] !== undefined ? Comp._fieldOverrides[fk] : (fieldEl ? fieldEl.value : '');
-      const diff = Comp.wordDiff(currentVal, pending.candidates[fk]);
-      return { fk, i, label, currentHtml: diff.currentHtml, candidateHtml: diff.candidateHtml };
-    });
-    document.getElementById('modalCompareBody').innerHTML = `
-      <div class="compare-grid">
-        <div class="compare-col">
-          <div class="compare-col-header"><span class="compare-col-title">Current</span></div>
-          ${currentCol.map(f => `<p class="compare-field-label">${f.label}</p><div class="compare-value">${f.currentHtml}</div>`).join('')}
-        </div>
-        <div class="compare-col ai-col">
-          <div class="compare-col-header">
-            <span class="compare-col-title">AI Suggestion</span>
-          </div>
-          <p class="compare-generated-date" style="margin:-4px 0 10px;">Generated ${pending.generatedAt}</p>
-          ${currentCol.map(f => `
-            <label class="compare-field-check">
-              <input type="checkbox" class="compare-field-checkbox" data-fk="${encodeURIComponent(f.fk)}" checked>
-              <span class="compare-field-label m-0">${f.label}</span>
-            </label>
-            <div class="compare-value">${f.candidateHtml}</div>
-          `).join('')}
-        </div>
-      </div>
-    `;
+    const rowsHtml = fieldKeys.map((fk, i) => {
+      const label    = pending.labels[fk] || fk;
+      const fieldEl  = [...document.querySelectorAll('.card-input[data-field-label]')].find(el => el.dataset.fieldLabel === label);
+      const currentVal   = Comp._fieldOverrides[fk] !== undefined ? Comp._fieldOverrides[fk] : (fieldEl ? fieldEl.value : '');
+      const candidateVal = pending.candidates[fk];
+      const diff = Comp.wordDiff(currentVal, candidateVal);
+      return `<div style="padding:12px 0;border-top:${i>0?'1px solid var(--border)':'none'};">
+        <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;">
+          <input type="checkbox" class="regen-review-check mt-1" data-key="${encodeURIComponent(fk)}" checked>
+          <span class="flex-1">
+            <strong style="display:block;margin-bottom:6px;">${Comp._escHtml(label)}</strong>
+            <span style="display:block;font-size:13px;color:var(--text-muted);text-decoration:line-through;margin-bottom:4px;">${currentVal ? Comp._escHtml(currentVal) : '(empty)'}</span>
+            <span style="display:block;font-size:14px;color:var(--accent-700);">${ICON.sparkles} ${diff.candidateHtml}</span>
+          </span>
+        </label>
+      </div>`;
+    }).join('');
+
+    document.getElementById('modalCompareBody').innerHTML =
+      `<p style="font-size:var(--fs-sm);color:var(--text-muted);margin-bottom:4px;">Generated ${pending.generatedAt}</p>` +
+      `<div style="max-height:50vh;overflow-y:auto;">${rowsHtml}</div>`;
     Comp.openModal('modalCompare');
   },
   // Page-level "Accept All" — answers Adam's admin-call question: "is there
@@ -2743,36 +2737,39 @@ const Comp = {
       Comp._compareCardId = null;
       return;
     }
+    const cardId = Comp._compareCardId;
     const key = Comp.cardKey(cardId);
     const pending = Comp._pendingApprovals[key];
-    if (pending) {
-      const checkboxes = [...document.querySelectorAll('.compare-field-checkbox')];
-      const checkedFks = new Set(checkboxes.filter(c => c.checked).map(c => decodeURIComponent(c.dataset.fk)));
-      const remainingCandidates = {};
-      const remainingLabels = {};
-      let acceptedCount = 0;
-      Object.keys(pending.candidates).forEach(fk => {
-        if (checkedFks.has(fk)) {
-          Comp._fieldOverrides[fk] = pending.candidates[fk];
-          acceptedCount++;
-        } else {
-          remainingCandidates[fk] = pending.candidates[fk];
-          remainingLabels[fk] = pending.labels[fk];
-        }
-      });
-      if (Object.keys(remainingCandidates).length > 0) {
-        Comp._pendingApprovals[key] = { generatedAt: pending.generatedAt, candidates: remainingCandidates, labels: remainingLabels };
-      } else {
-        delete Comp._pendingApprovals[key];
-        const rec = Comp.getCurrentRecord();
-        if (rec && rec.stableCode && rec.aiVersion) rec.publishedVersion = rec.aiVersion;
+    if(!pending){ Comp.closeModal('modalCompare'); render(); return; }
+
+    // Read checklist checkboxes (consistent with regenReview style)
+    const accepted = {};
+    document.querySelectorAll('.regen-review-check').forEach(cb => {
+      if(cb.checked){
+        const fk = decodeURIComponent(cb.dataset.key);
+        if(pending.candidates[fk] !== undefined) accepted[fk] = pending.candidates[fk];
       }
-      Comp.closeModal('modalCompare');
-      Comp.showToast(acceptedCount > 0 ? `${acceptedCount} field${acceptedCount===1?'':'s'} accepted and published.` : 'No fields were selected — nothing applied.', acceptedCount > 0 ? 'success' : 'danger');
-      Comp.logCurrentRecord(`AI suggestion accepted for ${acceptedCount} field${acceptedCount===1?'':'s'} in ${cardId} section`);
-    } else {
-      Comp.closeModal('modalCompare');
+    });
+
+    Comp.closeModal('modalCompare');
+    if(Object.keys(accepted).length === 0){
+      Comp.showToast('No fields selected — nothing applied.', 'danger');
+      delete Comp._pendingApprovals[key];
+      render(); return;
     }
+
+    // Apply to card fields
+    const card = document.querySelector(`.card[data-card-id="${cardId}"]`);
+    if(card){
+      Object.keys(accepted).forEach(fk => {
+        const label = pending.labels[fk];
+        const el = [...card.querySelectorAll('.card-input[data-field-label]')].find(e => e.dataset.fieldLabel === label);
+        if(el) el.value = accepted[fk];
+      });
+    }
+    delete Comp._pendingApprovals[key];
+    Comp.showToast(`${Object.keys(accepted).length} field${Object.keys(accepted).length===1?'':'s'} accepted and applied.`, 'success');
+    Comp.logCurrentRecord(`AI suggestion accepted for ${Object.keys(accepted).length} field(s) in ${cardId} section`);
     render();
   },
   keepCurrentVersion(){
@@ -7467,9 +7464,25 @@ const Comp = {
   finishRegen(card, completed){
     clearTimeout(card._t);
     card.classList.remove('is-regenerating');
-    card.querySelector('.sec-actions .btn-sm[onclick^="Comp.stopRegen"]').style.display = 'none';
+    const stopBtn = card.querySelector('.sec-actions .btn-sm[onclick^="Comp.stopRegen"]');
+    if(stopBtn) stopBtn.style.display = 'none';
     if (!completed) return;
     const cardId = card.dataset.cardId;
+
+    // BestSeasonCard — no card-input fields, show toast + pending badge
+    const isBestSeason = cardId === 'countrybestseason' || cardId === 'regionbestseason';
+    if(isBestSeason){
+      Comp._pendingApprovals[Comp.cardKey(cardId)] = {
+        generatedAt: new Date().toLocaleString(),
+        candidates: {bestseason: '[AI-regenerated seasonal content — click Review content to apply]'},
+        labels: {bestseason: 'Best season for the way you travel'}
+      };
+      Comp.showToast('Best season content regenerated — review pending.', 'success');
+      Comp.logCurrentRecord('AI regenerated Best season content — pending approval');
+      render();
+      return;
+    }
+
     const candidates = {};
     const labels = {};
     card.querySelectorAll('.card-input[data-field-label]').forEach(el => {
@@ -8163,6 +8176,28 @@ DATA.countries.forEach((c,i) => { if(!('contentOutdated' in c)) c.contentOutdate
 DATA.regions.forEach((r,i)   => { if(!('contentOutdated' in r)) r.contentOutdated = i % 4 === 0; });
 DATA.cities.forEach((c,i)    => { if(!('contentOutdated' in c)) c.contentOutdated = i % 5 === 0; });
 
+// Best season seed data for countries/regions
+DATA.countries.forEach(c => {
+  if(!c.bestSeason) c.bestSeason = {
+    seasons:[
+      {name:'Spring', months:'March — May', tags:['City Walks','Food Lovers','Adventure Seekers','Budgeted','Solo Friendly'], temp:'15°C – 22°C', crowds:'Moderate', recommendation:'Spring brings mild weather perfect for exploring on foot — blooming gardens, shorter museum lines, and better rates before the summer rush.'},
+      {name:'Summer', months:'June — August', tags:['Family Friendly','Beach Lovers','Adventure Seekers'], temp:'28°C – 35°C', crowds:'High (peak season)', recommendation:'Summer is peak season with the most activity and longest daylight hours, ideal for outdoor experiences and festivals.'},
+      {name:'Autumn', months:'September — November', tags:['Culture & History','Food Lovers','Solo Friendly','Budget Travellers'], temp:'12°C – 20°C', crowds:'Low to moderate', recommendation:'Autumn offers cooler weather, harvest festivals, and fewer crowds — a great time for culture and cuisine focused trips.'},
+      {name:'Winter', months:'December — February', tags:['Premium & Comfortable','Couples','City Breaks'], temp:'2°C – 10°C', crowds:'Low', recommendation:'Winter brings a quieter, more local feel with festive markets and off-season rates — ideal for city breaks and indoor cultural experiences.'}
+    ]
+  };
+});
+DATA.regions.forEach(r => {
+  if(!r.bestSeason) r.bestSeason = {
+    seasons:[
+      {name:'Spring', months:'March — May', tags:['City Walks','Food Lovers','Adventure Seekers'], temp:'14°C – 21°C', crowds:'Moderate', recommendation:'Spring is the sweet spot — comfortable temperatures, lower prices, and landscapes at their most photogenic.'},
+      {name:'Summer', months:'June — August', tags:['Family Friendly','Outdoor Activities'], temp:'26°C – 33°C', crowds:'High', recommendation:'Peak season brings the most events and activities, with long warm days ideal for outdoor exploration.'},
+      {name:'Autumn', months:'September — November', tags:['Culture & History','Food Lovers'], temp:'10°C – 18°C', crowds:'Low to moderate', recommendation:'Autumn colours and harvest season make this a favourite for photography and food-focused travel.'},
+      {name:'Winter', months:'December — February', tags:['Budget Travellers','Couples'], temp:'1°C – 8°C', crowds:'Low', recommendation:'A quieter time with off-season rates — good for city-focused visits and indoor cultural experiences.'}
+    ]
+  };
+});
+
 // Section locks — per entity, per section, per language
 // Structure: { sectionId: { EN: true/false, DE: true/false, ... } }
 const LOCK_LANGS = ['EN','DE','FR','IT','ES','PL','NL'];
@@ -8315,6 +8350,88 @@ Comp._urlLangCodes = {
   'English':'en','German':'de','French':'fr',
   'Italian':'it','Spanish':'es','Polish':'pl','Dutch':'nl',
   'Arabic':'ar','Hindi':'hi'
+};
+
+// Best Season Card — read-only preview with Lock + Regenerate only
+Comp.BestSeasonCard = function(entity, cardId){
+  const bs = entity.bestSeason;
+  const seasons = bs && bs.seasons ? bs.seasons : [];
+
+  const pending = Comp._pendingApprovals[Comp.cardKey(cardId)];
+  const reviewBadge = pending ? `<button type="button" class="approval-badge" onclick="Comp.openApprovalCompare('${cardId}')">⚠ Review pending</button>` : '';
+  const regenBtn = pending
+    ? Comp.Button('↻ Review content', {size:'btn-sm', variant:'btn-primary', onclick:`Comp.openApprovalCompare('${cardId}')`})
+    : Comp.Button('↻ Regenerate', {size:'btn-sm', onclick:`Comp._bestSeasonRegen('${cardId}')`});
+
+  const tabButtons = seasons.map((s, i) =>
+    `<button type="button" class="ops-tab ${i===0?'is-active':''}" onclick="Comp._bsTabSwitch(this,'${cardId}')" data-bs-idx="${i}">${Comp._escHtml(s.name)}</button>`
+  ).join('');
+
+  const seasonPanels = seasons.map((s, i) => `
+    <div class="bs-panel" data-bs-card="${cardId}" data-bs-idx="${i}" style="${i===0?'':'display:none;'}">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <strong style="font-size:var(--fs-base);">${Comp._escHtml(s.name)}</strong>
+        <span class="field-hint">${Comp._escHtml(s.months)}</span>
+      </div>
+      <div style="margin-bottom:12px;">
+        <p class="field-hint mt-0" style="font-weight:600;margin-bottom:6px;">Perfect for</p>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          ${(s.tags||[]).map(t => `<span class="badge badge-inactive">${Comp._escHtml(t)}</span>`).join('')}
+        </div>
+      </div>
+      <div style="display:flex;gap:12px;margin-bottom:12px;">
+        <div style="flex:1;background:var(--surface-sunken);border-radius:var(--radius-sm);padding:10px 12px;">
+          <p class="field-hint mt-0" style="font-weight:600;text-transform:uppercase;font-size:11px;letter-spacing:0.04em;">Temperature</p>
+          <p style="margin:4px 0 0;font-size:var(--fs-sm);">${Comp._escHtml(s.temp||'—')}</p>
+        </div>
+        <div style="flex:1;background:var(--surface-sunken);border-radius:var(--radius-sm);padding:10px 12px;">
+          <p class="field-hint mt-0" style="font-weight:600;text-transform:uppercase;font-size:11px;letter-spacing:0.04em;">Crowds level</p>
+          <p style="margin:4px 0 0;font-size:var(--fs-sm);">${Comp._escHtml(s.crowds||'—')}</p>
+        </div>
+      </div>
+      <div style="border-top:1px solid var(--border);padding-top:12px;">
+        <p class="field-hint mt-0" style="font-weight:600;margin-bottom:6px;">Why Rosotravel recommends</p>
+        <p style="font-size:var(--fs-sm);color:var(--text-secondary);margin:0;line-height:1.6;">${Comp._escHtml(s.recommendation||'')}</p>
+      </div>
+    </div>`).join('');
+
+  const emptyState = seasons.length === 0
+    ? `<p class="field-hint">No seasonal data yet — use Regenerate to populate.</p>`
+    : '';
+
+  return `<section class="card" data-card-id="${cardId}" aria-label="Best season for the way you travel">
+    <div class="section-header-row">
+      <p class="card-title">Best season for the way you travel${reviewBadge}</p>
+    </div>
+    ${seasons.length ? `
+    <div class="ops-tabs" role="tablist" style="margin-bottom:16px;">${tabButtons}</div>
+    ${seasonPanels}` : emptyState}
+    <div class="sec-actions" style="margin-top:20px;">
+      <div class="lock-status-note">${ICON.lock} Locked from AI edits</div>
+      <div class="default-actions">
+        ${Comp.Button('<span class="toggle-track" aria-hidden="true"></span><span class="lock-label">Lock</span>', {variant:'btn-lock', size:'btn-sm', onclick:'Comp.toggleLock(this)', extraAttrs:'aria-pressed="false"'})}
+        ${regenBtn}
+      </div>
+    </div>
+  </section>`;
+};
+
+Comp._bestSeasonRegen = function(cardId){
+  const card = document.querySelector(`.card[data-card-id="${cardId}"]`);
+  if(!card){ Comp.showToast('Section not found.', 'danger'); return; }
+  Comp._openRegenLangModal(card);
+};
+
+Comp._bsTabSwitch = function(btn, cardId){
+  const idx = parseInt(btn.dataset.bsIdx, 10);
+  // Update tab buttons
+  btn.closest('.ops-tabs').querySelectorAll('.ops-tab').forEach((b,i) => {
+    b.classList.toggle('is-active', i === idx);
+  });
+  // Show/hide panels
+  document.querySelectorAll(`.bs-panel[data-bs-card="${cardId}"]`).forEach((p,i) => {
+    p.style.display = i === idx ? '' : 'none';
+  });
 };
 
 Comp._renderUrlCanonicalCard = function(idPrefix, slugFn){
@@ -9013,12 +9130,6 @@ function pageCountryDetails(params){
       ${aiField('Description', `The ${country.name} offers a rich variety of destinations and experiences for every kind of traveler.`, 'textarea')}
     `})}
 
-    ${Comp.AiCard({id:'faq', title:'Frequently asked questions', stackAttrs:'data-max-items="15"', fieldsHtml:
-      Comp.FaqItem(1, 'What is the cancellation policy?', 'Free cancellation up to 24 hours before the activity. After that, a 50% cancellation fee applies.', true) +
-      Comp.FaqItem(2, 'How do I book a tour?', 'You can book directly through our website. Payment is processed securely online.', true) +
-      `<button type="button" class="add-item-btn" data-item-type="faq">+ Add Another FAQ</button>`
-    })}
-
     ${Comp.AiCard({id:'countryhighlights', title:'Highlights', stackAttrs:'data-max-items="5"', fieldsHtml:
       Comp.EntityHighlightItem(1, `The best-known sights in ${country.name}, and when to see them without the crowds.`, true) +
       Comp.EntityHighlightItem(2, `Regional dishes and markets that define how ${country.name} eats.`, true) +
@@ -9030,6 +9141,8 @@ function pageCountryDetails(params){
       Comp.EntityFactItem(2, 'Shoulder season often brings better weather than peak summer, at roughly half the price.', true) +
       `<button type="button" class="add-item-btn" data-item-type="entity-fact">+ Add Another Fact</button>`
     })}
+
+    ${Comp.BestSeasonCard(country, 'countrybestseason')}
 
     ${Comp.AiCard({id:'whyvisit', title:'What makes this place special for you', fieldsHtml:`
       ${aiField('Short description', 'Discover a land of endless possibilities and diverse landscapes.')}
@@ -9045,6 +9158,12 @@ function pageCountryDetails(params){
         </div>
       </div>
     `})}
+
+    ${Comp.AiCard({id:'faq', title:'Frequently asked questions', stackAttrs:'data-max-items="15"', fieldsHtml:
+      Comp.FaqItem(1, 'What is the cancellation policy?', 'Free cancellation up to 24 hours before the activity. After that, a 50% cancellation fee applies.', true) +
+      Comp.FaqItem(2, 'How do I book a tour?', 'You can book directly through our website. Payment is processed securely online.', true) +
+      `<button type="button" class="add-item-btn" data-item-type="faq">+ Add Another FAQ</button>`
+    })}
 
     ${Comp.AiCard({id:'about', title:`About Rosotravel in ${country.name}`, fieldsHtml:
       `<div class="field">
@@ -9293,15 +9412,6 @@ function pageRegionDetails(params){
     `})}
 
 
-    ${Comp.AiCard({id:'region-faq', title:'Frequently asked questions', stackAttrs:'data-max-items="10"', fieldsHtml:
-      Comp.FaqItem(1, `Which country does ${region.name} belong to?`, parentCountry ? `${region.name} is part of ${parentCountry.name} on Rosotravel.` : `${region.name} does not currently have a parent country assigned.`, true) +
-      `<button type="button" class="add-item-btn" data-item-type="faq">+ Add Another FAQ</button>`
-    })}
-
-    <!-- DEST-06 — field parity with Country. "What makes this place special
-         for you" existed only on Country; S2-03 §2.10 treats Country and Region
-         as template-level variations of the same entity, so the shared content
-         sections must match. -->
     ${Comp.AiCard({id:'region-highlights', title:'Highlights', stackAttrs:'data-max-items="5"', fieldsHtml:
       Comp.EntityHighlightItem(1, `The sights and towns that define ${region.name}, and when to visit them.`, true) +
       Comp.EntityHighlightItem(2, `Food, markets and traditions that travellers remember long after leaving ${region.name}.`, true) +
@@ -9313,6 +9423,8 @@ function pageRegionDetails(params){
       Comp.EntityFactItem(2, 'Local transport connections here are better than most itineraries assume.', true) +
       `<button type="button" class="add-item-btn" data-item-type="entity-fact">+ Add Another Fact</button>`
     })}
+
+    ${Comp.BestSeasonCard(region, 'regionbestseason')}
 
     ${Comp.AiCard({id:'region-whyvisit', title:'What makes this place special for you', fieldsHtml:`
       ${aiField('Short description', `Discover what sets ${region.name} apart from anywhere else.`)}
@@ -9328,6 +9440,11 @@ function pageRegionDetails(params){
         </div>
       </div>
     `})}
+
+    ${Comp.AiCard({id:'region-faq', title:'Frequently asked questions', stackAttrs:'data-max-items="10"', fieldsHtml:
+      Comp.FaqItem(1, `Which country does ${region.name} belong to?`, parentCountry ? `${region.name} is part of ${parentCountry.name} on Rosotravel.` : `${region.name} does not currently have a parent country assigned.`, true) +
+      `<button type="button" class="add-item-btn" data-item-type="faq">+ Add Another FAQ</button>`
+    })}
 
     ${Comp.AiCard({id:'region-about', title:`About Rosotravel in ${region.name}`, fieldsHtml:
       `<div class="field">
@@ -9363,11 +9480,15 @@ function pageRegionDetails(params){
       <p class="field-hint mt-2h">Uploads are managed inline within SEO Content → Region information.</p>`})}
     ${heroMissing ? `<div class="status-banner is-danger"><span>${ICON.warning}</span><span><strong>Missing hero image</strong> — this is a blocking indexing issue per SEO Governance rules.</span></div>` : ''}`;
   } else if (tab === 'relations') {
+    const regionCities      = DATA.cities.filter(c => c.region === region.name);
+    const regionAttractions = DATA.masterAttractions.filter(a => a.region === region.name);
     tabBody = `
     ${Comp.LinkedWithCard([
       parentCountry
         ? {label:'Country (parent)', text:parentCountry.name, route:'countryDetails', filterParams:{id:parentCountry.id}, returnLabel:region.name}
         : {label:'Country (parent)', text:'No parent country assigned', disabled:true},
+      {label:'Cities', count:regionCities.length, route:'cityListing', filterParams:{filterType:'region', filterValue:region.name, filterLabel:'Region'}},
+      {label:'Attractions', count:regionAttractions.length, route:'attractionListing', filterParams:{filterType:'region', filterValue:region.name, filterLabel:'Region'}},
       {label:'Products', count:productCount, breakdown:productBreakdown, route:'productListing', filterParams:{filterType:'region', filterValue:region.name, filterLabel:'Region'}}
     ])}`;
   } else if (tab === 'keywords') {
@@ -17810,11 +17931,6 @@ function pageHomeManagement(params){
       fields:(h.whyChooseUs.bullets || []).slice(0,4).map((b, i) => ({key:'bullet'+i, label:['Guides who truly know their city','Smooth plans, fewer worries','Shortlists that save hours of research','Only proven quality makes the cut'][i]||`Point ${i+1}`, value:b})),
       topExtraHtml: '',
       extraHtml: `
-        <div class="field">
-          <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
-            <label class="m-0">Points</label>
-          </div>
-        </div>
         <div class="field">
           <label for="whyMediaHeader">Media header</label>
           <div id="homewhychoose-mediaHeader-view" class="smart-field-view">${h.whyChooseUs.mediaHeader ? Comp._escHtml(h.whyChooseUs.mediaHeader) : '<span style="color:var(--text-muted);">Not set</span>'}</div>
