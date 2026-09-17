@@ -2032,14 +2032,14 @@ const Comp = {
     else if (Comp._customBulkModules.includes(module)) { render(); return; }
     const selectAll = document.getElementById('selectAll-' + module);
     if (selectAll) {
-      const totalCheckboxes = document.querySelectorAll(`.bulk-row-checkbox[data-module="${module}"]`).length;
+      const totalCheckboxes = document.querySelectorAll('.bulk-row-checkbox[data-module="' + module + '"]').length;
       selectAll.checked = sel.size === totalCheckboxes && totalCheckboxes > 0;
       selectAll.indeterminate = sel.size > 0 && sel.size < totalCheckboxes;
     }
   },
   toggleSelectAll(module, checked){
     const sel = Comp.getBulkSelection(module);
-    const checkboxes = document.querySelectorAll(`.bulk-row-checkbox[data-module="${module}"]`);
+    const checkboxes = document.querySelectorAll('.bulk-row-checkbox[data-module="' + module + '"]');
     checkboxes.forEach(cb => { cb.checked = checked; if (checked) sel.add(cb.dataset.id); else sel.delete(cb.dataset.id); });
     if (Comp._customBulkModules.includes(module)) { render(); return; }
     const bar = document.getElementById('bulkBar-' + module);
@@ -2055,13 +2055,14 @@ const Comp = {
     const cfg = Comp.BULK_MODULE_CONFIG[module] || {};
     const isDestination = module === 'country' || module === 'region';    const activeLabel = cfg.activeLabel || 'Activate';
     const inactiveLabel = cfg.inactiveLabel || 'Deactivate';
-    return `<div id="bulkBar-${module}" class="bulk-action-bar">
-      <span class="bulk-count">${count} selected</span>
-      <button type="button" class="btn btn-sm" onclick="Comp.bulkToggleStatus('${module}', true)">${activeLabel}</button>
-      <button type="button" class="btn btn-sm" onclick="Comp.bulkToggleStatus('${module}', false)">${inactiveLabel}</button>
-      ${cfg.hideRegenerate ? '' : `<button type="button" class="btn btn-sm" onclick="Comp.openBulkRegenerateModal('${module}')">↻ Regenerate</button>`}
-      <button type="button" class="btn btn-sm btn-ghost" onclick="Comp.clearBulkSelection('${module}')">Clear</button>
-    </div>`;
+    const regenBtn = cfg.hideRegenerate ? '' : '<button type="button" class="btn btn-sm" onclick="Comp.openBulkRegenerateModal(\'' + module + '\')">&#x21BB; Regenerate</button>';
+    return '<div id="bulkBar-' + module + '" class="bulk-action-bar">' +
+      '<span class="bulk-count">' + count + ' selected</span>' +
+      '<button type="button" class="btn btn-sm" onclick="Comp.bulkToggleStatus(\'' + module + '\', true)">' + activeLabel + '</button>' +
+      '<button type="button" class="btn btn-sm" onclick="Comp.bulkToggleStatus(\'' + module + '\', false)">' + inactiveLabel + '</button>' +
+      regenBtn +
+      '<button type="button" class="btn btn-sm btn-ghost" onclick="Comp.clearBulkSelection(\'' + module + '\')">Clear</button>' +
+    '</div>';
   },
   bulkToggleStatus(module, activate){
     const cfg = Comp.BULK_MODULE_CONFIG[module];
@@ -2382,9 +2383,10 @@ const Comp = {
   },
 
   navItem(label, icon, isParent, expanded, onClick){
-    return `<button type="button" class="nav-item" ${isParent ? `aria-expanded="${expanded}"` : ''} onclick="${onClick}">
-      ${icon}<span>${label}</span>${isParent ? ICON.chevDown : ''}
-    </button>`;
+    const ariaAttr = isParent ? ' aria-expanded="' + expanded + '"' : '';
+    return '<button type="button" class="nav-item"' + ariaAttr + ' onclick="' + onClick + '">' +
+      icon + '<span>' + label + '</span>' + (isParent ? ICON.chevDown : '') +
+    '</button>';
   },
 
   Sidebar(){
@@ -2489,15 +2491,19 @@ const Comp = {
           <button type="button" class="icon-btn" aria-label="${unreadCount} unread notifications" onclick="event.stopPropagation(); Comp.toggleNotifPanel()">${ICON.bell}${unreadCount > 0 ? '<span class="dot" aria-hidden="true"></span>' : ''}</button>
           <div id="notifPanel" class="notif-panel" hidden>
             <div class="notif-panel-header"><span>Notifications</span></div>
-            ${DATA.notifications.slice(0,8).map(n => `
-              <div class="notif-item ${n.read?'':'is-unread'}">
-                <button type="button" class="notif-item-main" onclick="Comp.openNotification('${n.id}')">
-                  <span class="notif-cat">${n.category === 'devops' ? 'DevOps' : 'Editor'}</span>
-                  <span class="notif-label">${n.label}</span>
-                  <span class="notif-time">${n.time}</span>
-                </button>
-                <button type="button" class="notif-toggle-read" onclick="event.stopPropagation(); Comp.toggleNotifRead('${n.id}')" title="${n.read ? 'Mark as unread' : 'Mark as read'}">${n.read ? '●' : '○'}</button>
-              </div>`).join('')}
+            ${DATA.notifications.slice(0,8).map(n => {
+              const unreadCls = n.read ? '' : ' is-unread';
+              const readLabel = n.read ? 'Mark as unread' : 'Mark as read';
+              const readIcon  = n.read ? '\u25cf' : '\u25cb';
+              return '<div class="notif-item' + unreadCls + '">' +
+                '<button type="button" class="notif-item-main" onclick="Comp.openNotification(\'' + n.id + '\')">' +
+                  '<span class="notif-cat">' + (n.category === 'devops' ? 'DevOps' : 'Editor') + '</span>' +
+                  '<span class="notif-label">' + Comp._escHtml(n.label) + '</span>' +
+                  '<span class="notif-time">' + Comp._escHtml(n.time) + '</span>' +
+                '</button>' +
+                '<button type="button" class="notif-toggle-read" onclick="event.stopPropagation(); Comp.toggleNotifRead(\'' + n.id + '\')" title="' + readLabel + '">' + readIcon + '</button>' +
+              '</div>';
+            }).join('')}
           </div>
         </div>
         <div style="position:relative;">
@@ -2590,7 +2596,10 @@ const Comp = {
   },
 
   Button(label, {variant='', size='', onclick='', disabled=false, extraAttrs='', ariaLabel=''} = {}){
-    return `<button type="button" class="btn ${variant} ${size}" ${onclick ? `onclick="${onclick}"` : ''} ${disabled?'disabled':''} ${ariaLabel?`aria-label="${ariaLabel}"`:''} ${extraAttrs}>${label}</button>`;
+    const onclickAttr  = onclick   ? ' onclick="'   + onclick   + '"' : '';
+    const ariaAttr     = ariaLabel ? ' aria-label="' + ariaLabel + '"' : '';
+    const disabledAttr = disabled  ? ' disabled' : '';
+    return '<button type="button" class="btn ' + variant + ' ' + size + '"' + onclickAttr + disabledAttr + ariaAttr + ' ' + extraAttrs + '>' + label + '</button>';
   },
 
   BulkCheckboxTh(module){
@@ -2828,7 +2837,7 @@ const Comp = {
     };
 
     const rowsHtml = items.map(({cardId, pending}) => {
-      const cardEl = document.querySelector(`[data-card-id="${cardId}"]`);
+      const cardEl = document.querySelector('[data-card-id="' + cardId + '"]');
       const rawTitle = cardEl ? (cardEl.getAttribute('aria-label') || cardId) : cardId;
       // Resolve friendly label — strip recordKey prefix from cardId
       const shortId = cardId.split('|').pop();
@@ -2954,7 +2963,7 @@ const Comp = {
     }
 
     // Apply to card fields
-    const card = document.querySelector(`.card[data-card-id="${cardId}"]`);
+    const card = document.querySelector('.card[data-card-id="' + cardId + '"]');
     if(card){
       Object.keys(accepted).forEach(fk => {
         const label = pending.labels[fk];
@@ -3637,9 +3646,9 @@ const Comp = {
           : 'Assignment has not been run yet. Run it to derive Intent and Constraints from product data.'}</span>
       </div>
       <div style="display:flex; gap:8px; flex-wrap:wrap; margin:10px 0 16px;">
-        ${Comp.Button('Run assignment', {size:'btn-sm', variant:'btn-primary', onclick:`Comp.modelCRunAssignment(${ctx}, false)`})}
-        ${overridden ? Comp.Button('Re-run &amp; discard overrides', {size:'btn-sm', onclick:`Comp.modelCRunAssignment(${ctx}, true)`}) : ''}
-        ${unreviewed ? Comp.Button('Mark as reviewed', {size:'btn-sm', onclick:`Comp.modelCMarkReviewed(${ctx})`}) : ''}
+        ${Comp.Button('Run assignment', {size:'btn-sm', variant:'btn-primary', onclick:"Comp.modelCRunAssignment(' + ctx + ', false)"})}
+        ${overridden ? Comp.Button('Re-run &amp; discard overrides', {size:'btn-sm', onclick:"Comp.modelCRunAssignment(' + ctx + ', true)"}) : ''}
+        ${unreviewed ? Comp.Button('Mark as reviewed', {size:'btn-sm', onclick:"Comp.modelCMarkReviewed(' + ctx + ')"}) : ''}
       </div>
 
       <div class="field">
@@ -5255,14 +5264,14 @@ const Comp = {
     `;
   },
   readItineraryStepFields(idPrefix){
-    const nameEl = document.getElementById(`${idPrefix}-name`);
+    const nameEl = document.getElementById('' + idPrefix + '-name');
     if (!nameEl) return null;
     return {
       stopName: nameEl.value.trim(),
-      duration: document.getElementById(`${idPrefix}-duration`).value.trim(),
-      stopType: document.getElementById(`${idPrefix}-type`).value,
-      description: document.getElementById(`${idPrefix}-desc`).value.trim(),
-      notes: document.getElementById(`${idPrefix}-notes`).value.trim()
+      duration: document.getElementById('' + idPrefix + '-duration').value.trim(),
+      stopType: document.getElementById('' + idPrefix + '-type').value,
+      description: document.getElementById('' + idPrefix + '-desc').value.trim(),
+      notes: document.getElementById('' + idPrefix + '-notes').value.trim()
     };
   },
   ItineraryStepRow(n, value){
@@ -5873,7 +5882,7 @@ const Comp = {
     const id = select.value;
     if (!id) return;
     const container = document.getElementById(listId);
-    if (container.querySelector(`[data-attraction-id="${id}"]`)) {
+    if (container.querySelector('[data-attraction-id="' + id + '"]')) {
       Comp.showToast('This attraction is already linked.', 'danger');
       return;
     }
@@ -6718,32 +6727,33 @@ const Comp = {
 
   AiCard({id, title, fieldsHtml, titleExtra, stackAttrs}){
     const pending = Comp._pendingApprovals[Comp.cardKey(id)];
-    const approvalBadge = pending ? `<button type="button" class="approval-badge" onclick="Comp.openApprovalCompare('${id}')">⚠ Review pending</button>` : '';
+    const approvalBadge = pending
+      ? '<button type="button" class="approval-badge" onclick="Comp.openApprovalCompare(\'' + id + '\')">\u26a0 Review pending</button>'
+      : '';
     const regenBtn = pending
-      ? Comp.Button('↻ Review content', {size:'btn-sm', variant:'btn-primary', onclick:`Comp.openApprovalCompare('${id}')`})
-      : Comp.Button('↻ Regenerate', {size:'btn-sm', onclick:'Comp.startRegen(this)'});
-    return `
-      <section class="card" data-card-id="${id}" aria-label="${title}">
-        <div class="section-header-row">
-          <p class="card-title">${title}${approvalBadge}</p>
-          ${titleExtra || ''}
-        </div>
-        <div class="field-stack mb-5" ${stackAttrs || ''}>${fieldsHtml}</div>
-        <div class="sec-actions">
-          <div class="regen-status" role="status"><span class="spinner" aria-hidden="true"></span> Regenerating…</div>
-          <div class="lock-status-note">${ICON.lock} Locked from AI edits</div>
-          ${Comp.Button('Stop', {size:'btn-sm', onclick:'Comp.stopRegen(this)', extraAttrs:'style="display:none;"'})}
-          <div class="default-actions">
-            ${Comp.Button('Edit section', {size:'btn-sm', onclick:'Comp.editCard(this)'})}
-            ${Comp.Button('<span class="toggle-track" aria-hidden="true"></span><span class="lock-label">Lock</span>', {variant:'btn-lock', size:'btn-sm', onclick:'Comp.toggleLock(this)', extraAttrs:'aria-pressed="false"'})}
-            ${regenBtn}
-          </div>
-          <div class="edit-actions">
-            ${Comp.Button('Cancel', {size:'btn-sm', onclick:'Comp.cancelCard(this)'})}
-            ${Comp.Button('Save changes', {size:'btn-sm', variant:'btn-primary', onclick:'Comp.openSaveModal(this)'})}
-          </div>
-        </div>
-      </section>`;
+      ? Comp.Button('\u21bb Review content', {size:'btn-sm', variant:'btn-primary', onclick:"Comp.openApprovalCompare('" + id + "')"})
+      : Comp.Button('\u21bb Regenerate', {size:'btn-sm', onclick:'Comp.startRegen(this)'});
+    return '<section class="card" data-card-id="' + id + '" aria-label="' + Comp._escAttr(title) + '">' +
+      '<div class="section-header-row">' +
+        '<p class="card-title">' + title + approvalBadge + '</p>' +
+        (titleExtra || '') +
+      '</div>' +
+      '<div class="field-stack mb-5"' + (stackAttrs ? ' ' + stackAttrs : '') + '>' + fieldsHtml + '</div>' +
+      '<div class="sec-actions">' +
+        '<div class="regen-status" role="status"><span class="spinner" aria-hidden="true"></span> Regenerating\u2026</div>' +
+        '<div class="lock-status-note">' + ICON.lock + ' Locked from AI edits</div>' +
+        Comp.Button('Stop', {size:'btn-sm', onclick:'Comp.stopRegen(this)', extraAttrs:'style="display:none;"'}) +
+        '<div class="default-actions">' +
+          Comp.Button('Edit section', {size:'btn-sm', onclick:'Comp.editCard(this)'}) +
+          Comp.Button('<span class="toggle-track" aria-hidden="true"></span><span class="lock-label">Lock</span>', {variant:'btn-lock', size:'btn-sm', onclick:'Comp.toggleLock(this)', extraAttrs:'aria-pressed="false"'}) +
+          regenBtn +
+        '</div>' +
+        '<div class="edit-actions">' +
+          Comp.Button('Cancel', {size:'btn-sm', onclick:'Comp.cancelCard(this)'}) +
+          Comp.Button('Save changes', {size:'btn-sm', variant:'btn-primary', onclick:'Comp.openSaveModal(this)'}) +
+        '</div>' +
+      '</div>' +
+    '</section>';
   },
 
   _setCardInputsEditable(card, editable){
@@ -7726,7 +7736,7 @@ const Comp = {
       .forEach(el => { el.checked = checked; });
   },
   regenerateSelectedCards(selectedIds){
-    const cards = selectedIds.map(id => document.querySelector(`.card[data-card-id="${id}"]`)).filter(Boolean);
+    const cards = selectedIds.map(id => document.querySelector('.card[data-card-id="' + id + '"]')).filter(Boolean);
     cards.forEach(c => Comp.regenerateCard(c));
     Comp.showToast(`Regenerating ${cards.length} section${cards.length===1?'':'s'}\u2026`, 'success');
   },
@@ -8285,7 +8295,7 @@ Comp.dashboardPublicationSummary = function(){
         ${hint ? `<p class="list-row__meta">${hint}</p>` : ''}
       </div>
       <span class="badge ${n ? 'badge-amber' : 'badge-active'}" style="margin-right:8px;">${n}</span>
-      ${n ? Comp.Button('Review', {size:'btn-sm', onclick:`Router.go('${route}', ${JSON.stringify(params || {}).replace(/"/g, "&quot;")})`}) : ''}
+      ${n ? Comp.Button('Review', {size:'btn-sm', onclick:"Router.go('" + route + "', " + JSON.stringify(params || {}).replace(/"/g,"'") + ")"}) : ''}
     </div>`;
   };
   const total = draftProducts.length + incomplete.length + draftBundles.length + emptyBundles.length + pendingBlogs.length + pendingReviews.length + unapprovedMedia.length;
@@ -8360,23 +8370,23 @@ function pageDashboard(){
     </div>`;
 
   return Comp.Shell(`
-    ${Comp.PageHeader({title:`Dashboard`, subtitle:`Editor workspace. SEO health and index risk live in Marketing → SEO Control Center.`, subtitleClass:'field-hint'})}
+    ${Comp.PageHeader({title:'Dashboard', subtitle:'Editor workspace. SEO health and index risk live in Marketing → SEO Control Center.', subtitleClass:'field-hint'})}
     ${Comp.dashboardPublicationSummary()}
     ${Comp.dashboardChangeFeed()}
-    ${Comp.Card({title:`Customer Count`, body:`
+    ${Comp.Card({title:'Customer Count', body:`
       <div style="display:flex; gap:24px; flex-wrap:wrap; margin-top:6px;">
         ${statBlock('Total', custTotal)}
         ${statBlock('Active', custActive, 'var(--accent-600)')}
         ${statBlock('Inactive', custInactive, 'var(--danger-600)')}
       </div>`})}
-    ${Comp.Card({title:`Booking Count`, body:`
+    ${Comp.Card({title:'Booking Count', body:`
       <div style="display:flex; gap:24px; flex-wrap:wrap; margin-top:6px;">
         ${statBlock('Total', bkTotal)}
         ${statBlock('Completed', bkCompleted, 'var(--accent-600)')}
         ${statBlock('Cancelled', bkCancelled, 'var(--danger-600)')}
         ${statBlock('Refunded', bkRefunded, 'var(--warning-600)')}
       </div>`})}
-    ${Comp.Card({title:`Booking Performance`, hint:`Bookings per day — last 14 days.`, body:`
+    ${Comp.Card({title:'Booking Performance', hint:`Bookings per day — last 14 days.`, body:`
       ${Comp.miniLineChart(trendPoints, {height:200})}`})}
   `);
 }
@@ -8467,22 +8477,7 @@ DATA.cities.forEach((c,i)    => { if(!('contentOutdated' in c)) c.contentOutdate
 
 // Plan visit info seed for attractions
 DATA.masterAttractions.forEach(a => {
-  if(!a.planVisitInfo) a.planVisitInfo = {
-    openingHours:    'Mar–Oct 9:00 AM – 7:00 PM Daily',
-    visitDuration:   '1.5–2.5 hours',
-    admissionModel:  'Paid entry, pre-booking recommended',
-    requiredTickets: 'Timed entry slot required',
-    mainEntrance:    'Main entrance on south side',
-    address:         a.city || 'See official website',
-    accessibility:   'Partial wheelchair access',
-    security:        'Mandatory bag screening at entry',
-    bagPolicy:       'Small bags only, no large backpacks',
-    photography:     'Photos allowed, no flash or tripods',
-    lastAdmission:   '1 hour before closing',
-    officialWebsite: 'See official website',
-    gettingThere:    'Public transport available nearby',
-    dresscode:       'Casual, comfortable walking shoes'
-  };
+  if(!a.planVisitInfo) a.planVisitInfo = { rows: [] };
 });
 
 // Best season seed data for countries/regions
@@ -8678,102 +8673,85 @@ Comp.BestSeasonCard = function(entity, cardId){
   const seasons = bs.seasons;
 
   const pending = Comp._pendingApprovals[Comp.cardKey(cardId)];
-  const reviewBadge = pending ? `<button type="button" class="approval-badge" onclick="Comp.openApprovalCompare('${cardId}')">⚠ Review pending</button>` : '';
+  const reviewBadge = pending ? '<button type="button" class="approval-badge" onclick="Comp.openApprovalCompare(\'' + cardId + '\')">⚠ Review pending</button>' : '';
   const regenBtn = pending
-    ? Comp.Button('↻ Review content', {size:'btn-sm', variant:'btn-primary', onclick:`Comp.openApprovalCompare('${cardId}')`})
-    : Comp.Button('↻ Regenerate', {size:'btn-sm', onclick:`Comp._bestSeasonRegen('${cardId}')`});
+    ? Comp.Button('↻ Review content', {size:'btn-sm', variant:'btn-primary', onclick:"Comp.openApprovalCompare('" + cardId + "')"})
+    : Comp.Button('↻ Regenerate', {size:'btn-sm', onclick:"Comp._bestSeasonRegen('" + cardId + "')"});
 
   const tabButtons = seasons.map((s, i) =>
-    `<button type="button" class="ops-tab ${i===0?'is-active':''}" onclick="Comp._bsTabSwitch(this,'${cardId}')" data-bs-idx="${i}">${Comp._escHtml(s.name)}</button>`
+    '<button type="button" class="ops-tab ' + (i===0?'is-active':'') + '" onclick="Comp._bsTabSwitch(this,\'' + cardId + '\')" data-bs-idx="' + i + '">' + Comp._escHtml(s.name) + '</button>'
   ).join('');
 
-  const seasonPanels = seasons.map((s, i) => `
-    <div class="bs-panel" data-bs-card="${cardId}" data-bs-idx="${i}" style="${i===0?'':'display:none;'}">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-        <strong style="font-size:var(--fs-base);">${Comp._escHtml(s.name)}</strong>
-        <span class="field-hint">${Comp._escHtml(s.months)}</span>
-      </div>
-      <div style="margin-bottom:12px;">
-        <p class="field-hint mt-0" style="font-weight:600;margin-bottom:6px;">Perfect for</p>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;">
-          ${(s.tags||[]).map(t => `<span class="badge badge-inactive">${Comp._escHtml(t)}</span>`).join('')}
-        </div>
-      </div>
-      <div style="display:flex;gap:12px;margin-bottom:12px;">
-        <div style="flex:1;background:var(--surface-sunken);border-radius:var(--radius-sm);padding:10px 12px;">
-          <p class="field-hint mt-0" style="font-weight:600;text-transform:uppercase;font-size:11px;letter-spacing:0.04em;">Temperature</p>
-          <p style="margin:4px 0 0;font-size:var(--fs-sm);">${Comp._escHtml(s.temp||'—')}</p>
-        </div>
-        <div style="flex:1;background:var(--surface-sunken);border-radius:var(--radius-sm);padding:10px 12px;">
-          <p class="field-hint mt-0" style="font-weight:600;text-transform:uppercase;font-size:11px;letter-spacing:0.04em;">Crowds level</p>
-          <p style="margin:4px 0 0;font-size:var(--fs-sm);">${Comp._escHtml(s.crowds||'—')}</p>
-        </div>
-      </div>
-      <div style="border-top:1px solid var(--border);padding-top:12px;">
-        <p class="field-hint mt-0" style="font-weight:600;margin-bottom:6px;">Why Rosotravel recommends</p>
-        <p style="font-size:var(--fs-sm);color:var(--text-secondary);margin:0;line-height:1.6;">${Comp._escHtml(s.recommendation||'')}</p>
-      </div>
-    </div>`).join('');
+  const seasonPanels = seasons.map((s, i) => {
+    const tagsHtml = (s.tags||[]).map(t => '<span class="badge badge-inactive">' + Comp._escHtml(t) + '</span>').join('');
+    return '<div class="bs-panel" data-bs-card="' + cardId + '" data-bs-idx="' + i + '" style="' + (i===0?'':'display:none;') + '">' +
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">' +
+        '<strong style="font-size:var(--fs-base);">' + Comp._escHtml(s.name) + '</strong>' +
+        '<span class="field-hint">' + Comp._escHtml(s.months) + '</span>' +
+      '</div>' +
+      '<div style="margin-bottom:12px;"><p class="field-hint mt-0" style="font-weight:600;margin-bottom:6px;">Perfect for</p>' +
+        '<div style="display:flex;gap:6px;flex-wrap:wrap;">' + tagsHtml + '</div>' +
+      '</div>' +
+      '<div style="display:flex;gap:12px;margin-bottom:12px;">' +
+        '<div style="flex:1;background:var(--surface-sunken);border-radius:var(--radius-sm);padding:10px 12px;">' +
+          '<p class="field-hint mt-0" style="font-weight:600;text-transform:uppercase;font-size:11px;">Temperature</p>' +
+          '<p style="margin:4px 0 0;font-size:var(--fs-sm);">' + Comp._escHtml(s.temp||'\u2014') + '</p>' +
+        '</div>' +
+        '<div style="flex:1;background:var(--surface-sunken);border-radius:var(--radius-sm);padding:10px 12px;">' +
+          '<p class="field-hint mt-0" style="font-weight:600;text-transform:uppercase;font-size:11px;">Crowds level</p>' +
+          '<p style="margin:4px 0 0;font-size:var(--fs-sm);">' + Comp._escHtml(s.crowds||'\u2014') + '</p>' +
+        '</div>' +
+      '</div>' +
+      '<div style="border-top:1px solid var(--border);padding-top:12px;">' +
+        '<p class="field-hint mt-0" style="font-weight:600;margin-bottom:6px;">Why Rosotravel recommends</p>' +
+        '<p style="font-size:var(--fs-sm);color:var(--text-secondary);margin:0;line-height:1.6;">' + Comp._escHtml(s.recommendation||'') + '</p>' +
+      '</div>' +
+    '</div>';
+  }).join('');
 
-  const emptyState = seasons.length === 0
-    ? `<p class="field-hint">No seasonal data yet — use Regenerate to populate.</p>`
-    : '';
+  const emptyState = '<p class="field-hint">No seasonal data yet \u2014 use Regenerate to populate.</p>';
 
-  return `<section class="card" data-card-id="${cardId}" aria-label="Best season for the way you travel">
-    <div class="section-header-row">
-      <p class="card-title">Best season for the way you travel${reviewBadge}</p>
-    </div>
-    ${seasons.length ? `
-    <div class="ops-tabs" role="tablist" style="margin-bottom:16px;">${tabButtons}</div>
-    ${seasonPanels}` : emptyState}
-    <div class="sec-actions" style="margin-top:20px;">
-      <div class="lock-status-note">${ICON.lock} Locked from AI edits</div>
-      <div class="default-actions">
-        ${Comp.Button('<span class="toggle-track" aria-hidden="true"></span><span class="lock-label">Lock</span>', {variant:'btn-lock', size:'btn-sm', onclick:'Comp.toggleLock(this)', extraAttrs:'aria-pressed="false"'})}
-        ${regenBtn}
-      </div>
-    </div>
-  </section>`;
+  const seasonContent = seasons.length
+    ? '<div class="ops-tabs" role="tablist" style="margin-bottom:16px;">' + tabButtons + '</div>' + seasonPanels
+    : emptyState;
+  return '<section class="card" data-card-id="' + cardId + '" aria-label="Best season for the way you travel">' +
+    '<div class="section-header-row">' +
+      '<p class="card-title">Best season for the way you travel' + reviewBadge + '</p>' +
+    '</div>' +
+    seasonContent +
+    '<div class="sec-actions" style="margin-top:20px;">' +
+      '<div class="lock-status-note">' + ICON.lock + ' Locked from AI edits</div>' +
+      '<div class="default-actions">' +
+        Comp.Button('<span class="toggle-track" aria-hidden="true"></span><span class="lock-label">Lock</span>', {variant:'btn-lock', size:'btn-sm', onclick:'Comp.toggleLock(this)', extraAttrs:'aria-pressed="false"'}) +
+        regenBtn +
+      '</div>' +
+    '</div>' +
+  '</section>';
 };
 
 Comp._bestSeasonRegen = function(cardId){
-  const card = document.querySelector(`.card[data-card-id="${cardId}"]`);
+  const card = document.querySelector('[data-card-id="' + cardId + '"]');
   if(!card){ Comp.showToast('Section not found.', 'danger'); return; }
   Comp._openRegenLangModal(card);
 };
 
 // Plan your visit with confidence — read-only, Lock + Regenerate only
 Comp.PlanVisitCard = function(entity, cardId){
-  const info = entity.planVisitInfo || {};
   const pending = Comp._pendingApprovals[Comp.cardKey(cardId)];
-  const reviewBadge = pending ? `<button type="button" class="approval-badge" onclick="Comp.openApprovalCompare('${cardId}')">⚠ Review pending</button>` : '';
+  const reviewBadge = pending ? '<button type="button" class="approval-badge" onclick="Comp.openApprovalCompare(\'' + cardId + '\')">⚠ Review pending</button>' : '';
   const regenBtn = pending
-    ? Comp.Button('↻ Review content', {size:'btn-sm', variant:'btn-primary', onclick:`Comp.openApprovalCompare('${cardId}')`})
-    : Comp.Button('↻ Regenerate', {size:'btn-sm', onclick:`Comp._planVisitRegen('${cardId}')`});
+    ? Comp.Button('↻ Review content', {size:'btn-sm', variant:'btn-primary', onclick:"Comp.openApprovalCompare('" + cardId + "')"})
+    : Comp.Button('↻ Regenerate', {size:'btn-sm', onclick:"Comp._planVisitRegen('" + cardId + "')"});
 
-  const rows = [
-    ['Opening Hours',                     info.openingHours],
-    ['Typical Visit Duration',            info.visitDuration],
-    ['Tickets / Admission Model',         info.admissionModel],
-    ['Required Tickets',                  info.requiredTickets],
-    ['Main Entrance / Where to Enter',    info.mainEntrance],
-    ['Address',                           info.address],
-    ['Accessibility',                     info.accessibility],
-    ['Security Screening',                info.security],
-    ['Bag Policy',                        info.bagPolicy],
-    ['Photography Rules',                 info.photography],
-    ['Last Admission',                    info.lastAdmission],
-    ['Official Website',                  info.officialWebsite],
-    ['Getting There / Nearest Transport', info.gettingThere],
-    ['Dress Code',                        info.dresscode]
-  ].filter(r => r[1]);
+  // AI-generated rows — dynamic per attraction, stored as array of {label, value}
+  const aiRows = (entity.planVisitInfo && entity.planVisitInfo.rows) || [];
 
-  const tableHtml = rows.length
+  const tableHtml = aiRows.length
     ? `<div style="border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;">
-        ${rows.map((r,i) => `
+        ${aiRows.map((r,i) => `
           <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;padding:12px 16px;${i>0?'border-top:1px solid var(--border-subtle,var(--border));':''}">
-            <span style="font-size:var(--fs-sm);font-weight:600;color:var(--text-primary);flex-shrink:0;min-width:180px;">${Comp._escHtml(r[0])}</span>
-            <span style="font-size:var(--fs-sm);color:var(--text-secondary);text-align:right;">${Comp._escHtml(r[1])}</span>
+            <span style="font-size:var(--fs-sm);font-weight:600;color:var(--text-primary);flex-shrink:0;min-width:180px;">${Comp._escHtml(r.label)}</span>
+            <span style="font-size:var(--fs-sm);color:var(--text-secondary);text-align:right;">${Comp._escHtml(r.value)}</span>
           </div>`).join('')}
       </div>
       <div style="margin-top:16px;">
@@ -8788,27 +8766,28 @@ Comp.PlanVisitCard = function(entity, cardId){
                 </div>
               </div>`).join(''))
           : '<p class="field-hint">No moments added yet.</p>'}
-        <button type="button" class="btn btn-sm" style="margin-top:8px;" onclick="Comp.captureAltText('moment', function(altText){ Comp.showToast('Moment added with alt text: ' + altText, \'success\'); })">+ Add Moment from Media Library</button>
+        <button type="button" class="btn btn-sm" style="margin-top:8px;" onclick="Comp.captureAltText('moment', function(altText){ Comp.showToast('Moment added with alt text: ' + altText, 'success'); })">+ Add Moment from Media Library</button>
       </div>`
-    : `<p class="field-hint">No visit info yet — use Regenerate to populate.</p>`;
+    : `<div style="background:var(--surface-sunken);border:1px solid var(--border);border-radius:var(--radius-md);padding:20px;text-align:center;">
+        <p class="field-hint" style="margin:0;">AI will generate attraction-specific visit information — timing, access, rules and practical details — based on this attraction's data.</p>
+        <p class="field-hint mt-2" style="margin:8px 0 0;">Use <strong>Regenerate</strong> to populate.</p>
+      </div>`;
 
-  return `<section class="card" data-card-id="${cardId}" aria-label="Plan your visit with confidence">
-    <div class="section-header-row">
-      <p class="card-title">Plan your visit with confidence${reviewBadge}</p>
-    </div>
-    <div style="margin-bottom:20px;">${tableHtml}</div>
-    <div class="sec-actions">
-      <div class="lock-status-note">${ICON.lock} Locked from AI edits</div>
-      <div class="default-actions">
-        ${Comp.Button('<span class="toggle-track" aria-hidden="true"></span><span class="lock-label">Lock</span>', {variant:'btn-lock', size:'btn-sm', onclick:'Comp.toggleLock(this)', extraAttrs:'aria-pressed="false"'})}
-        ${regenBtn}
-      </div>
-    </div>
-  </section>`;
+  return '<section class="card" data-card-id="' + cardId + '" aria-label="Plan your visit with confidence">' +
+    '<div class="section-header-row"><p class="card-title">Plan your visit with confidence' + reviewBadge + '</p></div>' +
+    '<div style="margin-bottom:20px;">' + tableHtml + '</div>' +
+    '<div class="sec-actions">' +
+      '<div class="lock-status-note">' + ICON.lock + ' Locked from AI edits</div>' +
+      '<div class="default-actions">' +
+        Comp.Button('<span class="toggle-track" aria-hidden="true"></span><span class="lock-label">Lock</span>', {variant:'btn-lock', size:'btn-sm', onclick:'Comp.toggleLock(this)', extraAttrs:'aria-pressed="false"'}) +
+        regenBtn +
+      '</div>' +
+    '</div>' +
+  '</section>';
 };
 
 Comp._planVisitRegen = function(cardId){
-  const card = document.querySelector(`.card[data-card-id="${cardId}"]`);
+  const card = document.querySelector('[data-card-id="' + cardId + '"]');
   if(!card){ Comp.showToast('Section not found.', 'danger'); return; }
   Comp._openRegenLangModal(card);
 };
@@ -8820,7 +8799,7 @@ Comp._bsTabSwitch = function(btn, cardId){
     b.classList.toggle('is-active', i === idx);
   });
   // Show/hide panels
-  document.querySelectorAll(`.bs-panel[data-bs-card="${cardId}"]`).forEach((p,i) => {
+  document.querySelectorAll('.bs-panel[data-bs-card="' + cardId + '"]').forEach((p,i) => {
     p.style.display = i === idx ? '' : 'none';
   });
 };
@@ -8831,27 +8810,37 @@ Comp._renderUrlCanonicalCard = function(idPrefix, slugFn){
   const currentLang = el ? el.value : 'English';
   const langCode = LANG_CODES[currentLang] || 'en';
   const data = slugFn(langCode, currentLang);
-  return `<div class="card" style="margin-bottom:16px;" id="${idPrefix}-url-card">
-    <p class="card-title" style="margin-bottom:10px;">URL &amp; Canonical</p>
-    ${Comp._infoTable([
-      ['URL slug',      `<span style="font-family:monospace;font-size:var(--fs-sm);color:var(--text-primary);">${Comp._escHtml(data.slug)}</span>`],
-      ['Canonical URL', `<span style="font-family:monospace;font-size:var(--fs-sm);color:var(--text-primary);">${Comp._escHtml(data.canonical)}</span>`]
-    ])}
-  </div>`;
+  const slugHtml = '<span style="font-family:monospace;font-size:var(--fs-sm);color:var(--text-primary);">' + Comp._escHtml(data.slug) + '</span>';
+  const canonHtml = '<span style="font-family:monospace;font-size:var(--fs-sm);color:var(--text-primary);">' + Comp._escHtml(data.canonical) + '</span>';
+  return '<div class="card" style="margin-bottom:16px;" id="' + idPrefix + '-url-card">' +
+    '<p class="card-title" style="margin-bottom:10px;">URL &amp; Canonical</p>' +
+    Comp._infoTable([
+      ['URL slug',      slugHtml],
+      ['Canonical URL', canonHtml]
+    ]) +
+  '</div>';
 };
 
 Comp.contentLanguageBar = function(idPrefix, hideAudience, opts){
-  const onLangChange = opts && opts.onLanguageChange ? ` onchange="(${opts.onLanguageChange})(this.value)"` : '';
+  const onLangChange = opts && opts.onLanguageChange ? ' onchange="(' + opts.onLanguageChange + ')(this.value)"' : '';
   const langOptions = (opts && opts.languages) || ['English','Arabic','Hindi'];
   const selected = opts && opts.selected;
-  return `<div style="display:flex; align-items:center; gap:12px; margin-bottom:20px; flex-wrap:wrap;">
-    <label for="${idPrefix}-lang" style="font-size:14px; font-weight:600;">Content language:</label>
-    <select id="${idPrefix}-lang" class="filter-select" style="width:150px;"${onLangChange}>${langOptions.map(l => `<option${selected===l?' selected':''}>${l}</option>`).join('')}</select>
-    ${hideAudience ? '' : `<label for="${idPrefix}-audience" style="font-size:14px; font-weight:600;">Select Audience Type:</label>
-    <select id="${idPrefix}-audience" class="filter-select" style="width:220px;">${Comp.AUDIENCE_TYPES.map(a => `<option ${a===Comp.AUDIENCE_DEFAULT?'selected':''}>${a}</option>`).join('')}</select>`}
-    <div style="flex:1; min-width:24px; height:1px; background:var(--border);"></div>
-    <button type="button" style="font-size:13px; color:var(--accent-600); font-weight:600; text-decoration:none; background:none; border:none; padding:0; cursor:pointer; font-family:inherit;">↗ Preview page</button>
-  </div>`;
+  const langSelectHtml = '<select id="' + idPrefix + '-lang" class="filter-select" style="width:150px;"' + onLangChange + '>' +
+    langOptions.map(l => '<option' + (selected === l ? ' selected' : '') + '>' + l + '</option>').join('') +
+    '</select>';
+
+  const audienceHtml = hideAudience ? '' :
+    '<label for="' + idPrefix + '-audience" style="font-size:14px; font-weight:600;">Select Audience Type:</label>' +
+    '<select id="' + idPrefix + '-audience" class="filter-select" style="width:220px;">' +
+    Comp.AUDIENCE_TYPES.map(a => '<option' + (a === Comp.AUDIENCE_DEFAULT ? ' selected' : '') + '>' + a + '</option>').join('') +
+    '</select>';
+
+  return '<div style="display:flex; align-items:center; gap:12px; margin-bottom:20px; flex-wrap:wrap;">' +
+    '<label for="' + idPrefix + '-lang" style="font-size:14px; font-weight:600;">Content language:</label>' +
+    langSelectHtml + audienceHtml +
+    '<div style="flex:1; min-width:24px; height:1px; background:var(--border);"></div>' +
+    '<button type="button" style="font-size:13px; color:var(--accent-600); font-weight:600; text-decoration:none; background:none; border:none; padding:0; cursor:pointer; font-family:inherit;">\u2197 Preview page</button>' +
+    '</div>';
 };
 // Reusable field with real (not decorative) Edit / Lock-Unlock / Regenerate.
 // View mode shows the saved value as plain text; Edit mode shows an
@@ -8868,14 +8857,18 @@ Comp.SmartSection = function(opts){
   // BEFORE the fields loop instead, for read-only/display-only content that
   // should appear at the top of the section regardless of field order.
   const { sectionId, title, fields, locked, saveCall, lockCall, regenCall, hint, hideLock, extraHtml, topExtraHtml, bannerHtml, regenState, regenReviewCall } = opts;
-  const fieldsHtml = fields.map(f => `
-    <div class="field">
-      <label for="${sectionId}-${f.key}-input">${f.label}${f.required ? ' <span class="required">*</span>' : ''}</label>
-      <div id="${sectionId}-${f.key}-view" class="smart-field-view">${f.value ? Comp._escHtml(f.value) : '<span style="color:var(--text-muted);">Not set</span>'}</div>
-      ${f.isTextarea
-        ? `<textarea id="${sectionId}-${f.key}-input" class="card-input" style="display:none;" data-original="${Comp._escAttr(f.value)}">${Comp._escHtml(f.value)}</textarea>`
-        : `<input id="${sectionId}-${f.key}-input" class="card-input" style="display:none;" value="${Comp._escAttr(f.value)}" data-original="${Comp._escAttr(f.value)}">`}
-    </div>`).join('');
+  const fieldsHtml = fields.map(f => {
+    const reqSpan = f.required ? ' <span class="required">*</span>' : '';
+    const viewVal = f.value ? Comp._escHtml(f.value) : '<span style="color:var(--text-muted);">Not set</span>';
+    const inputEl = f.isTextarea
+      ? '<textarea id="' + sectionId + '-' + f.key + '-input" class="card-input" style="display:none;" data-original="' + Comp._escAttr(f.value) + '">' + Comp._escHtml(f.value) + '</textarea>'
+      : '<input id="' + sectionId + '-' + f.key + '-input" class="card-input" style="display:none;" value="' + Comp._escAttr(f.value) + '" data-original="' + Comp._escAttr(f.value) + '">';
+    return '<div class="field">' +
+      '<label for="' + sectionId + '-' + f.key + '-input">' + f.label + reqSpan + '</label>' +
+      '<div id="' + sectionId + '-' + f.key + '-view" class="smart-field-view">' + viewVal + '</div>' +
+      inputEl +
+      '</div>';
+  }).join('');
   // Regenerate button — defaults to the plain always-clickable '↻ Regenerate'
   // unless the caller opts into the stateful loading/ready flow via regenState.
   let regenBtnHtml = '';
@@ -8884,29 +8877,35 @@ Comp.SmartSection = function(opts){
     else if (regenState === 'ready') regenBtnHtml = Comp.Button('\u21bb Review content', {size:'btn-sm', variant:'btn-primary', onclick: regenReviewCall});
     else regenBtnHtml = Comp.Button('\u21bb Regenerate', {size:'btn-sm', onclick: regenCall});
   }
-  const reviewBadge = regenState === 'ready' ? `<button type="button" class="approval-badge" onclick="${regenReviewCall}">⚠ Review pending</button>` : '';
-  return `<section class="card smart-section ${locked?'is-locked':''}" data-section-id="${sectionId}">
-    <p class="card-title">${title}${reviewBadge}</p>
-    ${hint ? `<p class="field-hint card-hint card-hint--loose">${hint}</p>` : ''}
-    ${bannerHtml || ''}
-    ${topExtraHtml ? `<div class="mb-5">${topExtraHtml}</div>` : ''}
-    <div class="field-stack" style="margin-bottom:${extraHtml ? '14px' : '20px'};">${fieldsHtml}</div>
-    ${extraHtml ? `<div class="mb-5">${extraHtml}</div>` : ''}
-    ${hideLock && locked ? '' : `<div style="border-top:1px solid var(--border); padding-top:14px; display:flex; gap:8px; justify-content:flex-end;">
-      <div id="${sectionId}-viewActions" style="display:flex; gap:8px;">
-        ${Comp.Button('Edit section', {size:'btn-sm', onclick:`Comp.smartSectionEdit('${sectionId}')`})}
-        ${hideLock ? '' : Comp.Button(`<span class="toggle-track" aria-hidden="true"></span><span class="lock-label">${locked ? 'Unlock' : 'Lock'}</span>`, {size:'btn-sm', variant: locked ? 'btn-lock is-on' : 'btn-lock', onclick: lockCall, extraAttrs:`aria-pressed="${!!locked}"`})}
-        ${(!locked) ? regenBtnHtml : ''}
-      </div>
-      <div id="${sectionId}-editActions" style="display:none; gap:8px;">
-        ${Comp.Button('Cancel', {size:'btn-sm', onclick:`Comp.smartSectionCancel('${sectionId}')`})}
-        ${Comp.Button('Save changes', {size:'btn-sm', variant:'btn-primary', onclick: saveCall})}
-      </div>
-    </div>`}
-  </section>`;
+  const reviewBadge = regenState === 'ready' ? '<button type="button" class="approval-badge" onclick="' + regenReviewCall + '">\u26a0 Review pending</button>' : '';
+  const hintHtml      = hint        ? '<p class="field-hint card-hint card-hint--loose">' + hint + '</p>' : '';
+  const topExtraBlock = topExtraHtml ? '<div class="mb-5">' + topExtraHtml + '</div>' : '';
+  const extraBlock    = extraHtml    ? '<div class="mb-5">' + extraHtml + '</div>' : '';
+  const stackMargin   = extraHtml    ? '14px' : '20px';
+  const lockLabel     = locked ? 'Unlock' : 'Lock';
+  const lockVariant   = locked ? 'btn-lock is-on' : 'btn-lock';
+  const lockTrack     = '<span class="toggle-track" aria-hidden="true"></span><span class="lock-label">' + lockLabel + '</span>';
+  const actionsBlock  = (hideLock && locked) ? '' :
+    '<div style="border-top:1px solid var(--border); padding-top:14px; display:flex; gap:8px; justify-content:flex-end;">' +
+      '<div id="' + sectionId + '-viewActions" style="display:flex; gap:8px;">' +
+        Comp.Button('Edit section', {size:'btn-sm', onclick:"Comp.smartSectionEdit('" + sectionId + "')"}) +
+        (hideLock ? '' : Comp.Button(lockTrack, {size:'btn-sm', variant: lockVariant, onclick: lockCall, extraAttrs:'aria-pressed="' + !!locked + '"'})) +
+        ((!locked) ? regenBtnHtml : '') +
+      '</div>' +
+      '<div id="' + sectionId + '-editActions" style="display:none; gap:8px;">' +
+        Comp.Button('Cancel', {size:'btn-sm', onclick:"Comp.smartSectionCancel('" + sectionId + "')"}) +
+        Comp.Button('Save changes', {size:'btn-sm', variant:'btn-primary', onclick: saveCall}) +
+      '</div>' +
+    '</div>';
+
+  return '<section class="card smart-section ' + (locked ? 'is-locked' : '') + '" data-section-id="' + sectionId + '">' +
+    '<p class="card-title">' + title + reviewBadge + '</p>' +
+    hintHtml + (bannerHtml || '') + topExtraBlock +
+    '<div class="field-stack" style="margin-bottom:' + stackMargin + ';">' + fieldsHtml + '</div>' +
+    extraBlock + actionsBlock + '</section>';
 };
 Comp.smartSectionEdit = function(sectionId){
-  const section = document.querySelector(`[data-section-id="${sectionId}"]`);
+  const section = document.querySelector('[data-section-id="' + sectionId + '"]');
   section.querySelectorAll('.smart-field-view').forEach(v => v.style.display = 'none');
   section.querySelectorAll('.card-input').forEach(i => i.style.display = '');
   document.getElementById(sectionId+'-viewActions').style.display = 'none';
@@ -8922,7 +8921,7 @@ Comp.smartSectionEdit = function(sectionId){
   if (spTiny && Comp.spInitTinyMce) Comp.spInitTinyMce(spTiny.id);
 };
 Comp.smartSectionCancel = function(sectionId){
-  const section = document.querySelector(`[data-section-id="${sectionId}"]`);
+  const section = document.querySelector('[data-section-id="' + sectionId + '"]');
   section.querySelectorAll('.card-input').forEach(i => { i.value = i.dataset.original; i.style.display = 'none'; });
   section.querySelectorAll('.smart-field-view').forEach(v => v.style.display = '');
   document.getElementById(sectionId+'-viewActions').style.display = 'flex';
@@ -8962,10 +8961,10 @@ Comp.arraySectionCancel = function(sectionId, record, fieldName){
   render();
 };
 Comp.smartSectionShowSaved = function(sectionId, values){
-  const section = document.querySelector(`[data-section-id="${sectionId}"]`);
+  const section = document.querySelector('[data-section-id="' + sectionId + '"]');
   Object.entries(values).forEach(([key, val]) => {
-    const view = document.getElementById(`${sectionId}-${key}-view`);
-    const input = document.getElementById(`${sectionId}-${key}-input`);
+    const view = document.getElementById('' + sectionId + '-' + key + '-view');
+    const input = document.getElementById('' + sectionId + '-' + key + '-input');
     if (view) view.innerHTML = val ? Comp._escHtml(val) : '<span style="color:var(--text-muted);">Not set</span>';
     if (input) { input.value = val; input.dataset.original = val; input.style.display = 'none'; }
   });
@@ -8975,23 +8974,25 @@ Comp.smartSectionShowSaved = function(sectionId, values){
 };
 // Regenerate always goes through a review/approval step first — nothing is
 // saved to the real record until the admin explicitly accepts it (per-field).
-// `fields`: [{key, label, current}]. `onApply(acceptedValues)` is called
+// fields: [{key, label, current}]. onApply(acceptedValues) is called
 // with only the accepted {key: newValue} pairs to actually persist.
 Comp.openRegenReview = function(fields, onApply, onDeny){
   const candidates = fields.map(f => ({...f, candidate: Comp.simulateAiRewrite(f.label, f.current)}));
   const changed = candidates.filter(f => f.candidate !== f.current);
   if (changed.length === 0) { Comp.showToast('No changes suggested this time.', 'success'); return; }
-  const rowsHtml = changed.map((f, i) => `
-    <div style="padding:12px 0; border-top:${i>0?'1px solid var(--border)':'none'};">
-      <label style="display:flex; align-items:flex-start; gap:8px; cursor:pointer;">
-        <input type="checkbox" class="regen-review-check mt-1" data-key="${f.key}" checked>
-        <span class="flex-1">
-          <strong style="display:block; margin-bottom:6px;">${f.label}</strong>
-          <span style="display:block; font-size:13px; color:var(--text-muted); text-decoration:line-through; margin-bottom:4px;">${Comp._escHtml(f.current) || '(empty)'}</span>
-          <span style="display:block; font-size:14px; color:var(--accent-700);">${ICON.sparkles} ${Comp._escHtml(f.candidate)}</span>
-        </span>
-      </label>
-    </div>`).join('');
+  const rowsHtml = changed.map((f, i) => {
+    const borderTop = i > 0 ? '1px solid var(--border)' : 'none';
+    return '<div style="padding:12px 0; border-top:' + borderTop + ';">' +
+      '<label style="display:flex; align-items:flex-start; gap:8px; cursor:pointer;">' +
+        '<input type="checkbox" class="regen-review-check mt-1" data-key="' + encodeURIComponent(f.key) + '" checked>' +
+        '<span class="flex-1">' +
+          '<strong style="display:block; margin-bottom:6px;">' + Comp._escHtml(f.label) + '</strong>' +
+          '<span style="display:block; font-size:13px; color:var(--text-muted); text-decoration:line-through; margin-bottom:4px;">' + (Comp._escHtml(f.current) || '(empty)') + '</span>' +
+          '<span style="display:block; font-size:14px; color:var(--accent-700);">' + ICON.sparkles + ' ' + Comp._escHtml(f.candidate) + '</span>' +
+        '</span>' +
+      '</label>' +
+    '</div>';
+  }).join('')
 
   Comp._regenReviewOnApply  = onApply;
   Comp._regenReviewOnDeny   = onDeny || null;
@@ -9032,39 +9033,35 @@ Comp.smartFieldShowSaved = function(fieldId, value){
 Comp.RichTextEditor = function(id, htmlContent, placeholder, locked, opts){
   const initialHtml = Comp._plainTextToHtml(htmlContent);
   opts = opts || {};
-  const htmlToggle = opts.htmlToggleOnclick ? `
-      <span class="rte-sep rte-html-keep"></span>
-      <button type="button" id="${opts.htmlToggleId||''}" class="rte-btn rte-btn-html rte-html-keep" title="View HTML source" onmousedown="event.preventDefault()" onclick="${opts.htmlToggleOnclick}">HTML</button>` : '';
-  const htmlArea = opts.htmlSourceId ? `<textarea id="${opts.htmlSourceId}" class="rte-html-source" placeholder="HTML source...">${opts.htmlSourceValue||''}</textarea>` : '';
-  return `<div class="rte-wrap"${opts.wrapId ? ` id="${opts.wrapId}"` : ''} style="${locked ? 'opacity:0.6;' : ''}">
-    <div class="rte-toolbar" style="${locked ? 'pointer-events:none;' : ''}">
-      <select onchange="Comp.rteFormatBlock('${id}', this.value)" title="Paragraph style" ${locked?'disabled':''}>
-        <option value="P">Paragraph</option>
-        <option value="H1">Heading 1</option>
-        <option value="H2">Heading 2</option>
-        <option value="H3">Heading 3</option>
-      </select>
-      <span class="rte-sep"></span>
-      <button type="button" class="rte-btn" title="Bold" onmousedown="event.preventDefault()" onclick="Comp.rteExec('${id}','bold')"><b>B</b></button>
-      <button type="button" class="rte-btn" title="Italic" onmousedown="event.preventDefault()" onclick="Comp.rteExec('${id}','italic')"><i>I</i></button>
-      <button type="button" class="rte-btn" title="Underline" onmousedown="event.preventDefault()" onclick="Comp.rteExec('${id}','underline')"><u>U</u></button>
-      <span class="rte-sep"></span>
-      <button type="button" class="rte-btn" title="Align left" onmousedown="event.preventDefault()" onclick="Comp.rteExec('${id}','justifyLeft')">⯇</button>
-      <button type="button" class="rte-btn" title="Align center" onmousedown="event.preventDefault()" onclick="Comp.rteExec('${id}','justifyCenter')">≡</button>
-      <button type="button" class="rte-btn" title="Align right" onmousedown="event.preventDefault()" onclick="Comp.rteExec('${id}','justifyRight')">⯈</button>
-      <span class="rte-sep"></span>
-      <button type="button" class="rte-btn" title="Bullet list" onmousedown="event.preventDefault()" onclick="Comp.rteExec('${id}','insertUnorderedList')">•≡</button>
-      <button type="button" class="rte-btn" title="Numbered list" onmousedown="event.preventDefault()" onclick="Comp.rteExec('${id}','insertOrderedList')">1≡</button>
-      <span class="rte-sep"></span>
-      <button type="button" class="rte-btn" title="Insert link" onmousedown="event.preventDefault()" onclick="Comp.rteInsertLink('${id}')">🔗</button>
-      <button type="button" class="rte-btn" title="Insert image from Media Library" onmousedown="event.preventDefault()" onclick="Comp.rteInsertImage('${id}')">${ICON.image}</button>
-      ${htmlToggle}
-    </div>
-    <div id="${id}" class="rte-content" contenteditable="${locked?'false':'true'}" data-placeholder="${placeholder||''}">${initialHtml}</div>
-    ${htmlArea}
-  </div>`;
-};
-Comp.rteExec = function(id, cmd, value){
+  function btn(cmd, label, title) {
+    return '<button type="button" class="rte-btn" data-rte-id="' + id + '" data-cmd="' + cmd + '" title="' + title + '"' + (locked ? ' disabled' : '') + '>' + label + '</button>';
+  }
+  const wrapId  = opts.wrapId   ? ' id="' + opts.wrapId   + '"' : '';
+  const opacity  = locked ? 'opacity:0.6;pointer-events:none;' : '';
+  const ptrEvt  = locked ? 'pointer-events:none;' : '';
+  const dis     = locked ? ' disabled' : '';
+  const ce      = locked ? 'false' : 'true';
+  const lkCls   = locked ? ' rte-locked' : '';
+  const ph      = (placeholder || 'Write...').replace(/"/g, '&quot;');
+  const fmtSel  = '<select class="rte-fmt-select" data-rte-id="' + id + '"' + dis + ' title="Format"><option value="P">Paragraph</option><option value="H1">Heading 1</option><option value="H2">Heading 2</option><option value="H3">Heading 3</option><option value="BLOCKQUOTE">Quote</option></select>';
+  const htmlToggle = opts.htmlToggleOnclick
+    ? '<span class="rte-sep rte-html-keep"></span><button type="button" id="' + (opts.htmlToggleId||'')+'" class="rte-btn rte-btn-html rte-html-keep" data-onclick="' + opts.htmlToggleOnclick + '" title="Toggle HTML">HTML</button>'
+    : '';
+  const htmlArea = opts.htmlSourceId
+    ? '<textarea id="' + opts.htmlSourceId + '" class="rte-html-source" style="display:none;width:100%;min-height:120px;font-family:monospace;" spellcheck="false"></textarea>'
+    : '';
+  return '<div class="rte-wrap"' + wrapId + ' style="' + opacity + '">' +
+    '<div class="rte-toolbar" style="' + ptrEvt + '">' + fmtSel +
+    '<span class="rte-sep"></span>' +
+    btn('bold','<b>B</b>','Bold') + btn('italic','<i>I</i>','Italic') + btn('underline','<u>U</u>','Underline') +
+    '<span class="rte-sep"></span>' +
+    btn('insertUnorderedList','List','Bullet list') + btn('insertOrderedList','1. List','Ordered list') +
+    '<span class="rte-sep"></span>' +
+    '<button type="button" class="rte-btn" data-rte-id="' + id + '" data-rte-link="1" title="Link"' + dis + '>Link</button>' +
+    btn('removeFormat','Clear','Clear formatting') + htmlToggle + '</div>' +
+    '<div id="' + id + '" class="rte-content' + lkCls + '" contenteditable="' + ce + '" data-placeholder="' + ph + '" data-rte-src="' + id + '">' + initialHtml + '</div>' +
+    htmlArea + '</div>';
+};Comp.rteExec = function(id, cmd, value){
   const el = document.getElementById(id);
   if (el) el.focus();
   document.execCommand(cmd, false, value || null);
@@ -9074,6 +9071,18 @@ Comp.rteFormatBlock = function(id, tag){
   if (el) el.focus();
   document.execCommand('formatBlock', false, tag);
 };
+// Event delegation for rte toolbar buttons using data-cmd attribute
+document.addEventListener('click', function(e){
+  const btn = e.target.closest('.rte-btn[data-cmd]');
+  if(btn){ const el = document.getElementById(btn.dataset.rteId); if(el){ el.focus(); document.execCommand(btn.dataset.cmd); } return; }
+  const lnk = e.target.closest('.rte-btn[data-rte-link]');
+  if(lnk){ Comp.rteInsertLink(lnk.dataset.rteId); return; }
+}, true);
+// Format select delegation
+document.addEventListener('change', function(e){
+  const sel = e.target.closest('.rte-fmt-select');
+  if(sel) Comp.rteFormatBlock(sel.dataset.rteId, sel.value);
+}, true);
 Comp.rteInsertLink = function(id){
   const url = prompt('Enter the URL to link to:');
   if (!url) return;
@@ -9081,20 +9090,16 @@ Comp.rteInsertLink = function(id){
 };
 Comp.rteInsertImage = function(id){
   Comp.openMediaLibraryPicker((asset) => {
-    const placeholderSvg = 'data:image/svg+xml;utf8,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="480" height="270"><rect width="100%" height="100%" fill="%23e2e8f0"/><text x="50%" y="50%" text-anchor="middle" dy=".3em" font-family="sans-serif" font-size="16" fill="%2364748b">${asset.filename}</text></svg>`);
+    const placeholderSvg = 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="480" height="270"><rect width="100%" height="100%" fill="%23e2e8f0"/><text x="50%" y="50%" text-anchor="middle" dy=".3em" font-family="sans-serif" font-size="16" fill="%2364748b">' + asset.filename + '</text></svg>');
     Comp.rteExec(id, 'insertImage', placeholderSvg);
   });
 };
 Comp.openChangePasswordModal = function(){
   document.getElementById('profileMenu').hidden = true;
-  document.getElementById('modalChangePasswordBody').innerHTML = `
-    <div class="field"><label for="cpCurrent">Current password</label>${Comp.passwordField('cpCurrent', 'Enter current password', 'current-password', 'oninput="Comp.checkChangePasswordValidity()"')}</div>
-    <div class="field">
-      <label for="cpNew">New password</label>${Comp.passwordField('cpNew', 'Enter new password', 'new-password', 'oninput="Comp.checkChangePasswordValidity()"')}
-      <p class="field-hint">At least 8 characters.</p>
-    </div>
-    <div class="field"><label for="cpConfirm">Confirm new password</label>${Comp.passwordField('cpConfirm', 'Re-enter new password', 'new-password', 'oninput="Comp.checkChangePasswordValidity()"')}</div>
-  `;
+  document.getElementById('modalChangePasswordBody').innerHTML =
+    '<div class="field"><label for="cpCurrent">Current password</label>' + Comp.passwordField('cpCurrent', 'Enter current password', 'current-password', 'oninput="Comp.checkChangePasswordValidity()"') + '</div>' +
+    '<div class="field"><label for="cpNew">New password</label>' + Comp.passwordField('cpNew', 'Enter new password', 'new-password', 'oninput="Comp.checkChangePasswordValidity()"') + '<p class="field-hint">At least 8 characters.</p></div>' +
+    '<div class="field"><label for="cpConfirm">Confirm new password</label>' + Comp.passwordField('cpConfirm', 'Re-enter new password', 'new-password', 'oninput="Comp.checkChangePasswordValidity()"') + '</div>';
   document.getElementById('cpSubmitBtn').disabled = true;
   Comp.openModal('modalChangePassword');
 };
@@ -9182,52 +9187,39 @@ Comp.OptimizationPanel = function(opts){
   const showCta = opts.showCta === true; // only blog detail passes showCta:true; all others pass showCta:false
   const showActivity = opts.showActivity !== false && (opts.history || []).length > 0;
   const oc = k => (opts[k] === false ? '' : 'checked');
-  return `
-    <section class="card opt-panel" data-opt="${dataAttr}" data-optprefix="${p}">
-      <p class="card-title">${title}</p>
-
-      <p class="opt-sub">Schema (structured data)</p>
-      <p class="meta-box-hint mb-3h">Add one or more JSON-LD schema nodes injected into the page &lt;head&gt;. Pick a type and generate, or edit the JSON directly.</p>
-      <div class="field-stack">
-        <div class="field">
-          <label for="${p}-schema">Page schema (JSON-LD)</label>
-          <textarea id="${p}-schema" class="card-input schema-area">${schemaText}</textarea>
-        </div>
-        <div>
-          <div style="display:flex; gap:8px; flex-wrap:wrap;">
-            ${Comp.Button('↻ Generate schema from type', {size:'btn-sm', onclick:`Comp.optRegenSchema('${p}')`})}
-            ${Comp.Button('+ Add schema node', {size:'btn-sm', variant:'btn-ghost', onclick:`Comp.optAddSchema('${p}')`})}
-          </div>
-          <div id="${p}-schemalist" class="mt-2h"></div>
-        </div>
-      </div>
-
-      ${showCta ? `
-      <p class="opt-sub">Call-to-Action (CTA)</p>
-      <div class="field-stack">
-        <div class="field"><label for="${p}-cta">Cta Text</label><input id="${p}-cta" class="card-input" value="${escAttr(opts.ctaText || 'In search for strategic sessions?')}"></div>
-        <div class="field"><label for="${p}-cta1">Cta text1</label><textarea id="${p}-cta1" class="card-input">${opts.ctaText1 || 'Let us understand your business thoroughly and help you drive your digital product.'}</textarea></div>
-        <div class="field"><label for="${p}-sidecta">Blog Sidebar Form CTA Text</label><input id="${p}-sidecta" class="card-input" value="${escAttr(opts.sidebarCtaText || 'Get a Quote')}"></div>
-      </div>` : ''}
-
-      ${showActivity ? `
-      <p class="opt-sub">${ICON.pin} Post Activity Tracking</p>
-      <div class="activity-track">
-        ${(() => { const last = opts.history[0]; return `
-        <p class="at-updated">✏️ Last Updated</p>
-        <div class="at-line"><span class="at-label">User</span><span>${last.actor||'Editorial'}</span></div>
-        <div class="at-line"><span class="at-label">IP</span><span>203.0.113.24</span></div>
-        <div class="at-line"><span class="at-label">Location</span><span>Noida, Uttar Pradesh, India</span></div>
-        <div class="at-line"><span class="at-label">Time</span><span>${last.time||'—'}</span></div>
-        <p class="card-title" style="font-size:var(--fs-sm); margin:14px 0 4px;">${ICON.clock} Recent Activity</p>
-        ${opts.history.slice(0,5).map(h => `<div class="at-event"><span class="at-badge">Updated</span><div class="at-meta"><strong>${h.time}</strong> · ${h.label}<br>User: ${h.actor} · IP: 203.0.113.24 · Noida, India</div></div>`).join('')}`; })()}
-      </div>` : ''}
-
-      ${opts.saveTarget ? `<div style="margin-top:20px; padding-top:14px; border-top:1px solid var(--border);">
-        ${Comp.Button('Save optimization settings', {variant:'btn-primary', onclick:`Comp.saveOptimizationPanel('${p}', '${opts.saveTarget.array}', '${opts.saveTarget.id}', ${opts.hideHreflang ? 'true' : 'false'})`})}
-      </div>` : ''}
-    </section>`;
+  return '\n    <section class="card opt-panel" data-opt="' +
+  (dataAttr) +
+  '" data-optprefix="' +
+  (p) +
+  '">\n      <p class="card-title">' +
+  (title) +
+  '</p>\n\n      <p class="opt-sub">Schema (structured data)</p>\n      <p class="meta-box-hint mb-3h">Add one or more JSON-LD schema nodes injected into the page &lt;head&gt;. Pick a type and generate, or edit the JSON directly.</p>\n      <div class="field-stack">\n        <div class="field">\n          <label for="' +
+  (p) +
+  '-schema">Page schema (JSON-LD)</label>\n          <textarea id="' +
+  (p) +
+  '-schema" class="card-input schema-area">' +
+  (schemaText) +
+  '</textarea>\n        </div>\n        <div>\n          <div style="display:flex; gap:8px; flex-wrap:wrap;">\n            ' +
+  (Comp.Button('↻ Generate schema from type', {size:'btn-sm', onclick:"Comp.optRegenSchema('" + p + "')"})) +
+  '\n            ' +
+  (Comp.Button('+ Add schema node', {size:'btn-sm', variant:'btn-ghost', onclick:"Comp.optAddSchema('" + p + "')"})) +
+  '\n          </div>\n          <div id="' +
+  (p) +
+  '-schemalist" class="mt-2h"></div>\n        </div>\n      </div>\n\n      ' +
+  ((function(){ if(!showCta) return '';
+        return '<p class="opt-sub">Call-to-Action (CTA)</p><div class="field-stack">' +
+          '<div class="field"><label for="' + p + '-cta">CTA Text</label><input id="' + p + '-cta" class="card-input" value="' + escAttr(opts.ctaText || 'In search for strategic sessions?') + '"></div>' +
+          '<div class="field"><label for="' + p + '-cta1">CTA Text 1</label><textarea id="' + p + '-cta1" class="card-input">' + Comp._escHtml(opts.ctaText1 || 'Let us understand your business thoroughly.') + '</textarea></div>' +
+          '<div class="field"><label for="' + p + '-sidecta">Sidebar CTA</label><input id="' + p + '-sidecta" class="card-input" value="' + escAttr(opts.sidebarCtaText || 'Get a Quote') + '"></div>' +
+        '</div>';
+      })()) +
+  '\n\n\n      ' +
+  ((function(){ if(!showActivity) return ''; const last = opts.history[0]; return '<p class="opt-sub">' + ICON.pin + ' Post Activity Tracking</p><div class="activity-track"><p class="at-updated">&#x270F;&#xFE0F; Last Updated</p><div class="at-line"><span class="at-label">User</span><span>' + Comp._escHtml(last.actor||'Editorial') + '</span></div><div class="at-line"><span class="at-label">IP</span><span>203.0.113.24</span></div><div class="at-line"><span class="at-label">Location</span><span>Noida, India</span></div><div class="at-line"><span class="at-label">Time</span><span>' + Comp._escHtml(last.time||'\u2014') + '</span></div><p class="card-title" style="font-size:var(--fs-sm); margin:14px 0 4px;">' + ICON.clock + ' Recent Activity</p>' + opts.history.slice(0,5).map(function(h){ return '<div class="at-event"><span class="at-badge">Updated</span><div class="at-meta"><strong>' + Comp._escHtml(h.time||'') + '</strong> &middot; ' + Comp._escHtml(h.label||'') + ' User: ' + Comp._escHtml(h.actor||'') + '</div></div>'; }).join('') + '</div>'; })()) +
+  '\n      ' +
+  (opts.saveTarget ? '<div style="margin-top:20px; padding-top:14px; border-top:1px solid var(--border);">' + Comp.Button('Save optimization settings', {variant:'btn-primary', onclick:"Comp.saveOptimizationPanel('" + p + "', '" + opts.saveTarget.array + "', '" + opts.saveTarget.id + "', " + (opts.hideHreflang ? 'true' : 'false') + ")"}) + '</div>' : '') +
+  '\n    </section>';
 };
+
 Comp.saveOptimizationPanel = function(prefix, arrayName, id, skipHreflang){
   // Most callers point at an array of records; the homepage is a single
   // object, so resolve either shape rather than forcing it into an array.
@@ -9253,7 +9245,7 @@ Comp.saveOptimizationPanel = function(prefix, arrayName, id, skipHreflang){
 };
 
 Comp.optRegenSchema = function(prefix){
-  const panel = document.querySelector(`[data-optprefix="${prefix}"]`);
+  const panel = document.querySelector('[data-optprefix="' + prefix + '"]');
   if (!panel) return;
   let data = {};
   try { data = JSON.parse(panel.getAttribute('data-opt') || '{}'); } catch(e){}
@@ -9269,7 +9261,7 @@ Comp.optAddSchema = function(prefix){
   if (!list) return;
   const item = document.createElement('div');
   item.className = 'schema-list-item';
-  item.innerHTML = `<span>✓ ${type} schema added to page &lt;head&gt;</span><button type="button" class="tag-remove" aria-label="Remove" onclick="this.parentNode.remove()">×</button>`;
+  item.innerHTML = '<span>\u2713 ' + type + ' schema added to page &lt;head&gt;</span><button type="button" class="tag-remove" aria-label="Remove" onclick="this.parentNode.remove()">\u00d7</button>';
   list.appendChild(item);
   Comp.showToast(type + ' schema node added.', 'success');
 };
@@ -9306,50 +9298,50 @@ Comp.detectDuplicates = function(){
 };
 function pageDedupeReview(){
   const candidates = Comp.detectDuplicates();
-  const rows = candidates.map(c => `
-    <tr>
-      <td class="cell-name">${c.entityType}</td>
-      <td class="cell-secondary">${c.a.name}<div class="text-muted-xs">${c.a.id}</div></td>
-      <td class="cell-secondary">${c.b.name}<div class="text-muted-xs">${c.b.id}</div></td>
-      <td class="cell-secondary">${c.keyMatched}</td>
-      <td>${c.conflict ? Comp.Badge('Key conflict', 'danger') : '—'}</td>
-      <td>${Comp.RowMenu(c.a.name, [
-        {label:'Review & Merge', handler:() => Comp.openMergeModal(c.id)},
-        {label:'Not a duplicate', handler:() => Comp.dedupeReject(c.id)}
-      ])}</td>
-    </tr>`).join('');
-  return Comp.Shell(`
-    ${Comp.PageHeader({title:`Duplicate &amp; Merge Review`})}
-    ${Comp.Table({columns:[{label:'Type',width:'100px'},{label:'Record A'},{label:'Record B'},{label:'Matched key',width:'160px'},{label:'Conflict',width:'120px'},{label:'Action',width:'70px'}], rows, emptyText:'No potential duplicates detected.'})}
-  `);
+  const rows = candidates.map(c =>
+    '<tr>' +
+    '<td class="cell-name">' + Comp._escHtml(c.entityType) + '</td>' +
+    '<td class="cell-secondary">' + Comp._escHtml(c.a.name) + '<div class="text-muted-xs">' + Comp._escHtml(c.a.id) + '</div></td>' +
+    '<td class="cell-secondary">' + Comp._escHtml(c.b.name) + '<div class="text-muted-xs">' + Comp._escHtml(c.b.id) + '</div></td>' +
+    '<td class="cell-secondary">' + Comp._escHtml(c.keyMatched) + '</td>' +
+    '<td>' + (c.conflict ? Comp.Badge('Key conflict', 'danger') : '—') + '</td>' +
+    '<td>' + Comp.RowMenu(c.a.name, [
+      {label:'Review & Merge', handler:() => Comp.openMergeModal(c.id)},
+      {label:'Not a duplicate', handler:() => Comp.dedupeReject(c.id)}
+    ]) + '</td>' +
+    '</tr>'
+  ).join('');
+  return Comp.Shell(
+    Comp.PageHeader({title:'Duplicate &amp; Merge Review'}) +
+    Comp.Table({columns:[{label:'Type',width:'100px'},{label:'Record A'},{label:'Record B'},{label:'Matched key',width:'160px'},{label:'Conflict',width:'120px'},{label:'Action',width:'70px'}], rows, emptyText:'No potential duplicates detected.'})
+  );
 }
 Comp.openMergeModal = function(candidateId){
   const c = Comp.detectDuplicates().find(x => x.id === candidateId);
   if (!c) return;
   Comp.openConfirm({
-    title: `Merge duplicate ${c.entityType}s?`,
-    desc: `"${c.a.name}" and "${c.b.name}" matched via ${c.keyMatched}.${c.conflict ? ' ' + ICON.warning + ' Conflicting external IDs detected — review carefully before merging.' : ''}`,
-    warningHtml: `
-      <div class="field mt-2h">
-        <label for="mergeCanonical">Keep as canonical</label>
-        <select id="mergeCanonical">
-          <option value="a">${c.a.name} (${c.a.id})</option>
-          <option value="b">${c.b.name} (${c.b.id})</option>
-        </select>
-      </div>
-      <p class="field-hint">Merge precedence: name/address/geo → Google first; hierarchy → Viator first; historical facts &amp; external IDs → Wikidata first. The other record becomes an alias reference and is removed from active listings — records are never deleted automatically without this review.</p>
-    `,
+    title: 'Merge duplicate ' + c.entityType + 's?',
+    desc: '"' + Comp._escHtml(c.a.name) + '" and "' + Comp._escHtml(c.b.name) + '" matched via ' + Comp._escHtml(c.keyMatched) + '.' + (c.conflict ? ' ' + ICON.warning + ' Conflicting external IDs detected \u2014 review carefully before merging.' : ''),
+    warningHtml:
+      '<div class="field mt-2h">' +
+        '<label for="mergeCanonical">Keep as canonical</label>' +
+        '<select id="mergeCanonical">' +
+          '<option value="a">' + Comp._escHtml(c.a.name) + ' (' + Comp._escHtml(c.a.id) + ')</option>' +
+          '<option value="b">' + Comp._escHtml(c.b.name) + ' (' + Comp._escHtml(c.b.id) + ')</option>' +
+        '</select>' +
+      '</div>' +
+      '<p class="field-hint">Merge precedence: name/address/geo \u2192 Google first; hierarchy \u2192 Viator first; historical facts &amp; external IDs \u2192 Wikidata first.</p>',
     confirmLabel: 'Merge',
     danger: true,
     onConfirm: () => {
       const canonical = document.getElementById('mergeCanonical').value === 'a' ? c.a : c.b;
       const loser = canonical === c.a ? c.b : c.a;
       canonical.history = canonical.history || [];
-      canonical.history.unshift({label:`merge_event: from ${loser.name} (${loser.id}) → ${canonical.name} (${canonical.id})`, time:new Date().toLocaleString()});
+      canonical.history.unshift({label:'merge_event: from ' + loser.name + ' (' + loser.id + ') \u2192 ' + canonical.name + ' (' + canonical.id + ')', time:new Date().toLocaleString()});
       if (c.entityType === 'City') DATA.cities = DATA.cities.filter(x => x.id !== loser.id);
       else DATA.masterAttractions = DATA.masterAttractions.filter(x => x.id !== loser.id);
       Comp._dedupeResolvedIds.add(candidateId);
-      Comp.showToast(`Merged "${loser.name}" into "${canonical.name}".`, 'danger');
+      Comp.showToast('Merged "' + loser.name + '" into "' + canonical.name + '".', 'danger');
       render();
     }
   });
@@ -9372,36 +9364,41 @@ function pageCountryListing(){
     const gscBadge = gsc.status === 'Indexed' ? Comp.Badge('Indexed', true)
       : gsc.status === 'Not indexed' ? Comp.Badge('Not indexed', false)
       : '<span class="field-hint">—</span>';
-    const gscSub = gsc.lastChecked ? `<div style="font-size:11px;color:var(--text-muted);margin-top:2px;">Checked ${gsc.lastChecked}</div>` : '';
+    const gscSub = gsc.lastChecked ? '<div style="font-size:11px;color:var(--text-muted);margin-top:2px;">Checked ' + Comp._escHtml(gsc.lastChecked) + '</div>' : '';
     const issues = Comp._getDestIssues(c);
     const issueCell = issues.length
-      ? `<td><span class="badge badge-warning">${issues.length} issue${issues.length===1?'':'s'}</span></td>`
+      ? '<td><span class="badge badge-warning">' + issues.length + ' issue' + (issues.length===1?'':' s') + '</span></td>'
       : '<td><span class="field-hint">—</span></td>';
-    return `<tr class="row-clickable" tabindex="0" role="button" aria-label="View ${c.name} details"
-        onclick="Router.go('countryDetails',{id:'${c.id}'})"
-        onkeydown="if(event.key==='Enter'){Router.go('countryDetails',{id:'${c.id}'})}">
-      ${Comp.BulkCheckboxTd('country', c.id)}
-      <td class="cell-name">${c.name}${Comp.ListingPendingBadge('countryDetails',{id:c.id})}</td>
-      <td onclick="event.stopPropagation()">${regionCount ? `<button type="button" class="btn-sm-link" onclick="Router.go('regionListing',{filterType:'country',filterValue:'${c.name}',filterLabel:'Country'})">${regionCount} ${regionCount===1?'region':'regions'}</button>` : '<span class="field-hint">No regions</span>'}</td>
-      <td onclick="event.stopPropagation()">${cityCount ? `<button type="button" class="btn-sm-link" onclick="Router.go('cityListing',{filterType:'country',filterValue:'${c.name}',filterLabel:'Country'})">${cityCount} ${cityCount===1?'city':'cities'}</button>` : '<span class="field-hint">No cities</span>'}</td>
-      ${Comp._productCountCell('country', c.name)}
-      <td class="cell-secondary">${c.continent || '—'}</td>
-      <td>${Comp._tierBadge(c.tierLevel)}</td>
-      <td>${idxBadge}</td>
-      <td>${gscBadge}${gscSub}</td>
-      ${issueCell}
-      <td>${Comp.Badge(c.status, c.status==='Active')}</td>
-      <td>${Comp.RowMenu(c.name, [
+    const regionCell = regionCount
+      ? '<button type="button" class="btn-sm-link" onclick="Router.go(\'regionListing\',{filterType:\'country\',filterValue:\'' + Comp._escAttr(c.name) + '\',filterLabel:\'Country\'})">' + regionCount + ' ' + (regionCount===1?'region':'regions') + '</button>'
+      : '<span class="field-hint">No regions</span>';
+    const cityCell = cityCount
+      ? '<button type="button" class="btn-sm-link" onclick="Router.go(\'cityListing\',{filterType:\'country\',filterValue:\'' + Comp._escAttr(c.name) + '\',filterLabel:\'Country\'})">' + cityCount + ' ' + (cityCount===1?'city':'cities') + '</button>'
+      : '<span class="field-hint">No cities</span>';
+    return '<tr class="row-clickable" tabindex="0" role="button" aria-label="View ' + Comp._escAttr(c.name) + ' details"' +
+      ' onclick="Router.go(\'countryDetails\',{id:\'' + c.id + '\'})" onkeydown="if(event.key===\'Enter\'){Router.go(\'countryDetails\',{id:\'' + c.id + '\'})}">' +
+      Comp.BulkCheckboxTd('country', c.id) +
+      '<td class="cell-name">' + Comp._escHtml(c.name) + Comp.ListingPendingBadge('countryDetails',{id:c.id}) + '</td>' +
+      '<td onclick="event.stopPropagation()">' + regionCell + '</td>' +
+      '<td onclick="event.stopPropagation()">' + cityCell + '</td>' +
+      Comp._productCountCell('country', c.name) +
+      '<td class="cell-secondary">' + Comp._escHtml(c.continent||'—') + '</td>' +
+      '<td>' + Comp._tierBadge(c.tierLevel) + '</td>' +
+      '<td>' + idxBadge + '</td>' +
+      '<td>' + gscBadge + gscSub + '</td>' +
+      issueCell +
+      '<td>' + Comp.Badge(c.status, c.status==='Active') + '</td>' +
+      '<td>' + Comp.RowMenu(c.name, [
         {label:'Edit', handler:() => Router.go('countryDetails',{id:c.id})},
         {label: c.status==='Active' ? 'Deactivate' : 'Activate', danger: c.status==='Active', handler:() => Comp.confirmToggleCountryStatus(c.id)}
-      ])}</td>
-    </tr>`;
+      ]) + '</td>' +
+    '</tr>';
   }).join('');
-  return Comp.Shell(`
-    ${Comp.PageHeader({title:'Countries'})}
-    ${Comp.FilterBar('Search countries', 'filterCountries', "Comp.openCountryFilterDrawer()")}
-    ${Comp.BulkActionBar('country')}
-    ${Comp.Table({columns:[
+  return Comp.Shell(
+    Comp.PageHeader({title:'Countries'}) +
+    Comp.FilterBar('Search countries', 'filterCountries', "Comp.openCountryFilterDrawer()") +
+    Comp.BulkActionBar('country') +
+    Comp.Table({columns:[
       {label:Comp.BulkCheckboxTh('country'), width:'40px'},
       {label:'Country',            width:'180px'},
       {label:'Regions',            width:'100px'},
@@ -9414,18 +9411,22 @@ function pageCountryListing(){
       {label:'Issues',             width:'100px'},
       {label:'Status',             width:'100px'},
       {label:'Action',             width:'70px'}
-    ], rows})}
-    ${Comp.Pagination('Showing ' + DATA.countries.length + ' of ' + DATA.countries.length + ' countries')}
-  `);
+    ], rows}) +
+    Comp.Pagination('Showing ' + DATA.countries.length + ' of ' + DATA.countries.length + ' countries')
+  );
 }
 function aiField(label, value, tag='input', id='', editable=false){
   const overrideKey = Comp.fieldKey(label);
   const finalValue = (Comp._fieldOverrides[overrideKey] !== undefined) ? Comp._fieldOverrides[overrideKey] : value;
   const fid = id || ('f' + Math.random().toString(36).slice(2,8));
   const readonlyAttr = editable ? '' : 'readonly';
-  return tag === 'textarea'
-    ? `<div class="field"><label for="${fid}">${label}</label><textarea id="${fid}" class="card-input" ${readonlyAttr} data-field-label="${label}">${finalValue}</textarea></div>`
-    : `<div class="field"><label for="${fid}">${label}</label><input id="${fid}" class="card-input" ${readonlyAttr} value="${finalValue}" data-field-label="${label}"></div>`;
+  const safeVal = Comp._escHtml(finalValue || '');
+  const safeAttr = Comp._escAttr(finalValue || '');
+  const safeLbl = Comp._escHtml(label);
+  if(tag === 'textarea'){
+    return '<div class="field"><label for="' + fid + '">' + safeLbl + '</label><textarea id="' + fid + '" class="card-input" ' + readonlyAttr + ' data-field-label="' + Comp._escAttr(label) + '">' + safeVal + '</textarea></div>';
+  }
+  return '<div class="field"><label for="' + fid + '">' + safeLbl + '</label><input id="' + fid + '" class="card-input" ' + readonlyAttr + ' value="' + safeAttr + '" data-field-label="' + Comp._escAttr(label) + '"></div>';
 }
 
 // Same as aiField, plus a live "X/max" character counter bottom-right — used by any
@@ -9434,10 +9435,13 @@ function aiFieldWithCounter(label, value, tag, maxLen, id='', editable=false){
   const fid = id || ('f' + Math.random().toString(36).slice(2,8));
   const readonlyAttr = editable ? '' : 'readonly';
   const len = (value || '').length;
+  const safeVal = Comp._escHtml(value || '');
+  const safeAttr = Comp._escAttr(value || '');
+  const safeLbl = Comp._escHtml(label);
   const field = tag === 'textarea'
-    ? `<textarea id="${fid}" class="card-input" ${readonlyAttr} maxlength="${maxLen}" data-field-label="${label}" oninput="Comp.updateCharCounter(this)">${value}</textarea>`
-    : `<input id="${fid}" class="card-input" ${readonlyAttr} maxlength="${maxLen}" value="${value}" data-field-label="${label}" oninput="Comp.updateCharCounter(this)">`;
-  return `<div class="field"><label for="${fid}">${label}</label>${field}<p class="char-counter" data-max="${maxLen}">${len}/${maxLen}</p></div>`;
+    ? '<textarea id="' + fid + '" class="card-input" ' + readonlyAttr + ' maxlength="' + maxLen + '" data-field-label="' + Comp._escAttr(label) + '" oninput="Comp.updateCharCounter(this)">' + safeVal + '</textarea>'
+    : '<input id="' + fid + '" class="card-input" ' + readonlyAttr + ' maxlength="' + maxLen + '" value="' + safeAttr + '" data-field-label="' + Comp._escAttr(label) + '" oninput="Comp.updateCharCounter(this)">';
+  return '<div class="field"><label for="' + fid + '">' + safeLbl + '</label>' + field + '<p class="char-counter" data-max="' + maxLen + '">' + len + '/' + maxLen + '</p></div>';
 }
 
 const REGION_OPTIONS = DATA.regions.map(r => r.name);
@@ -9583,7 +9587,7 @@ function pageCountryDetails(params){
     });
   } else if (tab === 'assets') {
     tabBody = `
-    ${Comp.Card({title:`Asset compliance`, body:`
+    ${Comp.Card({title:'Asset compliance', body:`
       ${Comp._infoTable([
         ['Hero image', heroMissing ? Comp.Badge('Missing', 'danger') : 'OK'],
         ['Gallery images', '0 images'],
@@ -9660,30 +9664,32 @@ function pageRegionListing(params){
     const gscBadge = gsc.status === 'Indexed' ? Comp.Badge('Indexed', true)
       : gsc.status === 'Not indexed' ? Comp.Badge('Not indexed', false)
       : '<span class="field-hint">—</span>';
-    const gscSub = gsc.lastChecked ? `<div style="font-size:11px;color:var(--text-muted);margin-top:2px;">Checked ${gsc.lastChecked}</div>` : '';
+    const gscSub = gsc.lastChecked ? '<div style="font-size:11px;color:var(--text-muted);margin-top:2px;">Checked ' + Comp._escHtml(gsc.lastChecked) + '</div>' : '';
     const issues = Comp._getDestIssues(r);
     const issueCell = issues.length
-      ? `<td><span class="badge badge-warning">${issues.length} issue${issues.length===1?'':'s'}</span></td>`
+      ? '<td><span class="badge badge-warning">' + issues.length + ' issue' + (issues.length===1?'':' s') + '</span></td>'
       : '<td><span class="field-hint">—</span></td>';
-    return `<tr class="row-clickable" tabindex="0" role="button" aria-label="View ${r.name} details"
-        onclick="Router.go('regionDetails',{id:'${r.id}'})"
-        onkeydown="if(event.key==='Enter'){Router.go('regionDetails',{id:'${r.id}'})}">
-      ${Comp.BulkCheckboxTd('region', r.id)}
-      <td class="cell-name">${r.name}${Comp.ListingPendingBadge('regionDetails',{id:r.id})}</td>
-      <td class="cell-secondary">${r.country || '— No parent country —'}</td>
-      <td onclick="event.stopPropagation()">${cityCount ? `<button type="button" class="btn-sm-link" onclick="Router.go('cityListing',{filterType:'region',filterValue:'${r.name}',filterLabel:'Region'})">${cityCount} ${cityCount===1?'city':'cities'}</button>` : '<span class="field-hint">No cities</span>'}</td>
-      ${Comp._productCountCell('region', r.name)}
-      <td>${Comp._tierBadge(r.tierLevel)}</td>
-      <td>${idxBadge}</td>
-      <td>${gscBadge}${gscSub}</td>
-      ${issueCell}
-      <td>${Comp.Badge(pubState.label, pubState.active)}</td>
-      <td>${Comp.Badge(r.status, r.status==='Active')}</td>
-      <td>${Comp.RowMenu(r.name, [
+    const cityCell_r = cityCount
+      ? '<button type="button" class="btn-sm-link" onclick="Router.go(\'cityListing\',{filterType:\'region\',filterValue:\'' + Comp._escAttr(r.name) + '\',filterLabel:\'Region\'})">' + cityCount + ' ' + (cityCount===1?'city':'cities') + '</button>'
+      : '<span class="field-hint">No cities</span>';
+    return '<tr class="row-clickable" tabindex="0" role="button" aria-label="View ' + Comp._escAttr(r.name) + ' details"' +
+      ' onclick="Router.go(\'regionDetails\',{id:\'' + r.id + '\'})" onkeydown="if(event.key===\'Enter\'){Router.go(\'regionDetails\',{id:\'' + r.id + '\'})}">' +
+      Comp.BulkCheckboxTd('region', r.id) +
+      '<td class="cell-name">' + Comp._escHtml(r.name) + Comp.ListingPendingBadge('regionDetails',{id:r.id}) + '</td>' +
+      '<td class="cell-secondary">' + Comp._escHtml(r.country||'— No parent country —') + '</td>' +
+      '<td onclick="event.stopPropagation()">' + cityCell_r + '</td>' +
+      Comp._productCountCell('region', r.name) +
+      '<td>' + Comp._tierBadge(r.tierLevel) + '</td>' +
+      '<td>' + idxBadge + '</td>' +
+      '<td>' + gscBadge + gscSub + '</td>' +
+      issueCell +
+      '<td>' + Comp.Badge(pubState.label, pubState.active) + '</td>' +
+      '<td>' + Comp.Badge(r.status, r.status==='Active') + '</td>' +
+      '<td>' + Comp.RowMenu(r.name, [
         {label:'Edit', handler:() => Router.go('regionDetails',{id:r.id})},
         {label: r.status==='Active' ? 'Deactivate' : 'Activate', danger: r.status==='Active', handler:() => Comp.confirmToggleRegionStatus(r.id)}
-      ])}</td>
-    </tr>`;
+      ]) + '</td>' +
+    '</tr>';
   }).join('');
   return Comp.Shell(`
     ${Comp.PageHeader({title:'Regions', actions:Comp.Button('+ Add region', {variant:'btn-primary', onclick:"Router.go('regionCreate')"})})}
@@ -9712,7 +9718,7 @@ function pageRegionCreate(){
   const continents = [...new Set(DATA.countries.map(c => c.continent).filter(Boolean))].sort();
   const tiers = ['Tier 1','Tier 2','Tier 3','Unassigned'];
   return Comp.Shell(`
-    ${Comp.PageHeader({title:`Create region`, actions:Comp.Button('✨ Generate with AI', {variant:'btn-ghost', onclick:'Comp.triggerCreateAiGenerate(this)'})})}
+    ${Comp.PageHeader({title:'Create region', actions:Comp.Button('✨ Generate with AI', {variant:'btn-ghost', onclick:'Comp.triggerCreateAiGenerate(this)'})})}
     ${Comp.Breadcrumb([{label:'Regions', route:'regionListing'}, {label:'Create region'}])}
     <form data-validate onsubmit="event.preventDefault(); Comp.finishCreateRegion();">
       <div class="card">
@@ -9890,7 +9896,7 @@ function pageRegionDetails(params){
     });
 } else if (tab === 'assets') {
     tabBody = `
-    ${Comp.Card({title:`Asset compliance`, body:`
+    ${Comp.Card({title:'Asset compliance', body:`
       ${Comp._infoTable([
         ['Hero image', heroMissing ? Comp.Badge('Missing', 'danger') : 'OK'],
         ['Gallery images', '0 images']
@@ -9978,33 +9984,32 @@ function pageCityListing(params){
     const gscBadge = gsc.status === 'Indexed' ? Comp.Badge('Indexed', true)
       : gsc.status === 'Not indexed' ? Comp.Badge('Not indexed', false)
       : '<span class="field-hint">—</span>';
-    const gscSub = gsc.lastChecked ? `<div style="font-size:11px;color:var(--text-muted);margin-top:2px;">Checked ${gsc.lastChecked}</div>` : '';
+    const gscSub = gsc.lastChecked ? '<div style="font-size:11px;color:var(--text-muted);margin-top:2px;">Checked ' + Comp._escHtml(gsc.lastChecked) + '</div>' : '';
 
     // Issues
     const issues = Comp._getDestIssues(c);
     const issueCell = issues.length
-      ? `<td><span class="badge badge-warning">${issues.length} issue${issues.length===1?'':'s'}</span></td>`
+      ? '<td><span class="badge badge-warning">' + issues.length + ' issue' + (issues.length===1?'':' s') + '</span></td>'
       : '<td><span class="field-hint">—</span></td>';
 
-    return `<tr class="row-clickable" tabindex="0" role="button" aria-label="View ${c.name} details"
-        onclick="Router.go('cityDetails',{id:'${c.id}'})"
-        onkeydown="if(event.key==='Enter'){Router.go('cityDetails',{id:'${c.id}'})}">
-      ${Comp.BulkCheckboxTd('city', c.id)}
-      <td class="cell-name">${c.name}${Comp.ListingPendingBadge('cityDetails',{id:c.id})}</td>
-      <td class="cell-secondary">${c.country}</td>
-      <td class="cell-secondary">${c.region}</td>
-      <td class="cell-secondary">${continent}</td>
-      ${Comp._productCountCell('city', c.name)}
-      <td>${tierBadge}</td>
-      <td>${idxBadge}</td>
-      <td>${gscBadge}${gscSub}</td>
-      ${issueCell}
-      <td>${Comp.Badge(c.status, c.status==='Active')}</td>
-      <td>${Comp.RowMenu(c.name, [
+    return '<tr class="row-clickable" tabindex="0" role="button" aria-label="View ' + Comp._escAttr(c.name) + ' details"' +
+      ' onclick="Router.go(\'cityDetails\',{id:\'' + c.id + '\'})" onkeydown="if(event.key===\'Enter\'){Router.go(\'cityDetails\',{id:\'' + c.id + '\'})}">' +
+      Comp.BulkCheckboxTd('city', c.id) +
+      '<td class="cell-name">' + Comp._escHtml(c.name) + Comp.ListingPendingBadge('cityDetails',{id:c.id}) + '</td>' +
+      '<td class="cell-secondary">' + Comp._escHtml(c.country||'') + '</td>' +
+      '<td class="cell-secondary">' + Comp._escHtml(c.region||'') + '</td>' +
+      '<td class="cell-secondary">' + Comp._escHtml(continent||'') + '</td>' +
+      Comp._productCountCell('city', c.name) +
+      '<td>' + tierBadge + '</td>' +
+      '<td>' + idxBadge + '</td>' +
+      '<td>' + gscBadge + gscSub + '</td>' +
+      issueCell +
+      '<td>' + Comp.Badge(c.status, c.status==='Active') + '</td>' +
+      '<td>' + Comp.RowMenu(c.name, [
         {label:'View details', handler:() => Router.go('cityDetails',{id:c.id})},
         {label: c.status==='Active' ? 'Deactivate' : 'Activate', danger: c.status==='Active', handler:() => Comp.confirmToggleCityStatus(c.id)}
-      ])}</td>
-    </tr>`;
+      ]) + '</td>' +
+    '</tr>';
   }).join('');
 
   return Comp.Shell(`
@@ -10034,7 +10039,7 @@ function pageCityCreate(){
   const continents = [...new Set(DATA.countries.map(c => c.continent).filter(Boolean))].sort();
   const tiers = ['Tier 1','Tier 2','Tier 3','Unassigned'];
   return Comp.Shell(`
-    ${Comp.PageHeader({title:`Create city`, actions:Comp.Button('✨ Generate with AI', {variant:'btn-ghost', onclick:'Comp.triggerCreateAiGenerate(this)'})})}
+    ${Comp.PageHeader({title:'Create city', actions:Comp.Button('✨ Generate with AI', {variant:'btn-ghost', onclick:'Comp.triggerCreateAiGenerate(this)'})})}
     ${Comp.Breadcrumb([{label:'Cities', route:'cityListing'}, {label:'Create city'}])}
     <form data-validate onsubmit="event.preventDefault(); Comp.finishCreateCity();">
       <div class="card">
@@ -10212,7 +10217,7 @@ function pageCityDetails(params){
     });
 } else if (tab === 'assets') {
     tabBody = `
-    ${Comp.Card({title:`Asset compliance`, body:`
+    ${Comp.Card({title:'Asset compliance', body:`
       ${Comp._infoTable([
         ['Hero image', heroMissing ? Comp.Badge('Missing', 'danger') : 'OK'],
         ['Gallery images', '0 images'],
@@ -10372,7 +10377,7 @@ function pageAttractionCreate(){
   Comp._attractionGooglePlaceId = null;
   Comp._attractionCreatePlanVisit = Comp._attractionCreatePlanVisit || {featureMedia:null, moments:[]};
   return Comp.Shell(`
-    ${Comp.PageHeader({title:`Create attraction`, actions:Comp.Button('✨ Generate with AI', {variant:'btn-ghost', onclick:'Comp.triggerCreateAiGenerate(this)'})})}
+    ${Comp.PageHeader({title:'Create attraction', actions:Comp.Button('✨ Generate with AI', {variant:'btn-ghost', onclick:'Comp.triggerCreateAiGenerate(this)'})})}
     ${Comp.Breadcrumb([Comp.returnBreadcrumbItem('Attractions', 'attractionListing'), {label:'Create attraction'}])}
     <form data-validate onsubmit="event.preventDefault(); Comp.finishCreateAttraction();">
       <div class="card">
@@ -10541,7 +10546,7 @@ function pageAttractionDetails(params){
       faqItemsHtml + `<button type="button" class="add-item-btn" data-item-type="faq">+ Add Another FAQ</button>`
     })}
 
-    ${Comp.AiCard({id:'attraction-whysee', title:`What You'll See & Why It Matters`, fieldsHtml:`
+    ${Comp.AiCard({id:'attraction-whysee', title:'What You\'ll See & Why It Matters', fieldsHtml:`
       ${aiField('Snippet', `There is more to ${attraction.name} than the headline — here is what most visitors miss and why it matters.`)}
       ${aiField('The Arena', '', 'textarea')}
       ${aiField('The Hypogeum', '', 'textarea')}
@@ -10571,7 +10576,7 @@ function pageAttractionDetails(params){
     });
   } else if (tab === 'assets') {
     tabBody = `
-    ${Comp.Card({title:`Asset compliance`, body:`
+    ${Comp.Card({title:'Asset compliance', body:`
       ${Comp._infoTable([
         ['Hero image', heroMissing ? Comp.Badge('Missing', 'danger') : 'OK'],
         ['Plan-your-visit moments', `${((attraction.planVisit && attraction.planVisit.moments) || []).length} image(s)`],
@@ -10591,7 +10596,7 @@ function pageAttractionDetails(params){
     tabBody = Comp.renderOverridesTab(attraction, ['attraction-seo','list-row__body','attraction-localtips','attraction-faq','attraction-whysee']);
   } else if (tab === 'history') {
     tabBody = Comp.versionHistoryCard(attraction, 'masterAttractions') + `
-    ${Comp.Card({title:`History / Audit`, body:`
+    ${Comp.Card({title:'History / Audit', body:`
       ${attraction.history && attraction.history.length ? Comp.Timeline(attraction.history) : '<p class="empty-state">No history yet.</p>'}`})}`;
   }
 
@@ -10649,7 +10654,7 @@ function pageCategoryListing(){
     </tr>`;
   }).join('');
   return Comp.Shell(`
-    ${Comp.PageHeader({title:`Taxonomies`})}
+    ${Comp.PageHeader({title:'Taxonomies'})}
     ${Comp.FilterBar('Search taxonomies', 'filterCategories')}
     ${Comp.BulkActionBar('category')}
     ${Comp.Table({columns:[{label:Comp.BulkCheckboxTh('category'),width:'40px'},{label:'Taxonomy',width:'200px'},{label:'Group',width:'110px'},{label:'Description'},{label:'Status',width:'140px'},{label:'Action',width:'70px'}], rows, emptyText:'No taxonomies found.'})}
@@ -10823,7 +10828,7 @@ function pageProductListing(params){
   }).join('');
   const baseParamsAttr = encodeURIComponent(JSON.stringify({filterType, filterValue, filterLabel, fCountry:p.fCountry||'', fCity:p.fCity||'', fAttraction:p.fAttraction||'', fStatus:p.fStatus||'', fSupplier:p.fSupplier||'', fProductType:p.fProductType||''}));
   return Comp.Shell(`
-    ${Comp.PageHeader({title:`Products`, subtitle:`Master Data catalog listing. Pool/Set governance and algorithmic tooling live in Product Ops.`, subtitleClass:'field-hint', actions:`
+    ${Comp.PageHeader({title:'Products', subtitle:'Master Data catalog listing. Pool/Set governance and algorithmic tooling live in Product Ops.', subtitleClass:'field-hint', actions:`
 ${Comp.Button('+ Add product', {variant:'btn-primary', onclick:"Comp.startProductWizard()"})}`})}
     ${filterType ? Comp.FilterChip(filterLabel, filterValue, 'productListing') : ''}
     <div class="filter-bar mb-4" role="search">
@@ -10852,9 +10857,9 @@ ${Comp.Button('+ Add product', {variant:'btn-primary', onclick:"Comp.startProduc
       ${Comp.Pagination(`Showing ${pagedList.length} of ${totalFiltered} products (${DATA.products.length} total)`)}
       ${pageSize > 0 && totalFiltered > pageSize ? `
       <div style="display:flex; gap:8px;">
-        ${Comp.Button('← Prev', {size:'btn-sm', disabled: pageNum<=1, onclick:`Router.go('productListing', {...${JSON.stringify(p).replace(/"/g,'&quot;')}, pageNum:${pageNum-1}})`})}
+        ${Comp.Button('← Prev', {size:'btn-sm', disabled: pageNum<=1, onclick:`Router.go('productListing', {...${JSON.stringify(p)}, pageNum:${pageNum-1}})`})}
         <span style="font-size:var(--fs-sm); color:var(--text-muted); align-self:center;">Page ${pageNum} of ${Math.ceil(totalFiltered/pageSize)}</span>
-        ${Comp.Button('Next →', {size:'btn-sm', disabled: pageNum >= Math.ceil(totalFiltered/pageSize), onclick:`Router.go('productListing', {...${JSON.stringify(p).replace(/"/g,'&quot;')}, pageNum:${pageNum+1}})`})}
+        ${Comp.Button('Next →', {size:'btn-sm', disabled: pageNum >= Math.ceil(totalFiltered/pageSize), onclick:`Router.go('productListing', {...${JSON.stringify(p)}, pageNum:${pageNum+1}})`})}
       </div>` : ''}
     </div>
   `);
@@ -10891,7 +10896,7 @@ function pageProductDetails(params){
     const missingHero = !(p.gallery && p.gallery.length);
     const lockedCount = Object.values(p.sectionLocks).filter(Boolean).length;
     tabBody = `
-    ${Comp.Card({title:`Version Summary`, body:`
+    ${Comp.Card({title:'Version Summary', body:`
       ${Comp._infoTable([
         ['Versions', `RAW v${p.versionSummary.raw} · AI v${p.versionSummary.ai} · Published v${p.versionSummary.published}`],
         ['Publication state', Comp.Badge(p.publicationState, p.publicationState==='Published')],
@@ -10901,7 +10906,7 @@ function pageProductDetails(params){
         ['Sections locked', `${lockedCount} section${lockedCount===1?'':'s'}`]
       ])}
       ${missingHero ? `<div class="status-banner is-danger mt-3h"><span>${ICON.image}</span><span><strong>Missing hero image</strong> — add at least one image in the Media tab.</span></div>` : ''}`})}
-    ${Comp.Card({title:`Overview`, body:`
+    ${Comp.Card({title:'Overview', body:`
       ${Comp._infoTable([
         ['Product Code', p.productCode || '—'],
         ['Supplier', p.supplierName || (p.sourceType === 'Internal' ? 'Rosotravel (direct)' : '—')],
@@ -10922,7 +10927,7 @@ function pageProductDetails(params){
         ['Migration state', p.migrationState === 'COMPLETED' ? Comp.Badge('COMPLETED', true) : Comp.Badge('BLOCKED', false)]
       ])}
     </div>` : ''}
-    ${Comp.Card({title:`Related views`, hint:`This overview links out to the specialized Product Ops view rather than duplicating it.`, body:`
+    ${Comp.Card({title:'Related views', hint:`This overview links out to the specialized Product Ops view rather than duplicating it.`, body:`
       <div style="display:flex; flex-direction:column; gap:8px; align-items:flex-start;">
         ${Comp.Button('Open in Product Ops (governance) →', {onclick:`Comp.navigateWithReturn('productOpsDetail',{id:'${p.id}'},'${p.name.replace(/'/g,"&#39;")}')`})}
       </div>`})}`;
@@ -10953,12 +10958,12 @@ function pageProductDetails(params){
     const images = p.gallery || [];
     const viatorLocked = Comp.isViatorLocked(p);
     tabBody = `
-    ${Comp.Card({title:`Media`, hint:`${viatorLocked ? Comp.viatorLockNote('images are supplied and managed directly by Viator, non-indexable, with no editable alt text') : 'Images must be selected from the Media Library (approved_processed assets only).'}`, body:`
+    ${Comp.Card({title:'Media', hint:`${viatorLocked ? Comp.viatorLockNote('images are supplied and managed directly by Viator, non-indexable, with no editable alt text') : 'Images must be selected from the Media Library (approved_processed assets only).'}`, body:`
       ${images.length ? `<div class="media-grid">${images.map((url, i) => `
         <div class="media-card">
           <div class="media-thumb">Image ${i+1}</div>
           <p style="font-weight:700; font-size:var(--fs-sm); margin:0 0 4px; word-break:break-all;">${Comp._escHtml(url)}</p>
-          ${viatorLocked ? '' : Comp.Button('Remove', {size:'btn-sm', variant:'btn-ghost', onclick:`Comp.productRemoveImage('${p.id}', ${i})`})}
+          ${viatorLocked ? '' : Comp.Button('Remove', {size:'btn-sm', variant:'btn-ghost', onclick:`Comp.productRemoveImage('${p.id}', ' + i + ')`})}
         </div>`).join('')}</div>` : `<p class="empty-state">No images yet.</p>`}
       ${viatorLocked ? '' : `<div class="mt-3">${Comp.Button('+ Add image from Media Library', {size:'btn-sm', onclick:`Comp.productAddImage('${p.id}')`})}</div>`}
       <div class="field mt-4"><label for="prodVideoUrl-${p.id}">Video URL</label><input id="prodVideoUrl-${p.id}" class="card-input" value="${Comp._escAttr(p.videoUrl||'')}" placeholder="https://..." ${viatorLocked?'disabled':''}></div>
@@ -10997,7 +11002,7 @@ function pageProductDetails(params){
       </div>
       <p class="field-hint card-hint card-hint--loose">${viatorLocked ? Comp.viatorLockNote('tour options, pricing and availability are synced directly from Viator in real time') : 'At least one tour option is required for a bookable product. Click an option to edit its languages, group size, pricing tiers, and availability.'}</p>
       ${options.length ? `<div class="attractions-list">${optionRowsHtml}</div>` : `<p class="empty-state">No tour options yet. Click "+ Add tour option" to add one.</p>`}`})}
-    ${Comp.Card({title:`Product-wide Block-outs`, hint:`Dates when this entire product (all tour options) is unavailable for booking — regardless of individual availability slots. The product stays Active/published; only bookings on these dates are blocked.`, body:`
+    ${Comp.Card({title:'Product-wide Block-outs', hint:`Dates when this entire product (all tour options) is unavailable for booking — regardless of individual availability slots. The product stays Active/published; only bookings on these dates are blocked.`, body:`
       ${(p.blockOutDates||[]).map((b,i) => `
         <div class="field-row items-end">
           <div class="field m-0"><label for="prodBlockDate-${p.id}-${i}">Date</label><input type="date" id="prodBlockDate-${p.id}-${i}" class="card-input" value="${b.date||''}" oninput="Comp.setProductBlockOutField('${p.id}',${i},'date',this.value)"></div>
@@ -11027,7 +11032,7 @@ function pageProductDetails(params){
     const selectedLang = Comp._productLangPreview && Comp._productLangPreview[p.id] || 'English';
     const t = selectedLang === 'English' ? null : (p.translations||{})[selectedLang];
     tabBody = `
-    ${Comp.Card({title:`Language Versions (read-only)`, hint:`Check whether other language versions of this product exist and confirm they look right — for review only, not editable here.`, body:`
+    ${Comp.Card({title:'Language Versions (read-only)', hint:`Check whether other language versions of this product exist and confirm they look right — for review only, not editable here.`, body:`
       ${Comp.contentLanguageBar('prodlang-'+p.id, false, {languages: availableLangs, onLanguageChange: `(v) => Comp.setProductLangPreview('${p.id}', v)`})}
       ${selectedLang === 'English'
         ? `<p class="field-hint">Showing the default English content (edited below in this tab).</p>`
@@ -11090,12 +11095,12 @@ function pageProductDetails(params){
       </div>
       <div style="border-top:1px solid var(--border); padding-top:14px; margin-top:14px; display:flex; gap:8px; justify-content:flex-end;">
         <div id="prodhi-${p.id}-viewActions" style="display:flex; gap:8px;">
-          ${p.sectionLocks.highlights ? '' : Comp.Button('Edit section', {size:'btn-sm', onclick:`Comp.arraySectionEdit('prodhi-${p.id}', p, 'highlights')`})}
+          ${p.sectionLocks.highlights ? '' : Comp.Button('Edit section', {size:'btn-sm', onclick:"Comp.arraySectionEdit('prodhi-' + p.id + '', p, 'highlights')"})}
           ${Comp.Button(`<span class="toggle-track" aria-hidden="true"></span><span class="lock-label">${p.sectionLocks.highlights?'Unlock':'Lock'}</span>`, {size:'btn-sm', variant: p.sectionLocks.highlights?'btn-lock is-on':'btn-lock', onclick:`Comp.productLockArraySection('${p.id}','highlights')`})}
           ${p.sectionLocks.highlights ? '' : Comp.Button('\u21bb Regenerate', {size:'btn-sm', onclick:`Comp.productRegenArraySection('${p.id}','highlights')`})}
         </div>
         <div id="prodhi-${p.id}-editActions" style="display:none; gap:8px;">
-          ${Comp.Button('Cancel', {size:'btn-sm', onclick:`Comp.arraySectionCancel('prodhi-${p.id}', p, 'highlights')`})}
+          ${Comp.Button('Cancel', {size:'btn-sm', onclick:"Comp.arraySectionCancel('prodhi-' + p.id + '', p, 'highlights')"})}
           ${Comp.Button('Save highlights', {size:'btn-sm', variant:'btn-primary', onclick:`Comp.productSaveHighlights('${p.id}')`})}
         </div>
       </div>
@@ -11123,12 +11128,12 @@ function pageProductDetails(params){
       </div>
       ${viatorLocked ? '' : `<div style="border-top:1px solid var(--border); padding-top:14px; margin-top:14px; display:flex; gap:8px; justify-content:flex-end;">
         <div id="proditin-${p.id}-viewActions" style="display:flex; gap:8px;">
-          ${p.sectionLocks.itinerary ? '' : Comp.Button('Edit section', {size:'btn-sm', onclick:`Comp.arraySectionEdit('proditin-${p.id}', p, 'itinerary')`})}
+          ${p.sectionLocks.itinerary ? '' : Comp.Button('Edit section', {size:'btn-sm', onclick:"Comp.arraySectionEdit('proditin-' + p.id + '', p, 'itinerary')"})}
           ${Comp.Button(`<span class="toggle-track" aria-hidden="true"></span><span class="lock-label">${p.sectionLocks.itinerary?'Unlock':'Lock'}</span>`, {size:'btn-sm', variant: p.sectionLocks.itinerary?'btn-lock is-on':'btn-lock', onclick:`Comp.productLockArraySection('${p.id}','itinerary')`})}
           ${p.sectionLocks.itinerary ? '' : Comp.Button('\u21bb Regenerate', {size:'btn-sm', onclick:`Comp.productRegenArraySection('${p.id}','itinerary')`})}
         </div>
         <div id="proditin-${p.id}-editActions" style="display:none; gap:8px;">
-          ${Comp.Button('Cancel', {size:'btn-sm', onclick:`Comp.arraySectionCancel('proditin-${p.id}', p, 'itinerary')`})}
+          ${Comp.Button('Cancel', {size:'btn-sm', onclick:"Comp.arraySectionCancel('proditin-' + p.id + '', p, 'itinerary')"})}
           ${Comp.Button('Save itinerary steps', {size:'btn-sm', variant:'btn-primary', onclick:`Comp.productSaveItinerarySteps('${p.id}')`})}
         </div>
       </div>`}
@@ -11153,12 +11158,12 @@ function pageProductDetails(params){
       </div>
       <div style="border-top:1px solid var(--border); padding-top:14px; margin-top:14px; display:flex; gap:8px; justify-content:flex-end;">
         <div id="prodfaq-${p.id}-viewActions" style="display:flex; gap:8px;">
-          ${p.sectionLocks.faqs ? '' : Comp.Button('Edit section', {size:'btn-sm', onclick:`Comp.arraySectionEdit('prodfaq-${p.id}', p, 'faqs')`})}
+          ${p.sectionLocks.faqs ? '' : Comp.Button('Edit section', {size:'btn-sm', onclick:"Comp.arraySectionEdit('prodfaq-' + p.id + '', p, 'faqs')"})}
           ${Comp.Button(`<span class="toggle-track" aria-hidden="true"></span><span class="lock-label">${p.sectionLocks.faqs?'Unlock':'Lock'}</span>`, {size:'btn-sm', variant: p.sectionLocks.faqs?'btn-lock is-on':'btn-lock', onclick:`Comp.productLockArraySection('${p.id}','faqs')`})}
           ${p.sectionLocks.faqs ? '' : Comp.Button('\u21bb Regenerate', {size:'btn-sm', onclick:`Comp.productRegenArraySection('${p.id}','faqs')`})}
         </div>
         <div id="prodfaq-${p.id}-editActions" style="display:none; gap:8px;">
-          ${Comp.Button('Cancel', {size:'btn-sm', onclick:`Comp.arraySectionCancel('prodfaq-${p.id}', p, 'faqs')`})}
+          ${Comp.Button('Cancel', {size:'btn-sm', onclick:"Comp.arraySectionCancel('prodfaq-' + p.id + '', p, 'faqs')"})}
           ${Comp.Button('Save FAQs', {size:'btn-sm', variant:'btn-primary', onclick:`Comp.productSaveFaqs('${p.id}')`})}
         </div>
       </div>
@@ -11179,11 +11184,11 @@ function pageProductDetails(params){
           </div>
           <div style="border-top:1px solid var(--border); padding-top:14px; margin-top:14px; display:flex; gap:8px; justify-content:flex-end;">
             <div id="prodtags-${p.id}-viewActions" style="display:flex; gap:8px;">
-              ${p.sectionLocks.tags ? '' : Comp.Button('Edit section', {size:'btn-sm', onclick:`Comp.arraySectionEdit('prodtags-${p.id}', p, 'tags')`})}
+              ${p.sectionLocks.tags ? '' : Comp.Button('Edit section', {size:'btn-sm', onclick:"Comp.arraySectionEdit('prodtags-' + p.id + '', p, 'tags')"})}
               ${Comp.Button(`<span class="toggle-track" aria-hidden="true"></span><span class="lock-label">${p.sectionLocks.tags?'Unlock':'Lock'}</span>`, {size:'btn-sm', variant: p.sectionLocks.tags?'btn-lock is-on':'btn-lock', onclick:`Comp.productLockArraySection('${p.id}','tags')`})}
             </div>
             <div id="prodtags-${p.id}-editActions" style="display:none; gap:8px;">
-              ${Comp.Button('Cancel', {size:'btn-sm', onclick:`Comp.arraySectionCancel('prodtags-${p.id}', p, 'tags')`})}
+              ${Comp.Button('Cancel', {size:'btn-sm', onclick:"Comp.arraySectionCancel('prodtags-' + p.id + '', p, 'tags')"})}
               ${Comp.Button('Save tags', {size:'btn-sm', variant:'btn-primary', onclick:`Comp.productSaveTagsChips('${p.id}')`})}
             </div>
           </div>
@@ -11213,7 +11218,7 @@ function pageProductDetails(params){
     // fields must not be hosted here — the Decision Snapshot only reads them.
     Comp.initModelCProfile(p.modelC, p);
     tabBody = `
-    ${Comp.Card({title:`Model C Classification`, hint:`Decision inputs only. Factual operational data (format, logistics, duration) lives on its own tabs and is shown read-only in the Decision Snapshot below.`, body:`
+    ${Comp.Card({title:'Model C Classification', hint:`Decision inputs only. Factual operational data (format, logistics, duration) lives on its own tabs and is shown read-only in the Decision Snapshot below.`, body:`
       ${Comp._infoTable([
         ['Declared Product Class', p.modelC.declaredClass ? (Comp.MODELC_CLASS_LABELS[p.modelC.declaredClass] || p.modelC.declaredClass) : '—'],
         ['Category Group', Comp.modelCCategoryGroup(p.modelC.declaredClass)],
@@ -11236,7 +11241,7 @@ function pageProductDetails(params){
   } else if (tab === 'hooks') {
     const h = p.hooks;
     tabBody = `
-    ${Comp.Card({title:`Hooks — Conversion Layer`, hint:`Hooks do not affect SEO or AI versions — safe to change anytime.`, body:`
+    ${Comp.Card({title:'Hooks — Conversion Layer', hint:`Hooks do not affect SEO or AI versions — safe to change anytime.`, body:`
       <label class="opt-check"><input type="checkbox" id="prodHookLifetime-${p.id}" ${h.lifetimeDiscount?'checked':''}> Lifetime discount hook</label>
       <label class="opt-check"><input type="checkbox" id="prodHookWishlist-${p.id}" ${h.wishlist?'checked':''}> Wishlist / Email My Trip</label>
       <label class="opt-check"><input type="checkbox" id="prodHookSendSelf-${p.id}" ${h.sendToSelf?'checked':''}> Send this tour to myself</label>
@@ -11256,7 +11261,7 @@ function pageProductDetails(params){
   } else if (tab === 'history') {
     const combined = [...(p.contentHistory||[]), ...(p.opsHistory||[])].sort((a,b) => new Date(b.time) - new Date(a.time) || 0);
     tabBody = Comp.versionDomainsCard(p) + Comp.versionHistoryCard(p, 'products') + `
-    ${Comp.Card({title:`History / Audit`, body:`
+    ${Comp.Card({title:'History / Audit', body:`
       ${combined.length ? Comp.Timeline(combined) : '<p class="empty-state">No history yet.</p>'}`})}`;
   }
 
@@ -11320,7 +11325,7 @@ Comp.productTourOptionsSummaryCard = function(p){
         <p class="list-row__meta">${opt.ticketType ? opt.ticketType + ' · ' : ''}${opt.duration || (opt.hours||opt.minutes ? `${opt.hours||0}h ${opt.minutes||0}m` : 'No duration set')} · ${(opt.languages||[]).join('/') || 'No language set'} · ${prices.length} pricing tier${prices.length===1?'':'s'} (${priceLabel}) · ${availCount} availability slot${availCount===1?'':'s'}${opt.capacity ? ` · Capacity: ${opt.capacity}` : ''}${opt.meetingPoint && opt.meetingPoint.trim() ? ` · ${Comp.Badge('Custom meeting point', 'warning')}` : ''}</p>
       </div>
       <div class="attraction-actions">
-        ${Comp.Button('View details', {size:'btn-sm', onclick:`event.stopPropagation(); Comp.viewTourOptionDetails('${p.id}', ${i})`})}
+        ${Comp.Button('View details', {size:'btn-sm', onclick:`event.stopPropagation(); Comp.viewTourOptionDetails('${p.id}', ' + i + ')`})}
       </div>
     </div>`;
   }).join('');
@@ -11936,7 +11941,7 @@ Comp.productSaveSection = function(productId, sectionKey){
   const defs = Comp.PRODUCT_SECTION_FIELDS[sectionKey];
   const values = {};
   for (const f of defs) {
-    const el = document.getElementById(`${sectionId}-${f.key}-input`);
+    const el = document.getElementById('' + sectionId + '-' + f.key + '-input');
     if (!el) continue;
     let val = el.value;
     if (f.numeric) val = parseFloat(val) || 0;
@@ -12037,8 +12042,8 @@ Comp._mediaPickerApplyFilters = function(){
 Comp._attractionCreatePlanVisitFeatureHtml = function(){
   return `<label>Feature image/video</label>
     ${Comp._attractionCreatePlanVisit.featureMedia
-      ? `<div class="field-row items-center"><span>${Comp._escHtml(Comp._attractionCreatePlanVisit.featureMedia.name)}</span>${Comp.Button('Remove', {size:'btn-sm', variant:'btn-amber', onclick:`Comp.removeAttractionCreatePlanVisitFeature()`})}</div>`
-      : Comp.Button('Choose from Media Library', {size:'btn-sm', onclick:`Comp.pickAttractionCreatePlanVisitFeature()`})}`;
+      ? `<div class="field-row items-center"><span>${Comp._escHtml(Comp._attractionCreatePlanVisit.featureMedia.name)}</span>${Comp.Button('Remove', {size:'btn-sm', variant:'btn-amber', onclick:"Comp.removeAttractionCreatePlanVisitFeature()"})}</div>`
+      : Comp.Button('Choose from Media Library', {size:'btn-sm', onclick:"Comp.pickAttractionCreatePlanVisitFeature()"})}`;
 };
 Comp._attractionCreatePlanVisitMomentsHtml = function(){
   return `<label>Moments</label>
@@ -12049,7 +12054,7 @@ Comp._attractionCreatePlanVisitMomentsHtml = function(){
           <button type="button" class="btn btn-sm btn-danger" onclick="Comp.removeAttractionCreatePlanVisitMoment(${i})">Remove</button>
         </div>`).join('') || '<p class="empty-state">No moments added yet.</p>'}
     </div>
-    <div class="mt-2">${Comp.Button('+ Add Moment from Media Library', {size:'btn-sm', onclick:`Comp.addAttractionCreatePlanVisitMoment()`})}</div>`;
+    <div class="mt-2">${Comp.Button('+ Add Moment from Media Library', {size:'btn-sm', onclick:"Comp.addAttractionCreatePlanVisitMoment()"})}</div>`;
 };
 Comp.pickAttractionCreatePlanVisitFeature = function(){
   Comp.openMediaLibraryPicker((asset) => {
@@ -12434,7 +12439,7 @@ Comp.productRemoveImage = function(productId, index){
 Comp.productSaveMedia = function(productId){
   const p = DATA.products.find(x => x.id === productId);
   if (!p) return;
-  p.videoUrl = document.getElementById(`prodVideoUrl-${productId}`).value.trim();
+  p.videoUrl = document.getElementById('prodVideoUrl-' + productId + '').value.trim();
   p.lastManualEditAt = new Date().toLocaleString();
   p.contentHistory = p.contentHistory || [];
   p.contentHistory.unshift({label:'Media updated', time:new Date().toLocaleString(), actor:'Admin (you)'});
@@ -12847,7 +12852,7 @@ Comp.productRemoveHighlight = function(productId, index){
 Comp.productSaveHighlights = function(productId){
   const p = DATA.products.find(x => x.id === productId);
   if (!p) return;
-  p.highlights = (p.highlights||[]).map((h,i) => document.getElementById(`prodHi-${productId}-${i}`).value.trim()).filter(Boolean);
+  p.highlights = (p.highlights||[]).map((h,i) => document.getElementById('prodHi-' + productId + '-' + i + '').value.trim()).filter(Boolean);
   p.lastManualEditAt = new Date().toLocaleString();
   p.contentHistory = p.contentHistory || [];
   p.contentHistory.unshift({label:'Highlights updated', time:new Date().toLocaleString(), actor:'Admin (you)'});
@@ -12905,8 +12910,8 @@ Comp.productSaveFaqs = function(productId){
   const p = DATA.products.find(x => x.id === productId);
   if (!p) return;
   p.faqs = (p.faqs||[]).map((f,i) => ({
-    q: document.getElementById(`prodFaqQ-${productId}-${i}`).value.trim(),
-    a: document.getElementById(`prodFaqA-${productId}-${i}`).value.trim()
+    q: document.getElementById('prodFaqQ-' + productId + '-' + i + '').value.trim(),
+    a: document.getElementById('prodFaqA-' + productId + '-' + i + '').value.trim()
   })).filter(f => f.q || f.a);
   p.lastManualEditAt = new Date().toLocaleString();
   p.contentHistory = p.contentHistory || [];
@@ -12986,7 +12991,7 @@ Comp.productRegenArraySection = function(productId, sectionKey){
 Comp.productSaveTags = function(productId){
   const p = DATA.products.find(x => x.id === productId);
   if (!p) return;
-  p.tags = document.getElementById(`prodTags-${productId}`).value.split(',').map(t=>t.trim()).filter(Boolean);
+  p.tags = document.getElementById('prodTags-' + productId + '').value.split(',').map(t=>t.trim()).filter(Boolean);
   p.lastManualEditAt = new Date().toLocaleString();
   p.contentHistory = p.contentHistory || [];
   p.contentHistory.unshift({label:'Tags updated', time:new Date().toLocaleString(), actor:'Admin (you)'});
@@ -12998,10 +13003,10 @@ Comp.productSaveGuideAnchor = function(productId){
   const p = DATA.products.find(x => x.id === productId);
   if (!p) return;
   p.guideAnchor = {
-    guideMode: document.getElementById(`prodGuideMode-${productId}`).value.trim(),
-    guideRef: document.getElementById(`prodGuideRef-${productId}`).value.trim(),
-    credentialLine: document.getElementById(`prodGuideCred-${productId}`).value.trim(),
-    quote: document.getElementById(`prodGuideQuote-${productId}`).value.trim()
+    guideMode: document.getElementById('prodGuideMode-' + productId + '').value.trim(),
+    guideRef: document.getElementById('prodGuideRef-' + productId + '').value.trim(),
+    credentialLine: document.getElementById('prodGuideCred-' + productId + '').value.trim(),
+    quote: document.getElementById('prodGuideQuote-' + productId + '').value.trim()
   };
   p.lastManualEditAt = new Date().toLocaleString();
   p.contentHistory = p.contentHistory || [];
@@ -13014,11 +13019,11 @@ Comp.productSaveHooks = function(productId){
   const p = DATA.products.find(x => x.id === productId);
   if (!p) return;
   p.hooks = {
-    lifetimeDiscount: document.getElementById(`prodHookLifetime-${productId}`).checked,
-    wishlist: document.getElementById(`prodHookWishlist-${productId}`).checked,
-    sendToSelf: document.getElementById(`prodHookSendSelf-${productId}`).checked,
-    exitIntent: document.getElementById(`prodHookExit-${productId}`).checked,
-    copyOverride: document.getElementById(`prodHookCopy-${productId}`).value.trim()
+    lifetimeDiscount: document.getElementById('prodHookLifetime-' + productId + '').checked,
+    wishlist: document.getElementById('prodHookWishlist-' + productId + '').checked,
+    sendToSelf: document.getElementById('prodHookSendSelf-' + productId + '').checked,
+    exitIntent: document.getElementById('prodHookExit-' + productId + '').checked,
+    copyOverride: document.getElementById('prodHookCopy-' + productId + '').value.trim()
   };
   p.lastManualEditAt = new Date().toLocaleString();
   p.contentHistory = p.contentHistory || [];
@@ -13156,7 +13161,7 @@ function pageProductOpsInventory(params){
   const baseParamsAttr = encodeURIComponent(JSON.stringify({view, fCountry:p.fCountry||'', fCity:p.fCity||'', fAttraction:p.fAttraction||''}));
 
   return Comp.Shell(`
-    ${Comp.PageHeader({title:`Product Ops`})}
+    ${Comp.PageHeader({title:'Product Ops'})}
     <div class="ops-tabs" role="tablist">
       <button type="button" class="ops-tab ${view==='raw'?'is-active':''}" role="tab" aria-selected="${view==='raw'}" onclick="Router.go('productOpsInventory',{view:'raw'})">All Products (RAW) · ${all.length}</button>
       <button type="button" class="ops-tab ${view==='pool'?'is-active':''}" role="tab" aria-selected="${view==='pool'}" onclick="Router.go('productOpsInventory',{view:'pool'})">Pool (Eligible) · ${poolList.length}</button>
@@ -13568,7 +13573,7 @@ Comp.confirmToggleKeywordLock = function(id){
   });
 };
 Comp.addKeywordToEntity = function(slug, entityName){
-  const keyword = document.getElementById(`kwAssignText-${slug}`).value.trim().toLowerCase();
+  const keyword = document.getElementById('kwAssignText-' + slug + '').value.trim().toLowerCase();
   if (!keyword) { Comp.showToast('Please enter a keyword.', 'danger'); return; }
   const dupe = DATA.keywordMap.find(k => k.keyword === keyword);
   if (dupe) { Comp.showToast('This keyword already exists in the map.', 'danger'); return; }
@@ -13864,29 +13869,29 @@ function pageProductOpsConfig(){
   </div>`;
 
   return Comp.Shell(`
-    ${Comp.PageHeader({title:`Algorithm Configuration`})}
+    ${Comp.PageHeader({title:'Algorithm Configuration'})}
 
-    ${Comp.Card({title:`Locked (not editable)`, body:`
+    ${Comp.Card({title:'Locked (not editable)', body:`
       <ul class="param-locked-list">${Comp.OPS_LOCKED_PARAMS.map(l => `<li>${ICON.lock} ${l}</li>`).join('')}</ul>`})}
 
-    ${Comp.Card({title:`A. Pool Eligibility Thresholds (by City Band + Category Group)`, body:`
+    ${Comp.Card({title:'A. Pool Eligibility Thresholds (by City Band + Category Group)', body:`
       <div class="status-banner is-info mb-4"><span>${ICON.info}</span><span><strong>Group 03 (Transport):</strong> If the product is of the "Sightseeing Cruise" or "Hop-on Hop-off" type, it is automatically rejected regardless of its rating or the number of reviews.</span></div>
       ${Comp._poolThresholdSelector(cfg.poolThresholds)}`})}
 
-    ${Comp.Card({title:`B. Ranking Score Weights (within-archetype ordering)`, body:`
+    ${Comp.Card({title:'B. Ranking Score Weights (within-archetype ordering)', body:`
       <p class="text-muted-xs text-sm card-hint mt-0">Constraint: rating weight must remain ≥ review-count weight.</p>
       ${Comp._paramTable(cfg.bqsWeights)}`})}
 
-    ${Comp.Card({title:`C. Language Advantage (always on; affects ranking only)`, body:`
+    ${Comp.Card({title:'C. Language Advantage (always on; affects ranking only)', body:`
       ${Comp._paramTable(cfg.languageAdvantage)}`})}
 
-    ${Comp.Card({title:`D. Display Limits (how many archetypes/variants show at once)`, body:`
+    ${Comp.Card({title:'D. Display Limits (how many archetypes/variants show at once)', body:`
       ${Comp._paramTable(cfg.displayLimits)}`})}
 
-    ${Comp.Card({title:`E. Slot Budgets (how many items per section; page order is template-governed)`, body:`
+    ${Comp.Card({title:'E. Slot Budgets (how many items per section; page order is template-governed)', body:`
       ${Comp._paramTable(cfg.slotBudgets)}`})}
 
-    ${Comp.Card({title:`Impact preview`, body:`
+    ${Comp.Card({title:'Impact preview', body:`
       <p class="text-muted-xs text-sm card-hint mt-0">Required before saving. Simulates the effect of the values currently entered above, for a selected city.</p>
       <div class="field-row items-end">
         <div class="field">
@@ -13898,7 +13903,7 @@ function pageProductOpsConfig(){
       <div id="opsPreviewResult" class="mt-3h"></div>
       <div id="opsPreviewStaleWarning" style="display:none; margin-top:10px;" class="status-banner is-incomplete"><span>${ICON.warning}</span><span>Values changed since this preview ran — run it again before saving.</span></div>`})}
 
-    ${Comp.Card({title:`Config version history`, body:`
+    ${Comp.Card({title:'Config version history', body:`
       ${versionsHtml}`})}
 
     <div style="display:flex; justify-content:flex-end; align-items:center; gap:10px; margin-top:8px; margin-bottom:40px;">
@@ -14616,7 +14621,7 @@ Comp._pssAi = function(u){
     ${!eligible ? `<div class="status-banner is-incomplete mt-3"><span>ℹ️</span><span><strong>Rewrite not eligible:</strong> ${blockedReasons.join('; ')}.</span></div>` : ''}
     <div style="display:flex; gap:8px; margin-top:14px;">
       ${Comp.Button('Approve AI rewrite', {size:'btn-sm', disabled: !eligible, onclick:`Comp.pssApproveRewrite('${u.id}')`})}
-      ${Comp.Button('Reject rewrite', {size:'btn-sm', variant:'btn-danger', onclick:`Comp.showToast('Rewrite rejected.', 'danger')`})}
+      ${Comp.Button('Reject rewrite', {size:'btn-sm', variant:'btn-danger', onclick:"Comp.showToast('Rewrite rejected.', 'danger')"})}
     </div>
   </div>`;
 };
@@ -14916,9 +14921,9 @@ function pageMarketingPipelineList(){
 
   return Comp.Shell(`
     ${Comp._globalSeoHealthBar()}
-    ${Comp.PageHeader({title:`Pipeline View`, subtitle:`Operational control center for AI batch processing. No manual content editing happens here — use Content &amp; Structure View for that.`})}
+    ${Comp.PageHeader({title:'Pipeline View', subtitle:'Operational control center for AI batch processing. No manual content editing happens here — use Content &amp; Structure View for that.'})}
     ${(() => { const seoSyncPages = DATA.products.filter(pr => pr._seoSyncOutdated); return seoSyncPages.length ? `<div class="status-banner is-incomplete"><span>⚠️</span><span><strong>${seoSyncPages.length} page(s)</strong> have a pending keyword-driven regeneration marker from Keyword Ownership changes: ${seoSyncPages.map(pr => pr.name).join(', ')}. <button type="button" class="btn-sm-link" onclick="Router.go('keywordOwnership')">Open Keyword Ownership Panel</button></span></div>` : ''; })()}
-    ${selectedCount === 1 ? `<div class="bulk-action-bar"><span class="bulk-count">1 batch selected</span>${Comp.Button('Open Selected Batch', {size:'btn-sm', variant:'btn-primary', onclick:`Router.go('marketingPipelineContents',{batchId:'${[...Comp.getBulkSelection('pipelineBatch')][0]}'})`})}${Comp.Button('Clear', {size:'btn-sm', variant:'btn-ghost', onclick:"Comp.clearBulkSelection('pipelineBatch')"})}</div>` : selectedCount > 1 ? `<div class="bulk-action-bar"><span class="bulk-count">${selectedCount} batches selected — open exactly one to view contents</span>${Comp.Button('Clear', {size:'btn-sm', variant:'btn-ghost', onclick:"Comp.clearBulkSelection('pipelineBatch')"})}</div>` : ''}
+    ${selectedCount === 1 ? `<div class="bulk-action-bar"><span class="bulk-count">1 batch selected</span>${Comp.Button('Open Selected Batch', {size:'btn-sm', variant:'btn-primary', onclick:`Router.go('marketingPipelineContents',{batchId:'${[...Comp.getBulkSelection("pipelineBatch")][0]}'})` })}${Comp.Button('Clear', {size:'btn-sm', variant:'btn-ghost', onclick:"Comp.clearBulkSelection('pipelineBatch')"})}</div>` : selectedCount > 1 ? `<div class="bulk-action-bar"><span class="bulk-count">${selectedCount} batches selected — open exactly one to view contents</span>${Comp.Button('Clear', {size:'btn-sm', variant:'btn-ghost', onclick:"Comp.clearBulkSelection('pipelineBatch')"})}</div>` : ''}
     ${Comp.Table({columns:[{label:Comp.BulkCheckboxTh('pipelineBatch'),width:'40px'},{label:'Batch'},{label:'Record type',width:'130px'},{label:'Records',width:'90px'},{label:'Flags',width:'260px'},{label:'Status',width:'120px'},{label:'Action',width:'70px'}], rows, emptyText:'No batches yet.'})}
   `);
 }
@@ -15162,7 +15167,7 @@ function pageContentStructureList(){
     </tr>`).join('');
   return Comp.Shell(`
     ${Comp._globalSeoHealthBar()}
-    ${Comp.PageHeader({title:`Content &amp; Structure View`, subtitle:`Browse content by record, manually edit text, lock/unlock blocks, review diffs and audit history. Batch AI runs happen in Pipeline View, not here.`})}
+    ${Comp.PageHeader({title:'Content &amp; Structure View', subtitle:'Browse content by record, manually edit text, lock/unlock blocks, review diffs and audit history. Batch AI runs happen in Pipeline View, not here.'})}
     ${Comp.FilterBar('Search products', 'filterContentStructure')}
     ${Comp.Table({columns:[{label:'Product'},{label:'Location',width:'170px'},{label:'Source',width:'110px'},{label:'Publication',width:'130px'},{label:'Index state',width:'110px'},{label:'',width:'90px'}], rows, emptyText:'No records found.'})}
   `);
@@ -15407,7 +15412,7 @@ function pageKeywordOwnership(params){
 
   return Comp.Shell(`
     ${Comp._globalSeoHealthBar()}
-    ${Comp.PageHeader({title:`Keyword Ownership Panel`, subtitle:`View and act on keyword ownership. This panel never edits copy, regenerates text, or publishes pages.`, actions:`
+    ${Comp.PageHeader({title:'Keyword Ownership Panel', subtitle:'View and act on keyword ownership. This panel never edits copy, regenerates text, or publishes pages.', actions:`
 ${Comp.Button('Batch Governance', {onclick:"Router.go('keywordBatchView')"})}${Comp.Button('SEMrush Configuration', {onclick:"Router.go('semrushConfiguration')"})}`})}
     <div class="filter-bar mb-4" role="search">
       <select class="filter-select" aria-label="Filter by intent" onchange="Router.go('keywordOwnership',{fIntent:this.value})">
@@ -15566,7 +15571,7 @@ function pageKeywordBatchView(){
 
   return Comp.Shell(`
     ${Comp.Breadcrumb([{label:'Keyword Ownership Panel', route:'keywordOwnership'}, {label:'Batch Governance'}])}
-    ${Comp.PageHeader({title:`Keyword Ownership — Batch Governance`, subtitle:`Batch-level ownership actions (strategic layer). Select up to 50 batches at once.`})}
+    ${Comp.PageHeader({title:'Keyword Ownership — Batch Governance', subtitle:'Batch-level ownership actions (strategic layer). Select up to 50 batches at once.'})}
     ${selCount > 0 ? `<div class="bulk-action-bar"><span class="bulk-count">${selCount} selected${selCount>50?' — max 50 at once':''}</span>
       ${Comp.Button('Clear batch assignments', {size:'btn-sm', variant:'btn-danger', onclick:"Comp.kwClearBatchAssignments()"})}
       ${Comp.Button('Re-run keyword assignment', {size:'btn-sm', onclick:"Comp.kwRerunBatchAssignment()"})}
@@ -15777,7 +15782,7 @@ function pageNearPageControl(params){
     </tr>`).join('');
 
   return Comp.Shell(`
-    ${Comp.PageHeader({title:`Near-Page Control Panel`, subtitle:`Prevent near-page explosion and cannibalization. No manual near-page creation exists in this UI.`})}
+    ${Comp.PageHeader({title:'Near-Page Control Panel', subtitle:'Prevent near-page explosion and cannibalization. No manual near-page creation exists in this UI.'})}
     <div class="status-banner is-incomplete"><span>🔒</span><span><strong>Hard limits enforced by the system (read-only):</strong> max 1 new near-page per city/week · no transactional ownership ever. These cannot be overridden here.</span></div>
     <div class="filter-bar mb-4" role="search">
       <select class="filter-select" aria-label="Filter by city" onchange="Router.go('nearPageControl',{city:this.value})">
@@ -15841,7 +15846,7 @@ function pageCanonicalInspector(params){
     </tr>`).join('');
 
   return Comp.Shell(`
-    ${Comp.PageHeader({title:`Canonical &amp; Duplicate Inspector`, subtitle:`Prevent silent SEO disasters. Arbitrary canonicals, upward product canonicalization, and language-rule overrides are not possible here.`})}
+    ${Comp.PageHeader({title:'Canonical &amp; Duplicate Inspector', subtitle:'Prevent silent SEO disasters. Arbitrary canonicals, upward product canonicalization, and language-rule overrides are not possible here.'})}
     <div class="kw-split">
       <div class="kw-left">
         ${Comp.Table({columns:[{label:'URL'},{label:'Similarity match'},{label:'Status',width:'130px'}], rows, emptyText:'No canonical issues found.'})}
@@ -15908,7 +15913,7 @@ function pageSeoControlCenter(){
   const sevClass = { RED:'ops-flag-danger', ORANGE:'', GREEN:'' };
 
   return Comp.Shell(`
-    ${Comp.PageHeader({title:`SEO Control Center`, subtitle:`Index health, risk alerts, and weekly changes across the site.`})}
+    ${Comp.PageHeader({title:'SEO Control Center', subtitle:'Index health, risk alerts, and weekly changes across the site.'})}
     <div class="card">
       <p class="card-title">A. Index Health</p>
       ${Comp._infoTable([
@@ -15958,7 +15963,7 @@ function pagePageSeoStateList(){
       <td class="cell-secondary">${u.impressions28d.toLocaleString()}</td>
     </tr>`).join('');
   return Comp.Shell(`
-    ${Comp.PageHeader({title:`Page SEO State`, subtitle:`Full transparency of why a page is indexed, canonicalized, or blocked.`})}
+    ${Comp.PageHeader({title:'Page SEO State', subtitle:'Full transparency of why a page is indexed, canonicalized, or blocked.'})}
     ${Comp.Table({columns:[{label:'URL'},{label:'Page type',width:'110px'},{label:'Intent',width:'120px'},{label:'Index state',width:'110px'},{label:'Impr. 28d',width:'100px'}], rows, emptyText:'No URLs found.'})}
   `);
 }
@@ -16050,7 +16055,7 @@ Comp._pssAi = function(u){
     ${!eligible ? `<div class="status-banner is-incomplete mt-3"><span>ℹ️</span><span><strong>Rewrite not eligible:</strong> ${blockedReasons.join('; ')}.</span></div>` : ''}
     <div style="display:flex; gap:8px; margin-top:14px;">
       ${Comp.Button('Approve AI rewrite', {size:'btn-sm', disabled: !eligible, onclick:`Comp.pssApproveRewrite('${u.id}')`})}
-      ${Comp.Button('Reject rewrite', {size:'btn-sm', variant:'btn-danger', onclick:`Comp.showToast('Rewrite rejected.', 'danger')`})}
+      ${Comp.Button('Reject rewrite', {size:'btn-sm', variant:'btn-danger', onclick:"Comp.showToast('Rewrite rejected.', 'danger')"})}
     </div>
   </div>`;
 };
@@ -16111,7 +16116,7 @@ function pageAiOptimization(){
     </tr>`;
   }).join('');
   return Comp.Shell(`
-    ${Comp.PageHeader({title:`AI Optimization`, subtitle:`Cross-site AI rewrite eligibility — 45-day cooldown, max 2/quarter, requires ≥1,000 impressions/28 days. Only meta description and FAQ answers are ever rewritten. Manage individual rewrites from a page's Page SEO State record.`})}
+    ${Comp.PageHeader({title:'AI Optimization', subtitle:'Cross-site AI rewrite eligibility — 45-day cooldown, max 2/quarter, requires ≥1,000 impressions/28 days. Only meta description and FAQ answers are ever rewritten. Manage individual rewrites from a page\'s Page SEO State record.'})}
     ${Comp.Table({columns:[{label:'URL'},{label:'Page type',width:'110px'},{label:'Impressions (28d)',width:'140px'},{label:'Rewrites this quarter',width:'170px'},{label:'Cooldown',width:'150px'},{label:'Eligibility',width:'120px'}], rows, emptyText:'No pages found.'})}
   `);
 }
@@ -16135,7 +16140,7 @@ function pageSeasonalityPanel(){
       <td>${Comp.RowMenu(s.keyword, rowActions(s))}</td>
     </tr>`).join('');
   return Comp.Shell(`
-    ${Comp.PageHeader({title:`Seasonality &amp; Calendar Panel`, subtitle:`Control seasonal visibility without manual hacks. Global seasonality safeguards cannot be disabled here.`})}
+    ${Comp.PageHeader({title:'Seasonality &amp; Calendar Panel', subtitle:'Control seasonal visibility without manual hacks. Global seasonality safeguards cannot be disabled here.'})}
     ${Comp.Table({columns:[{label:'Keyword / Page'},{label:'Season window',width:'220px'},{label:'Status',width:'110px'},{label:'Badge',width:'170px'},{label:'Action',width:'70px'}], rows, emptyText:'No seasonal entries.'})}
   `);
 }
@@ -16171,7 +16176,7 @@ function pageCrawlBudgetPanel(){
     </tr>`;
   }).join('');
   return Comp.Shell(`
-    ${Comp.PageHeader({title:`Crawl Budget &amp; Index Growth`, subtitle:`Avoid index bloat during scale-up. Global index cap is IT-owned (read-only). Max ${WEEKLY_CITY_CAP} new indexable URLs per city per week.`})}
+    ${Comp.PageHeader({title:'Crawl Budget &amp; Index Growth', subtitle:`Avoid index bloat during scale-up. Global index cap is IT-owned (read-only). Max ${WEEKLY_CITY_CAP} new indexable URLs per city per week.`})}
     <div class="card">
       ${Comp._infoTable([
         ['Total indexable URLs', cb.totalIndexedUrls.toLocaleString()],
@@ -16217,7 +16222,7 @@ function pageSeoMemoryPanel(params){
   const q = (params && params.q) || '';
   const match = q ? DATA.pageSeoStates.find(u => u.url.toLowerCase().includes(q.toLowerCase())) : null;
   return Comp.Shell(`
-    ${Comp.PageHeader({title:`SEO Memory &amp; Migration Panel`, subtitle:`Read-only. Ensures no migration wipes SEO history. Deletion is forbidden.`})}
+    ${Comp.PageHeader({title:'SEO Memory &amp; Migration Panel', subtitle:'Read-only. Ensures no migration wipes SEO history. Deletion is forbidden.'})}
     <div class="filter-bar mb-4" role="search">
       <input class="search-box" placeholder="Search by URL" value="${q}" onkeydown="if(event.key==='Enter') Router.go('seoMemoryPanel',{q:this.value})">
       ${Comp.Button('Search', {size:'btn-sm', onclick:"Router.go('seoMemoryPanel',{q:document.querySelector('.search-box').value})"})}
@@ -16276,7 +16281,7 @@ function pageOptimizationInbox(params){
   const signals = [...new Set(DATA.optimizationInbox.map(o => o.signal))];
 
   return Comp.Shell(`
-    ${Comp.PageHeader({title:`Optimization Inbox`, subtitle:`Unified queue for all post-publish signals. Every signal requires explicit human resolution, even if no content changes are made.`})}
+    ${Comp.PageHeader({title:'Optimization Inbox', subtitle:'Unified queue for all post-publish signals. Every signal requires explicit human resolution, even if no content changes are made.'})}
     <div class="filter-bar mb-4" role="search">
       <select class="filter-select" aria-label="Filter by signal" onchange="Router.go('optimizationInbox',{fSignal:this.value})">
         <option value="">All signal types</option>
@@ -16324,7 +16329,7 @@ function pageAlertsBlockingPanel(){
       <td>${Comp.RowMenu(v.rule, rowActions(v))}</td>
     </tr>`).join('');
   return Comp.Shell(`
-    ${Comp.PageHeader({title:`Alerts &amp; Blocking Panel`, subtitle:`Immediate visibility of governance violations — index rule violations, ownership conflicts, canonical contradictions, rewrite limit breaches, near-page rule violations.`})}
+    ${Comp.PageHeader({title:'Alerts &amp; Blocking Panel', subtitle:'Immediate visibility of governance violations — index rule violations, ownership conflicts, canonical contradictions, rewrite limit breaches, near-page rule violations.'})}
     ${Comp.Table({columns:[{label:'Severity',width:'90px'},{label:'Rule broken'},{label:'Affected URLs',width:'260px'},{label:'Auto-fix?',width:'90px'},{label:'Status',width:'100px'},{label:'Action',width:'70px'}], rows, emptyText:'No violations detected.'})}
   `);
 }
@@ -16519,7 +16524,7 @@ function pagePartners(params){
 
   return Comp.Shell(`
     ${Comp.Breadcrumb([{label:'Sales'}, {label:'Partners'}])}
-    ${Comp.PageHeader({title:`Partners`, subtitle:`Operational entry point to the Partner Programs. Partner coupon codes and deeplinks are attribution assets and are deliberately kept separate from Bookings → Discount Codes.`, subtitleClass:'field-hint'})}
+    ${Comp.PageHeader({title:'Partners', subtitle:'Operational entry point to the Partner Programs. Partner coupon codes and deeplinks are attribution assets and are deliberately kept separate from Bookings → Discount Codes.', subtitleClass:'field-hint'})}
 
     <div class="status-banner"><span>${ICON.info}</span><span>Customer names, emails, phone numbers and full product titles are never shown in this panel or in the partner portal. Checkout logic cannot be changed from here.</span></div>
 
@@ -16649,7 +16654,7 @@ function pageLanguageCoverage(params){
   const incomplete = cur.list.filter(e => Comp.entityLanguageCoverage(e).state !== 'complete').length;
   return Comp.Shell(`
     ${Comp.Breadcrumb([{label:'Marketing'}, {label:'Language Coverage'}])}
-    ${Comp.PageHeader({title:`Language Coverage`, subtitle:`Which languages are covered per entity and where the gaps are. Matters most while a smaller initial set of languages is rolled out before expanding.`, subtitleClass:'field-hint'})}
+    ${Comp.PageHeader({title:'Language Coverage', subtitle:'Which languages are covered per entity and where the gaps are. Matters most while a smaller initial set of languages is rolled out before expanding.', subtitleClass:'field-hint'})}
     <div class="ops-tabs" role="tablist">
       ${Object.keys(sets).map(k => `<button type="button" class="ops-tab ${scope===k?'is-active':''}" onclick="Router.go('languageCoverage',{scope:'${k}'})">${sets[k].label} · ${sets[k].list.length}</button>`).join('')}
     </div>
@@ -16708,7 +16713,7 @@ function pageAutomationTriggers(params){
   </tr>`).join('');
   return Comp.Shell(`
     ${Comp.Breadcrumb([{label:'Marketing'}, {label:'Automation Triggers'}])}
-    ${Comp.PageHeader({title:`Automation Triggers`, subtitle:`Every AI and SEMrush-driven job across all entities — what is scheduled, running or finished. Individual triggers stay on their own entity pages; this is the consolidated view.`, subtitleClass:'field-hint'})}
+    ${Comp.PageHeader({title:'Automation Triggers', subtitle:'Every AI and SEMrush-driven job across all entities — what is scheduled, running or finished. Individual triggers stay on their own entity pages; this is the consolidated view.', subtitleClass:'field-hint'})}
     <div class="ops-tabs" role="tablist">
       <button type="button" class="ops-tab ${f==='all'?'is-active':''}" onclick="Router.go('automationTriggers',{fStatus:'all'})">All · ${all.length}</button>
       ${['scheduled','running','completed'].map(st => `<button type="button" class="ops-tab ${f===st?'is-active':''}" onclick="Router.go('automationTriggers',{fStatus:'${st}'})">${st} · ${counts[st]}</button>`).join('')}
@@ -16759,7 +16764,7 @@ function pageMediaLibrary(params){
 
   return Comp.Shell(`
     ${Comp.Breadcrumb([{label:'Marketing'}, {label:'Media Library & Rights'}])}
-    ${Comp.PageHeader({title:`Media Library &amp; Rights`, subtitle:`Single operational surface for media governance and licensing safety. Only <strong>approved &amp; processed</strong> assets may be used on indexable pages.`, subtitleClass:'field-hint', actions:`
+    ${Comp.PageHeader({title:'Media Library &amp; Rights', subtitle:'Single operational surface for media governance and licensing safety. Only <strong>approved &amp; processed</strong> assets may be used on indexable pages.', subtitleClass:'field-hint', actions:`
         ${Comp.Button('Import asset', {variant:'btn-primary', size:'btn-sm', onclick:'Comp.openMediaImportModal()'})}`})}
 
     ${blocked.length ? `<div class="status-banner is-incomplete"><span>${ICON.warning}</span><span><strong>${blocked.length} asset${blocked.length===1?' is':'s are'} in use but not approved</strong> — these must not appear on indexable pages. Approve them, or deprecate with a replacement.</span></div>` : ''}
@@ -16777,10 +16782,10 @@ function pageMediaLibrary(params){
       </div>
       ${selected.length ? `<div class="status-banner mt-3"><span>${ICON.info}</span><span><strong>${selected.length} selected</strong>
         <span style="display:inline-flex; gap:6px; margin-left:10px; flex-wrap:wrap;">
-          ${Comp.Button('Run processing', {size:'btn-sm', onclick:`Comp.mediaBulk('process')`})}
-          ${Comp.Button('Approve', {size:'btn-sm', variant:'btn-primary', onclick:`Comp.mediaBulk('approve')`})}
-          ${Comp.Button('Reject', {size:'btn-sm', variant:'btn-amber', onclick:`Comp.mediaBulk('reject')`})}
-          ${Comp.Button('Deprecate', {size:'btn-sm', onclick:`Comp.mediaBulk('deprecate')`})}
+          ${Comp.Button('Run processing', {size:'btn-sm', onclick:"Comp.mediaBulk('process')"})}
+          ${Comp.Button('Approve', {size:'btn-sm', variant:'btn-primary', onclick:"Comp.mediaBulk('approve')"})}
+          ${Comp.Button('Reject', {size:'btn-sm', variant:'btn-amber', onclick:"Comp.mediaBulk('reject')"})}
+          ${Comp.Button('Deprecate', {size:'btn-sm', onclick:"Comp.mediaBulk('deprecate')"})}
           ${Comp.Button('Clear', {size:'btn-sm', onclick:'Comp.mediaClearSelection()'})}
         </span></span></div>` : ''}
       ${Comp.Table({columns:[
@@ -16809,7 +16814,7 @@ function pageMediaAssetDetails(params){
 
     ${!gate.ok ? `<div class="status-banner is-incomplete"><span>${ICON.warning}</span><span><strong>Cannot be approved yet:</strong><br>${gate.reasons.map(r => Comp._escHtml(r)).join('<br>')}</span></div>` : `<div class="status-banner is-complete-pill"><span>${ICON.check || ''}</span><span>Provenance complete and processing finished — this asset can be approved for use on indexable pages.</span></div>`}
 
-    ${Comp.Card({title:`Provenance &amp; rights`, hint:`Changing source, licence or author after approval revokes the approval — rights were cleared against the previous values.`, body:`
+    ${Comp.Card({title:'Provenance &amp; rights', hint:`Changing source, licence or author after approval revokes the approval — rights were cleared against the previous values.`, body:`
       <div class="field-row">
         <div class="field"><label>Source type</label><select onchange="Comp.setMediaField('${m.id}','sourceType',this.value)">${DATA.MEDIA_SOURCE_TYPES.map(st => `<option ${m.sourceType===st?'selected':''}>${st}</option>`).join('')}</select></div>
         <div class="field"><label>Licence type</label><select onchange="Comp.setMediaField('${m.id}','licenseType',this.value)">${DATA.MEDIA_LICENSE_TYPES.map(lt => `<option ${m.licenseType===lt?'selected':''}>${lt}</option>`).join('')}</select></div>
@@ -16822,17 +16827,17 @@ function pageMediaAssetDetails(params){
       <div class="field"><label>Alt text</label><input value="${Comp._escAttr(m.altText||'')}" onchange="Comp.setMediaField('${m.id}','altText',this.value)"><p class="field-hint">Drafted by the pipeline; editable.</p></div>
       <label class="opt-check"><input type="checkbox" ${m.rightsConfirmed?'checked':''} onchange="Comp.setMediaRightsConfirmed('${m.id}', this.checked)"> <strong>Rights confirmed</strong> — we hold the right to publish this asset</label>`})}
 
-    ${Comp.Card({title:`Processing pipeline`, hint:`Every step must complete before the asset can be approved for indexable pages.`, body:`
+    ${Comp.Card({title:'Processing pipeline', hint:`Every step must complete before the asset can be approved for indexable pages.`, body:`
       ${Comp._infoTable((m.pipeline||[]).map(x => [x.step, x.status === 'done' ? '<span class="badge badge-active">Done</span>' : '<span class="badge badge-inactive">Pending</span>']))}
       <div class="mt-3">${Comp.Button('Run processing', {size:'btn-sm', onclick:`Comp.mediaRunPipeline('${m.id}')`})}</div>`})}
 
-    ${Comp.Card({title:`Usage references`, hint:`Everywhere this asset currently appears. Assets in use cannot be deleted — they are deprecated with a named replacement so live pages never lose their image.`, body:`
+    ${Comp.Card({title:'Usage references', hint:`Everywhere this asset currently appears. Assets in use cannot be deleted — they are deprecated with a named replacement so live pages never lose their image.`, body:`
       ${(m.usedIn||[]).length
         ? Comp._infoTable((m.usedIn||[]).map(u => [Comp._escHtml(u), m.usageState === 'approved_processed' ? '<span class="badge badge-active">Approved for use</span>' : '<span class="badge badge-amber">Not approved — should not be live</span>']))
         : '<p class="empty-state">Not used anywhere yet.</p>'}
       ${m.replacedBy ? `<div class="status-banner mt-2h"><span>${ICON.info}</span><span>Deprecated — replaced by <strong>${Comp._escHtml(m.replacedBy)}</strong>.</span></div>` : ''}`})}
 
-    ${Comp.Card({title:`Rights &amp; approval history`, body:`
+    ${Comp.Card({title:'Rights &amp; approval history', body:`
       ${(m.rightsHistory||[]).length ? Comp.Timeline(m.rightsHistory) : '<p class="empty-state">No history yet.</p>'}`})}`);
 }
 
@@ -16889,7 +16894,7 @@ function pageProductOpsAlerts(params){
   };
 
   return Comp.Shell(`
-    ${Comp.PageHeader({title:`Inventory Alerts`})}
+    ${Comp.PageHeader({title:'Inventory Alerts'})}
     <div class="ops-tabs" role="tablist">
       <button type="button" class="ops-tab ${view==='all'?'is-active':''}" onclick="Router.go('productOpsAlerts',{view:'all'})">All flags · ${flagAlerts.length}</button>
       <button type="button" class="ops-tab ${view==='threshold_breach'?'is-active':''}" onclick="Router.go('productOpsAlerts',{view:'threshold_breach'})">Threshold drops · ${counts.threshold_breach}</button>
@@ -17003,7 +17008,7 @@ function pageBlogListing(params){
   }).join('');
 
   return Comp.Shell(`
-    ${Comp.PageHeader({title:`Blog Management`, actions:`
+    ${Comp.PageHeader({title:'Blog Management', actions:`
 ${Comp.Button('+ Add article', {variant:'btn-primary', onclick:"Router.go('blogCreate')"})}${Comp.Button('Topic Pool', {onclick:"Router.go('blogTopicPool')"})}`})}
     ${pendingReview > 0 ? `<div class="status-banner is-incomplete"><span>${ICON.warning}</span><span><strong>${pendingReview} article(s)</strong> pending SEO review before going live.</span></div>` : ''}
     ${expiredFreshness > 0 ? `<div class="status-banner is-incomplete"><span>${ICON.clock}</span><span><strong>${expiredFreshness} article(s)</strong> have expired freshness — commission/attribution disabled until updated (Gooru Guide articles).</span></div>` : ''}
@@ -17037,7 +17042,7 @@ function pageBlogCreate(params){
   const p = params || {};
   return Comp.Shell(`
     ${Comp.Breadcrumb([{label:'Blog Management', route:'blogListing'}, {label:'Add article'}])}
-    ${Comp.PageHeader({title:`Add article`})}
+    ${Comp.PageHeader({title:'Add article'})}
     ${Comp._blogCreateClaimedKeyword ? `<div class="status-banner is-incomplete"><span>${ICON.warning}</span><span>Drafting for claimed topic: <strong>${Comp._escHtml(Comp._blogCreateClaimedKeyword)}</strong></span></div>` : ''}
     <form data-validate onsubmit="event.preventDefault(); Comp.finishCreateBlogArticle();">
       <div class="card">
@@ -17063,8 +17068,8 @@ function pageBlogCreate(params){
         <p class="card-title">Featured image</p>
         <div id="blogCreateFeaturedWrap">
           ${Comp._blogCreateFeaturedImage
-            ? `<div class="field-row items-center"><span>${Comp._escHtml(Comp._blogCreateFeaturedImage.name)}</span>${Comp.Button('Remove', {size:'btn-sm', variant:'btn-amber', onclick:`Comp.removeBlogCreateFeaturedImage()`})}</div>`
-            : Comp.Button('Choose from Media Library', {size:'btn-sm', onclick:`Comp.pickBlogCreateFeaturedImage()`})}
+            ? `<div class="field-row items-center"><span>${Comp._escHtml(Comp._blogCreateFeaturedImage.name)}</span>${Comp.Button('Remove', {size:'btn-sm', variant:'btn-amber', onclick:"Comp.removeBlogCreateFeaturedImage()"})}</div>`
+            : Comp.Button('Choose from Media Library', {size:'btn-sm', onclick:"Comp.pickBlogCreateFeaturedImage()"})}
         </div>
       </div>
       <p class="field-hint">New articles are created as Draft, not submitted for SEO review.</p>
@@ -17079,14 +17084,14 @@ Comp.pickBlogCreateFeaturedImage = function(){
   Comp.openMediaLibraryPicker((asset) => {
     Comp._blogCreateFeaturedImage = {id: asset.id, name: asset.name};
     const wrap = document.getElementById('blogCreateFeaturedWrap');
-    if (wrap) wrap.innerHTML = `<div class="field-row items-center"><span>${Comp._escHtml(asset.name)}</span>${Comp.Button('Remove', {size:'btn-sm', variant:'btn-amber', onclick:`Comp.removeBlogCreateFeaturedImage()`})}</div>`;
+    if (wrap) wrap.innerHTML = `<div class="field-row items-center"><span>${Comp._escHtml(asset.name)}</span>${Comp.Button('Remove', {size:'btn-sm', variant:'btn-amber', onclick:"Comp.removeBlogCreateFeaturedImage()"})}</div>`;
     Comp.showToast(`Featured image set to "${asset.name}".`, 'success');
   });
 };
 Comp.removeBlogCreateFeaturedImage = function(){
   Comp._blogCreateFeaturedImage = null;
   const wrap = document.getElementById('blogCreateFeaturedWrap');
-  if (wrap) wrap.innerHTML = Comp.Button('Choose from Media Library', {size:'btn-sm', onclick:`Comp.pickBlogCreateFeaturedImage()`});
+  if (wrap) wrap.innerHTML = Comp.Button('Choose from Media Library', {size:'btn-sm', onclick:"Comp.pickBlogCreateFeaturedImage()"});
 };
 Comp.finishCreateBlogArticle = function(){
   const title = document.getElementById('blogCreateTitle').value.trim();
@@ -17133,7 +17138,7 @@ function pageBlogTopicPool(){
     </tr>`).join('');
   return Comp.Shell(`
     ${Comp.Breadcrumb([{label:'Blog Management', route:'blogListing'}, {label:'Topic Pool'}])}
-    ${Comp.PageHeader({title:`Topic Pool`})}
+    ${Comp.PageHeader({title:'Topic Pool'})}
     ${Comp.Table({columns:[{label:'Primary keyword'},{label:'City',width:'140px'},{label:'Status',width:'120px'},{label:'Claimed by',width:'160px'},{label:'Claim TTL',width:'130px'},{label:'Action',width:'90px'}], rows, emptyText:'No topics in the pool yet.'})}
   `);
 }
@@ -17166,7 +17171,7 @@ function pageBlogDetail(params){
       saveCall:`Comp.blogSaveSeoSection('${a.id}')`, lockCall:`Comp.blogLockSeoSection('${a.id}')`, regenCall:`Comp.blogRegenSeoSection('${a.id}')`
     })}
     ${Comp.Card({title:'Canonical URL', body:'<div class="smart-field-view" style="color:var(--text-muted);">'+Comp._escHtml(a.canonicalUrl||'—')+'</div><p class="field-hint mt-1h">Read-only — generated automatically from the slug.</p>'})}
-    ${Comp.Card({title:`Blog Content`, body:`
+    ${Comp.Card({title:'Blog Content', body:`
       <div class="field"><label for="blogEditContent">Content</label>${Comp.RichTextEditor('blogEditContent', a.content, 'Write the article body...')}</div>
       <div class="mt-3">${Comp.Button('Save content', {variant:'btn-primary', onclick:`Comp.blogSaveContentSeo('${a.id}')`})}</div>`})}
     ${Comp.KeywordAssignTab(a.slug, 'Blog')}`;
@@ -17184,7 +17189,7 @@ function pageBlogDetail(params){
     });
   } else if (tab === 'media') {
     tabBody = `
-    ${Comp.Card({title:`Media`, hint:`Images must be selected from the Media Library (approved_processed assets only) — no external hotlinks allowed. ALT text is mandatory for indexation.`, body:`
+    ${Comp.Card({title:'Media', hint:`Images must be selected from the Media Library (approved_processed assets only) — no external hotlinks allowed. ALT text is mandatory for indexation.`, body:`
       <p class="card-title" style="font-size:var(--fs-sm); margin-top:14px;">Featured image ${!featuredImage ? '<span class="required">*</span>' : ''}</p>
       ${featuredImage ? `
         <div class="media-card" style="max-width:260px;">
@@ -17204,7 +17209,7 @@ function pageBlogDetail(params){
       <div class="mt-2h">${Comp.Button('Insert image from Media Library', {size:'btn-sm', onclick:`Comp.blogInsertBodyImage('${a.id}')`})}</div>`})}`;
   } else if (tab === 'performance') {
     tabBody = `
-    ${Comp.Card({title:`Dates &amp; Impressions`, body:`
+    ${Comp.Card({title:'Dates &amp; Impressions', body:`
       ${Comp._infoTable([
         ['Date published', a.datePublished || '—'],
         ['Date modified', a.dateModified || '—']
@@ -17228,7 +17233,7 @@ function pageBlogDetail(params){
       </div>`})}`;
   } else if (tab === 'history') {
     tabBody = `
-    ${Comp.Card({title:`History / Audit`, body:`
+    ${Comp.Card({title:'History / Audit', body:`
       ${a.history.length ? Comp.Timeline(a.history) : '<p class="empty-state">No history yet.</p>'}`})}`;
   }
 
@@ -17329,7 +17334,7 @@ Comp.blogSaveSeoSection = function(id){
   const sectionId = 'blogseo-'+id;
   const values = {};
   for (const f of Comp.BLOG_SEO_FIELDS) {
-    const el = document.getElementById(`${sectionId}-${f.key}-input`);
+    const el = document.getElementById('' + sectionId + '-' + f.key + '-input');
     values[f.key] = el.value.trim();
   }
   if (!values.title) { Comp.showToast('Blog title is required.', 'danger'); return; }
@@ -17494,7 +17499,7 @@ function pageReviewListing(params){
   }).join('');
 
   return Comp.Shell(`
-    ${Comp.PageHeader({title:`Review Management`})}
+    ${Comp.PageHeader({title:'Review Management'})}
     ${pendingCount > 0 ? `<div class="status-banner is-incomplete"><span>${ICON.warning}</span><span><strong>${pendingCount} review(s)</strong> pending moderation.</span></div>` : ''}
     ${pendingMedia > 0 ? `<div class="status-banner is-incomplete"><span>${ICON.image}</span><span><strong>${pendingMedia} media item(s)</strong> awaiting moderation — open the relevant review below to preview and moderate its media.</span></div>` : ''}
     <div class="filter-bar mb-4" role="search">
@@ -17555,7 +17560,7 @@ function pageReviewDetail(params){
         ${r.moderationStatus !== 'hidden' ? Comp.Button('Hide', {onclick:`Comp.reviewModerate('${r.id}','hidden')`}) : ''}` : ''}`, level:'h2'})}
     ${r.sourceType !== 'Rosotravel' ? `<div class="locked-field-note">${ICON.lock} This review is sourced from ${Comp.REVIEW_SOURCE_LABEL[r.sourceType].replace('Source: ','')} — per API/contract terms, it cannot be approved, rejected, or hidden by Rosotravel. It mirrors the source platform's own moderation as-is.</div>` : ''}
     ${r.flagReason ? `<div class="status-banner is-danger"><span>${ICON.warning}</span><span><strong>Flagged:</strong> ${r.flagReason}</span></div>` : ''}
-    ${Comp.Card({title:`Review Text`, body:`
+    ${Comp.Card({title:'Review Text', body:`
       <blockquote style="margin:0 0 16px; padding:14px 16px; border-left:3px solid var(--accent-500); background:var(--surface-sunken); border-radius:var(--radius-sm); font-size:15px; line-height:1.5; white-space:pre-wrap; font-style:italic;">"${r.reviewText}"</blockquote>
       <p class="card-title text-sm">Details</p>
       ${Comp._infoTable([
@@ -17566,9 +17571,9 @@ function pageReviewDetail(params){
         ['Moderation status', r.moderationStatus.charAt(0).toUpperCase() + r.moderationStatus.slice(1)],
         ['Helpful votes', String(r.helpfulCount)]
       ])}`})}
-    ${Comp.Card({title:`Attached Media`, hint:`Preview and moderate photos/videos submitted with this review — customer media must be approved before it can appear in product galleries or Recent Experience snapshots.`, body:`
+    ${Comp.Card({title:'Attached Media', hint:`Preview and moderate photos/videos submitted with this review — customer media must be approved before it can appear in product galleries or Recent Experience snapshots.`, body:`
       ${mediaCards ? `<div class="media-grid">${mediaCards}</div>` : `<p class="empty-state">No media attached to this review.</p>`}`})}
-    ${Comp.Card({title:`History / Audit`, body:`
+    ${Comp.Card({title:'History / Audit', body:`
       ${(r.history && r.history.length) ? Comp.Timeline(r.history) : `<p class="empty-state">No history yet.</p>`}`})}
   `);
 }
@@ -17634,7 +17639,7 @@ function pageBundleListing(params){
     </tr>`).join('');
 
   return Comp.Shell(`
-    ${Comp.PageHeader({title:`Bundle Management`, actions:`
+    ${Comp.PageHeader({title:'Bundle Management', actions:`
 ${Comp.Button('+ Add bundle', {variant:'btn-primary', onclick:"Router.go('bundleCreate')"})}`})}
     <div class="status-banner is-info"><span>${ICON.info}</span><span>Every city should have at least 3 bundles (1/2/3-day) for the general segment. Bundles combine existing products only — no bundle-specific pricing.</span></div>
     <div class="filter-bar" role="search">
@@ -17852,8 +17857,8 @@ function pageBundleCreate(){
   const cities = DATA.cities.filter(c => c.status === 'Active');
   return Comp.Shell(`
     ${Comp.Breadcrumb([{label:'Bundle Management', route:'bundleListing'}, {label:'Add bundle'}])}
-    ${Comp.PageHeader({title:`Add Bundle`})}
-    ${Comp.Card({title:`Basics`, hint:`Content, included products, Trip DNA and SEO are filled in after creation, on the bundle's own detail page.`, body:`
+    ${Comp.PageHeader({title:'Add Bundle'})}
+    ${Comp.Card({title:'Basics', hint:`Content, included products, Trip DNA and SEO are filled in after creation, on the bundle's own detail page.`, body:`
       <form data-validate onsubmit="event.preventDefault(); Comp.finishCreateBundle();">
         <div class="field-row">
           <div class="field flex-1">
@@ -17947,7 +17952,7 @@ function pageBundleDetails(params){
   if (tab === 'overview') {
     const totalProducts = b.days.reduce((s,d) => s + d.productIds.length, 0);
     body = `
-    ${Comp.Card({title:`Overview`, body:`
+    ${Comp.Card({title:'Overview', body:`
       ${Comp._infoTable([
         ['Bundle code', `<strong>${Comp._escHtml(b.bundleCode)}</strong>`],
         ['City', `${b.citySlug}, ${b.country}`],
@@ -17969,7 +17974,7 @@ function pageBundleDetails(params){
         ${Comp.Button('Duplicate', {size:'btn-sm', onclick:`Comp.cloneBundle('${b.id}')`})}
         ${Comp.Button(b.flagship ? 'Unmark Flagship' : 'Mark as Flagship', {size:'btn-sm', onclick:`Comp.toggleBundleFlagship('${b.id}')`})}
       </div>`})}
-    ${Comp.Card({title:`Validity window`, hint:`The period this bundle is active. Leave both blank for no expiry. Outside the window the bundle is not bookable even if its status is Published.`, body:`
+    ${Comp.Card({title:'Validity window', hint:`The period this bundle is active. Leave both blank for no expiry. Outside the window the bundle is not bookable even if its status is Published.`, body:`
       <div class="field-row">
         <div class="field"><label for="bundleValidFrom-${b.id}">Valid from</label><input type="date" id="bundleValidFrom-${b.id}" class="card-input" value="${b.validFrom||''}"></div>
         <div class="field"><label for="bundleValidUntil-${b.id}">Valid until</label><input type="date" id="bundleValidUntil-${b.id}" class="card-input" value="${b.validUntil||''}"></div>
@@ -18009,7 +18014,7 @@ function pageBundleDetails(params){
         ${Comp.Button('Save highlights', {variant:'btn-primary', onclick:`Comp.bundleSaveHighlights('${b.id}')`})}
       </div>
     </div>
-    ${Comp.Card({title:`Lead-capture Hook (PDF checklist)`, body:`
+    ${Comp.Card({title:'Lead-capture Hook (PDF checklist)', body:`
       <label class="opt-check"><input type="checkbox" id="bundlePdfHook-${b.id}" ${b.pdfHookEnabled?'checked':''}> Enable "Download your ${b.citySlug} ${b.durationDays}-day checklist (PDF)" hook</label>
       <div class="field mt-2h"><label for="bundlePdfId-${b.id}">Attached PDF (Content Assets / PDF Manager)</label><input id="bundlePdfId-${b.id}" class="card-input" value="${Comp._escAttr(b.pdfId)}" placeholder="pdf_id"></div>
       <div class="mt-3">${Comp.Button('Save hook settings', {variant:'btn-primary', onclick:`Comp.bundleSaveHook('${b.id}')`})}</div>`})}`;
@@ -18040,7 +18045,7 @@ function pageBundleDetails(params){
       </div>`;
     };
     body = `
-    ${Comp.Card({title:`Included Products (per day)`, hint:`Price = sum of selected product variants — no bundle-specific pricing. Only active ${Comp._escHtml(b.citySlug)} products are shown; archived products cannot be included.`, body:`
+    ${Comp.Card({title:'Included Products (per day)', hint:`Price = sum of selected product variants — no bundle-specific pricing. Only active ${Comp._escHtml(b.citySlug)} products are shown; archived products cannot be included.`, body:`
       ${Comp._infoTable([
         ['Products selected', String(Comp.bundleProductIds(b).length)],
         ['Combined from-price', `€${selectedTotal.toFixed(2)}`]
@@ -18061,7 +18066,7 @@ function pageBundleDetails(params){
       <div class="mt-3">${Comp.Button('Save included products', {variant:'btn-primary', onclick:`Comp.bundleSaveProducts('${b.id}')`})}</div>`})}`;
   } else if (tab === 'tripdna') {
     body = `
-    ${Comp.Card({title:`Trip DNA (AI or system; editable)`, body:`
+    ${Comp.Card({title:'Trip DNA (AI or system; editable)', body:`
       <div class="field-row">
         <div class="field flex-1">
           <label for="bundleWalking-${b.id}">Walking level</label>
@@ -18113,7 +18118,7 @@ function pageBundleDetails(params){
     });
   } else if (tab === 'faq') {
     body = `
-    ${Comp.Card({title:`FAQ (7 questions recommended)`, body:`
+    ${Comp.Card({title:'FAQ (7 questions recommended)', body:`
       ${b.faqs.map((f,i) => `
         <div style="border:1px solid var(--border); border-radius:var(--radius-md); padding:12px; margin-bottom:10px;">
           <div class="field"><label for="bundleFaqQ-${b.id}-${i}">Question</label><input id="bundleFaqQ-${b.id}-${i}" class="card-input" value="${Comp._escAttr(f.q)}"></div>
@@ -18160,7 +18165,7 @@ Comp.bundleSaveSection = function(bundleId, sectionKey){
   const sectionId = Comp.BUNDLE_SECTION_ID_MAP[sectionKey];
   const displayValues = {};
   for (const f of defs) {
-    const el = document.getElementById(`${sectionId}-${f.key}-input`);
+    const el = document.getElementById('' + sectionId + '-' + f.key + '-input');
     if (!el) continue;
     const val = el.value;
     if (f.key === 'name' && !val.trim()) { Comp.showToast('Bundle name is required.', 'danger'); return; }
@@ -18202,15 +18207,15 @@ Comp.bundleAddHighlight = function(id){ const b = DATA.bundles.find(x=>x.id===id
 Comp.bundleRemoveHighlight = function(id, i){ DATA.bundles.find(x=>x.id===id).highlights.splice(i,1); render(); };
 Comp.bundleSaveHighlights = function(id){
   const b = DATA.bundles.find(x=>x.id===id);
-  b.highlights = b.highlights.map((h,i) => document.getElementById(`bundleHi-${id}-${i}`).value.trim()).filter(Boolean);
+  b.highlights = b.highlights.map((h,i) => document.getElementById('bundleHi-' + id + '-' + i + '').value.trim()).filter(Boolean);
   b.history.unshift({label:'Highlights updated', time:new Date().toLocaleString(), actor:'Admin (you)'});
   Comp.showToast('Highlights saved.', 'success');
   render();
 };
 Comp.bundleSaveHook = function(id){
   const b = DATA.bundles.find(x=>x.id===id);
-  b.pdfHookEnabled = document.getElementById(`bundlePdfHook-${id}`).checked;
-  b.pdfId = document.getElementById(`bundlePdfId-${id}`).value.trim();
+  b.pdfHookEnabled = document.getElementById('bundlePdfHook-' + id + '').checked;
+  b.pdfId = document.getElementById('bundlePdfId-' + id + '').value.trim();
   b.history.unshift({label:'PDF hook settings updated', time:new Date().toLocaleString(), actor:'Admin (you)'});
   Comp.showToast('Hook settings saved.', 'success');
   render();
@@ -18219,7 +18224,7 @@ Comp.bundleSaveProducts = function(id){
   const b = DATA.bundles.find(x=>x.id===id);
   if (!b) return;
   b.days.forEach((d,di) => {
-    const boxes = [...document.querySelectorAll(`.bundleDayProdCb-${di}`)];
+    const boxes = [...document.querySelectorAll('.bundleDayProdCb-' + di + '')];
     const visibleIds = new Set(boxes.map(cb => cb.value));
     const checkedVisible = boxes.filter(cb => cb.checked).map(cb => cb.value);
     // With a search filter active only a subset of products is rendered.
@@ -18277,8 +18282,8 @@ Comp.bundleValidityIsActive = function(b){
 Comp.bundleSaveValidity = function(id){
   const b = DATA.bundles.find(x => x.id === id);
   if (!b) return;
-  const from = document.getElementById(`bundleValidFrom-${id}`).value;
-  const until = document.getElementById(`bundleValidUntil-${id}`).value;
+  const from = document.getElementById('bundleValidFrom-' + id + '').value;
+  const until = document.getElementById('bundleValidUntil-' + id + '').value;
   if (from && until && until < from) { Comp.showToast('Valid until must be on or after Valid from.', 'danger'); return; }
   b.validFrom = from; b.validUntil = until;
   b.history.unshift({label:`Validity window set to ${Comp._bundleValidityLabel(b) || 'always active'}`, time:new Date().toLocaleString(), actor:'Admin (you)'});
@@ -18360,12 +18365,12 @@ Comp.openBundlePreview = function(id){
 };
 Comp.bundleSaveTripDna = function(id){
   const b = DATA.bundles.find(x=>x.id===id);
-  b.tripDna.walkingLevel = document.getElementById(`bundleWalking-${id}`).value;
-  b.tripDna.crowdLevel = document.getElementById(`bundleCrowd-${id}`).value;
-  b.tripDna.vibe = document.getElementById(`bundleVibe-${id}`).value;
+  b.tripDna.walkingLevel = document.getElementById('bundleWalking-' + id + '').value;
+  b.tripDna.crowdLevel = document.getElementById('bundleCrowd-' + id + '').value;
+  b.tripDna.vibe = document.getElementById('bundleVibe-' + id + '').value;
   b.tripDna.bestFor = Comp.getMultiSelectValues(`bundleBestFor-${id}`);
   b.intentTags = Comp.getMultiSelectValues(`bundleIntentTags-${id}`);
-  b.targetSegment = document.getElementById(`bundleSegment-${id}`).value;
+  b.targetSegment = document.getElementById('bundleSegment-' + id + '').value;
   b.history.unshift({label:'Trip DNA & Segment updated', time:new Date().toLocaleString(), actor:'Admin (you)'});
   Comp.showToast('Trip DNA saved.', 'success');
   render();
@@ -18374,7 +18379,7 @@ Comp.bundleAddFaq = function(id){ DATA.bundles.find(x=>x.id===id).faqs.push({q:'
 Comp.bundleRemoveFaq = function(id, i){ DATA.bundles.find(x=>x.id===id).faqs.splice(i,1); render(); };
 Comp.bundleSaveFaqs = function(id){
   const b = DATA.bundles.find(x=>x.id===id);
-  b.faqs = b.faqs.map((f,i) => ({q: document.getElementById(`bundleFaqQ-${id}-${i}`).value.trim(), a: document.getElementById(`bundleFaqA-${id}-${i}`).value.trim()})).filter(f=>f.q||f.a);
+  b.faqs = b.faqs.map((f,i) => ({q: document.getElementById('bundleFaqQ-' + id + '-' + i + '').value.trim(), a: document.getElementById('bundleFaqA-' + id + '-' + i + '').value.trim()})).filter(f=>f.q||f.a);
   b.history.unshift({label:'FAQs updated', time:new Date().toLocaleString(), actor:'Admin (you)'});
   Comp.showToast('FAQs saved.', 'success');
   render();
@@ -18484,7 +18489,7 @@ function pageHomeManagement(params){
   }
 
   return Comp.Shell(`
-    ${Comp.PageHeader({title:`Home Management`, actions:`${Comp.homeRegenCtaHtml()}`})}
+    ${Comp.PageHeader({title:'Home Management', actions:`${Comp.homeRegenCtaHtml()}`})}
         ${Comp.contentLanguageBar('home', true, {languages: DATA.HOME_LANGUAGES})}
         ${Comp.pendingApprovalsBanner()}        ${Comp._renderUrlCanonicalCard('home', (code) => ({
           slug: '',
@@ -19235,7 +19240,7 @@ function pageRedirectPanel(){
       <td>${Comp.RowMenu(r.oldUrl, rowActions(r))}</td>
     </tr>`).join('');
   return Comp.Shell(`
-    ${Comp.PageHeader({title:`Redirect &amp; Deprecation Panel`, subtitle:`Permanent winner → 301 · Temporary suppression → canonical+noindex · Removed without successor → 410. No redirect may be deleted before 18 months (540 days).`})}
+    ${Comp.PageHeader({title:'Redirect &amp; Deprecation Panel', subtitle:'Permanent winner → 301 · Temporary suppression → canonical+noindex · Removed without successor → 410. No redirect may be deleted before 18 months (540 days).'})}
     ${Comp.Table({columns:[{label:'Old URL'},{label:'Target URL'},{label:'Type',width:'110px'},{label:'Age',width:'80px'},{label:'Traffic before/after',width:'150px'},{label:'Action',width:'70px'}], rows, emptyText:'No redirects found.'})}
   `);
 }
@@ -19404,7 +19409,6 @@ function pageStaticPagesList(){
       <td class="cell-name">${p.name}</td>
       <td class="cell-secondary">${p.group}</td>
       <td>${Comp.spStatusBadgesHtml(p)}</td>
-      <td class="cell-secondary">${p.canonicalUrl}</td>
       <td class="cell-secondary">${p.translationCoverage}</td>
       <td class="cell-secondary">${(()=>{var t=p.issueCounts.red+p.issueCounts.orange+p.issueCounts.yellow;return t>0?Comp.Badge(t+' issue'+(t>1?'s':''),'warning'):'—';})()}</td>
       <td class="cell-secondary">${p.lastEdit}<div class="text-muted-xs">${p.lastEditBy}</div></td>
@@ -19418,7 +19422,7 @@ function pageStaticPagesList(){
   const totalIssues = DATA.staticPages.reduce((acc,p) => ({red:acc.red+p.issueCounts.red, orange:acc.orange+p.issueCounts.orange, yellow:acc.yellow+p.issueCounts.yellow}), {red:0,orange:0,yellow:0});
 
   return Comp.Shell(`
-    ${Comp.PageHeader({title:`Static Pages`, actions:Comp.Button('+ Add page', {variant:'btn-primary', onclick:'Comp.spOpenAddPageModal()'})})}
+    ${Comp.PageHeader({title:'Static Pages', actions:Comp.Button('+ Add page', {variant:'btn-primary', onclick:'Comp.spOpenAddPageModal()'})})}
     <div class="status-banner ${totalIssues.red>0?'is-incomplete':'is-complete'}">
       <span>${totalIssues.red>0?ICON.warning:ICON.checkCircle}</span>
       <span>${(()=>{var t=totalIssues.red+totalIssues.orange+totalIssues.yellow;return t>0?'<strong>'+t+' issue'+(t>1?'s':'')+' across all static pages.</strong> Issues disappear only when fixed. <button type="button" class="btn-sm-link" onclick="Comp.spOpenIssuesDrawer()">View Issues</button>':'No issues across all static pages.';})()}</span>
@@ -19429,7 +19433,7 @@ function pageStaticPagesList(){
       ${Comp.Button('Publish selected', {size:'btn-sm', variant:'btn-primary', onclick:'Comp.spBulkPublish()'})}
       ${Comp.Button('Clear', {size:'btn-sm', variant:'btn-ghost', onclick:"Comp.clearBulkSelection('staticPage')"})}
     </div>` : ''}
-    ${Comp.Table({columns:[{label:Comp.BulkCheckboxTh('staticPage'),width:'40px'},{label:'Page'},{label:'Group',width:'170px'},{label:'Status',width:'110px'},{label:'Canonical URL',width:'160px'},{label:'Translation',width:'100px'},{label:'Issues',width:'160px'},{label:'Last edit',width:'150px'},{label:'',width:'50px'}], rows, emptyText:'No static pages found.'})}
+    ${Comp.Table({columns:[{label:Comp.BulkCheckboxTh('staticPage'),width:'40px'},{label:'Page'},{label:'Group',width:'170px'},{label:'Status',width:'110px'},{label:'Translation',width:'100px'},{label:'Issues',width:'160px'},{label:'Last edit',width:'150px'},{label:'',width:'50px'}], rows, emptyText:'No static pages found.'})}
   `);
 }
 Comp.spOpenAddPageModal = function(){
@@ -19903,9 +19907,6 @@ function pageStaticPageEditor(params){
     headerActions = '<span class="sp-live-note">This is what visitors see</span>';
   } else if (pub.isLive && pub.hasDraftPending) {
     headerActions =
-      Comp.Button('Save draft', {onclick:"Comp.spSaveAll('"+p.id+"')"}) +
-      Comp.Button('Compare with live', {variant:'btn-ghost', onclick:"Comp.spCompareDraft('"+p.id+"')"}) +
-      Comp.Button('Discard draft', {variant:'btn-ghost', onclick:"Comp.spDiscardDraft('"+p.id+"')"}) +
       Comp.Button('Publish changes', {variant:'btn-primary', onclick:"Comp.spTogglePublish('"+p.id+"')"});
   } else if (pub.isLive) {
     headerActions =
@@ -20748,7 +20749,7 @@ function pageBookingListing(){
     </tr>`;
   }).join('');
   return Comp.Shell(`
-    ${Comp.PageHeader({title:`Bookings`})}
+    ${Comp.PageHeader({title:'Bookings'})}
     <div class="filter-bar">
       <input class="search-box" id="filterBookings" placeholder="Search booking ID, customer or tour..." oninput="Comp.filterBookingsTable()" style="width:280px;">
       ${Comp.FilterIconButton(0, "Comp.openBookingFiltersDrawer()")}
@@ -20856,12 +20857,12 @@ function pageBookingDetails(params){
     </div>` : ''}`;
   } else if (tab === 'guests') {
     tabBody = `
-    ${Comp.Card({title:`Guest Details`, body:`
+    ${Comp.Card({title:'Guest Details', body:`
       <p class="field-hint mb-3h">${b.guestList.length} guest${b.guestList.length===1?'':'s'} added</p>
       ${guestRows}`})}`;
   } else if (tab === 'pricing') {
     tabBody = `
-    ${Comp.Card({title:`Pricing Breakdown`, body:`
+    ${Comp.Card({title:'Pricing Breakdown', body:`
       <div class="booking-info-table">
         <div class="booking-info-row"><span>${b.pricing.baseLabel}</span><span>${b.pricing.base}</span></div>
         <div class="booking-info-row"><span>${b.pricing.addonsLabel}</span><span>${b.pricing.addons}</span></div>
@@ -20890,13 +20891,13 @@ function pageBookingDetails(params){
     </div>`;
   } else if (tab === 'activity') {
     tabBody = `
-    ${Comp.Card({title:`Activity Log`, body:`
+    ${Comp.Card({title:'Activity Log', body:`
       ${Comp.Timeline(b.activity)}`})}`;
   }
 
   const body = `
     ${Comp.Breadcrumb([Comp.returnBreadcrumbItem('Bookings', 'bookingListing'), {label:'#'+b.id}])}
-    ${Comp.PageHeader({title:`Booking Details`, actions:`
+    ${Comp.PageHeader({title:'Booking Details', actions:`
         ${Comp.Button('Download voucher', {onclick:`Comp.downloadVoucher('${b.id}')`})}
         ${cancellable ? Comp.Button(orderSiblings.length ? 'Cancel this item' : 'Cancel booking', {variant:'btn-amber', onclick:`Comp.confirmCancelBooking('${b.id}')`}) : ''}
         ${cancellableOrderItems.length >= 2 ? Comp.Button('Cancel entire order', {variant:'btn-danger', onclick:`Comp.confirmCancelEntireOrder('${b.id}')`}) : ''}
@@ -21134,7 +21135,7 @@ function pageCouponListing(params){
   }).join('');
 
   return Comp.Shell(`
-    ${Comp.PageHeader({title:`Promotion Management`, actions:`
+    ${Comp.PageHeader({title:'Promotion Management', actions:`
 ${Comp.Button('+ Create coupon', {variant:'btn-primary', onclick:"Router.go('couponCreate')"})}`})}
     <div class="filter-bar" role="search">
       <label for="couponSearch" class="visually-hidden">Search by code</label>
@@ -21205,13 +21206,13 @@ Comp.toggleMultiSelectPanel = function(idPrefix){
   trigger.setAttribute('aria-expanded', String(!isOpen));
 };
 Comp.updateMultiSelectTrigger = function(idPrefix){
-  const checked = [...document.querySelectorAll(`.${idPrefix}-cb:checked`)].map(cb => cb.value);
+  const checked = [...document.querySelectorAll('.' + idPrefix + '-cb:checked')].map(cb => cb.value);
   const textEl = document.getElementById(idPrefix+'-triggertext');
   const lbl = document.getElementById(idPrefix+'-lbl').textContent;
   textEl.textContent = checked.length ? checked.join(', ') : `Select ${lbl.toLowerCase()}...`;
 };
 Comp.getMultiSelectValues = function(idPrefix){
-  return [...document.querySelectorAll(`.${idPrefix}-cb:checked`)].map(cb => cb.value);
+  return [...document.querySelectorAll('.' + idPrefix + '-cb:checked')].map(cb => cb.value);
 };
 Comp.eligibilityPicker = function(opts){
   const { idPrefix, allLabel, specificLabel, mode, items, selectedIds, lockNote, maxUsersValue, supplierItems, selectedSuppliers, firstTimeOption } = opts;
@@ -21292,12 +21293,12 @@ Comp.toggleEligibilityMode = function(idPrefix){
   if (firstTimeNote) firstTimeNote.style.display = mode === 'firstTime' ? '' : 'none';
 };
 Comp.updateEligibilityCount = function(idPrefix){
-  const checked = document.querySelectorAll(`#${idPrefix}-picker input[type="checkbox"]:checked`).length;
+  const checked = document.querySelectorAll('#' + idPrefix + '-picker input[type="checkbox"]:checked').length;
   const countEl = document.getElementById(idPrefix+'-count');
   if (countEl) countEl.textContent = `${checked} selected`;
 };
 Comp.getEligibilitySelection = function(idPrefix){
-  return [...document.querySelectorAll(`#${idPrefix}-picker input[type="checkbox"]:checked`)].map(el => el.value);
+  return [...document.querySelectorAll('#' + idPrefix + '-picker input[type="checkbox"]:checked')].map(el => el.value);
 };
 
 function pageCouponCreate(params){
@@ -21311,7 +21312,7 @@ function pageCouponCreate(params){
     ${Comp.PageHeader({title:`${c ? 'Edit coupon' : 'Create coupon'}`})}
     ${Comp.Breadcrumb([{label:'Discount Coupons', route:'couponListing'}, {label: c ? 'Edit coupon' : 'Create coupon'}])}
     <form id="couponForm" data-validate>
-      ${Comp.Card({title:`Coupon details`, body:`
+      ${Comp.Card({title:'Coupon details', body:`
         <div class="field-row">
           <div class="field flex-1">
             <label for="couponCode">Coupon code <span class="required">*</span></label>
@@ -21462,7 +21463,7 @@ function pageCouponDetails(params){
     ${Comp.PageHeader({title:`${c.code}`, actions:`
         ${Comp.Button('Edit', {onclick:`Router.go('couponCreate',{id:'${c.id}'})`})}
         ${Comp.Button(c.disabled ? 'Enable' : 'Disable', {variant:'btn-amber', onclick:`Comp.confirmToggleCouponStatus('${c.id}')`})}`})}
-    ${Comp.Card({title:`Overview`, body:`
+    ${Comp.Card({title:'Overview', body:`
       ${Comp._infoTable([
         ['Status', Comp.Badge(status, COUPON_STATUS_ACTIVE[status])],
         ['Discount', Comp.couponDiscountLabel(c)],
@@ -21477,7 +21478,7 @@ function pageCouponDetails(params){
         ['Usage', `${c.usedCount} / ${c.maxTotalUses != null ? c.maxTotalUses : 'Unlimited'}${c.maxUsesPerCustomer ? ` (max ${c.maxUsesPerCustomer} per customer)` : ''}`],
         ['Valid dates', Comp.couponDateLabel(c)]
       ])}`})}
-    ${Comp.Card({title:`History / Audit`, body:`
+    ${Comp.Card({title:'History / Audit', body:`
       ${c.history.length ? Comp.Timeline(c.history) : '<p class="empty-state">No history yet.</p>'}`})}
   `);
 }
@@ -21500,7 +21501,7 @@ function pageCustomerListing(){
       ])}</td>
     </tr>`).join('');
   return Comp.Shell(`
-    ${Comp.PageHeader({title:`Customer Management`})}
+    ${Comp.PageHeader({title:'Customer Management'})}
     ${Comp.FilterBar('Search customers', 'filterCustomers')}
     ${Comp.Table({columns:[{label:'Name'},{label:'Email',width:'200px'},{label:'Phone',width:'150px'},{label:'Signup date',width:'120px'},{label:'Bookings',width:'90px'},{label:'Total spent',width:'110px'},{label:'Last booking',width:'130px'},{label:'Account',width:'110px'},{label:'Action',width:'60px'}], rows, emptyText:'No customers found.'})}
     ${Comp.Pagination(`Showing ${customers.length} of ${customers.length} customers`)}
@@ -21652,8 +21653,8 @@ function pageUsersListing(){
       ])}</td>
     </tr>`).join('');
   return Comp.Shell(`
-    ${Comp.PageHeader({title:`Users`, actions:`
-${Comp.Button('+ Add user', {variant:'btn-primary', onclick:"Router.go('usersCreate')"})}`})}
+    ${Comp.PageHeader({title:'Users', actions:
+Comp.Button('+ Add user', {variant:'btn-primary', onclick:"Router.go('usersCreate')"})})}
     ${Comp.FilterBar('Search by name or email', 'filterUsers')}
     ${Comp.Table({columns:[{label:'Name',width:'220px'},{label:'Email',width:'260px'},{label:'Role',width:'240px'},{label:'Status',width:'130px'},{label:'Action',width:'60px'}], rows})}
     ${Comp.Pagination('Showing 1–' + DATA.users.length + ' of 24 users')}
@@ -21662,7 +21663,7 @@ ${Comp.Button('+ Add user', {variant:'btn-primary', onclick:"Router.go('usersCre
 
 function pageUsersCreate(){
   return Comp.Shell(`
-    ${Comp.PageHeader({title:`Create user`})}
+    ${Comp.PageHeader({title:'Create user'})}
     ${Comp.Breadcrumb([{label:'Users', route:'usersListing'}, {label:'Create user'}])}
     <form class="card" data-validate onsubmit="event.preventDefault(); Comp.finishCreateUser();">
       <p class="card-title">Basic information</p>
@@ -21711,7 +21712,7 @@ function pageUsersDetails(params){
           <button type="button" class="btn btn-primary" onclick="Comp.saveUserDetails('${user.email}')">Save changes</button>
         </div>`}
       </div>
-      ${Comp.Card({title:`Basic information`, body:`
+      ${Comp.Card({title:'Basic information', body:`
         <div class="field-stack">
           <div class="field-row">
             ${aiField('Name', user.name, 'input', 'userNameInput')}
@@ -21735,7 +21736,7 @@ function pageUsersDetails(params){
         </div>
       </div>
     </form>
-    ${Comp.Card({title:`Activity log`, body:`
+    ${Comp.Card({title:'Activity log', body:`
       ${Comp.ActivityAccordion(user.activity && user.activity.length ? user.activity : [{label:'No activity yet', items:[]}])}`})}
   `);
 }
@@ -21759,7 +21760,7 @@ function pageRolesListing(){
   }).join('');
 
   return Comp.Shell(`
-    ${Comp.PageHeader({title:`Role &amp; permission`, actions:`
+    ${Comp.PageHeader({title:'Role &amp; permission', actions:`
 ${Comp.Button('+ Add role', {variant:'btn-primary', onclick:"Router.go('rolesCreate')"})}`})}
     ${Comp.FilterBar('Search roles', 'filterRoles')}
     ${Comp.Table({columns:[{label:'Role name',width:'200px'},{label:'Permissions',width:'150px'},{label:'Description'},{label:'Status',width:'130px'},{label:'Action',width:'60px'}], rows:roleRows, emptyText:'No roles found.'})}
@@ -21793,15 +21794,15 @@ function pageRolesCreate(){
     }).join('');
   }).join('');
   return Comp.Shell(`
-    ${Comp.PageHeader({title:`Create role`})}
+    ${Comp.PageHeader({title:'Create role'})}
     ${Comp.Breadcrumb([{label:'Role & permission', route:'rolesListing'}, {label:'Create role'}])}
     <form onsubmit="event.preventDefault(); Comp.finishCreateRole();" data-validate>
-      ${Comp.Card({title:`Role details`, body:`
+      ${Comp.Card({title:'Role details', body:`
         <div class="field-stack">
           <div class="field"><label for="rName">Role name <span class="required">*</span></label><input id="rName" placeholder="Enter role name e.g., Manager" required></div>
           <div class="field"><label for="rDesc">Description</label><textarea id="rDesc" placeholder="Enter a brief description of this role..."></textarea></div>
         </div>`})}
-      ${Comp.Card({title:`Assign permissions`, body:`
+      ${Comp.Card({title:'Assign permissions', body:`
         ${Comp.Table({columns:[{label:'Module'},{label:'Create',width:'90px'},{label:'Read',width:'90px'},{label:'Update',width:'90px'}], rows:permRows})}
         <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:24px;">
           ${Comp.Button('Cancel', {onclick:"Router.go('rolesListing')"})}
@@ -21873,7 +21874,7 @@ function pageRolesDetails(params){
           </div>
         </div>
       </div>
-      ${Comp.Card({title:`Assigned permissions`, body:`
+      ${Comp.Card({title:'Assigned permissions', body:`
         ${Comp.Table({columns:[{label:'Module'},{label:'Create',width:'90px'},{label:'Read',width:'90px'},{label:'Update',width:'90px'}], rows:permRows})}`})}
     </form>
   `);
@@ -22970,7 +22971,7 @@ function pagePromptEditor(params){
             <td class="cell-secondary">${Comp._escHtml(v.savedBy)}</td>
             <td class="cell-secondary">${Comp._escHtml(v.savedAt)}</td>
             <td><p class="field-hint" style="max-width:340px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin:0;">${Comp._escHtml(v.prompt.slice(0,80))}${v.prompt.length>80?'…':''}</p></td>
-            <td>${Comp.Button('Preview', {size:'btn-sm', onclick:`Comp.pmPreviewVersion('${pageType}','${sectionKey}',${v.num})`})}</td>
+            <td>${Comp.Button('Preview', {size:'btn-sm', onclick:`Comp.pmPreviewVersion('${pageType}','${sectionKey}',' + v.num + ')`})}</td>
           </tr>`
         ).join('')
       : '';
