@@ -1828,6 +1828,61 @@ const Comp = {
   // Clears AI-generation tracking — call when a fresh Add/Create page is opened.
   clearCreateAiTracking(){ Comp._createAiFields = {}; },
 
+  // Cascade helpers for create forms
+  _cascadeRegionCreate(){
+    const continent = document.getElementById('regionCreateContinent')?.value;
+    const countryEl = document.getElementById('regionCreateCountry');
+    if(!countryEl) return;
+    const countries = DATA.countries.filter(c => !continent || c.continent === continent);
+    countryEl.innerHTML = '<option value="">Select country</option>' + countries.map(c => `<option>${c.name}</option>`).join('');
+  },
+  _cascadeCityCreate(){
+    const continent = document.getElementById('cityCreateContinent')?.value;
+    const countryEl = document.getElementById('cityCountrySelect');
+    if(!countryEl) return;
+    const countries = DATA.countries.filter(c => !continent || c.continent === continent);
+    countryEl.innerHTML = '<option value="">Select country</option>' + countries.map(c => `<option>${c.name}</option>`).join('');
+    const regionEl = document.getElementById('cityRegionSelect');
+    if(regionEl) regionEl.innerHTML = '<option value="">Select country first</option>';
+  },
+  _cascadeCityCreateRegion(){
+    const country = document.getElementById('cityCountrySelect')?.value;
+    const regionEl = document.getElementById('cityRegionSelect');
+    if(!regionEl) return;
+    const regions = DATA.regions.filter(r => !country || r.country === country);
+    regionEl.innerHTML = '<option value="">No region</option>' + regions.map(r => `<option>${r.name}</option>`).join('');
+  },
+  _cascadeAttrCreate(){
+    const continent = document.getElementById('attrCreateContinent')?.value;
+    const countryEl = document.getElementById('attrCityCountrySelect');
+    if(!countryEl) return;
+    const countries = DATA.countries.filter(c => !continent || c.continent === continent);
+    countryEl.innerHTML = '<option value="">Select country</option>' + countries.map(c => `<option>${c.name}</option>`).join('');
+    const regionEl = document.getElementById('attrCreateRegion');
+    if(regionEl) regionEl.innerHTML = '<option value="">Select country first</option>';
+    const cityEl = document.getElementById('attrCitySelect');
+    if(cityEl) cityEl.innerHTML = '<option value="">Select country first</option>';
+  },
+  _cascadeAttrCreateRegion(){
+    const country = document.getElementById('attrCityCountrySelect')?.value;
+    const regionEl = document.getElementById('attrCreateRegion');
+    if(!regionEl) return;
+    const regions = DATA.regions.filter(r => !country || r.country === country);
+    regionEl.innerHTML = '<option value="">No region</option>' + regions.map(r => `<option>${r.name}</option>`).join('');
+    Comp._cascadeAttrCreateCity();
+  },
+  _cascadeAttrCreateCity(){
+    const country = document.getElementById('attrCityCountrySelect')?.value;
+    const region  = document.getElementById('attrCreateRegion')?.value;
+    const cityEl  = document.getElementById('attrCitySelect');
+    if(!cityEl) return;
+    const cities = DATA.cities.filter(c =>
+      (!country || c.country === country) &&
+      (!region  || c.region  === region)
+    );
+    cityEl.innerHTML = '<option value="">Select city</option>' + cities.map(c => `<option>${c.name}</option>`).join('');
+  },
+
   // "✨ Generate with AI" on Create forms — simulates AI fill of description/FAQ
   triggerCreateAiGenerate(btn){
     const form = btn.closest('form');
@@ -6127,15 +6182,15 @@ const Comp = {
         '</select>' +
       '</div>' +
       '<div class="filter-drawer-group">' +
-        '<label for="rf-country">Country</label>' +
-        '<select id="rf-country" class="filter-select w-full">' +
-          opt('', f.country, 'All countries') + filteredCountries.map(c => opt(c, f.country)).join('') +
-        '</select>' +
-      '</div>' +
-      '<div class="filter-drawer-group">' +
         '<label for="rf-tier">Tier level</label>' +
         '<select id="rf-tier" class="filter-select w-full">' +
           opt('', f.tier, 'All tiers') + tiers.map(t => opt(t, f.tier)).join('') +
+        '</select>' +
+      '</div>' +
+      '<div class="filter-drawer-group">' +
+        '<label for="rf-country">Country</label>' +
+        '<select id="rf-country" class="filter-select w-full">' +
+          opt('', f.country, 'All countries') + filteredCountries.map(c => opt(c, f.country)).join('') +
         '</select>' +
       '</div>' +
       '<div class="filter-drawer-group">' +
@@ -6253,6 +6308,12 @@ const Comp = {
         '</select>' +
       '</div>' +
       '<div class="filter-drawer-group">' +
+        '<label for="ctf-tier">Tier level</label>' +
+        '<select id="ctf-tier" class="filter-select w-full">' +
+          opt('', f.tier, 'All tiers') + tiers.map(t => opt(t, f.tier)).join('') +
+        '</select>' +
+      '</div>' +
+      '<div class="filter-drawer-group">' +
         '<label for="ctf-country">Country</label>' +
         '<select id="ctf-country" class="filter-select w-full" onchange="Comp._ctfCascadeCountry(this.value)">' +
           opt('', f.country, 'All countries') + filteredCountries.map(c => opt(c, f.country)).join('') +
@@ -6262,12 +6323,6 @@ const Comp = {
         '<label for="ctf-region">Region</label>' +
         '<select id="ctf-region" class="filter-select w-full">' +
           opt('', f.region, 'All regions') + filteredRegions.map(r => opt(r, f.region)).join('') +
-        '</select>' +
-      '</div>' +
-      '<div class="filter-drawer-group">' +
-        '<label for="ctf-tier">Tier level</label>' +
-        '<select id="ctf-tier" class="filter-select w-full">' +
-          opt('', f.tier, 'All tiers') + tiers.map(t => opt(t, f.tier)).join('') +
         '</select>' +
       '</div>' +
       '<div class="filter-drawer-group">' +
@@ -6738,7 +6793,7 @@ const Comp = {
     const card = btn.closest('.card');
     const sectionTitle = card.getAttribute('aria-label') || card.querySelector('.card-title')?.textContent || 'Section';
     const route = Router.route;
-    const isCountryOrRegion = route === 'countryDetails' || route === 'regionDetails' || route === 'cityDetails';
+    const isCountryOrRegion = route === 'countryDetails' || route === 'regionDetails' || route === 'cityDetails' || route === 'attractionDetails';
 
     // Already locked — skip modal, just save
     if(card.classList.contains('is-locked')){
@@ -6900,7 +6955,7 @@ const Comp = {
     const sectionTitle = card.getAttribute('aria-label') || card.querySelector('.card-title')?.textContent || 'Section';
     const currentLang  = Comp._getCurrentLang();
     const route        = Router.route;
-    const isDestPage   = route === 'countryDetails' || route === 'regionDetails';
+    const isDestPage   = route === 'countryDetails' || route === 'regionDetails' || route === 'cityDetails' || route === 'attractionDetails';
 
     document.getElementById('modalRegenLangDesc').textContent = sectionTitle;
 
@@ -9654,20 +9709,35 @@ function pageRegionListing(params){
 }
 function pageRegionCreate(){
   Comp.clearCreateAiTracking();
+  const continents = [...new Set(DATA.countries.map(c => c.continent).filter(Boolean))].sort();
+  const tiers = ['Tier 1','Tier 2','Tier 3','Unassigned'];
   return Comp.Shell(`
     ${Comp.PageHeader({title:`Create region`, actions:Comp.Button('✨ Generate with AI', {variant:'btn-ghost', onclick:'Comp.triggerCreateAiGenerate(this)'})})}
     ${Comp.Breadcrumb([{label:'Regions', route:'regionListing'}, {label:'Create region'}])}
     <form data-validate onsubmit="event.preventDefault(); Comp.finishCreateRegion();">
       <div class="card">
-        <div class="section-header-row">
-          <p class="card-title">Region information</p>
-        </div>
+        <div class="section-header-row"><p class="card-title">Region information</p></div>
         <div class="field-stack">
+          <div class="field-row">
+            <div class="field">
+              <label for="regionCreateContinent">Continent <span class="required">*</span></label>
+              <select id="regionCreateContinent" required onchange="Comp._cascadeRegionCreate()">
+                <option value="">Select continent</option>
+                ${continents.map(c => `<option>${c}</option>`).join('')}
+              </select>
+            </div>
+            <div class="field">
+              <label for="regionCreateTier">Tier Level <span class="required">*</span></label>
+              <select id="regionCreateTier" required>
+                <option value="">Select tier</option>
+                ${tiers.map(t => `<option>${t}</option>`).join('')}
+              </select>
+            </div>
+          </div>
           <div class="field">
             <label for="regionCreateCountry">Country <span class="required">*</span></label>
             <select id="regionCreateCountry" required>
-              <option value="">Select parent country</option>
-              ${DATA.countries.map(c => `<option>${c.name}</option>`).join('')}
+              <option value="">Select continent first</option>
             </select>
             <p class="field-hint">ⓘ Each region belongs to exactly one country.</p>
           </div>
@@ -9680,9 +9750,7 @@ function pageRegionCreate(){
         </div>
       </div>
       <div class="card" id="regionCreateFaqCard">
-        <div class="section-header-row">
-          <p class="card-title">Frequently asked questions</p>
-        </div>
+        <div class="section-header-row"><p class="card-title">Frequently asked questions</p></div>
         <div class="field-stack editable-scope" data-max-items="10">
           <button type="button" class="add-item-btn" data-item-type="faq" style="display:block;">+ Add Another FAQ</button>
         </div>
@@ -9728,6 +9796,21 @@ function pageRegionDetails(params){
 
 
     ${Comp.AiCard({id:'region-info', title:'Region information', fieldsHtml:`
+      <div class="field-row">
+        <div class="field">
+          <label for="regionDetailContinent">Continent</label>
+          <select id="regionDetailContinent" class="card-input" disabled>
+            <option value="" ${!parentCountry ? 'selected' : ''}>—</option>
+            ${[...new Set(DATA.countries.map(c=>c.continent).filter(Boolean))].sort().map(c => `<option ${parentCountry && parentCountry.continent === c ? 'selected' : ''}>${c}</option>`).join('')}
+          </select>
+        </div>
+        <div class="field">
+          <label for="regionDetailTier">Tier Level</label>
+          <select id="regionDetailTier" class="card-input" disabled>
+            ${['Tier 1','Tier 2','Tier 3','Unassigned'].map(t => `<option ${(region.tierLevel||'Unassigned') === t ? 'selected' : ''}>${t}</option>`).join('')}
+          </select>
+        </div>
+      </div>
       <div class="field">
         <label for="regionDetailCountry">Country</label>
         <select id="regionDetailCountry" class="card-input" disabled>
@@ -9948,32 +10031,42 @@ function pageCityListing(params){
 }
 function pageCityCreate(){
   Comp.clearCreateAiTracking();
+  const continents = [...new Set(DATA.countries.map(c => c.continent).filter(Boolean))].sort();
+  const tiers = ['Tier 1','Tier 2','Tier 3','Unassigned'];
   return Comp.Shell(`
     ${Comp.PageHeader({title:`Create city`, actions:Comp.Button('✨ Generate with AI', {variant:'btn-ghost', onclick:'Comp.triggerCreateAiGenerate(this)'})})}
     ${Comp.Breadcrumb([{label:'Cities', route:'cityListing'}, {label:'Create city'}])}
     <form data-validate onsubmit="event.preventDefault(); Comp.finishCreateCity();">
       <div class="card">
-        <div class="section-header-row">
-          <p class="card-title">City information</p>
-        </div>
+        <div class="section-header-row"><p class="card-title">City information</p></div>
         <div class="field-stack">
           <div class="field-row">
             <div class="field">
-              <label for="cityCountrySelect">Country <span class="required">*</span></label>
-              <select id="cityCountrySelect" required>
-                <option value="">Select country</option>
-                ${DATA.countries.map(c => `<option>${c.name}</option>`).join('')}
+              <label for="cityCreateContinent">Continent <span class="required">*</span></label>
+              <select id="cityCreateContinent" required onchange="Comp._cascadeCityCreate()">
+                <option value="">Select continent</option>
+                ${continents.map(c => `<option>${c}</option>`).join('')}
               </select>
             </div>
             <div class="field">
-              <label for="cityRegionTag">Region (if applicable)</label>
-              <div id="cityRegionTag" class="tag-box">
-                <select class="region-add-select" style="display:inline-block;" aria-label="Add region" onchange="Comp.addRegionTag(this)">
-                  <option value="">+ Add region</option>
-                  ${REGION_OPTIONS.map(r => `<option>${r}</option>`).join('')}
-                </select>
-              </div>
+              <label for="cityCreateTier">Tier Level <span class="required">*</span></label>
+              <select id="cityCreateTier" required>
+                <option value="">Select tier</option>
+                ${tiers.map(t => `<option>${t}</option>`).join('')}
+              </select>
             </div>
+          </div>
+          <div class="field">
+            <label for="cityCountrySelect">Country <span class="required">*</span></label>
+            <select id="cityCountrySelect" required onchange="Comp._cascadeCityCreateRegion()">
+              <option value="">Select continent first</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="cityRegionSelect">Region (if applicable)</label>
+            <select id="cityRegionSelect">
+              <option value="">Select country first</option>
+            </select>
           </div>
           <div class="field"><label for="cityNameInput">City name <span class="required">*</span></label><input id="cityNameInput" placeholder="Enter city name" required></div>
           <div class="field">
@@ -10034,20 +10127,33 @@ function pageCityDetails(params){
     ${Comp.AiCard({id:'city-info', title:'City information', fieldsHtml:`
       <div class="field-row">
         <div class="field">
-          <label for="cityCountryField">Country</label>
-          <select id="cityCountryField" class="card-input" disabled>
-            ${DATA.countries.map(c => `<option ${c.name === city.country ? 'selected' : ''}>${c.name}</option>`).join('')}
+          <label for="cityDetailContinent">Continent</label>
+          <select id="cityDetailContinent" class="card-input" disabled>
+            <option value="">—</option>
+            ${[...new Set(DATA.countries.map(c=>c.continent).filter(Boolean))].sort().map(c => { const co=DATA.countries.find(x=>x.name===city.country); return `<option ${co&&co.continent===c?'selected':''}>${c}</option>`; }).join('')}
           </select>
         </div>
         <div class="field">
-          <label for="cityDetailRegionTag">Region (if applicable)</label>
-          <div id="cityDetailRegionTag" class="tag-box">
-            <span class="tag" data-value="${city.region}">${city.region}<button type="button" class="tag-remove" aria-label="Remove ${city.region}">×</button></span>
-            <select class="region-add-select" aria-label="Add region" onchange="Comp.addRegionTag(this)">
-              <option value="">+ Add region</option>
-              ${REGION_OPTIONS.map(r => `<option>${r}</option>`).join('')}
-            </select>
-          </div>
+          <label for="cityDetailTier">Tier Level</label>
+          <select id="cityDetailTier" class="card-input" disabled>
+            ${['Tier 1','Tier 2','Tier 3','Unassigned'].map(t => `<option ${(city.tierLevel||'Unassigned')===t?'selected':''}>${t}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="cityDetailCountry">Country</label>
+          <select id="cityDetailCountry" class="card-input" disabled>
+            <option value="">—</option>
+            ${DATA.countries.map(c => `<option ${c.name===city.country?'selected':''}>${c.name}</option>`).join('')}
+          </select>
+        </div>
+        <div class="field">
+          <label for="cityDetailRegion">Region</label>
+          <select id="cityDetailRegion" class="card-input" disabled>
+            <option value="">—</option>
+            ${DATA.regions.filter(r=>r.country===city.country).map(r => `<option ${r.name===city.region?'selected':''}>${r.name}</option>`).join('')}
+          </select>
         </div>
       </div>
       ${aiField('City name', city.name)}
@@ -10059,22 +10165,6 @@ function pageCityDetails(params){
       </div>
       ${aiField('Description', `${city.name}${city.country ? ', ' + city.country : ''} — a vibrant destination known for its culture, landmarks, and unique local experiences.`, 'textarea')}
     `})}
-
-
-    ${Comp.Card({title:`City-wide Block-outs`, hint:`Dates when every product in this city is unavailable for booking — regardless of individual product or option availability. Products stay Active/published; only bookings on these dates are blocked.`, body:`
-      ${(city.blockOutDates||[]).map((b,i) => `
-        <div class="field-row items-end">
-          <div class="field m-0"><label for="cityBlockDate-${city.id}-${i}">Date</label><input type="date" id="cityBlockDate-${city.id}-${i}" class="card-input" value="${b.date||''}" oninput="Comp.setCityBlockOutField('${city.id}',${i},'date',this.value)"></div>
-          <div class="field" style="margin:0; flex:1;"><label for="cityBlockReason-${city.id}-${i}">Reason (optional)</label><input id="cityBlockReason-${city.id}-${i}" class="card-input" placeholder="e.g. Local public holiday" value="${Comp._escAttr(b.reason||'')}" oninput="Comp.setCityBlockOutField('${city.id}',${i},'reason',this.value)"></div>
-          <button type="button" class="btn btn-sm btn-danger" onclick="Comp.removeCityBlockOut('${city.id}', ${i})">Remove</button>
-        </div>`).join('')}
-      <div style="display:flex; gap:10px; margin-top:10px;">
-        ${Comp.Button('+ Add block-out date', {size:'btn-sm', onclick:`Comp.addCityBlockOut('${city.id}')`})}
-      </div>`})}
-
-    ${Comp.Card({title:'Attractions', titleExtra:Comp.AddAttractionButton('cityDetails', city.name), body:
-      Comp.AttractionsBlock('cityDetailAttractions', city.attractionIds, city.name)
-    })}
 
     ${Comp.AiCard({id:'city-faq', title:'Frequently asked questions', stackAttrs:'data-max-items="12"', fieldsHtml:
       Comp.FaqItem(1, 'What is the cancellation policy?', 'Free cancellation up to 24 hours before the activity. After that, a 50% cancellation fee applies. No-shows are charged the full amount.', true) +
@@ -10227,7 +10317,6 @@ function pageAttractionListing(params){
       <td class="cell-secondary">${Comp._escHtml(region)}</td>
       <td class="cell-secondary">${Comp._escHtml(a.city||'\u2014')}</td>
       ${Comp._productCountCell('attraction', a.name)}
-      <td>${Comp._tierBadge(tierLevel)}</td>
       <td>${idxBadge}</td>
       <td>${gscBadge}</td>
       <td>${Comp.Badge(a.status, a.status==='Active')}</td>
@@ -10244,10 +10333,10 @@ function pageAttractionListing(params){
   const baseParamsAttr = encodeURIComponent(JSON.stringify({filterType, filterValue, filterLabel, ...filterVals}));
   const filterDefs = [
     {id:'fContinent',    label:'Continent',    value:p.fContinent||'',    options:[{value:'',label:'All continents'}, ...continents.map(c=>({value:c,label:c}))]},
+    {id:'fTier',         label:'Tier Level',   value:p.fTier||'',         options:[{value:'',label:'All tiers'}, ...tiers.map(t=>({value:t,label:t}))]},
     {id:'fCountry',      label:'Country',      value:p.fCountry||'',      options:[{value:'',label:'All countries'}, ...DATA.countries.map(c=>({value:c.name,label:c.name}))]},
     {id:'fRegion',       label:'Region',       value:p.fRegion||'',       options:[{value:'',label:'All regions'}, ...DATA.regions.map(r=>({value:r.name,label:r.name}))]},
     {id:'fCity',         label:'City',         value:p.fCity||'',         options:[{value:'',label:'All cities'}, ...DATA.cities.map(c=>({value:c.name,label:c.name}))]},
-    {id:'fTier',         label:'Tier Level',   value:p.fTier||'',         options:[{value:'',label:'All tiers'}, ...tiers.map(t=>({value:t,label:t}))]},
     {id:'fIndexability', label:'Indexability', value:p.fIndexability||'', options:[{value:'',label:'All'},{value:'Indexable',label:'Indexable'},{value:'Noindex',label:'Noindex'}]},
     {id:'fStatus',       label:'Status',       value:p.fStatus||'',       options:[{value:'',label:'All statuses'},{value:'Active',label:'Active'},{value:'Inactive',label:'Inactive'}]}
   ];
@@ -10270,7 +10359,6 @@ function pageAttractionListing(params){
       {label:'Region',           width:'120px'},
       {label:'City',             width:'120px'},
       {label:'Products',         width:'90px'},
-      {label:'Tier Level',       width:'100px'},
       {label:'Indexability',     width:'110px'},
       {label:'GSC',              width:'110px'},
       {label:'Status',           width:'90px'},
@@ -10294,19 +10382,37 @@ function pageAttractionCreate(){
         <div class="field-stack">
           <div class="field-row">
             <div class="field">
-              <label for="attrCityCountrySelect">Country <span class="required">*</span></label>
-              <select id="attrCityCountrySelect" required>
-                <option value="">Select country</option>
-                ${DATA.countries.map(c => `<option>${c.name}</option>`).join('')}
+              <label for="attrCreateContinent">Continent <span class="required">*</span></label>
+              <select id="attrCreateContinent" required onchange="Comp._cascadeAttrCreate()">
+                <option value="">Select continent</option>
+                ${[...new Set(DATA.countries.map(c => c.continent).filter(Boolean))].sort().map(c => `<option>${c}</option>`).join('')}
               </select>
             </div>
             <div class="field">
-              <label for="attrCitySelect">City <span class="required">*</span></label>
-              <select id="attrCitySelect" required>
-                <option value="">Select city</option>
-                ${DATA.cities.map(c => `<option>${c.name}</option>`).join('')}
+              <label for="attrCreateTier">Tier Level <span class="required">*</span></label>
+              <select id="attrCreateTier" required>
+                <option value="">Select tier</option>
+                ${['Tier 1','Tier 2','Tier 3','Unassigned'].map(t => `<option>${t}</option>`).join('')}
               </select>
             </div>
+          </div>
+          <div class="field">
+            <label for="attrCityCountrySelect">Country <span class="required">*</span></label>
+            <select id="attrCityCountrySelect" required onchange="Comp._cascadeAttrCreateRegion()">
+              <option value="">Select continent first</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="attrCreateRegion">Region (if applicable)</label>
+            <select id="attrCreateRegion" onchange="Comp._cascadeAttrCreateCity()">
+              <option value="">Select country first</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="attrCitySelect">City <span class="required">*</span></label>
+            <select id="attrCitySelect" required>
+              <option value="">Select country first</option>
+            </select>
           </div>
           <div class="field">
             <label for="attrGoogleSearch">Search Google Places <span class="required">*</span></label>
@@ -10338,20 +10444,6 @@ function pageAttractionCreate(){
           <button type="button" class="add-item-btn" data-item-type="faq" style="display:block;">+ Add Another FAQ</button>
         </div>
       </div>
-      ${Comp.Card({title:`There's more here than you'll expect`, body:`
-        <div class="field"><label for="attrCreateAboutTitle">Title</label><input id="attrCreateAboutTitle" placeholder="e.g. Discover [Attraction Name]"></div>
-        <div class="field"><label for="attrCreateAboutShort">Short description</label><input id="attrCreateAboutShort" maxlength="150" placeholder="A must-see highlight..."></div>
-        <div class="field"><label for="attrCreateAboutLong">Long description</label><textarea id="attrCreateAboutLong" maxlength="1000" placeholder="A longer description of the attraction..."></textarea></div>
-        <div class="field"><label for="attrCreateAboutNote">Highlighted note</label><textarea id="attrCreateAboutNote" placeholder="e.g. Book in advance during peak season..."></textarea></div>`})}
-      ${Comp.Card({title:`Plan your visit with confidence`, body:`
-        <div class="field"><label for="attrCreatePlanTitle">Title</label><input id="attrCreatePlanTitle" placeholder="e.g. Everything you need to know before you go"></div>
-        <div class="field mt-2"><label for="attrCreatePlanDesc">Short Description</label><textarea id="attrCreatePlanDesc" placeholder="A short intro to help visitors plan ahead..."></textarea></div>
-        <div class="field mt-3" id="attrCreatePlanFeatureWrap">
-          ${Comp._attractionCreatePlanVisitFeatureHtml()}
-        </div>
-        <div class="field mt-3" id="attrCreatePlanMomentsWrap">
-          ${Comp._attractionCreatePlanVisitMomentsHtml()}
-        </div>`})}
       <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:24px;">
         ${Comp.Button('Cancel', {onclick:"Comp.cancelCreateAttraction()"})}
         <button type="submit" class="btn btn-primary" disabled>Create attraction</button>
@@ -10391,17 +10483,51 @@ function pageAttractionDetails(params){
     `})}
 
     ${Comp.AiCard({id:'list-row__body', title:'Attraction information', fieldsHtml:`
+      <div class="field-row">
+        <div class="field">
+          <label for="attrDetailContinent">Continent</label>
+          <select id="attrDetailContinent" class="card-input" disabled>
+            <option value="">—</option>
+            ${[...new Set(DATA.countries.map(c=>c.continent).filter(Boolean))].sort().map(c => { const co=DATA.countries.find(x=>x.name===attraction.country); return `<option ${co&&co.continent===c?'selected':''}>${c}</option>`; }).join('')}
+          </select>
+        </div>
+        <div class="field">
+          <label for="attrDetailTier">Tier Level</label>
+          <select id="attrDetailTier" class="card-input" disabled>
+            ${['Tier 1','Tier 2','Tier 3','Unassigned'].map(t => `<option ${(attraction.tierLevel||'Unassigned')===t?'selected':''}>${t}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label for="attrDetailCountry">Country</label>
+        <select id="attrDetailCountry" class="card-input" disabled>
+          <option value="">—</option>
+          ${DATA.countries.map(c => `<option ${c.name===attraction.country?'selected':''}>${c.name}</option>`).join('')}
+        </select>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="attrDetailRegion">Region</label>
+          <select id="attrDetailRegion" class="card-input" disabled>
+            <option value="">—</option>
+            ${DATA.regions.filter(r=>r.country===attraction.country).map(r => `<option ${r.name===attraction.region?'selected':''}>${r.name}</option>`).join('')}
+          </select>
+        </div>
+        <div class="field">
+          <label for="attrDetailCity">City</label>
+          <select id="attrDetailCity" class="card-input" disabled>
+            <option value="">—</option>
+            ${DATA.cities.filter(c=>c.country===attraction.country).map(c => `<option ${c.name===attraction.city?'selected':''}>${c.name}</option>`).join('')}
+          </select>
+        </div>
+      </div>
       ${aiField('H1', `${attraction.name} is one of the most visited landmarks in ${attraction.city}.`)}
       ${aiField('Supporting snippet', `Plan your visit to ${attraction.name} — discover opening hours, tickets, and guided tours with Rosotravel.`, 'textarea')}
       <div class="field">
         <label id="attractionHeroLbl">Hero image</label>
-        <div class="upload-area" role="button" tabindex="0" aria-labelledby="attractionHeroLbl" onclick="Comp.handleUploadAreaClick(this, function(filename, altText){ Comp.showToast('Media uploaded: ' + filename + ' (Alt: ' + altText + ')', 'success'); })">
-          <div class="up-title">Click to upload</div>
-          <div class="up-sub">or drag and drop</div>
-          <div class="up-hint">PNG, JPG, WEBP (recommended 1200×630px)</div>
-        </div>
+        <div class="upload-area" role="button" tabindex="0" aria-labelledby="attractionHeroLbl" onclick="Comp.handleUploadAreaClick(this, function(filename, altText){ DATA.masterAttractions.find(a=>a.id==='${attraction.id}').heroAltText=altText; Comp.showToast('Hero image uploaded. Alt: '+altText, 'success'); render(); })"><div class="up-title">Click to upload</div><div class="up-sub">or drag and drop</div><div class="up-hint">PNG, JPG or WEBP (max. 1200×630px)</div></div>
       </div>
-      ${aiField('Overview', `Set in the heart of ${attraction.city}, ${attraction.name} draws visitors from across the world. This section is factual and is used across product and city pages.`, 'textarea')}
+      ${aiField('Overview', `${attraction.name} is a landmark destination in ${attraction.city}, drawing visitors from around the world.`, 'textarea')}
     `})}
 
     ${Comp.PlanVisitCard(attraction, 'attraction-planvisit')}
@@ -10433,8 +10559,8 @@ function pageAttractionDetails(params){
       </div>
     `})}
 
-    ${Comp.attractionHighlightsCard(attraction)}
-    ${Comp.attractionVisitorInfoCard(attraction)}`;
+    
+    `;
   } else if (tab === 'optimization') {
     tabBody = Comp.OptimizationPanel({
       title:'Page Optimization', idPrefix:'attractionopt-'+attraction.id,
@@ -10461,15 +10587,6 @@ function pageAttractionDetails(params){
     <div style="margin:-14px 0 16px;"><button type="button" class="btn-sm-link" onclick="Comp.goToAddProductFromAttraction('${attraction.name}')">+ Add product for this attraction</button></div>`;
   } else if (tab === 'keywords') {
     tabBody = Comp.KeywordAssignTab(attraction.name, 'Attraction');
-  } else if (tab === 'overrides') {
-    tabBody = `
-    ${Comp.Card({title:`Manual Overrides`, hint:`Sections locked from AI regeneration in this session are marked with ${ICON.lock} in the SEO Content tab.`, body:`
-      ${Comp._infoTable([
-        ['Lockable sections', 'SEO data, Attraction information, FAQ, About, Highlights'],
-        ['Manual edits this session', 'See ' + ICON.lock + ' icons in SEO Content tab'],
-        ['Visitor info source overrides', `${Comp.VISITOR_INFO_FIELDS.filter(f => (attraction.visitorInfo || {})[f.key] && attraction.visitorInfo[f.key].locked).length} field(s) locked from external sync`]
-      ])}`})}
-    ${Comp.attractionBlockOutCard(attraction)}`;
   } else if (tab === 'overrides') {
     tabBody = Comp.renderOverridesTab(attraction, ['attraction-seo','list-row__body','attraction-localtips','attraction-faq','attraction-whysee']);
   } else if (tab === 'history') {
@@ -21661,7 +21778,6 @@ function pageRolesCreate(){
       <td class="text-center"><input type="checkbox" id="c${i}" aria-label="Create ${m}" onchange="Comp.roleToggleModule(${i}, this.checked, 'c')"></td>
       <td class="text-center"><input type="checkbox" id="r${i}" aria-label="Read ${m}" onchange="Comp.roleToggleModule(${i}, this.checked, 'r')" checked></td>
       <td class="text-center"><input type="checkbox" id="u${i}" aria-label="Update ${m}" onchange="Comp.roleToggleModule(${i}, this.checked, 'u')"></td>
-      <td class="text-center"><input type="checkbox" id="d${i}" aria-label="Delete ${m}" onchange="Comp.roleToggleModule(${i}, this.checked, 'd')"></td>
     </tr>`;
     // A module with a single same-named sub-section adds nothing, so only
     // expand genuinely sub-divided modules.
@@ -21673,7 +21789,6 @@ function pageRolesCreate(){
         <td class="text-center"><input type="checkbox" id="c${i}_${si}" aria-label="Create ${sub}"></td>
         <td class="text-center"><input type="checkbox" id="r${i}_${si}" aria-label="Read ${sub}" checked></td>
         <td class="text-center"><input type="checkbox" id="u${i}_${si}" aria-label="Update ${sub}" ${sensitive ? '' : ''}></td>
-        <td class="text-center"><input type="checkbox" id="d${i}_${si}" aria-label="Delete ${sub}" ${sensitive ? '' : ''}></td>
       </tr>`;
     }).join('');
   }).join('');
@@ -21687,7 +21802,7 @@ function pageRolesCreate(){
           <div class="field"><label for="rDesc">Description</label><textarea id="rDesc" placeholder="Enter a brief description of this role..."></textarea></div>
         </div>`})}
       ${Comp.Card({title:`Assign permissions`, body:`
-        ${Comp.Table({columns:[{label:'Module'},{label:'Create',width:'90px'},{label:'Read',width:'90px'},{label:'Update',width:'90px'},{label:'Delete',width:'90px'}], rows:permRows})}
+        ${Comp.Table({columns:[{label:'Module'},{label:'Create',width:'90px'},{label:'Read',width:'90px'},{label:'Update',width:'90px'}], rows:permRows})}
         <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:24px;">
           ${Comp.Button('Cancel', {onclick:"Router.go('rolesListing')"})}
           <button type="submit" class="btn btn-primary" disabled>Create role</button>
@@ -21721,7 +21836,6 @@ function pageRolesDetails(params){
       <td class="text-center"><input type="checkbox" class="card-input" id="permCreate${i}" aria-label="Create ${p.module}" ${p.create ? 'checked' : ''} disabled></td>
       <td class="text-center"><input type="checkbox" class="card-input" id="permRead${i}" aria-label="Read ${p.module}" ${p.read !== false ? 'checked' : ''} disabled></td>
       <td class="text-center"><input type="checkbox" class="card-input" id="permUpdate${i}" aria-label="Update ${p.module}" ${p.update || p.edit ? 'checked' : ''} disabled></td>
-      <td class="text-center"><input type="checkbox" class="card-input" id="permDelete${i}" aria-label="Delete ${p.module}" ${p.delete ? 'checked' : ''} disabled></td>
     </tr>`;
     const subRows = subs.map((sub, si) => {
       const sensitive = SENSITIVE_SUBSECTIONS.includes(sub.name);
@@ -21730,7 +21844,6 @@ function pageRolesDetails(params){
         <td class="text-center"><input type="checkbox" class="card-input" id="permCreate${i}_${si}" aria-label="Create ${sub.name}" ${sub.create ? 'checked' : ''} disabled></td>
         <td class="text-center"><input type="checkbox" class="card-input" id="permRead${i}_${si}" aria-label="Read ${sub.name}" ${sub.read !== false ? 'checked' : ''} disabled></td>
         <td class="text-center"><input type="checkbox" class="card-input" id="permUpdate${i}_${si}" aria-label="Update ${sub.name}" ${sub.update || sub.edit ? 'checked' : ''} disabled></td>
-        <td class="text-center"><input type="checkbox" class="card-input" id="permDelete${i}_${si}" aria-label="Delete ${sub.name}" ${sub.delete ? 'checked' : ''} disabled></td>
       </tr>`;
     }).join('');
     return moduleRow + subRows;
@@ -21761,7 +21874,7 @@ function pageRolesDetails(params){
         </div>
       </div>
       ${Comp.Card({title:`Assigned permissions`, body:`
-        ${Comp.Table({columns:[{label:'Module'},{label:'Create',width:'90px'},{label:'Read',width:'90px'},{label:'Update',width:'90px'},{label:'Delete',width:'90px'}], rows:permRows})}`})}
+        ${Comp.Table({columns:[{label:'Module'},{label:'Create',width:'90px'},{label:'Read',width:'90px'},{label:'Update',width:'90px'}], rows:permRows})}`})}
     </form>
   `);
 }
