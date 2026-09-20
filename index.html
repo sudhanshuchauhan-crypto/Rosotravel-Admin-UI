@@ -2143,32 +2143,32 @@ const Comp = {
     // Sub-field map per section id
     const SECTION_FIELDS = {
       // Country
-      'seo':                 ['H1','Supporting snippet','Meta title','Meta description'],
-      'info':                ['H1','Supporting snippet','Description'],
+      'seo':                 ['H1 — First-Time Visitor','H1 — Family Trip','H1 — Couple Trip','H1 — Solo Trip','H1 — Premium & Comfortable','H1 — Culture & History','H1 — Activities & Local Experiences','Meta title','Meta description'],
+      'info':                ['H1 — First-Time Visitor','H1 — Family Trip','H1 — Couple Trip','H1 — Solo Trip','H1 — Premium & Comfortable','H1 — Culture & History','H1 — Activities & Local Experiences','Description'],
       'highlights':          ['Highlight 1','Highlight 2','Highlight 3'],
       'countryfacts':        ['Fact 1','Fact 2','Fact 3'],
       'countrybestseason':   ['Spring','Summer','Autumn','Winter'],
       'whyvisit':            ['Short description','Long description'],
       'faq':                 ['FAQ 1','FAQ 2','FAQ 3'],
-      'about':               ['About snippet','About points'],
+      'about':               [],
       // Region
-      'region-seo':          ['H1','Supporting snippet','Meta title','Meta description'],
-      'region-info':         ['H1','Supporting snippet','Description'],
+      'region-seo':          ['H1 — First-Time Visitor','H1 — Family Trip','H1 — Couple Trip','H1 — Solo Trip','H1 — Premium & Comfortable','H1 — Culture & History','H1 — Activities & Local Experiences','Meta title','Meta description'],
+      'region-info':         ['H1 — First-Time Visitor','H1 — Family Trip','H1 — Couple Trip','H1 — Solo Trip','H1 — Premium & Comfortable','H1 — Culture & History','H1 — Activities & Local Experiences','Description'],
       'region-highlights':   ['Highlight 1','Highlight 2','Highlight 3'],
       'region-facts':        ['Fact 1','Fact 2','Fact 3'],
       'regionbestseason':    ['Spring','Summer','Autumn','Winter'],
       'region-whyvisit':     ['Short description','Long description'],
       'region-faq':          ['FAQ 1','FAQ 2','FAQ 3'],
-      'region-about':        ['About snippet','About points'],
+      'region-about':        [],
       // City
-      'city-seo':            ['H1','Supporting snippet','Meta title','Meta description'],
-      'city-info':           ['H1','Supporting snippet','Description'],
+      'city-seo':            ['H1 — First-Time Visitor','H1 — Family Trip','H1 — Couple Trip','H1 — Solo Trip','H1 — Premium & Comfortable','H1 — Culture & History','H1 — Activities & Local Experiences','Meta title','Meta description'],
+      'city-info':           ['H1 — First-Time Visitor','H1 — Family Trip','H1 — Couple Trip','H1 — Solo Trip','H1 — Premium & Comfortable','H1 — Culture & History','H1 — Activities & Local Experiences','Description'],
       'city-localtips':      ['Tip 1','Tip 2','Tip 3'],
       'city-whyvisit':       ['Short description','Long description'],
       'city-faq':            ['FAQ 1','FAQ 2','FAQ 3'],
-      'city-about':          ['About snippet','About points'],
+      'city-about':          [],
       // Attraction
-      'attraction-seo':      ['H1','Supporting snippet','Meta title','Meta description'],
+      'attraction-seo':      ['H1 — First-Time Visitor','H1 — Family Trip','H1 — Couple Trip','H1 — Solo Trip','H1 — Premium & Comfortable','H1 — Culture & History','H1 — Activities & Local Experiences','Supporting snippet','Meta title','Meta description'],
       'list-row__body':      ['H1','Supporting snippet','Overview'],
       'attraction-localtips':['Tip 1','Tip 2','Tip 3'],
       'attraction-faq':      ['FAQ 1','FAQ 2','FAQ 3'],
@@ -5626,7 +5626,8 @@ const Comp = {
         const newPerms = role.permissions.map((p, i) => ({
           module: p.module,
           view: document.getElementById('permView' + i).checked,
-          edit: document.getElementById('permEdit' + i).checked
+          edit: document.getElementById('permEdit' + i).checked,
+          manage: document.getElementById('permManage' + i).checked
         }));
         if (choice === 'update') {
           role.name = newName; role.desc = newDesc; role.permissions = newPerms;
@@ -5692,6 +5693,35 @@ const Comp = {
       <textarea id="${fid}" class="card-input" readonly data-field-label="${Comp._escAttr(heading)}" placeholder="Write this point\u2026">${value || ''}</textarea>
     </div>`;
   },
+  // Specialisation options for "What we specialise in" dropdowns — shared across Country, Region, City
+  SPECIALISATION_OPTIONS: [
+    '','Cultural Tours','Adventure & Outdoor','Food & Dining','City Breaks','Beach & Coastal',
+    'Wildlife & Nature','Historical Sites','Religious & Spiritual','Family Travel','Luxury Travel',
+    'Budget Travel','Road Trips','Wellness & Spa','Festivals & Events','Photography Tours',
+    'Wine & Gastronomy','Winter Sports','Water Sports','Nightlife & Entertainment','Shopping'
+  ],
+
+  // "What we specialise in across <Entity>" — info sentence + 5 select overrides
+  EntitySpecialisationField(entityName, idPrefix, specs){
+    const opts = Comp.SPECIALISATION_OPTIONS;
+    const defaults = specs && specs.length ? specs : ['','','','',''];
+    const optHtml = opts.map(o => `<option value="${Comp._escAttr(o)}">${Comp._escHtml(o || '— Select —')}</option>`).join('');
+    const selects = [1,2,3,4,5].map(n => {
+      const val = defaults[n-1] || '';
+      const selectedOpts = opts.map(o => `<option value="${Comp._escAttr(o)}"${o===val?' selected':''}>${Comp._escHtml(o||'— Select —')}</option>`).join('');
+      return `<div class="field" style="margin-bottom:6px;">
+        <label for="${idPrefix}-spec${n}" style="font-size:var(--fs-sm);color:var(--text-secondary);">Specialisation ${n}</label>
+        <select id="${idPrefix}-spec${n}" class="card-input" disabled data-field-label="Specialisation ${n}">${selectedOpts}</select>
+      </div>`;
+    }).join('');
+    const s = defaults.map(v => v || '{{Specialisation}}');
+    const infoText = `Our strongest coverage in ${Comp._escHtml(entityName)} includes ${s[0]}, ${s[1]}, ${s[2]}, ${s[3]} and ${s[4]}, based on the experiences currently available across the ${Comp._escHtml(entityName.toLowerCase())}.`;
+    return `<div class="field">
+      <label style="font-weight:600;">What we specialise in across ${Comp._escHtml(entityName)}</label>
+      <p class="field-hint" id="${idPrefix}-spec-preview" style="margin:6px 0 10px;line-height:1.6;font-style:italic;">${infoText}</p>
+    </div>` + selects;
+  },
+
   // Compact attraction row (thumbnail + name + url + edit/delete) — data kept on the element itself
   // Compact row showing a MASTER attraction linked to a city — view/unlink only.
   // Creating/editing an attraction's own content happens on the Attraction Management pages.
@@ -6725,14 +6755,14 @@ const Comp = {
     </div>`;
   },
 
-  AiCard({id, title, fieldsHtml, titleExtra, stackAttrs}){
+  AiCard({id, title, fieldsHtml, titleExtra, stackAttrs, noRegen}){
     const pending = Comp._pendingApprovals[Comp.cardKey(id)];
     const approvalBadge = pending
       ? '<button type="button" class="approval-badge" onclick="Comp.openApprovalCompare(\'' + id + '\')">\u26a0 Review pending</button>'
       : '';
-    const regenBtn = pending
+    const regenBtn = noRegen ? '' : (pending
       ? Comp.Button('\u21bb Review content', {size:'btn-sm', variant:'btn-primary', onclick:"Comp.openApprovalCompare('" + id + "')"})
-      : Comp.Button('\u21bb Regenerate', {size:'btn-sm', onclick:'Comp.startRegen(this)'});
+      : Comp.Button('\u21bb Regenerate', {size:'btn-sm', onclick:'Comp.startRegen(this)'}));
     return '<section class="card" data-card-id="' + id + '" aria-label="' + Comp._escAttr(title) + '">' +
       '<div class="section-header-row">' +
         '<p class="card-title">' + title + approvalBadge + '</p>' +
@@ -6791,6 +6821,17 @@ const Comp = {
     const card = btn.closest('.card');
     card.classList.add('is-editing');
     this._setCardInputsEditable(card, true);
+    // Wire up live preview for specialisation selects
+    const preview = card.querySelector('[id$="-spec-preview"]');
+    if (preview) {
+      const selects = card.querySelectorAll('select[id$="-spec1"],select[id$="-spec2"],select[id$="-spec3"],select[id$="-spec4"],select[id$="-spec5"]');
+      const entityLabel = card.querySelector('label[style*="font-weight"]')?.textContent?.replace('What we specialise in across ','') || '';
+      const update = () => {
+        const vals = Array.from(selects).map(s => s.value || '{{Specialisation}}');
+        preview.textContent = `Our strongest coverage in ${entityLabel} includes ${vals[0]}, ${vals[1]}, ${vals[2]}, ${vals[3]} and ${vals[4]}, based on the experiences currently available across the ${entityLabel.toLowerCase()}.`;
+      };
+      selects.forEach(s => { s.removeEventListener('change', update); s.addEventListener('change', update); });
+    }
     const first = card.querySelector('.card-input');
     if (first) first.focus();
   },
@@ -7017,32 +7058,6 @@ const Comp = {
       '</label>';
     }).join('');
 
-    // --- Audience types (Country/Region only) ---
-    const audienceRows = (Comp.AUDIENCE_TYPES || []).map(a =>
-      '<label class="opt-check">' +
-        '<input type="checkbox" class="rl-audience-check" value="' + Comp._escAttr(a) + '">' +
-        '<span>' + Comp._escHtml(a) + '</span>' +
-      '</label>'
-    ).join('');
-
-    // --- Generation scope section (Country/Region only) ---
-    const scopeSection = isDestPage
-      ? '<p class="opt-sub" style="margin-top:0;">Generation scope</p>' +
-        '<div style="background:var(--surface-sunken);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 14px;margin-bottom:0;">' +
-          '<div class="radio-option selected" data-regen-scope="all" role="radio" tabindex="0" onclick="Comp._regenScopeSelect(this)">' +
-            '<div class="radio-circle"></div>' +
-            '<div><p class="rtitle">Generate for all languages &amp; audience types</p><p class="rsub">Regenerate across all 7 languages and all audience types at once.</p></div>' +
-          '</div>' +
-          '<div class="radio-option" data-regen-scope="specific" role="radio" tabindex="0" onclick="Comp._regenScopeSelect(this)">' +
-            '<div class="radio-circle"></div>' +
-            '<div><p class="rtitle">Select specific languages &amp; audience types</p><p class="rsub">Choose which languages and audience types to regenerate for.</p></div>' +
-          '</div>' +
-        '</div>' +
-        '<div id="rl-specific-panel" style="display:none;margin-top:16px;">'
-      : '';
-
-    const specificPanelClose = isDestPage ? '</div>' : '';
-
     const approvalBlock =
       '<div class="action-row action-row--between mt-3" style="border-top:1px solid var(--border);padding-top:12px;">' +
         '<div>' +
@@ -7055,35 +7070,15 @@ const Comp = {
         '</button>' +
       '</div>';
 
-    const specificContent = isDestPage
-      ? '<p class="opt-sub" style="margin-top:0;">Target languages</p>' +
-        '<div style="background:var(--surface-sunken);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 14px;">' +
-          langRows + approvalBlock +
-        '</div>' +
-        '<p class="opt-sub">Audience types</p>' +
-        '<div style="background:var(--surface-sunken);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 14px;">' +
-          audienceRows +
-        '</div>'
-      : '<p class="opt-sub">Target languages</p>' +
-        '<div style="background:var(--surface-sunken);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 14px;">' +
-          langRows + approvalBlock +
-        '</div>';
-
-    // For non-dest pages — approval is outside specific panel
-    const nonDestApproval = !isDestPage
-      ? '' : '';
-
     const body =
       '<p class="opt-sub" style="margin-top:0;">Select fields</p>' +
       '<div style="background:var(--surface-sunken);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 14px;">' +
         fieldRows +
       '</div>' +
-      (isDestPage
-        ? scopeSection + specificContent + specificPanelClose +
-          '<div style="background:var(--surface-sunken);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 14px;margin-top:16px;" id="rl-all-approval">' +
-            approvalBlock +
-          '</div>'
-        : specificContent);
+      '<p class="opt-sub">Target languages</p>' +
+      '<div style="background:var(--surface-sunken);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 14px;">' +
+        langRows + approvalBlock +
+      '</div>';
 
     const bodyEl = document.getElementById('modalRegenLangBody');
     bodyEl.innerHTML = '';
@@ -7127,34 +7122,31 @@ const Comp = {
     // Real sections per page type
     const PAGE_SECTIONS = {
       countryDetails: [
-        {id:'seo',          label:'SEO data',                         items:['H1','Supporting snippet','Meta title','Meta description']},
+        {id:'seo',          label:'SEO data',                         items:['H1 — First-Time Visitor','H1 — Family Trip','H1 — Couple Trip','H1 — Solo Trip','H1 — Premium & Comfortable','H1 — Culture & History','H1 — Activities & Local Experiences','Meta title','Meta description']},
         {id:'highlights',   label:'Highlights',                       items:['Highlight items']},
         {id:'facts',        label:'Facts & Curiosities',              items:['Fact items']},
         {id:'bestseason',   label:'Best season for the way you travel',items:['Spring','Summer','Autumn','Winter']},
         {id:'whyvisit',     label:'What makes this place special',    items:['Short description','Long description']},
-        {id:'faq',          label:'Frequently asked questions',       items:['FAQ items']},
-        {id:'about',        label:'About Rosotravel in ' + entityName,items:['About snippet','About points']}
+        {id:'faq',          label:'Frequently asked questions',       items:['FAQ items']}
       ],
       regionDetails: [
-        {id:'seo',          label:'SEO data',                         items:['H1','Supporting snippet','Meta title','Meta description']},
+        {id:'seo',          label:'SEO data',                         items:['H1 — First-Time Visitor','H1 — Family Trip','H1 — Couple Trip','H1 — Solo Trip','H1 — Premium & Comfortable','H1 — Culture & History','H1 — Activities & Local Experiences','Meta title','Meta description']},
         {id:'highlights',   label:'Highlights',                       items:['Highlight items']},
         {id:'facts',        label:'Facts & Curiosities',              items:['Fact items']},
         {id:'bestseason',   label:'Best season for the way you travel',items:['Spring','Summer','Autumn','Winter']},
         {id:'whyvisit',     label:'What makes this place special',    items:['Short description','Long description']},
-        {id:'faq',          label:'Frequently asked questions',       items:['FAQ items']},
-        {id:'about',        label:'About Rosotravel in ' + entityName,items:['About snippet','About points']}
+        {id:'faq',          label:'Frequently asked questions',       items:['FAQ items']}
       ],
       cityDetails: [
-        {id:'seo',          label:'SEO data',                         items:['H1','Supporting snippet','Meta title','Meta description']},
+        {id:'seo',          label:'SEO data',                         items:['H1 — First-Time Visitor','H1 — Family Trip','H1 — Couple Trip','H1 — Solo Trip','H1 — Premium & Comfortable','H1 — Culture & History','H1 — Activities & Local Experiences','Meta title','Meta description']},
         {id:'highlights',   label:'Highlights',                       items:['Highlight items']},
         {id:'facts',        label:'Facts & Curiosities',              items:['Fact items']},
         {id:'localtips',    label:'Local Tips',                       items:['Tip items']},
         {id:'whyvisit',     label:'What makes this place special',    items:['Short description','Long description']},
-        {id:'faq',          label:'Frequently asked questions',       items:['FAQ items']},
-        {id:'about',        label:'About Rosotravel in ' + entityName,items:['About snippet','About points']}
+        {id:'faq',          label:'Frequently asked questions',       items:['FAQ items']}
       ],
       attractionDetails: [
-        {id:'seo',          label:'SEO data',                         items:['H1','Supporting snippet','Meta title','Meta description']},
+        {id:'seo',          label:'SEO data',                         items:['H1 — First-Time Visitor','H1 — Family Trip','H1 — Couple Trip','H1 — Solo Trip','H1 — Premium & Comfortable','H1 — Culture & History','H1 — Activities & Local Experiences','Supporting snippet','Meta title','Meta description']},
         {id:'localtips',    label:'Local Tips',                       items:['Tip items']},
         {id:'faq',          label:'Frequently asked questions',       items:['FAQ items']},
         {id:'whysee',       label:"What You'll See & Why It Matters", items:['Snippet','The Arena','The Hypogeum','Seating & Circulation System','Museum & Exhibition Areas','A Building with Almost 2,000 Years of History','Overview']},
@@ -7224,20 +7216,11 @@ const Comp = {
     const selectedFields = [...document.querySelectorAll('.rl-field-check:checked')].map(el => el.value);
     const manualApproval = Comp._regenManualApproval !== false;
 
-    // Determine scope (country/region pages only)
-    const scopeEl   = document.querySelector('[data-regen-scope].selected');
-    const isAllScope = !scopeEl || scopeEl.dataset.regenScope === 'all';
+    let selectedLangs     = [...document.querySelectorAll('.rl-lang-check:checked')].map(el => el.value);
+    const selectedAudiences = [...document.querySelectorAll('.rl-audience-check:checked')].map(el => el.value);
+    const isAllScope = false;
 
-    let selectedLangs, selectedAudiences;
-    if(isAllScope){
-      selectedLangs     = ['English','German','French','Italian','Spanish','Polish','Dutch'];
-      selectedAudiences = Comp.AUDIENCE_TYPES ? [...Comp.AUDIENCE_TYPES] : [];
-    } else {
-      selectedLangs     = [...document.querySelectorAll('.rl-lang-check:checked')].map(el => el.value);
-      selectedAudiences = [...document.querySelectorAll('.rl-audience-check:checked')].map(el => el.value);
-    }
-
-    if(!isAllScope && !selectedLangs.length){
+    if(!selectedLangs.length){
       Comp.showToast('Select at least one language to regenerate.', 'danger');
       return;
     }
@@ -7250,8 +7233,7 @@ const Comp = {
       if(!selectedIds.length){ Comp.showToast('Select at least one section.', 'danger'); return; }
       const cards = selectedIds.map(id => document.querySelector('.card[data-card-id="' + id + '"]')).filter(Boolean);
       cards.forEach(c => Comp.regenerateCard(c));
-      const scopeLbl = isAllScope ? 'all languages & audience types' : selectedLangs.join(', ');
-      let msg = 'Regenerating ' + cards.length + ' section' + (cards.length===1?'':'s') + ' for: ' + scopeLbl;
+      let msg = 'Regenerating ' + cards.length + ' section' + (cards.length===1?'':'s') + ' for: ' + selectedLangs.join(', ');
       if(manualApproval) msg += ' — results will need approval';
       Comp.showToast(msg + '.', 'success');
       return;
@@ -7300,8 +7282,7 @@ const Comp = {
     Comp.regenerateCard(card);
     const sectionTitle = card.getAttribute('aria-label') || 'Section';
     const fieldsPart   = selectedFields.length ? ' [' + selectedFields.join(', ') + ']' : '';
-    const audPart      = selectedAudiences.length && !isAllScope ? ' · Audience: ' + selectedAudiences.join(', ') : '';
-    let msg = sectionTitle + fieldsPart + ' regenerating for: ' + (isAllScope ? 'all languages & audience types' : selectedLangs.join(', ') + audPart);
+    let msg = sectionTitle + fieldsPart + ' regenerating for: ' + selectedLangs.join(', ');
     if(manualApproval) msg += ' — results will need approval';
     Comp.showToast(msg + '.', 'success');
   },
@@ -7583,39 +7564,10 @@ const Comp = {
   // nothing here bypasses that.
   // Shared scope section (Generate all vs Specific) for Regenerate modals
   _buildScopeSection(langRows, approvalBlock){
-    const audienceRows = (Comp.AUDIENCE_TYPES || []).map(a =>
-      '<label class="opt-check">' +
-        '<input type="checkbox" class="rl-audience-check" value="' + Comp._escAttr(a) + '">' +
-        '<span>' + Comp._escHtml(a) + '</span>' +
-      '</label>'
-    ).join('');
-
     return (
-      '<p class="opt-sub">Generation scope</p>' +
+      '<p class="opt-sub">Target languages</p>' +
       '<div style="background:var(--surface-sunken);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 14px;">' +
-        '<div class="radio-option selected" data-regen-scope="all" role="radio" tabindex="0" onclick="Comp._regenScopeSelect(this)">' +
-          '<div class="radio-circle"></div>' +
-          '<div><p class="rtitle">Generate for all languages &amp; audience types</p>' +
-            '<p class="rsub">Regenerate across all 7 languages and all audience types at once.</p></div>' +
-        '</div>' +
-        '<div class="radio-option" data-regen-scope="specific" role="radio" tabindex="0" onclick="Comp._regenScopeSelect(this)">' +
-          '<div class="radio-circle"></div>' +
-          '<div><p class="rtitle">Select specific languages &amp; audience types</p>' +
-            '<p class="rsub">Choose which languages and audience types to regenerate for.</p></div>' +
-        '</div>' +
-      '</div>' +
-      '<div id="rl-specific-panel" style="display:none;margin-top:16px;">' +
-        '<p class="opt-sub" style="margin-top:0;">Target languages</p>' +
-        '<div style="background:var(--surface-sunken);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 14px;">' +
-          langRows + approvalBlock +
-        '</div>' +
-        '<p class="opt-sub">Audience types</p>' +
-        '<div style="background:var(--surface-sunken);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 14px;">' +
-          audienceRows +
-        '</div>' +
-      '</div>' +
-      '<div id="rl-all-approval" style="background:var(--surface-sunken);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 14px;margin-top:16px;">' +
-        approvalBlock +
+        langRows + approvalBlock +
       '</div>'
     );
   },
@@ -9443,6 +9395,22 @@ function aiFieldWithCounter(label, value, tag, maxLen, id='', editable=false){
     : '<input id="' + fid + '" class="card-input" ' + readonlyAttr + ' maxlength="' + maxLen + '" value="' + safeAttr + '" data-field-label="' + Comp._escAttr(label) + '" oninput="Comp.updateCharCounter(this)">';
   return '<div class="field"><label for="' + fid + '">' + safeLbl + '</label>' + field + '<p class="char-counter" data-max="' + maxLen + '">' + len + '/' + maxLen + '</p></div>';
 }
+// H1 variant fields — 7 traveller-type variants, used across Country, Region, City, Attraction info cards
+function h1VariantFields(entity, defaults){
+  const d = defaults || {};
+  const variants = [
+    {key:'h1_first_time',  label:'H1 — First-Time Visitor',              placeholder:`Discover ${entity} — Top Sights & Experiences`},
+    {key:'h1_family',      label:'H1 — Family Trip',                      placeholder:`${entity} with Kids — Family-Friendly Tours & Attractions`},
+    {key:'h1_couple',      label:'H1 — Couple Trip',                      placeholder:`${entity} for Couples — Romantic Getaways & Experiences`},
+    {key:'h1_solo',        label:'H1 — Solo Trip',                        placeholder:`${entity} Solo Travel — Safe, Fun & Unforgettable`},
+    {key:'h1_premium',     label:'H1 — Premium & Comfortable',            placeholder:`Luxury ${entity} — Premium Tours & Exclusive Experiences`},
+    {key:'h1_culture',     label:'H1 — Culture & History',                placeholder:`${entity} Culture & History — Heritage Sites & Local Traditions`},
+    {key:'h1_activities',  label:'H1 — Activities & Local Experiences',   placeholder:`Things to Do in ${entity} — Tours, Activities & Local Experiences`},
+  ];
+  return variants.map(v => aiField(v.label, d[v.key] || v.placeholder)).join('');
+}
+
+
 
 const REGION_OPTIONS = DATA.regions.map(r => r.name);
 const CONTINENT_OPTIONS = ['North America','South America','Europe','Asia','Africa','Oceania','Middle East'];
@@ -9485,8 +9453,7 @@ function pageCountryDetails(params){
     `})}
 
     ${Comp.AiCard({id:'info', title:'Country information', fieldsHtml:`
-      ${aiField('H1', country.h1 || `Visit ${country.name} — Top Destinations & Travel Guide`)}
-      ${aiField('Supporting snippet', country.snippet || `Explore ${country.name} with Rosotravel — discover top cities, attractions, and travel guides.`, 'textarea')}
+      ${h1VariantFields(country.name, country.h1Variants)}
       <div class="field-row">
         <div class="field">
           <label for="continentSelect">Continent</label>
@@ -9560,15 +9527,8 @@ function pageCountryDetails(params){
       `<button type="button" class="add-item-btn" data-item-type="faq">+ Add Another FAQ</button>`
     })}
 
-    ${Comp.AiCard({id:'about', title:`About Rosotravel in ${country.name}`, fieldsHtml:
-      `<div class="field">
-        <label for="countryAboutSnippet">Snippet</label>
-        <textarea id="countryAboutSnippet" class="card-input" readonly data-field-label="About snippet" placeholder="Short intro that sits above the four points\u2026">${`Rosotravel has been curating experiences in ${country.name} since day one \u2014 here is how we work, and what that means for your trip.`}</textarea>
-      </div>` +
-      Comp.EntityAboutPoint(1, country.name, `Rosotravel operates across ${country.name}, from its best-known cities to the regions travellers rarely reach on their own.`, 'countryAbout') +
-      Comp.EntityAboutPoint(2, country.name, `Curated tours, skip-the-line entry and private transfers \u2014 chosen for reliability, not just availability.`, 'countryAbout') +
-      Comp.EntityAboutPoint(3, country.name, 'Guides who live where they work, vetted for local knowledge and clear communication.', 'countryAbout') +
-      Comp.EntityAboutPoint(4, country.name, `We shortlist what is genuinely worth your time in ${country.name}, so planning takes minutes instead of evenings.`, 'countryAbout') +
+    ${Comp.AiCard({id:'about', title:`About Rosotravel in ${country.name}`, noRegen:true, fieldsHtml:
+      Comp.EntitySpecialisationField(country.name, 'countryAbout', country.specialisations) +
       `<div class="field">
         <label id="aboutMediaLbl">Media upload</label>
         <div class="upload-area" role="button" tabindex="0" aria-labelledby="aboutMediaLbl" onclick="Comp.handleUploadAreaClick(this, function(filename, altText){ Comp.showToast('Media uploaded: ' + filename + ' (Alt: ' + altText + ')', 'success'); })"><div class="up-title">Click to upload</div><div class="up-sub">or drag and drop</div><div class="up-hint">PNG, JPG, WEBP or MP4 (max. 1200×400px)</div></div>
@@ -9619,7 +9579,7 @@ function pageCountryDetails(params){
         ${Comp.Button((country.indexability||'Noindex')==='Indexable' ? '● Indexable' : '○ Noindex', {variant:(country.indexability||'Noindex')==='Indexable' ? 'btn-primary' : '', onclick:`Comp.toggleIndexability('country','${country.id}')`})}
         ${Comp.Button(country.status==='Active' ? 'Deactivate' : 'Activate', {variant:'btn-amber', onclick:`Comp.confirmToggleCountryStatus('${country.id}')`})}`, level:'h2'})}
     ${(()=>{ const _iss=Comp._getDestIssues(country); return _iss.length ? `<div class="status-banner is-danger"><span>${ICON.warning}</span><span>${_iss.length} issue${_iss.length===1?'':'s'}. <button type="button" class="btn-sm-link" onclick="Comp.openDestIssues('country','${country.id}')">View issues →</button></span></div>` : ''; })()}
-    ${Comp.contentLanguageBar('country')}
+    ${Comp.contentLanguageBar('country', true)}
     ${Comp.pendingApprovalsBanner()}
     ${Comp._renderUrlCanonicalCard('country', (code, lang) => {
       const slug = (country.slug || country.name.toLowerCase().replace(/[^a-z0-9]+/g,'-'));
@@ -9826,8 +9786,7 @@ function pageRegionDetails(params){
         <p class="field-hint">ⓘ Each region belongs to exactly one country.</p>
       </div>
       ${aiField('Region name', region.name)}
-      ${aiField('H1', region.h1 || `${region.name} — Travel Guide & Top Destinations`)}
-      ${aiField('Supporting snippet', region.snippet || `Explore ${region.name} with Rosotravel — discover cities, attractions, and local travel guides.`, 'textarea')}
+      ${h1VariantFields(region.name, region.h1Variants)}
       <div class="field">
         <label id="regionDetailHeroLbl">Hero image</label>
         <div class="upload-area" role="button" tabindex="0" aria-labelledby="regionDetailHeroLbl" onclick="Comp.handleUploadAreaClick(this, function(filename, altText){ Comp.showToast('Media uploaded: ' + filename + ' (Alt: ' + altText + ')', 'success'); })"><div class="up-title">Click to upload</div><div class="up-sub">or drag and drop</div><div class="up-hint">PNG, JPG or WEBP (max. 1200×400px)</div></div>
@@ -9870,15 +9829,8 @@ function pageRegionDetails(params){
       `<button type="button" class="add-item-btn" data-item-type="faq">+ Add Another FAQ</button>`
     })}
 
-    ${Comp.AiCard({id:'region-about', title:`About Rosotravel in ${region.name}`, fieldsHtml:
-      `<div class="field">
-        <label for="regionAboutSnippet">Snippet</label>
-        <textarea id="regionAboutSnippet" class="card-input" readonly data-field-label="About snippet" placeholder="Short intro that sits above the four points\u2026">${`Rosotravel works across ${region.name} with people who know it well \u2014 here is how we operate, and what that means for your trip.`}</textarea>
-      </div>` +
-      Comp.EntityAboutPoint(1, region.name, `Rosotravel covers ${region.name} end to end, from its headline destinations to the smaller places worth the detour.`, 'regionAbout') +
-      Comp.EntityAboutPoint(2, region.name, 'Guided tours, timed entry and transfers \u2014 selected for reliability rather than whatever happens to be bookable.', 'regionAbout') +
-      Comp.EntityAboutPoint(3, region.name, 'Guides based in the region itself, vetted for local knowledge and clear communication.', 'regionAbout') +
-      Comp.EntityAboutPoint(4, region.name, `We shortlist what is genuinely worth your time in ${region.name}, so planning takes minutes instead of evenings.`, 'regionAbout') +
+    ${Comp.AiCard({id:'region-about', title:`About Rosotravel in ${region.name}`, noRegen:true, fieldsHtml:
+      Comp.EntitySpecialisationField(region.name, 'regionAbout', region.specialisations) +
       `<div class="field">
         <label id="regionAboutMediaLbl">Media upload</label>
         <div class="upload-area" role="button" tabindex="0" aria-labelledby="regionAboutMediaLbl" onclick="Comp.handleUploadAreaClick(this, function(filename, altText){ Comp.showToast('Media uploaded: ' + filename + ' (Alt: ' + altText + ')', 'success'); })"><div class="up-title">Click to upload</div><div class="up-sub">or drag and drop</div><div class="up-hint">PNG, JPG, WEBP or MP4 (max. 1200\u00d7400px)</div></div>
@@ -9931,7 +9883,7 @@ function pageRegionDetails(params){
         ${Comp.Button((region.indexability||'Noindex')==='Indexable' ? '● Indexable' : '○ Noindex', {variant:(region.indexability||'Noindex')==='Indexable' ? 'btn-primary' : '', onclick:`Comp.toggleIndexability('region','${region.id}')`})}
         ${Comp.Button(region.status==='Active' ? 'Deactivate' : 'Activate', {variant:'btn-amber', onclick:`Comp.confirmToggleRegionStatus('${region.id}')`})}`, level:'h2'})}
     ${(()=>{ const _iss=Comp._getDestIssues(region); return _iss.length ? `<div class="status-banner is-danger"><span>${ICON.warning}</span><span>${_iss.length} issue${_iss.length===1?'':'s'}. <button type="button" class="btn-sm-link" onclick="Comp.openDestIssues('region','${region.id}')">View issues →</button></span></div>` : ''; })()}
-    ${Comp.contentLanguageBar('region')}
+    ${Comp.contentLanguageBar('region', true)}
     ${Comp.pendingApprovalsBanner()}
     ${Comp._renderUrlCanonicalCard('region', (code, lang) => {
       const countrySlug = (region.country || '').toLowerCase().replace(/[^a-z0-9]+/g,'-');
@@ -10162,8 +10114,7 @@ function pageCityDetails(params){
         </div>
       </div>
       ${aiField('City name', city.name)}
-      ${aiField('H1', city.h1 || `${city.name} — Travel Guide, Attractions & Tours`)}
-      ${aiField('Supporting snippet', city.snippet || `Explore ${city.name} with Rosotravel — find top attractions, guided tours, and local experiences.`, 'textarea')}
+      ${h1VariantFields(city.name, city.h1Variants)}
       <div class="field">
         <label id="cityDetailHeroLbl">Hero image</label>
         <div class="upload-area" role="button" tabindex="0" aria-labelledby="cityDetailHeroLbl" onclick="Comp.handleUploadAreaClick(this, function(filename, altText){ Comp.showToast('Media uploaded: ' + filename + ' (Alt: ' + altText + ')', 'success'); })"><div class="up-title">Click to upload</div><div class="up-sub">or drag and drop</div><div class="up-hint">PNG, JPG or WEBP (max. 1200×400px)</div></div>
@@ -10183,21 +10134,13 @@ function pageCityDetails(params){
       `<button type="button" class="add-item-btn" data-item-type="localtip">+ Add Another Tip</button>`
     })}
 
-    ${Comp.AiCard({id:'city-about', title:`About Rosotravel in ${city.name}`, fieldsHtml:
-      `<div class="field">
-        <label for="cityAboutSnippet">Snippet</label>
-        <textarea id="cityAboutSnippet" class="card-input" readonly data-field-label="About snippet" placeholder="Short intro that sits above the four points\u2026">${`Rosotravel operates in ${city.name} with guides who live there \u2014 here is how we work, and what that means for your trip.`}</textarea>
-      </div>` +
-      Comp.EntityAboutPoint(1, city.name, `Rosotravel covers ${city.name} from its landmark sights to the neighbourhoods most itineraries skip.`, 'cityAbout') +
-      Comp.EntityAboutPoint(2, city.name, 'Guided tours, timed entry and transfers \u2014 selected for reliability rather than whatever happens to be bookable.', 'cityAbout') +
-      Comp.EntityAboutPoint(3, city.name, `Guides who actually live in ${city.name}, vetted for local knowledge and clear communication.`, 'cityAbout') +
-      Comp.EntityAboutPoint(4, city.name, `We shortlist what is genuinely worth your time in ${city.name}, so planning takes minutes instead of evenings.`, 'cityAbout') +
+    ${Comp.AiCard({id:'city-about', title:`About Rosotravel in ${city.name}`, noRegen:true, fieldsHtml:
+      Comp.EntitySpecialisationField(city.name, 'cityAbout', city.specialisations) +
       `<div class="field">
         <label id="cityAboutMediaLbl">Media upload</label>
         <div class="upload-area" role="button" tabindex="0" aria-labelledby="cityAboutMediaLbl" onclick="Comp.handleUploadAreaClick(this, function(filename, altText){ Comp.showToast('Media uploaded: ' + filename + ' (Alt: ' + altText + ')', 'success'); })"><div class="up-title">Click to upload</div><div class="up-sub">or drag and drop</div><div class="up-hint">PNG, JPG, WEBP or MP4 (max. 1200×400px)</div></div>
         <p class="field-hint">You can upload multiple images</p>
       </div>` +
-      `<div class="field" style="margin-top:8px;"><p class="card-title">Quick answers about Rosotravel in ${city.name}</p></div>` +
       `<div class="field-stack" data-max-items="3">` +
         Comp.FaqItem(1, '', '', true) +
         Comp.FaqItem(2, '', '', true) +
@@ -10248,7 +10191,7 @@ function pageCityDetails(params){
         ${Comp.Button((city.indexability||'Noindex')==='Indexable' ? '● Indexable' : '○ Noindex', {variant:(city.indexability||'Noindex')==='Indexable' ? 'btn-primary' : '', onclick:`Comp.toggleIndexability('city','${city.id}')`})}
         ${Comp.Button(city.status==='Active' ? 'Deactivate' : 'Activate', {variant:'btn-amber', onclick:`Comp.confirmToggleCityStatus('${city.id}')`})}`, level:'h2'})}
     ${(()=>{ const _iss=Comp._getDestIssues(city); return _iss.length ? `<div class="status-banner is-danger"><span>${ICON.warning}</span><span>${_iss.length} issue${_iss.length===1?'':'s'}. <button type="button" class="btn-sm-link" onclick="Comp.openDestIssues('city','${city.id}')">View issues →</button></span></div>` : ''; })()}
-    ${Comp.contentLanguageBar('city')}
+    ${Comp.contentLanguageBar('city', true)}
     ${Comp.pendingApprovalsBanner()}
     ${Comp._renderUrlCanonicalCard('city', (code, lang) => {
       const countrySlug = (city.country || '').toLowerCase().replace(/[^a-z0-9]+/g,'-');
@@ -10526,7 +10469,7 @@ function pageAttractionDetails(params){
           </select>
         </div>
       </div>
-      ${aiField('H1', `${attraction.name} is one of the most visited landmarks in ${attraction.city}.`)}
+      ${h1VariantFields(attraction.name, attraction.h1Variants)}
       ${aiField('Supporting snippet', `Plan your visit to ${attraction.name} — discover opening hours, tickets, and guided tours with Rosotravel.`, 'textarea')}
       <div class="field">
         <label id="attractionHeroLbl">Hero image</label>
@@ -10606,7 +10549,7 @@ function pageAttractionDetails(params){
         ${Comp.Button('↻ Regenerate all', {onclick:'Comp._openRegenLangModalMulti()'})}
         ${Comp.Button((attraction.indexability||'Noindex')==='Indexable' ? '● Indexable' : '○ Noindex', {variant:(attraction.indexability||'Noindex')==='Indexable' ? 'btn-primary' : '', onclick:`Comp.toggleIndexability('attraction','${attraction.id}')`})}
         ${Comp.Button(attraction.status==='Active' ? 'Deactivate' : 'Activate', {variant:'btn-amber', onclick:`Comp.toggleAttractionStatus('${attraction.id}')`})}`, level:'h2'})}
-    ${Comp.contentLanguageBar('attraction')}
+    ${Comp.contentLanguageBar('attraction', true)}
     ${Comp.pendingApprovalsBanner()}
     ${Comp._renderUrlCanonicalCard('attraction', (code) => {
       const countrySlug = (attraction.country||'').toLowerCase().replace(/[^a-z0-9]+/g,'-');
@@ -10690,7 +10633,11 @@ function pageCategoryDetails(params){
         <div class="upload-area" role="button" tabindex="0" aria-labelledby="categoryDetailIconLbl" onclick="Comp.handleUploadAreaClick(this, function(filename, altText){ Comp.showToast('Media uploaded: ' + filename + ' (Alt: ' + altText + ')', 'success'); })"><div class="up-title">Click to upload</div><div class="up-sub">or drag and drop</div><div class="up-hint">PNG, SVG or WEBP (max. 400×400px)</div></div>
       </div>
       ${aiField('Description', category.description, 'textarea')}
-    `})}`;
+    `})}
+    ${Comp.AiCard({id:'category-faq', title:'Frequently asked questions', stackAttrs:'data-max-items="10"', fieldsHtml:
+      Comp.FaqItem(1, `What type of experiences does ${category.name} include?`, `${category.name} covers a wide range of curated travel experiences available through Rosotravel, from guided tours to self-guided itineraries.`, true) +
+      `<button type="button" class="add-item-btn" data-item-type="faq">+ Add Another FAQ</button>`
+    })}`;
   } else if (tab === 'optimization') {
     tabBody = Comp.OptimizationPanel({
       title:'Page Optimization', idPrefix:'catopt-'+category.id,
@@ -10717,7 +10664,7 @@ function pageCategoryDetails(params){
   } else if (tab === 'overrides') {
     tabBody = Comp.Card({title:'Manual Overrides',
       body: '<p class="field-hint m-0">Sections locked from AI regeneration are marked with ' + ICON.lock + ' in the SEO Content tab.</p>'
-        + Comp._infoTable([['Lockable sections', 'SEO data, Taxonomy information']])});
+        + Comp._infoTable([['Lockable sections', 'SEO data, Taxonomy information, Frequently asked questions']])});
   } else if (tab === 'history') {
     tabBody = Comp.Card({title:'History / Audit',
       body: category.history && category.history.length ? Comp.Timeline(category.history) : '<p class="empty-state">No activity recorded yet.</p>'});
@@ -18402,7 +18349,7 @@ function pageHomeManagement(params){
     tabBody = `
     ${Comp.SmartSection({
       sectionId:'homehero', title:'Hero', locked:!!h.sectionLocks.hero,
-      hint:'The H1, supporting snippet and hero media are the homepage\u2019s primary content block. A missing hero image is a blocking indexing issue under SEO Governance.',
+      hint:'The H1 variants and hero media are the homepage\u2019s primary content block. A missing hero image is a blocking indexing issue under SEO Governance.',
       bannerHtml: '',
       fields:[
         ...Comp.AUDIENCE_TYPES.map(a => ({
@@ -18411,7 +18358,6 @@ function pageHomeManagement(params){
           value: (h.hero.audienceH1 && h.hero.audienceH1[a]) || '',
           required: true
         })),
-        {key:'snippet', label:'Supporting snippet', value:h.hero.snippet || '', required:true},
       ],
       extraHtml: `
         <div class="field">
@@ -18543,7 +18489,6 @@ Comp._homeBuildRegenFields = function(sectionKey){
         get:   () => (h.hero.audienceH1 && h.hero.audienceH1[a]) || '',
         set:   (v) => { h.hero.audienceH1 = h.hero.audienceH1 || {}; h.hero.audienceH1[a] = v; }
       })),
-      { key:'snippet', label:'Supporting snippet', get:() => h.hero.snippet || '', set:(v) => { h.hero.snippet = v; } }
     ],
     seo: [
       { key:'metaTitle',       label:'Meta title',       get:() => h.metaTitle       || '', set:(v) => { h.metaTitle = v; } },
@@ -21776,9 +21721,9 @@ function pageRolesCreate(){
     const moduleRow = `
     <tr style="background:var(--surface-2);">
       <td><strong>${m}</strong>${subs.length > 1 ? ` <span class="field-hint inline">${subs.length} sub-sections</span>` : ''}</td>
-      <td class="text-center"><input type="checkbox" id="c${i}" aria-label="Create ${m}" onchange="Comp.roleToggleModule(${i}, this.checked, 'c')"></td>
-      <td class="text-center"><input type="checkbox" id="r${i}" aria-label="Read ${m}" onchange="Comp.roleToggleModule(${i}, this.checked, 'r')" checked></td>
-      <td class="text-center"><input type="checkbox" id="u${i}" aria-label="Update ${m}" onchange="Comp.roleToggleModule(${i}, this.checked, 'u')"></td>
+      <td class="text-center"><input type="checkbox" id="v${i}" aria-label="View ${m}" onchange="Comp.roleToggleModule(${i}, this.checked, 'v')" checked></td>
+      <td class="text-center"><input type="checkbox" id="e${i}" aria-label="Edit ${m}" onchange="Comp.roleToggleModule(${i}, this.checked, 'e')"></td>
+      <td class="text-center"><input type="checkbox" id="m${i}" aria-label="Manage ${m}" onchange="Comp.roleToggleModule(${i}, this.checked, 'm')"></td>
     </tr>`;
     // A module with a single same-named sub-section adds nothing, so only
     // expand genuinely sub-divided modules.
@@ -21787,9 +21732,9 @@ function pageRolesCreate(){
       const sensitive = SENSITIVE_SUBSECTIONS.includes(sub);
       return `<tr>
         <td style="padding-left:28px; color:var(--text-secondary);">${sub}${sensitive ? ' <span class="badge badge-amber">Sensitive</span>' : ''}</td>
-        <td class="text-center"><input type="checkbox" id="c${i}_${si}" aria-label="Create ${sub}"></td>
-        <td class="text-center"><input type="checkbox" id="r${i}_${si}" aria-label="Read ${sub}" checked></td>
-        <td class="text-center"><input type="checkbox" id="u${i}_${si}" aria-label="Update ${sub}" ${sensitive ? '' : ''}></td>
+        <td class="text-center"><input type="checkbox" id="v${i}_${si}" aria-label="View ${sub}" checked></td>
+        <td class="text-center"><input type="checkbox" id="e${i}_${si}" aria-label="Edit ${sub}"></td>
+        <td class="text-center"><input type="checkbox" id="m${i}_${si}" aria-label="Manage ${sub}" ${sensitive ? '' : ''}></td>
       </tr>`;
     }).join('');
   }).join('');
@@ -21803,7 +21748,7 @@ function pageRolesCreate(){
           <div class="field"><label for="rDesc">Description</label><textarea id="rDesc" placeholder="Enter a brief description of this role..."></textarea></div>
         </div>`})}
       ${Comp.Card({title:'Assign permissions', body:`
-        ${Comp.Table({columns:[{label:'Module'},{label:'Create',width:'90px'},{label:'Read',width:'90px'},{label:'Update',width:'90px'}], rows:permRows})}
+        ${Comp.Table({columns:[{label:'Module'},{label:'View',width:'90px'},{label:'Edit',width:'90px'},{label:'Manage',width:'90px'}], rows:permRows})}
         <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:24px;">
           ${Comp.Button('Cancel', {onclick:"Router.go('rolesListing')"})}
           <button type="submit" class="btn btn-primary" disabled>Create role</button>
@@ -21820,7 +21765,7 @@ Comp.roleToggleModule = function(moduleIndex, checked, kind){
   (MODULE_SUBSECTIONS[m] || []).forEach((sub, si) => {
     const el = document.getElementById(kind + moduleIndex + '_' + si);
     if (!el) return;
-    if ((kind === 'u' || kind === 'd') && checked && SENSITIVE_SUBSECTIONS.includes(sub)) { el.checked = false; return; }
+    if ((kind === 'e' || kind === 'm') && checked && SENSITIVE_SUBSECTIONS.includes(sub)) { el.checked = false; return; }
     el.checked = checked;
   });
 };
@@ -21834,17 +21779,17 @@ function pageRolesDetails(params){
     const moduleRow = `
     <tr style="background:var(--surface-2);">
       <td><strong>${p.module}</strong> <span class="field-hint inline">${subs.length} sub-section${subs.length===1?'':'s'}</span></td>
-      <td class="text-center"><input type="checkbox" class="card-input" id="permCreate${i}" aria-label="Create ${p.module}" ${p.create ? 'checked' : ''} disabled></td>
-      <td class="text-center"><input type="checkbox" class="card-input" id="permRead${i}" aria-label="Read ${p.module}" ${p.read !== false ? 'checked' : ''} disabled></td>
-      <td class="text-center"><input type="checkbox" class="card-input" id="permUpdate${i}" aria-label="Update ${p.module}" ${p.update || p.edit ? 'checked' : ''} disabled></td>
+      <td class="text-center"><input type="checkbox" class="card-input" id="permView${i}" aria-label="View ${p.module}" ${p.view !== false ? 'checked' : ''} disabled></td>
+      <td class="text-center"><input type="checkbox" class="card-input" id="permEdit${i}" aria-label="Edit ${p.module}" ${p.edit ? 'checked' : ''} disabled></td>
+      <td class="text-center"><input type="checkbox" class="card-input" id="permManage${i}" aria-label="Manage ${p.module}" ${p.manage ? 'checked' : ''} disabled></td>
     </tr>`;
     const subRows = subs.map((sub, si) => {
       const sensitive = SENSITIVE_SUBSECTIONS.includes(sub.name);
       return `<tr>
         <td style="padding-left:28px; color:var(--text-secondary);">${Comp._escHtml(sub.name)}${sensitive ? ' <span class="badge badge-amber">Sensitive</span>' : ''}</td>
-        <td class="text-center"><input type="checkbox" class="card-input" id="permCreate${i}_${si}" aria-label="Create ${sub.name}" ${sub.create ? 'checked' : ''} disabled></td>
-        <td class="text-center"><input type="checkbox" class="card-input" id="permRead${i}_${si}" aria-label="Read ${sub.name}" ${sub.read !== false ? 'checked' : ''} disabled></td>
-        <td class="text-center"><input type="checkbox" class="card-input" id="permUpdate${i}_${si}" aria-label="Update ${sub.name}" ${sub.update || sub.edit ? 'checked' : ''} disabled></td>
+        <td class="text-center"><input type="checkbox" class="card-input" id="permView${i}_${si}" aria-label="View ${sub.name}" ${sub.view !== false ? 'checked' : ''} disabled></td>
+        <td class="text-center"><input type="checkbox" class="card-input" id="permEdit${i}_${si}" aria-label="Edit ${sub.name}" ${sub.edit ? 'checked' : ''} disabled></td>
+        <td class="text-center"><input type="checkbox" class="card-input" id="permManage${i}_${si}" aria-label="Manage ${sub.name}" ${sub.manage ? 'checked' : ''} disabled></td>
       </tr>`;
     }).join('');
     return moduleRow + subRows;
@@ -21875,7 +21820,7 @@ function pageRolesDetails(params){
         </div>
       </div>
       ${Comp.Card({title:'Assigned permissions', body:`
-        ${Comp.Table({columns:[{label:'Module'},{label:'Create',width:'90px'},{label:'Read',width:'90px'},{label:'Update',width:'90px'}], rows:permRows})}`})}
+        ${Comp.Table({columns:[{label:'Module'},{label:'View',width:'90px'},{label:'Edit',width:'90px'},{label:'Manage',width:'90px'}], rows:permRows})}`})}
     </form>
   `);
 }
@@ -22434,7 +22379,7 @@ Comp.homeOpenRegenScopeModal = function(){
     {id:'why',  label:'Why Travelers Choose Rosotravel', locked: !!h.sectionLocks.whyChooseUs}
   ];
   const SCOPE_FIELDS = {
-    hero: ['H1 — First-Time Visitor','H1 — Family Trip','H1 — Couple Trip','H1 — Solo Trip','H1 — Premium & Comfortable','H1 — Culture & History','H1 — Activities & Local Experiences','Supporting snippet'],
+    hero: ['H1 — First-Time Visitor','H1 — Family Trip','H1 — Couple Trip','H1 — Solo Trip','H1 — Premium & Comfortable','H1 — Culture & History','H1 — Activities & Local Experiences'],
     seo:  ['Meta title','Meta description'],
     why:  ['Guides who truly know their city','Smooth plans, fewer worries','Shortlists that save hours of research','Only proven quality makes the cut']
   };
@@ -22507,7 +22452,7 @@ Comp.homeSectionRegenStart = function(sectionKey){
     hero: 'Hero', seo: 'SEO data', whyChooseUs: 'Why Travelers Choose Rosotravel'
   };
   const SECTION_FIELDS = {
-    hero:         ['H1 — First-Time Visitor','H1 — Family Trip','H1 — Couple Trip','H1 — Solo Trip','H1 — Premium & Comfortable','H1 — Culture & History','H1 — Activities & Local Experiences','Supporting snippet'],
+    hero:         ['H1 — First-Time Visitor','H1 — Family Trip','H1 — Couple Trip','H1 — Solo Trip','H1 — Premium & Comfortable','H1 — Culture & History','H1 — Activities & Local Experiences'],
     seo:          ['Meta title','Meta description'],
     whyChooseUs:  ['Guides who truly know their city','Smooth plans, fewer worries','Shortlists that save hours of research','Only proven quality makes the cut']
   };
