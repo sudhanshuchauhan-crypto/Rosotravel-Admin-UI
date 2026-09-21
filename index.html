@@ -2172,7 +2172,7 @@ const Comp = {
       'list-row__body':      ['H1','Supporting snippet','Overview'],
       'attraction-localtips':['Tip 1','Tip 2','Tip 3'],
       'attraction-faq':      ['FAQ 1','FAQ 2','FAQ 3'],
-      'attraction-whysee':   ['Snippet','The Arena','The Hypogeum','Seating & Circulation System','Museum & Exhibition Areas','A Building with Almost 2,000 Years of History','Overview'],
+      'attraction-whysee':   ['Snippet','Item 1 — Heading','Item 1 — Description','Item 2 — Heading','Item 2 — Description','Item 3 — Heading','Item 3 — Description','Item 4 — Heading','Item 4 — Description','Item 5 — Heading','Item 5 — Description','Overview'],
       'attraction-planvisit':['Opening Hours','Visit Duration','Tickets','Address','Accessibility','Getting There'],
       // Blog / Category / Product
       'blog-seo':            ['H1 / tagline','Meta title','Meta description'],
@@ -7160,7 +7160,7 @@ const Comp = {
         {id:'seo',          label:'SEO data',                         items:['H1 — First-Time Visitor','H1 — Family Trip','H1 — Couple Trip','H1 — Solo Trip','H1 — Premium & Comfortable','H1 — Culture & History','H1 — Activities & Local Experiences','Supporting snippet','Meta title','Meta description']},
         {id:'localtips',    label:'Local Tips',                       items:['Tip items']},
         {id:'faq',          label:'Frequently asked questions',       items:['FAQ items']},
-        {id:'whysee',       label:"What You'll See & Why It Matters", items:['Snippet','The Arena','The Hypogeum','Seating & Circulation System','Museum & Exhibition Areas','A Building with Almost 2,000 Years of History','Overview']},
+        {id:'whysee',       label:"What You'll See & Why It Matters", items:['Snippet','Item 1 — Heading','Item 1 — Description','Item 2 — Heading','Item 2 — Description','Item 3 — Heading','Item 3 — Description','Item 4 — Heading','Item 4 — Description','Item 5 — Heading','Item 5 — Description','Overview']},
         {id:'planvisit',    label:'Plan your visit with confidence',  items:['Opening Hours','Visit Duration','Tickets','Address','Accessibility','Security','Getting There']}
       ]
     };
@@ -10459,11 +10459,13 @@ function pageAttractionDetails(params){
 
     ${Comp.AiCard({id:'attraction-whysee', title:'What You\'ll See & Why It Matters', fieldsHtml:`
       ${aiField('Snippet', `There is more to ${attraction.name} than the headline — here is what most visitors miss and why it matters.`)}
-      ${aiField('The Arena', '', 'textarea')}
-      ${aiField('The Hypogeum', '', 'textarea')}
-      ${aiField('Seating & Circulation System', '', 'textarea')}
-      ${aiField('Museum & Exhibition Areas', '', 'textarea')}
-      ${aiField('A Building with Almost 2,000 Years of History', '', 'textarea')}
+      ${[1,2,3,4,5].map(n =>
+        '<div style="border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 14px;margin-bottom:12px;background:var(--surface-sunken);">' +
+          '<p style="font-size:var(--fs-sm);font-weight:600;color:var(--text-secondary);margin:0 0 10px;">Item ' + n + '</p>' +
+          aiField('Heading', '', 'input', 'whysee-item'+n+'-heading') +
+          aiField('Description', '', 'textarea', 'whysee-item'+n+'-desc') +
+        '</div>'
+      ).join('')}
       ${aiField('Overview', `From its history to the details that reward a closer look, ${attraction.name} offers layers of meaning that go beyond the obvious.`, 'textarea')}
       <div class="field">
         <label id="attractionWhySeeMediaLbl">Media upload</label>
@@ -10506,9 +10508,8 @@ function pageAttractionDetails(params){
   } else if (tab === 'overrides') {
     tabBody = Comp.renderOverridesTab(attraction, ['attraction-seo','list-row__body','attraction-localtips','attraction-faq','attraction-whysee']);
   } else if (tab === 'history') {
-    tabBody = Comp.versionHistoryCard(attraction, 'masterAttractions') + `
-    ${Comp.Card({title:'History / Audit', body:`
-      ${attraction.history && attraction.history.length ? Comp.Timeline(attraction.history) : '<p class="empty-state">No history yet.</p>'}`})}`;
+    tabBody = Comp.Card({title:'History / Audit', body:`
+      ${attraction.history && attraction.history.length ? Comp.Timeline(attraction.history) : '<p class="empty-state">No history yet.</p>'}`});
   }
 
   const body = `
@@ -18316,6 +18317,15 @@ function pageHomeManagement(params){
   if (tab === 'seo') {
     tabBody = `
     ${Comp.SmartSection({
+      sectionId:'homeseo', title:'SEO data', locked:!!h.sectionLocks.seo,
+      hint:'Edit, lock from further changes, or regenerate the whole section together.',
+      fields:[
+        {key:'metaTitle', label:'Meta Title', value:h.metaTitle||'Rosotravel — Curated Travel Experiences'},
+        {key:'metaDescription', label:'Meta Description', value:h.metaDescription||'Outstanding memories, chosen by people who live the experience. Curated tours and activities you can trust.', isTextarea:true}
+      ],
+      saveCall:`Comp.homeSaveSection('seo')`, lockCall:`Comp.homeLockSection('seo')`, regenCall:`Comp.homeSectionRegenStart('seo')`, regenState: Comp._homeSectionRegenState.seo, regenReviewCall:`Comp.homeSectionRegenReview('seo')`
+    })}
+    ${Comp.SmartSection({
       sectionId:'homehero', title:'Hero', locked:!!h.sectionLocks.hero,
       hint:'The H1 variants and hero media are the homepage\u2019s primary content block. A missing hero image is a blocking indexing issue under SEO Governance.',
       bannerHtml: '',
@@ -18346,15 +18356,6 @@ function pageHomeManagement(params){
       saveCall:`Comp.homeSaveHero()`, lockCall:`Comp.homeLockSection('hero')`, regenCall:`Comp.homeSectionRegenStart('hero')`, regenState: Comp._homeSectionRegenState.hero, regenReviewCall:`Comp.homeSectionRegenReview('hero')`
     })}
     ${Comp.SmartSection({
-      sectionId:'homeseo', title:'SEO data', locked:!!h.sectionLocks.seo,
-      hint:'Edit, lock from further changes, or regenerate the whole section together.',
-      fields:[
-        {key:'metaTitle', label:'Meta Title', value:h.metaTitle||'Rosotravel — Curated Travel Experiences'},
-        {key:'metaDescription', label:'Meta Description', value:h.metaDescription||'Outstanding memories, chosen by people who live the experience. Curated tours and activities you can trust.', isTextarea:true}
-      ],
-      saveCall:`Comp.homeSaveSection('seo')`, lockCall:`Comp.homeLockSection('seo')`, regenCall:`Comp.homeSectionRegenStart('seo')`, regenState: Comp._homeSectionRegenState.seo, regenReviewCall:`Comp.homeSectionRegenReview('seo')`
-    })}
-    ${Comp.SmartSection({
       sectionId:'homewhychoose', title:'Why Travelers Choose Rosotravel', locked:!!h.sectionLocks.whyChooseUs,
       fields:(h.whyChooseUs.bullets || []).slice(0,4).map((b, i) => ({key:'bullet'+i, label:['Guides who truly know their city','Smooth plans, fewer worries','Shortlists that save hours of research','Only proven quality makes the cut'][i]||`Point ${i+1}`, value:b})),
       topExtraHtml: '',
@@ -18380,7 +18381,7 @@ function pageHomeManagement(params){
             </div>` : ''}
           <p class="field-hint mt-1h">Only processed and approved assets appear in the picker. JPG, PNG or MP4. Alt text is required and locked once saved.</p>
         </div>`,
-      saveCall:`Comp.homeSaveWhyChooseUs()`, lockCall:`Comp.homeLockSection('whyChooseUs')`, regenCall:`Comp.homeSectionRegenStart('whyChooseUs')`, regenState: Comp._homeSectionRegenState.whyChooseUs, regenReviewCall:`Comp.homeSectionRegenReview('whyChooseUs')`
+      saveCall:`Comp.homeSaveWhyChooseUs()`, lockCall:`Comp.homeLockSection('whyChooseUs')`
     })}`;
   } else if (tab === 'languages') {
     tabBody = Comp.homeLanguageOverview();
@@ -22295,14 +22296,12 @@ Comp.homeReviewPendingBannerHtml = function(){
 Comp.homeOpenRegenScopeModal = function(){
   const h = DATA.homepage;
   const scopes = [
-    {id:'hero', label:'Hero',                            locked: !!h.sectionLocks.hero},
-    {id:'seo',  label:'SEO data',                        locked: !!h.sectionLocks.seo},
-    {id:'why',  label:'Why Travelers Choose Rosotravel', locked: !!h.sectionLocks.whyChooseUs}
+    {id:'hero', label:'Hero',     locked: !!h.sectionLocks.hero},
+    {id:'seo',  label:'SEO data', locked: !!h.sectionLocks.seo}
   ];
   const SCOPE_FIELDS = {
     hero: ['H1 — First-Time Visitor','H1 — Family Trip','H1 — Couple Trip','H1 — Solo Trip','H1 — Premium & Comfortable','H1 — Culture & History','H1 — Activities & Local Experiences'],
-    seo:  ['Meta title','Meta description'],
-    why:  ['Guides who truly know their city','Smooth plans, fewer worries','Shortlists that save hours of research','Only proven quality makes the cut']
+    seo:  ['Meta title','Meta description']
   };
   const sectionRows = scopes.map(s => {
     const subItems = (SCOPE_FIELDS[s.id] || []).map(f =>
