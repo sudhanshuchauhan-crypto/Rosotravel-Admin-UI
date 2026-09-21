@@ -390,7 +390,7 @@ const MODULE_SUBSECTIONS = {
   // Content Editor / Marketing Admin, Product Operations -> Product Ops Lead,
   // Bookings & Customers -> Bookings Ops, Settings & Administration -> Admin.
   'Dashboard':                 ['Dashboard'],
-  'Marketing & Content':       ['Countries','Regions','Cities','Attractions','Duplicate & Merge Review','Taxonomy','Homepage','Blog','Static Pages','Media Library'],
+  'Marketing & Content':       ['Countries','Regions','Cities','Attractions','Taxonomy','Homepage','Blog','Static Pages','Media Library'],
   'Products':                  ['Product Catalog','Bundles'],
   'Product Operations':        ['Inventory Explorer','Inventory Alerts','Algorithm Configuration'],
   'Bookings & Customers':      ['Bookings','Cancel Booking','Customers','Reviews','Discount Coupons'],
@@ -403,7 +403,7 @@ const MODULES = Object.keys(MODULE_SUBSECTIONS);
 // deliberately rather than by inheriting a module-wide tick.
 // Sub-sections that grant materially more than simply viewing their module.
 // Every entry here must exist in MODULE_SUBSECTIONS above.
-const SENSITIVE_SUBSECTIONS = ['Cancel Booking','Discount Coupons','Roles & Permissions','Algorithm Configuration','Redirect & Deprecation','Duplicate & Merge Review'];
+const SENSITIVE_SUBSECTIONS = ['Cancel Booking','Discount Coupons','Roles & Permissions','Algorithm Configuration','Redirect & Deprecation'];
 
 function buildPerms(flags){
   // flags: e.g. {Bookings:'ve', Marketing:'v'} — v=view, e=edit.
@@ -2424,15 +2424,12 @@ const Comp = {
           <button type="button" class="nav-sub" ${['regionListing','regionCreate','regionDetails','regionHistoryLog'].includes(Router.route) ? 'aria-current="page"' : ''} onclick="Router.go('regionListing')">Regions</button>
           <button type="button" class="nav-sub" ${['cityListing','cityCreate','cityDetails','cityHistoryLog'].includes(Router.route) ? 'aria-current="page"' : ''} onclick="Router.go('cityListing')">Cities</button>
           <button type="button" class="nav-sub" ${['attractionListing','attractionCreate','attractionDetails','attractionHistoryLog'].includes(Router.route) ? 'aria-current="page"' : ''} onclick="Router.go('attractionListing')">Attractions</button>
-          <button type="button" class="nav-sub" ${['dedupeReview'].includes(Router.route) ? 'aria-current="page"' : ''} onclick="Router.go('dedupeReview')">Duplicate &amp; Merge Review</button>
           <button type="button" class="nav-sub" ${['categoryListing','categoryDetails','categoryHistoryLog'].includes(Router.route) ? 'aria-current="page"' : ''} onclick="Router.go('categoryListing')">Taxonomy</button>
           <button type="button" class="nav-sub" ${['homeManagement'].includes(Router.route) ? 'aria-current="page"' : ''} onclick="Router.go('homeManagement')">Homepage</button>
           <button type="button" class="nav-sub" ${['blogListing','blogDetail','blogCreate','blogTopicPool'].includes(Router.route) ? 'aria-current="page"' : ''} onclick="Router.go('blogListing')">Blog</button>
           <button type="button" class="nav-sub" ${['staticPagesList','staticPageEditor'].includes(Router.route) ? 'aria-current="page"' : ''} onclick="Router.go('staticPagesList')">Static Pages</button>
           <button type="button" class="nav-sub" ${['mediaLibrary','mediaAssetDetails'].includes(Router.route) ? 'aria-current="page"' : ''} onclick="Router.go('mediaLibrary')">Media Library</button>
           <button type="button" class="nav-sub" ${Router.route==='sitemapManagement' ? 'aria-current="page"' : ''} onclick="Router.go('sitemapManagement')">Sitemap</button>
-          <button type="button" class="nav-sub" ${Router.route==='aiSitemapPanel' ? 'aria-current="page"' : ''} onclick="Router.go('aiSitemapPanel')">AI Sitemap</button>
-          <button type="button" class="nav-sub" ${Router.route==='apiFeedPanel' ? 'aria-current="page"' : ''} onclick="Router.go('apiFeedPanel')">API Feed</button>
         </div>
 
         <button type="button" class="nav-item" aria-expanded="${productsOpen}" onclick="NavUI.toggle('products')">
@@ -9248,62 +9245,6 @@ Comp.detectDuplicates = function(){
   });
   return candidates;
 };
-function pageDedupeReview(){
-  const candidates = Comp.detectDuplicates();
-  const rows = candidates.map(c =>
-    '<tr>' +
-    '<td class="cell-name">' + Comp._escHtml(c.entityType) + '</td>' +
-    '<td class="cell-secondary">' + Comp._escHtml(c.a.name) + '<div class="text-muted-xs">' + Comp._escHtml(c.a.id) + '</div></td>' +
-    '<td class="cell-secondary">' + Comp._escHtml(c.b.name) + '<div class="text-muted-xs">' + Comp._escHtml(c.b.id) + '</div></td>' +
-    '<td class="cell-secondary">' + Comp._escHtml(c.keyMatched) + '</td>' +
-    '<td>' + (c.conflict ? Comp.Badge('Key conflict', 'danger') : '—') + '</td>' +
-    '<td>' + Comp.RowMenu(c.a.name, [
-      {label:'Review & Merge', handler:() => Comp.openMergeModal(c.id)},
-      {label:'Not a duplicate', handler:() => Comp.dedupeReject(c.id)}
-    ]) + '</td>' +
-    '</tr>'
-  ).join('');
-  return Comp.Shell(
-    Comp.PageHeader({title:'Duplicate &amp; Merge Review'}) +
-    Comp.Table({columns:[{label:'Type',width:'100px'},{label:'Record A'},{label:'Record B'},{label:'Matched key',width:'160px'},{label:'Conflict',width:'120px'},{label:'Action',width:'70px'}], rows, emptyText:'No potential duplicates detected.'})
-  );
-}
-Comp.openMergeModal = function(candidateId){
-  const c = Comp.detectDuplicates().find(x => x.id === candidateId);
-  if (!c) return;
-  Comp.openConfirm({
-    title: 'Merge duplicate ' + c.entityType + 's?',
-    desc: '"' + Comp._escHtml(c.a.name) + '" and "' + Comp._escHtml(c.b.name) + '" matched via ' + Comp._escHtml(c.keyMatched) + '.' + (c.conflict ? ' ' + ICON.warning + ' Conflicting external IDs detected \u2014 review carefully before merging.' : ''),
-    warningHtml:
-      '<div class="field mt-2h">' +
-        '<label for="mergeCanonical">Keep as canonical</label>' +
-        '<select id="mergeCanonical">' +
-          '<option value="a">' + Comp._escHtml(c.a.name) + ' (' + Comp._escHtml(c.a.id) + ')</option>' +
-          '<option value="b">' + Comp._escHtml(c.b.name) + ' (' + Comp._escHtml(c.b.id) + ')</option>' +
-        '</select>' +
-      '</div>' +
-      '<p class="field-hint">Merge precedence: name/address/geo \u2192 Google first; hierarchy \u2192 Viator first; historical facts &amp; external IDs \u2192 Wikidata first.</p>',
-    confirmLabel: 'Merge',
-    danger: true,
-    onConfirm: () => {
-      const canonical = document.getElementById('mergeCanonical').value === 'a' ? c.a : c.b;
-      const loser = canonical === c.a ? c.b : c.a;
-      canonical.history = canonical.history || [];
-      canonical.history.unshift({label:'merge_event: from ' + loser.name + ' (' + loser.id + ') \u2192 ' + canonical.name + ' (' + canonical.id + ')', time:new Date().toLocaleString()});
-      if (c.entityType === 'City') DATA.cities = DATA.cities.filter(x => x.id !== loser.id);
-      else DATA.masterAttractions = DATA.masterAttractions.filter(x => x.id !== loser.id);
-      Comp._dedupeResolvedIds.add(candidateId);
-      Comp.showToast('Merged "' + loser.name + '" into "' + canonical.name + '".', 'danger');
-      render();
-    }
-  });
-};
-Comp.dedupeReject = function(candidateId){
-  Comp._dedupeResolvedIds.add(candidateId);
-  Comp.showToast('Marked as not a duplicate.', 'success');
-  render();
-};
-
 function pageCountryListing(){
   Comp.clearReturnContext();
   const rows = DATA.countries.map(c => {
@@ -21876,8 +21817,6 @@ const ROUTES = {
   redirectPanel: pageRedirectPanel,
   staticPagesList: pageStaticPagesList,
   sitemapManagement: pageSitemapManagement,
-  aiSitemapPanel: pageAiSitemapPanel,
-  apiFeedPanel: pageApiFeedPanel,
   staticPageEditor: pageStaticPageEditor,
   productCreate: pageProductCreate,
   productOptionCreate: pageProductOptionCreate,
@@ -21888,7 +21827,6 @@ const ROUTES = {
   bookingDetails: pageBookingDetails,
   customerListing: pageCustomerListing,
   customerDetails: pageCustomerDetails,
-  dedupeReview: pageDedupeReview,
   countryListing: pageCountryListing,
   countryDetails: pageCountryDetails,
   historyLog: pageHistoryLog,
@@ -21939,50 +21877,6 @@ function pageSitemapManagement(){
     (failedCount?'<div class="status-banner is-danger"><span>'+ICON.warning+'<'+'/span><span><strong>'+failedCount+' sub-sitemap'+(failedCount>1?'s':'')+' failed.<'+'/strong> Rebuild individually or use Rebuild all.<'+'/span><'+'/div>':'')+
     Comp.Card({title:'Sub-sitemaps',hint:'Only indexable, canonical, non-draft URLs included. Safe to rebuild at any time.',
       body:Comp.Table({columns:[{label:'Sitemap',width:'200px'},{label:'Entity type'},{label:'URLs',width:'100px'},{label:'Status',width:'130px'},{label:'Last generated',width:'180px'},{label:'',width:'90px'}],rows:sitemapRows,emptyText:'No sitemaps configured.'})
-    })
-  );
-}
-function pageAiSitemapPanel(){
-  var sp=DATA.staticPages.find(function(x){return x.id==='sp-24';});
-  return Comp.Shell(
-    Comp.Breadcrumb([{label:'Marketing & Content'},{label:'AI Sitemap'}])+
-    Comp.PageHeader({title:'AI Sitemap',hint:'Machine-readable feed for LLMs and AI search crawlers (S2-04 §4.21).'})+
-    Comp.Card({title:'AI Sitemap — Generation Status',body:
-      Comp._infoTable([
-        ['Feed URL','https://rosotravel.com'+'/ai-sitemap.xml'],
-        ['Last generated',sp?sp.lastEdit:'—'],
-        ['Status',sp?Comp.Badge(sp.completion==='GREEN'?'Success':'Failed',sp.completion==='GREEN'):'—'],
-        ['Indexing profile',sp?sp.indexingProfile:'System-generated']
-      ])+
-      '<div class="action-row mt-3">'+
-        Comp.Button('Regenerate now',{size:'btn-sm',onclick:"Comp.spRegenerateSystemPage('sp-24')"})+
-        Comp.Button('Preview (read-only)',{size:'btn-sm',variant:'btn-ghost',onclick:"Comp.showToast('AI Sitemap is system-generated.','success')"})+
-      '<'+'/div>'
-    })
-  );
-}
-function pageApiFeedPanel(){
-  var feeds=[
-    {name:'AI Summary Feed',url:'/ai-summary.json',desc:'LLM-ready JSON of all destinations and products.'},
-    {name:'Inventory Feed',url:'/api/tours/feed',desc:'Core LLM trip-planning dataset. No supplier IDs.'},
-    {name:'Marketing Catalog',url:'/api/marketing/catalog.json',desc:'Product cards for partner marketing tools.'},
-    {name:'Partner Offer Card',url:'/api/partners/card',desc:'Structured offer data for B2B distribution.'},
-    {name:'Global Attraction Map',url:'/en/explore/ai-dataset/',desc:'Full attraction index for AI search tools.'}
-  ];
-  var feedRows=feeds.map(function(f){
-    var btn=Comp.Button('Regenerate',{size:'btn-sm',onclick:"Comp.showToast('Regenerating…','success')"});
-    return '<tr>'+
-      '<td class="cell-name">'+f.name+'<'+'/td>'+
-      '<td class="cell-secondary" style="font-family:monospace;font-size:var(--fs-xs);">'+f.url+'<'+'/td>'+
-      '<td class="cell-secondary">'+f.desc+'<'+'/td>'+
-      '<td onclick="event.stopPropagation()">'+btn+'<'+'/td>'+
-    '<'+'/tr>';
-  }).join('');
-  return Comp.Shell(
-    Comp.Breadcrumb([{label:'Marketing & Content'},{label:'API Feed'}])+
-    Comp.PageHeader({title:'API Feed',hint:'Public data feeds for AI, LLM, and partner integrations. No supplier IDs, no internal endpoints exposed (S2-04 §4.21).'})+
-    Comp.Card({title:'API feeds',hint:'Hard constraints: no raw partner payloads, no third-party endpoints.',
-      body:Comp.Table({columns:[{label:'Feed name',width:'200px'},{label:'Endpoint',width:'220px'},{label:'Purpose'},{label:'',width:'110px'}],rows:feedRows,emptyText:'No feeds configured.'})
     })
   );
 }
