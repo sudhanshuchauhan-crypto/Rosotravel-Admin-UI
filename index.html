@@ -7346,11 +7346,23 @@ const Comp = {
         h.history.unshift({label: title + ' updated', time:now, actor:'Admin (you)'});
       }
 
+      // Homepage pending approval — store in a generic homepage key
+      if(manualApproval && selectedLangs.length > 0){
+        const hpKey = Comp.recordKey() + '|homepage-' + (sectionKey || 'section');
+        const candidates = {};
+        const labels = {};
+        selectedLangs.forEach(function(lang){
+          candidates[lang] = '[Translation pending — ' + lang + ']';
+          labels[lang]     = title + ' — ' + lang;
+        });
+        Comp._pendingApprovals[hpKey] = { generatedAt: new Date().toLocaleString(), candidates, labels };
+      }
+
       let msg = title + ' saved';
       if(aiChoice === 'lock') msg += ' and locked from AI';
       if(selectedLangs.length > 0){
         msg += '. Update queued for: ' + selectedLangs.join(', ');
-        if(manualApproval) msg += ' (awaiting approval)';
+        if(manualApproval) msg += ' — awaiting approval';
       }
       Comp.showToast(msg + '.', 'success');
       Comp.closeModal('modalSaveChanges');
@@ -7366,11 +7378,55 @@ const Comp = {
     Comp._setCardInputsEditable(card, false);
     Comp.setLocked(card, aiChoice === 'lock');
 
+    // If manual approval is ON and languages are selected → create pending approval entry
+    if(manualApproval && selectedLangs.length > 0){
+      const cardId  = card.dataset.cardId || card.getAttribute('data-card-id');
+      const key     = Comp.cardKey(cardId);
+
+      // Build a candidates map: one entry per selected language
+      const candidates = {};
+      const labels     = {};
+      selectedLangs.forEach(function(lang){
+        candidates[lang] = '[Translation pending — ' + lang + ']';
+        labels[lang]     = title + ' — ' + lang;
+      });
+      Comp._pendingApprovals[key] = {
+        generatedAt : new Date().toLocaleString(),
+        candidates  : candidates,
+        labels      : labels
+      };
+
+      // Inject approval-badge into card title area if not already present
+      if(!card.querySelector('.approval-badge')){
+        const titleEl = card.querySelector('.card-title');
+        if(titleEl){
+          const badge = document.createElement('button');
+          badge.type      = 'button';
+          badge.className = 'approval-badge';
+          badge.textContent = '⚠ Review pending';
+          badge.onclick   = function(){ Comp.openApprovalCompare(cardId); };
+          titleEl.appendChild(badge);
+        }
+      }
+
+      // Swap Regenerate button → Review content button in default-actions
+      const defaultActions = card.querySelector('.default-actions');
+      if(defaultActions){
+        defaultActions.querySelectorAll('.btn').forEach(function(b){
+          if(b.textContent.trim().startsWith('↻')){
+            b.textContent = '↻ Review content';
+            b.className   = b.className.replace('btn-outline','') + ' btn-primary';
+            b.setAttribute('onclick', "Comp.openApprovalCompare('" + (card.dataset.cardId || card.getAttribute('data-card-id')) + "')");
+          }
+        });
+      }
+    }
+
     let msg = title + ' saved';
     if(aiChoice === 'lock') msg += ' and locked from AI';
     if(selectedLangs.length > 0){
       msg += '. Update queued for: ' + selectedLangs.join(', ');
-      if(manualApproval) msg += ' (awaiting approval)';
+      if(manualApproval) msg += ' — awaiting approval';
     }
     Comp.showToast(msg + '.', 'success');
     Comp.logCurrentRecord(title + ' saved. AI: ' + aiChoice + '. Lang update: ' + (selectedLangs.join(', ') || 'none') + '.');
@@ -7378,8 +7434,10 @@ const Comp = {
   },
 
   setLocked(card, locked){
+    if(!card) return;
     card.classList.toggle('is-locked', locked);
     const lockBtn = card.querySelector('.btn-lock');
+    if(!lockBtn) return;
     lockBtn.classList.toggle('is-on', locked);
     lockBtn.setAttribute('aria-pressed', String(locked));
     lockBtn.querySelector('.lock-label').textContent = locked ? 'Locked' : 'Lock';
@@ -7431,7 +7489,8 @@ const Comp = {
   },
 
   toggleLock(btn){
-    const card = btn.closest('.card');
+    const card = btn.closest('.card, section.card');
+    if(!card) return;
     const sectionTitle = card.getAttribute('aria-label') || card.querySelector('.card-title')?.textContent || 'Section';
     const isLocked = card.classList.contains('is-locked');
     this._lockTarget = card;
@@ -8698,7 +8757,7 @@ Comp._bestSeasonRegen = function(cardId){
   Comp._openRegenLangModal(card);
 };
 
-// Plan your visit with confidence — editable fields + media upload
+// Plan your visit with confidence — FAQ-style add/remove fields + edit mode
 Comp.PlanVisitCard = function(entity, cardId){
   const pending = Comp._pendingApprovals[Comp.cardKey(cardId)];
   const reviewBadge = pending ? '<button type="button" class="approval-badge" onclick="Comp.openApprovalCompare(\'' + cardId + '\')">⚠ Review pending</button>' : '';
@@ -8708,30 +8767,70 @@ Comp.PlanVisitCard = function(entity, cardId){
 
   const pv = entity.planVisitInfo || {};
 
-  const PLAN_FIELDS = [
-    {key:'openingHours',   label:'Opening Hours',    placeholder:'e.g. Mon–Sun 9:00 AM – 6:00 PM'},
-    {key:'visitDuration',  label:'Visit Duration',   placeholder:'e.g. 1–2 hours recommended'},
-    {key:'tickets',        label:'Tickets & Pricing',placeholder:'e.g. Adults $25, Children (under 12) free'},
-    {key:'address',        label:'Address',          placeholder:'e.g. 123 Main St, New York, NY 10001'},
-    {key:'accessibility',  label:'Accessibility',    placeholder:'e.g. Wheelchair accessible, elevators available'},
-    {key:'security',       label:'Security & Rules', placeholder:'e.g. No large bags, photo ID required'},
-    {key:'gettingThere',   label:'Getting There',    placeholder:'e.g. Subway: Line A/C/E to 42nd St; Bus: M42'}
+  // All 16 predefined fields
+  Comp._pvAllFields = [
+    {key:'openingHours',   label:'Opening Hours',                        placeholder:'e.g. Mon–Sun 9:00 AM – 6:00 PM',                              type:'input'},
+    {key:'visitDuration',  label:'Typical Visit Duration',               placeholder:'e.g. 1–2 hours recommended',                                  type:'input'},
+    {key:'tickets',        label:'Tickets / Admission Model',            placeholder:'e.g. Adults $25, Children (under 12) free',                   type:'textarea'},
+    {key:'timedEntry',     label:'Timed-Entry Requirement',              placeholder:'e.g. Timed entry required, book in advance',                  type:'input'},
+    {key:'address',        label:'Address',                              placeholder:'e.g. 123 Main St, New York, NY 10001',                        type:'input'},
+    {key:'entrance',       label:'Main Entrance / Where to Enter',       placeholder:'e.g. Enter via the North Gate on 5th Ave',                   type:'input'},
+    {key:'accessibility',  label:'Accessibility',                        placeholder:'e.g. Wheelchair accessible, elevators available',             type:'textarea'},
+    {key:'security',       label:'Security Screening',                   placeholder:'e.g. Airport-style security at main entrance',               type:'input'},
+    {key:'bagPolicy',      label:'Bag Policy',                           placeholder:'e.g. No bags larger than 30×30 cm',                          type:'input'},
+    {key:'idRequirements', label:'ID Requirements',                      placeholder:'e.g. Photo ID required for discounted tickets',              type:'input'},
+    {key:'dresscode',      label:'Dress Code',                           placeholder:'e.g. Shoulders and knees must be covered',                   type:'input'},
+    {key:'photoRules',     label:'Photography Rules',                    placeholder:'e.g. No flash photography inside galleries',                 type:'input'},
+    {key:'lastAdmission',  label:'Last Admission',                       placeholder:'e.g. Last admission 1 hour before closing',                  type:'input'},
+    {key:'website',        label:'Official Website',                     placeholder:'e.g. https://www.example.com',                               type:'input'},
+    {key:'gettingThere',   label:'Getting There / Nearest Transport',    placeholder:'e.g. Subway: Line A/C/E to 42nd St; Bus: M42',               type:'textarea'},
+    {key:'closures',       label:'Closures / Exceptional Restrictions',  placeholder:'e.g. Closed on national holidays; special events may restrict access', type:'textarea'}
   ];
 
-  const fieldsHtml = PLAN_FIELDS.map(f =>
-    '<div class="field">' +
-      '<label>' + f.label + '</label>' +
-      '<p style="font-size:var(--fs-sm);color:' + (pv[f.key] ? 'var(--text-primary)' : 'var(--text-muted)') + ';margin:0;padding:10px 12px;background:var(--surface-sunken);border:1px solid var(--border);border-radius:var(--radius-md);min-height:40px;">' +
-        Comp._escHtml(pv[f.key] || f.placeholder) +
+  const DEFAULT_KEYS = ['openingHours','visitDuration','tickets','address','gettingThere'];
+  if(!pv._activeFields) pv._activeFields = DEFAULT_KEYS.slice();
+
+  // ── View mode ─────────────────────────────────────────────────────────────
+  const viewFieldsHtml = pv._activeFields.map(function(key){
+    const fd = Comp._pvAllFields.find(function(f){ return f.key === key; });
+    if(!fd) return '';
+    return '<div class="field">' +
+      '<label>' + fd.label + '</label>' +
+      '<p style="font-size:var(--fs-sm);color:' + (pv[key] ? 'var(--text-primary)' : 'var(--text-muted)') + ';margin:0;padding:10px 12px;background:var(--surface-sunken);border:1px solid var(--border);border-radius:var(--radius-md);min-height:40px;">' +
+        Comp._escHtml(pv[key] || fd.placeholder) +
       '</p>' +
-    '</div>'
-  ).join('');
+    '</div>';
+  }).join('');
+
+  // ── Edit mode ─────────────────────────────────────────────────────────────
+  const editRowsHtml = pv._activeFields.map(function(key){
+    const fd = Comp._pvAllFields.find(function(f){ return f.key === key; });
+    if(!fd) return '';
+    const inp = fd.type === 'textarea'
+      ? '<textarea class="card-input" data-pv-key="' + key + '" placeholder="' + Comp._escHtml(fd.placeholder) + '" rows="2" style="resize:vertical;">' + Comp._escHtml(pv[key] || '') + '</textarea>'
+      : '<input type="text" class="card-input" data-pv-key="' + key + '" placeholder="' + Comp._escHtml(fd.placeholder) + '" value="' + Comp._escHtml(pv[key] || '') + '" readonly>';
+    return '<div class="pv-field-row" data-pv-key="' + key + '" style="display:flex;align-items:flex-end;gap:10px;margin-bottom:12px;">' +
+      '<div class="field" style="flex:1;margin:0;">' +
+        '<label>' + fd.label + '</label>' +
+        inp +
+      '</div>' +
+      '<button type="button" class="repeat-item__remove" style="padding-bottom:10px;" onclick="Comp._pvRemoveField(event,\'' + cardId + '\')" title="Remove field">Remove</button>' +
+    '</div>';
+  }).join('');
+
+  const addFieldBtn =
+    '<div class="pv-add-wrap" style="position:relative;margin-bottom:16px;">' +
+      '<button type="button" style="display:block;width:100%;text-align:center;background:none;border:1px dashed var(--border-strong);border-radius:var(--radius-md);color:var(--accent-600);font-size:var(--fs-sm);font-weight:600;cursor:pointer;padding:8px 0;" onclick="Comp._pvToggleDropdown(this,\'' + cardId + '\')">' +
+        '+ Add field' +
+      '</button>' +
+      '<div class="pv-dropdown" id="' + cardId + '-pvDrop" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--surface-card);border:1px solid var(--border);border-radius:var(--radius-md);box-shadow:var(--shadow-md);z-index:200;max-height:260px;overflow-y:auto;margin-top:4px;"></div>' +
+    '</div>';
 
   const mediaHtml =
     '<div class="field" style="margin-top:4px;">' +
       '<label id="' + cardId + '-mediaLbl">Media upload</label>' +
       '<div class="upload-area" role="button" tabindex="0" aria-labelledby="' + cardId + '-mediaLbl" ' +
-        'onclick="Comp.handleUploadAreaClick(this, function(filename, altText){ Comp.showToast(\'Uploaded: \' + filename, \'success\'); })">' +
+        'onclick="Comp.handleUploadAreaClick(this, function(filename){ Comp.showToast(\'Uploaded: \' + filename, \'success\'); })">' +
         '<div class="up-title">Click to upload</div>' +
         '<div class="up-sub">or drag and drop</div>' +
         '<div class="up-hint">PNG, JPG, WEBP or MP4 (max. 50 MB)</div>' +
@@ -8741,7 +8840,7 @@ Comp.PlanVisitCard = function(entity, cardId){
     '<div class="field" style="margin-top:4px;">' +
       '<label id="' + cardId + '-pdfLbl">Visitor guide (PDF)</label>' +
       '<div class="upload-area" role="button" tabindex="0" aria-labelledby="' + cardId + '-pdfLbl" ' +
-        'onclick="Comp.handleUploadAreaClick(this, function(filename, altText){ Comp.showToast(\'PDF uploaded: \' + filename, \'success\'); })">' +
+        'onclick="Comp.handleUploadAreaClick(this, function(filename){ Comp.showToast(\'PDF uploaded: \' + filename, \'success\'); })">' +
         '<div class="up-title">Click to upload</div>' +
         '<div class="up-sub">or drag and drop</div>' +
         '<div class="up-hint">PDF only (max. 20 MB)</div>' +
@@ -8751,17 +8850,222 @@ Comp.PlanVisitCard = function(entity, cardId){
 
   return '<section class="card" data-card-id="' + cardId + '" aria-label="Plan your visit with confidence">' +
     '<div class="section-header-row"><p class="card-title">Plan your visit with confidence' + reviewBadge + '</p></div>' +
-    '<div class="field-stack" style="margin-bottom:20px;">' + fieldsHtml + mediaHtml + '</div>' +
+
+    // View-mode field list (hidden in edit mode via .card.is-editing CSS)
+    '<div class="pv-view-fields" id="' + cardId + '-pvView">' +
+      '<div class="field-stack" style="margin-bottom:8px;">' + viewFieldsHtml + '</div>' +
+    '</div>' +
+
+    // Edit-mode field list (shown when .card.is-editing via inline show/hide in editCard)
+    '<div class="pv-edit-fields" id="' + cardId + '-pvEdit" style="display:none;">' +
+      '<div class="pv-edit-list field-stack" id="' + cardId + '-pvList" style="margin-bottom:4px;">' + editRowsHtml + '</div>' +
+      addFieldBtn +
+    '</div>' +
+
+    // Media/PDF (always visible)
+    '<div class="field-stack" style="margin-bottom:20px;">' + mediaHtml + '</div>' +
+
     '<div class="sec-actions">' +
+      '<div class="regen-status" role="status"><span class="spinner" aria-hidden="true"></span> Regenerating…</div>' +
       '<div class="lock-status-note">' + ICON.lock + ' Locked from AI edits</div>' +
       '<div class="default-actions">' +
+        Comp.Button('Edit section', {size:'btn-sm', onclick:'Comp._pvEditCard(this)'}) +
         Comp.Button('<span class="toggle-track" aria-hidden="true"></span><span class="lock-label">Lock</span>', {variant:'btn-lock', size:'btn-sm', onclick:'Comp.toggleLock(this)', extraAttrs:'aria-pressed="false"'}) +
         regenBtn +
+      '</div>' +
+      '<div class="edit-actions">' +
+        Comp.Button('Cancel', {size:'btn-sm', onclick:'Comp._pvCancelCard(this)'}) +
+        Comp.Button('Save changes', {size:'btn-sm', variant:'btn-primary', onclick:'Comp._pvSaveCard(this)'}) +
       '</div>' +
     '</div>' +
   '</section>';
 };
 
+// ── Enter edit mode ──────────────────────────────────────────────────────────
+Comp._pvEditCard = function(btn){
+  const card = btn.closest('.card');
+  if(!card) return;
+  card.classList.add('is-editing');
+  // Show edit list, hide view list
+  const cardId = card.getAttribute('data-card-id');
+  const viewDiv = document.getElementById(cardId + '-pvView');
+  const editDiv = document.getElementById(cardId + '-pvEdit');
+  if(viewDiv) viewDiv.style.display = 'none';
+  if(editDiv) editDiv.style.display = '';
+  // Make inputs editable
+  card.querySelectorAll('.card-input').forEach(function(el){
+    if(el.tagName === 'TEXTAREA') return; // textarea is always editable
+    el.removeAttribute('readonly');
+  });
+  const first = card.querySelector('.card-input');
+  if(first) first.focus();
+};
+
+// ── Cancel edit mode ─────────────────────────────────────────────────────────
+Comp._pvCancelCard = function(btn){
+  const card = btn.closest('.card');
+  if(!card) return;
+  card.classList.remove('is-editing');
+  const cardId = card.getAttribute('data-card-id');
+  const viewDiv = document.getElementById(cardId + '-pvView');
+  const editDiv = document.getElementById(cardId + '-pvEdit');
+  if(viewDiv) viewDiv.style.display = '';
+  if(editDiv) editDiv.style.display = 'none';
+  // Close any open dropdown
+  const dd = document.getElementById(cardId + '-pvDrop');
+  if(dd) dd.style.display = 'none';
+};
+
+// ── Save changes ─────────────────────────────────────────────────────────────
+Comp._pvSaveCard = function(btn){
+  const card = btn.closest('.card');
+  if(!card) return;
+  const cardId = card.getAttribute('data-card-id');
+
+  // Gather active fields + values from edit list
+  const entity = (typeof currentAttraction !== 'undefined' && currentAttraction) || {};
+  if(!entity.planVisitInfo) entity.planVisitInfo = {};
+  const pv = entity.planVisitInfo;
+
+  const rows = card.querySelectorAll('#' + cardId + '-pvList .pv-field-row');
+  const activeKeys = [];
+  rows.forEach(function(row){
+    const key = row.getAttribute('data-pv-key');
+    if(!key) return;
+    activeKeys.push(key);
+    const inp = row.querySelector('[data-pv-key]');
+    if(inp) pv[key] = inp.value;
+  });
+  pv._activeFields = activeKeys;
+
+  // Rebuild view list
+  const viewStack = card.querySelector('#' + cardId + '-pvView .field-stack');
+  if(viewStack){
+    viewStack.innerHTML = activeKeys.map(function(key){
+      const fd = (Comp._pvAllFields || []).find(function(f){ return f.key === key; });
+      if(!fd) return '';
+      return '<div class="field">' +
+        '<label>' + fd.label + '</label>' +
+        '<p style="font-size:var(--fs-sm);color:' + (pv[key] ? 'var(--text-primary)' : 'var(--text-muted)') + ';margin:0;padding:10px 12px;background:var(--surface-sunken);border:1px solid var(--border);border-radius:var(--radius-md);min-height:40px;">' +
+          Comp._escHtml(pv[key] || fd.placeholder) +
+        '</p>' +
+      '</div>';
+    }).join('');
+  }
+
+  card.classList.remove('is-editing');
+  const viewDiv = document.getElementById(cardId + '-pvView');
+  const editDiv = document.getElementById(cardId + '-pvEdit');
+  if(viewDiv) viewDiv.style.display = '';
+  if(editDiv) editDiv.style.display = 'none';
+  Comp.showToast('Plan visit info saved.', 'success');
+};
+
+// ── Remove a field row ────────────────────────────────────────────────────────
+Comp._pvRemoveField = function(btnOrEvent, cardId){
+  // Works for both: onclick="Comp._pvRemoveField(event,'id')" and removeBtn.onclick=fn(e)
+  let el = null;
+  if(btnOrEvent && typeof btnOrEvent.preventDefault === 'function'){
+    // It's an Event — walk up from target to find the button
+    el = btnOrEvent.target;
+    while(el && el.tagName !== 'BUTTON') el = el.parentElement;
+  } else {
+    el = btnOrEvent; // direct element reference
+  }
+  if(!el) return;
+  const row = el.closest('[data-pv-key]');
+  if(row) row.remove();
+};
+
+// ── Toggle + Add field dropdown ───────────────────────────────────────────────
+Comp._pvToggleDropdown = function(btn, cardId){
+  const dd = document.getElementById(cardId + '-pvDrop');
+  if(!dd) return;
+  if(dd.style.display !== 'none'){ dd.style.display = 'none'; return; }
+
+  const list = document.getElementById(cardId + '-pvList');
+  const activeKeys = list
+    ? Array.from(list.querySelectorAll('.pv-field-row')).map(function(r){ return r.getAttribute('data-pv-key'); })
+    : [];
+  const available = (Comp._pvAllFields || []).filter(function(f){ return activeKeys.indexOf(f.key) === -1; });
+
+  if(available.length === 0){
+    dd.innerHTML = '<div style="padding:10px 14px;font-size:var(--fs-sm);color:var(--text-muted);">All fields already added</div>';
+  } else {
+    dd.innerHTML = available.map(function(f){
+      return '<button type="button" ' +
+        'onclick="Comp._pvAddField(\'' + f.key + '\',\'' + cardId + '\')" ' +
+        'style="display:block;width:100%;text-align:left;padding:9px 14px;font-size:var(--fs-sm);background:none;border:none;border-bottom:1px solid var(--border);cursor:pointer;color:var(--text-primary);" ' +
+        'onmouseover="this.style.background=\'var(--surface-sunken)\'" onmouseout="this.style.background=\'none\'">' +
+        f.label +
+      '</button>';
+    }).join('');
+  }
+  dd.style.display = '';
+
+  setTimeout(function(){
+    document.addEventListener('click', function h(e){
+      if(!dd.contains(e.target) && e.target !== btn){
+        dd.style.display = 'none';
+        document.removeEventListener('click', h);
+      }
+    });
+  }, 0);
+};
+
+// ── Add field from dropdown ───────────────────────────────────────────────────
+Comp._pvAddField = function(key, cardId){
+  const fd = (Comp._pvAllFields || []).find(function(f){ return f.key === key; });
+  if(!fd) return;
+  const list = document.getElementById(cardId + '-pvList');
+  if(!list) return;
+
+  // Build row using DOM methods to avoid any sanitization issues
+  const row = document.createElement('div');
+  row.className = 'pv-field-row';
+  row.setAttribute('data-pv-key', key);
+  row.style.cssText = 'display:flex;align-items:flex-end;gap:10px;margin-bottom:12px;';
+
+  const fieldDiv = document.createElement('div');
+  fieldDiv.className = 'field';
+  fieldDiv.style.cssText = 'flex:1;margin:0;';
+
+  const lbl = document.createElement('label');
+  lbl.style.cssText = 'font-size:var(--fs-sm);font-weight:600;color:var(--text-secondary);margin-bottom:4px;display:block;';
+  lbl.textContent = fd.label;
+
+  let inp;
+  if(fd.type === 'textarea'){
+    inp = document.createElement('textarea');
+    inp.rows = 2;
+    inp.style.resize = 'vertical';
+  } else {
+    inp = document.createElement('input');
+    inp.type = 'text';
+  }
+  inp.className = 'card-input';
+  inp.setAttribute('data-pv-key', key);
+  inp.placeholder = fd.placeholder;
+
+  fieldDiv.appendChild(lbl);
+  fieldDiv.appendChild(inp);
+
+  const removeBtn = document.createElement('button');
+  removeBtn.type = 'button';
+  removeBtn.className = 'repeat-item__remove';
+  removeBtn.style.paddingBottom = '10px';
+  removeBtn.textContent = 'Remove';
+  removeBtn.setAttribute('title', 'Remove field');
+  removeBtn.onclick = function(e){ Comp._pvRemoveField(e, cardId); };
+
+  row.appendChild(fieldDiv);
+  row.appendChild(removeBtn);
+  list.appendChild(row);
+
+  const dd = document.getElementById(cardId + '-pvDrop');
+  if(dd) dd.style.display = 'none';
+  inp.focus();
+};
 Comp._planVisitRegen = function(cardId){
   const card = document.querySelector('[data-card-id="' + cardId + '"]');
   if(!card){ Comp.showToast('Section not found.', 'danger'); return; }
