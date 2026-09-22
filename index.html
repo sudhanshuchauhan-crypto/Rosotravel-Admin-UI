@@ -525,14 +525,18 @@ const DATA = {
   bookings: [
     {id:'BK-001', customer:'Alex Harrison', tour:'Premium Desert Safari Dubai (Dune Bashing & Dinner)', bookingDate:'12 May 2024', travelDate:'18 May 2024', guests:4, amount:380.00, status:'Completed', channel:'Rosotravel', confirmationType:'Instant',
       email:'alex.harrison@email.com', phone:'+971 55 123 4567', nationality:'British',
-      product:'Premium Desert Safari Dubai', timeSlot:'3:00 PM - 9:00 PM', guestsBreakdown:'4 Adults, 0 Children', pickup:'Hilton Dubai Creek',
+      product:'Premium Desert Safari Dubai', timeSlot:'3:00 PM - 9:00 PM', guestsBreakdown:'4 Adults, 0 Children',
+      pickupMode:'now', pickupLocation:'Hilton Dubai Creek, Dubai', pickup:'Hilton Dubai Creek',
       paymentStatus:'Paid', paymentMethod:'Credit Card', transactionId:'TXN-789456',
       guestList:[
-        {name:'Alex Harrison', age:34, gender:'Male', nationality:'British', passport:'UK789456123', requirements:'None', primary:true},
-        {name:'Emma Harrison', age:31, gender:'Female', nationality:'British', passport:'UK789456124', requirements:'Vegetarian meal'},
-        {name:'Oliver Harrison', age:12, gender:'Male', nationality:'British', passport:'UK789456125', requirements:'None'},
-        {name:'Sophie Harrison', age:8, gender:'Female', nationality:'British', passport:'UK789456126', requirements:'None'}
+        {firstName:'Alex', lastName:'Harrison', ageBand:'Adult', primary:true, fields:[{key:'WEIGHT',label:'Weight',value:'82 kg'},{key:'HEIGHT',label:'Height',value:'178 cm'},{key:'NATIONALITY',label:'Nationality',value:'British'},{key:'PASSPORT',label:'Passport / ID',value:'UK789456123'}]},
+        {firstName:'Emma', lastName:'Harrison', ageBand:'Adult', primary:false, fields:[{key:'WEIGHT',label:'Weight',value:'61 kg'},{key:'HEIGHT',label:'Height',value:'165 cm'},{key:'NATIONALITY',label:'Nationality',value:'British'},{key:'PASSPORT',label:'Passport / ID',value:'UK789456124'}]},
+        {firstName:'Oliver', lastName:'Harrison', ageBand:'Youth', primary:false, fields:[{key:'WEIGHT',label:'Weight',value:'45 kg'},{key:'HEIGHT',label:'Height',value:'152 cm'},{key:'NATIONALITY',label:'Nationality',value:'British'},{key:'PASSPORT',label:'Passport / ID',value:'UK789456125'}]},
+        {firstName:'Sophie', lastName:'Harrison', ageBand:'Child', primary:false, fields:[{key:'WEIGHT',label:'Weight',value:'28 kg'},{key:'HEIGHT',label:'Height',value:'120 cm'},{key:'NATIONALITY',label:'Nationality',value:'British'},{key:'PASSPORT',label:'Passport / ID',value:'UK789456126'}]}
       ],
+      specialRequirements:'Emma — vegetarian meal preferred.',
+      personalisation:{groupAge:'35–50', preferences:'Family celebrating our anniversary trip. Love cultural experiences and local cuisine.'},
+      invoice:null,
       pricing:{baseLabel:'Base Price ($75.00 x 4 guests)', base:'$300.00', addonsLabel:'Add-ons (Quad Biking + Photo)', addons:'$80.00', subtotal:'$380.00', discount:'-$0.00', total:'$380.00'},
       activity:[
         {label:'Booking Created', time:'12 May 2024, 10:15 AM'},
@@ -542,67 +546,128 @@ const DATA = {
       ]},
     {id:'BK-002', customer:'Amelie Laurent', tour:'Dubai Half-Day Modern City Tour', bookingDate:'13 May 2024', travelDate:'15 May 2024', guests:2, amount:120.00, status:'Completed', channel:'Viator', confirmationType:'Instant',
       email:'amelie.laurent@email.com', phone:'+971 55 223 4567', nationality:'French',
-      product:'Dubai Half-Day Modern City Tour', timeSlot:'9:00 AM - 1:00 PM', guestsBreakdown:'2 Adults, 0 Children', pickup:'JW Marriott Marina',
+      product:'Dubai Half-Day Modern City Tour', timeSlot:'9:00 AM - 1:00 PM', guestsBreakdown:'2 Adults, 0 Children',
+      pickupMode:'now', pickupLocation:'JW Marriott Marina, Dubai Marina', pickup:'JW Marriott Marina',
       paymentStatus:'Paid', paymentMethod:'Credit Card', transactionId:'TXN-789457',
-      guestList:[{name:'Amelie Laurent', age:29, gender:'Female', nationality:'French', passport:'FR445566778', requirements:'None', primary:true}, {name:'Pierre Laurent', age:32, gender:'Male', nationality:'French', passport:'FR445566779', requirements:'None'}],
+      guestList:[
+        {firstName:'Amelie', lastName:'Laurent', ageBand:'Adult', primary:true, fields:[{key:'NATIONALITY',label:'Nationality',value:'French'},{key:'PASSPORT',label:'Passport / ID',value:'FR445566778'}]},
+        {firstName:'Pierre', lastName:'Laurent', ageBand:'Adult', primary:false, fields:[{key:'NATIONALITY',label:'Nationality',value:'French'},{key:'PASSPORT',label:'Passport / ID',value:'FR445566779'}]}
+      ],
+      specialRequirements:null,
+      personalisation:{groupAge:'25–35', preferences:'Interested in modern architecture and city highlights.'},
+      invoice:{requested:true, companyName:'Laurent Consulting SARL', street:'14 Rue de Rivoli', city:'Paris', state:'Île-de-France', zip:'75001', country:'France'},
       pricing:{baseLabel:'Base Price ($60.00 x 2 guests)', base:'$120.00', addonsLabel:'Add-ons', addons:'$0.00', subtotal:'$120.00', discount:'-$0.00', total:'$120.00', viatorRecommendedPrice:'$120.00', viatorNetPrice:'$96.00', viatorBookingFee:'$24.00', viatorPayout:'$96.00'},
       activity:[{label:'Booking Created', time:'13 May 2024, 09:00 AM'}, {label:'Payment Received', time:'13 May 2024, 09:05 AM'}, {label:'Tour Completed', time:'15 May 2024, 01:15 PM'}]},
     {id:'BK-003', customer:'Carlos Ruiz', tour:'Hatta Mountain Trek & Adventure Day Out', bookingDate:'14 May 2024', travelDate:'20 May 2024', guests:1, amount:150.00, status:'Pending', channel:'Rosotravel', confirmationType:'Manual', hoursSincePending:20,
       email:'carlos.ruiz@email.com', phone:'+971 55 323 4567', nationality:'Spanish',
-      product:'Hatta Mountain Trek & Adventure Day Out', timeSlot:'6:00 AM - 4:00 PM', guestsBreakdown:'1 Adult, 0 Children', pickup:'Downtown Dubai',
+      product:'Hatta Mountain Trek & Adventure Day Out', timeSlot:'6:00 AM - 4:00 PM', guestsBreakdown:'1 Adult, 0 Children',
+      pickupMode:'now', pickupLocation:'Downtown Dubai (Burj Khalifa Metro Station, Gate 4)', pickup:'Downtown Dubai',
       paymentStatus:'Pending', paymentMethod:'Credit Card', transactionId:'TXN-789458',
-      guestList:[{name:'Carlos Ruiz', age:27, gender:'Male', nationality:'Spanish', passport:'ES112233445', requirements:'None', primary:true}],
+      guestList:[
+        {firstName:'Carlos', lastName:'Ruiz', ageBand:'Adult', primary:true, fields:[{key:'WEIGHT',label:'Weight',value:'75 kg'},{key:'HEIGHT',label:'Height',value:'180 cm'},{key:'NATIONALITY',label:'Nationality',value:'Spanish'},{key:'PASSPORT',label:'Passport / ID',value:'ES112233445'}]}
+      ],
+      specialRequirements:'Solo traveller — comfortable with group activities.',
+      personalisation:{groupAge:'25–35', preferences:'Adventure enthusiast, interested in hiking and outdoor experiences.'},
+      invoice:null,
       pricing:{baseLabel:'Base Price ($150.00 x 1 guest)', base:'$150.00', addonsLabel:'Add-ons', addons:'$0.00', subtotal:'$150.00', discount:'-$0.00', total:'$150.00'},
       activity:[{label:'Booking Created', time:'14 May 2024, 02:30 PM'}]},
     {id:'BK-004', customer:'Sarah Jenkins', tour:'Marina Dhow Cruise Dinner (Premium Lower Deck)', bookingDate:'14 May 2024', travelDate:'16 May 2024', guests:3, amount:210.00, status:'Confirmed', channel:'Viator', confirmationType:'Instant-then-manual', orderId:'ORD-1004',
       email:'sarah.jenkins@email.com', phone:'+971 55 423 4567', nationality:'American',
-      product:'Marina Dhow Cruise Dinner', timeSlot:'7:00 PM - 9:30 PM', guestsBreakdown:'3 Adults, 0 Children', pickup:'Dubai Marina Mall',
+      product:'Marina Dhow Cruise Dinner', timeSlot:'7:00 PM - 9:30 PM', guestsBreakdown:'2 Adults, 1 Child',
+      pickupMode:'meeting_point', pickupLocation:null, pickup:'Dubai Marina Mall',
       paymentStatus:'Paid', paymentMethod:'PayPal', transactionId:'TXN-789459',
-      guestList:[{name:'Sarah Jenkins', age:38, gender:'Female', nationality:'American', passport:'US998877665', requirements:'None', primary:true}, {name:'Mike Jenkins', age:40, gender:'Male', nationality:'American', passport:'US998877666', requirements:'None'}, {name:'Lily Jenkins', age:9, gender:'Female', nationality:'American', passport:'US998877667', requirements:'Child seat'}],
+      guestList:[
+        {firstName:'Sarah', lastName:'Jenkins', ageBand:'Adult', primary:true, fields:[{key:'NATIONALITY',label:'Nationality',value:'American'},{key:'PASSPORT',label:'Passport / ID',value:'US998877665'}]},
+        {firstName:'Mike', lastName:'Jenkins', ageBand:'Adult', primary:false, fields:[{key:'NATIONALITY',label:'Nationality',value:'American'},{key:'PASSPORT',label:'Passport / ID',value:'US998877666'}]},
+        {firstName:'Lily', lastName:'Jenkins', ageBand:'Child', primary:false, fields:[{key:'NATIONALITY',label:'Nationality',value:'American'},{key:'PASSPORT',label:'Passport / ID',value:'US998877667'}]}
+      ],
+      specialRequirements:'Child seat required for Lily.',
+      personalisation:{groupAge:'35–50', preferences:'Family dinner celebration — celebrating our daughter\'s birthday.'},
+      invoice:null,
       pricing:{baseLabel:'Base Price ($70.00 x 3 guests)', base:'$210.00', addonsLabel:'Add-ons', addons:'$0.00', subtotal:'$210.00', discount:'-$0.00', total:'$210.00', viatorRecommendedPrice:'$210.00', viatorNetPrice:'$168.00', viatorBookingFee:'$42.00', viatorPayout:'$168.00'},
       activity:[{label:'Booking Created', time:'14 May 2024, 11:00 AM'}, {label:'Payment Received', time:'14 May 2024, 11:04 AM'}, {label:'Confirmation Sent', time:'14 May 2024, 11:06 AM'}]},
     {id:'BK-010', customer:'Sarah Jenkins', tour:'Dubai Miracle Garden Entry Ticket', bookingDate:'14 May 2024', travelDate:'16 May 2024', guests:3, amount:90.00, status:'Confirmed', channel:'Rosotravel', confirmationType:'Instant', orderId:'ORD-1004',
       email:'sarah.jenkins@email.com', phone:'+971 55 423 4567', nationality:'American',
-      product:'Dubai Miracle Garden Entry Ticket', timeSlot:'2:00 PM - 5:00 PM', guestsBreakdown:'3 Adults, 0 Children', pickup:'Self-arrival',
+      product:'Dubai Miracle Garden Entry Ticket', timeSlot:'2:00 PM - 5:00 PM', guestsBreakdown:'2 Adults, 1 Child',
+      pickupMode:'self_arrival', pickupLocation:null, pickup:'Self-arrival',
       paymentStatus:'Paid', paymentMethod:'PayPal', transactionId:'TXN-789459-B',
-      guestList:[{name:'Sarah Jenkins', age:38, gender:'Female', nationality:'American', passport:'US998877665', requirements:'None', primary:true}, {name:'Mike Jenkins', age:40, gender:'Male', nationality:'American', passport:'US998877666', requirements:'None'}, {name:'Lily Jenkins', age:9, gender:'Female', nationality:'American', passport:'US998877667', requirements:'None'}],
+      guestList:[
+        {firstName:'Sarah', lastName:'Jenkins', ageBand:'Adult', primary:true, fields:[]},
+        {firstName:'Mike', lastName:'Jenkins', ageBand:'Adult', primary:false, fields:[]},
+        {firstName:'Lily', lastName:'Jenkins', ageBand:'Child', primary:false, fields:[]}
+      ],
+      specialRequirements:null,
+      personalisation:null,
+      invoice:null,
       pricing:{baseLabel:'Base Price ($30.00 x 3 guests)', base:'$90.00', addonsLabel:'Add-ons', addons:'$0.00', subtotal:'$90.00', discount:'-$0.00', total:'$90.00'},
       activity:[{label:'Booking Created', time:'14 May 2024, 11:00 AM'}, {label:'Payment Received', time:'14 May 2024, 11:04 AM'}, {label:'Confirmation Sent', time:'14 May 2024, 11:06 AM'}]},
     {id:'BK-005', customer:'Yuki Tanaka', tour:'Burj Khalifa Sunrise View & Observatory Pass', bookingDate:'15 May 2024', travelDate:'15 May 2024', guests:2, amount:190.00, status:'Cancelled', channel:'Rosotravel', confirmationType:'Instant',
       email:'yuki.tanaka@email.com', phone:'+971 55 523 4567', nationality:'Japanese',
-      product:'Burj Khalifa Sunrise View & Observatory Pass', timeSlot:'5:30 AM - 7:30 AM', guestsBreakdown:'2 Adults, 0 Children', pickup:'Self-arrival',
+      product:'Burj Khalifa Sunrise View & Observatory Pass', timeSlot:'5:30 AM - 7:30 AM', guestsBreakdown:'2 Adults, 0 Children',
+      pickupMode:'self_arrival', pickupLocation:null, pickup:'Self-arrival',
       paymentStatus:'Refunded', paymentMethod:'Credit Card', transactionId:'TXN-789460',
-      guestList:[{name:'Yuki Tanaka', age:26, gender:'Female', nationality:'Japanese', passport:'JP334455667', requirements:'None', primary:true}, {name:'Kenji Tanaka', age:28, gender:'Male', nationality:'Japanese', passport:'JP334455668', requirements:'None'}],
+      guestList:[
+        {firstName:'Yuki', lastName:'Tanaka', ageBand:'Adult', primary:true, fields:[{key:'NATIONALITY',label:'Nationality',value:'Japanese'},{key:'PASSPORT',label:'Passport / ID',value:'JP334455667'}]},
+        {firstName:'Kenji', lastName:'Tanaka', ageBand:'Adult', primary:false, fields:[{key:'NATIONALITY',label:'Nationality',value:'Japanese'},{key:'PASSPORT',label:'Passport / ID',value:'JP334455668'}]}
+      ],
+      specialRequirements:null,
+      personalisation:{groupAge:'25–35', preferences:'Couple trip — love photography and iconic landmarks.'},
+      invoice:null,
       pricing:{baseLabel:'Base Price ($95.00 x 2 guests)', base:'$190.00', addonsLabel:'Add-ons', addons:'$0.00', subtotal:'$190.00', discount:'-$0.00', total:'$190.00'},
       activity:[{label:'Booking Created', time:'15 May 2024, 08:00 AM'}, {label:'Payment Received', time:'15 May 2024, 08:03 AM'}, {label:'Booking Cancelled', time:'15 May 2024, 06:00 PM'}],
       cancelReason:'Change of plans', cancelledBy:'Admin (you)',
       cancelNote:'This booking has been cancelled. Refund of $190.00 processed to original payment method.'},
     {id:'BK-006', customer:'Ahmed Al-Mansoori', tour:'Abu Dhabi Grand Mosque & Louvre Day Tour', bookingDate:'15 May 2024', travelDate:'19 May 2024', guests:5, amount:650.00, status:'Confirmed', channel:'Viator', confirmationType:'Instant',
       email:'ahmed.almansoori@email.com', phone:'+971 55 623 4567', nationality:'Emirati',
-      product:'Abu Dhabi Grand Mosque & Louvre Day Tour', timeSlot:'8:00 AM - 6:00 PM', guestsBreakdown:'5 Adults, 0 Children', pickup:'Sheikh Zayed Road',
+      product:'Abu Dhabi Grand Mosque & Louvre Day Tour', timeSlot:'8:00 AM - 6:00 PM', guestsBreakdown:'5 Adults, 0 Children',
+      pickupMode:'now', pickupLocation:'Sheikh Zayed Road (Emirates Towers Metro Station)', pickup:'Sheikh Zayed Road',
       paymentStatus:'Paid', paymentMethod:'Bank Transfer', transactionId:'TXN-789461',
-      guestList:[{name:'Ahmed Al-Mansoori', age:45, gender:'Male', nationality:'Emirati', passport:'AE556677889', requirements:'None', primary:true}],
+      guestList:[
+        {firstName:'Ahmed', lastName:'Al-Mansoori', ageBand:'Adult', primary:true, fields:[{key:'NATIONALITY',label:'Nationality',value:'Emirati'},{key:'PASSPORT',label:'Passport / ID',value:'AE556677889'}]}
+      ],
+      specialRequirements:'Group of 5 — 4 additional guests\' names to be confirmed at meeting point.',
+      personalisation:{groupAge:'35–50', preferences:'Cultural and historical sites. Interested in Islamic architecture.'},
+      invoice:{requested:true, companyName:'Al-Mansoori Trading LLC', street:'Office 1204, Al Moosa Tower 1', city:'Dubai', state:'Dubai', zip:'00000', country:'UAE'},
       pricing:{baseLabel:'Base Price ($130.00 x 5 guests)', base:'$650.00', addonsLabel:'Add-ons', addons:'$0.00', subtotal:'$650.00', discount:'-$0.00', total:'$650.00', viatorRecommendedPrice:'$650.00', viatorNetPrice:'$520.00', viatorBookingFee:'$130.00', viatorPayout:'$520.00'},
       activity:[{label:'Booking Created', time:'15 May 2024, 01:00 PM'}, {label:'Payment Received', time:'15 May 2024, 04:00 PM'}]},
     {id:'BK-007', customer:'Elena Rostova', tour:'Dune Buggy Guided Adventure (Self-Drive Tour)', bookingDate:'16 May 2024', travelDate:'22 May 2024', guests:2, amount:320.00, status:'Pending', channel:'Rosotravel', confirmationType:'Manual', hoursSincePending:80,
       email:'elena.rostova@email.com', phone:'+971 55 723 4567', nationality:'Russian',
-      product:'Dune Buggy Guided Adventure', timeSlot:'2:00 PM - 6:00 PM', guestsBreakdown:'2 Adults, 0 Children', pickup:'Al Qudra Road',
+      product:'Dune Buggy Guided Adventure', timeSlot:'2:00 PM - 6:00 PM', guestsBreakdown:'2 Adults, 0 Children',
+      pickupMode:'now', pickupLocation:'Al Qudra Road (Big Red Dune area)', pickup:'Al Qudra Road',
       paymentStatus:'Pending', paymentMethod:'Credit Card', transactionId:'TXN-789462',
-      guestList:[{name:'Elena Rostova', age:31, gender:'Female', nationality:'Russian', passport:'RU223344556', requirements:'None', primary:true}, {name:'Dmitri Rostov', age:33, gender:'Male', nationality:'Russian', passport:'RU223344557', requirements:'None'}],
+      guestList:[
+        {firstName:'Elena', lastName:'Rostova', ageBand:'Adult', primary:true, fields:[{key:'WEIGHT',label:'Weight',value:'58 kg'},{key:'HEIGHT',label:'Height',value:'167 cm'},{key:'NATIONALITY',label:'Nationality',value:'Russian'},{key:'PASSPORT',label:'Passport / ID',value:'RU223344556'}]},
+        {firstName:'Dmitri', lastName:'Rostov', ageBand:'Adult', primary:false, fields:[{key:'WEIGHT',label:'Weight',value:'80 kg'},{key:'HEIGHT',label:'Height',value:'182 cm'},{key:'NATIONALITY',label:'Nationality',value:'Russian'},{key:'PASSPORT',label:'Passport / ID',value:'RU223344557'}]}
+      ],
+      specialRequirements:'Both travellers are experienced off-road drivers.',
+      personalisation:{groupAge:'25–35', preferences:'Adrenaline seekers — love off-road adventures and desert experiences.'},
+      invoice:null,
       pricing:{baseLabel:'Base Price ($160.00 x 2 guests)', base:'$320.00', addonsLabel:'Add-ons', addons:'$0.00', subtotal:'$320.00', discount:'-$0.00', total:'$320.00'},
       activity:[{label:'Booking Created', time:'16 May 2024, 03:20 PM'}]},
     {id:'BK-008', customer:'Hans Schneider', tour:'Miracle Garden & Butterfly Garden Ticket Duo', bookingDate:'16 May 2024', travelDate:'17 May 2024', guests:4, amount:160.00, status:'Completed', channel:'Viator', confirmationType:'Instant',
       email:'hans.schneider@email.com', phone:'+971 55 823 4567', nationality:'German',
-      product:'Miracle Garden & Butterfly Garden Ticket Duo', timeSlot:'10:00 AM - 2:00 PM', guestsBreakdown:'4 Adults, 0 Children', pickup:'Self-arrival',
+      product:'Miracle Garden & Butterfly Garden Ticket Duo', timeSlot:'10:00 AM - 2:00 PM', guestsBreakdown:'4 Adults, 0 Children',
+      pickupMode:'self_arrival', pickupLocation:null, pickup:'Self-arrival',
       paymentStatus:'Paid', paymentMethod:'Credit Card', transactionId:'TXN-789463',
-      guestList:[{name:'Hans Schneider', age:50, gender:'Male', nationality:'German', passport:'DE667788990', requirements:'None', primary:true}],
+      guestList:[
+        {firstName:'Hans', lastName:'Schneider', ageBand:'Adult', primary:true, fields:[{key:'NATIONALITY',label:'Nationality',value:'German'},{key:'PASSPORT',label:'Passport / ID',value:'DE667788990'}]}
+      ],
+      specialRequirements:'Group of 4 — additional guests arriving separately.',
+      personalisation:null,
+      invoice:{requested:true, companyName:'Schneider GmbH', street:'Hauptstraße 42', city:'Munich', state:'Bavaria', zip:'80331', country:'Germany'},
       pricing:{baseLabel:'Base Price ($40.00 x 4 guests)', base:'$160.00', addonsLabel:'Add-ons', addons:'$0.00', subtotal:'$160.00', discount:'-$0.00', total:'$160.00', viatorRecommendedPrice:'$160.00', viatorNetPrice:'$128.00', viatorBookingFee:'$32.00', viatorPayout:'$128.00'},
       activity:[{label:'Booking Created', time:'16 May 2024, 09:00 AM'}, {label:'Payment Received', time:'16 May 2024, 09:03 AM'}, {label:'Tour Completed', time:'17 May 2024, 02:15 PM'}]},
     {id:'BK-009', customer:'Marco Silvestri', tour:'Skydive Dubai Tandem Jump (Palm Drop Zone)', bookingDate:'17 May 2024', travelDate:'23 May 2024', guests:1, amount:590.00, status:'Cancelled (Fraud – Viator)', channel:'Viator', confirmationType:'Instant',
       email:'marco.silvestri@email.com', phone:'+39 345 123 9876', nationality:'Italian',
-      product:'Skydive Dubai Tandem Jump', timeSlot:'7:00 AM - 9:00 AM', guestsBreakdown:'1 Adult, 0 Children', pickup:'Self-arrival',
+      product:'Skydive Dubai Tandem Jump', timeSlot:'7:00 AM - 9:00 AM', guestsBreakdown:'1 Adult, 0 Children',
+      pickupMode:'self_arrival', pickupLocation:null, pickup:'Self-arrival',
       paymentStatus:'Refunded', paymentMethod:'Credit Card', transactionId:'TXN-789464',
-      guestList:[{name:'Marco Silvestri', age:29, gender:'Male', nationality:'Italian', passport:'IT778899001', requirements:'None', primary:true}],
+      guestList:[
+        {firstName:'Marco', lastName:'Silvestri', ageBand:'Adult', primary:true, fields:[{key:'WEIGHT',label:'Weight',value:'76 kg'},{key:'HEIGHT',label:'Height',value:'175 cm'},{key:'NATIONALITY',label:'Nationality',value:'Italian'},{key:'PASSPORT',label:'Passport / ID',value:'IT778899001'}]}
+      ],
+      specialRequirements:null,
+      personalisation:{groupAge:'25–35', preferences:'Solo adventure — first time skydiving.'},
+      invoice:null,
       pricing:{baseLabel:'Base Price ($590.00 x 1 guest)', base:'$590.00', addonsLabel:'Add-ons', addons:'$0.00', subtotal:'$590.00', discount:'-$0.00', total:'$590.00', viatorRecommendedPrice:'$590.00', viatorNetPrice:'$472.00', viatorBookingFee:'$118.00', viatorPayout:'$472.00'},
       activity:[{label:'Booking Created', time:'17 May 2024, 04:40 PM'}, {label:'Payment Received', time:'17 May 2024, 04:42 PM'}, {label:'Cancelled by Viator — fraud detected', time:'17 May 2024, 06:10 PM'}, {label:'Support team notified (bookings@rosotravel.com)', time:'17 May 2024, 06:10 PM'}],
       cancelReason:'Suspected fraud — flagged by Viator', cancelledBy:'Viator (fraud detection)',
@@ -20983,35 +21048,19 @@ function pageBookingDetails(params){
   const cancellable = ['Confirmed','Pending'].includes(b.status);
   const orderSiblings = Comp.getOrderSiblings(b);
   const cancellableOrderItems = [b, ...orderSiblings].filter(item => ['Confirmed','Pending'].includes(item.status));
-  const guestRows = b.guestList.map((g, i) => `
-    <div class="guest-row">
-      <div class="guest-row-header">
-        <span class="g-name">Guest ${i + 1}${g.primary ? ' (Primary)' : ''}</span>
-        ${g.primary ? Comp.Badge('Primary', 'info') : ''}
-      </div>
-      <div class="guest-field-grid">
-        <div class="guest-field"><span class="g-label">Name</span><span class="g-value">${g.name}</span></div>
-        <div class="guest-field"><span class="g-label">Age</span><span class="g-value">${g.age}</span></div>
-        <div class="guest-field"><span class="g-label">Gender</span><span class="g-value">${g.gender}</span></div>
-        <div class="guest-field"><span class="g-label">Nationality</span><span class="g-value">${g.nationality}</span></div>
-        <div class="guest-field"><span class="g-label">Passport/ID</span><span class="g-value">${g.passport}</span></div>
-        <div class="guest-field"><span class="g-label">Special requirements</span><span class="g-value">${g.requirements}</span></div>
-      </div>
-    </div>`).join('');
-
-  const hasVersions = b.versions && b.versions.length;
   const tabs = [
     {id:'overview', label:'Overview'},
-    {id:'guests', label:`Guests · ${b.guestList.length}`},
+    {id:'travellers', label:`Travellers · ${b.guestList.length}`},
     {id:'pricing', label:'Pricing'},
-    ...(hasVersions ? [{id:'versions', label:`Version History · ${b.versions.length}`}] : []),
     {id:'activity', label:'Activity Log'}
   ];
+
+  // Pickup display helper
+  const pickupModeLabel = {'now':'Hotel / Address pickup', 'later':'Pickup details to be provided later', 'meeting_point':'Meet at departure point', 'self_arrival':'Self-arrival (no pickup)'}[b.pickupMode] || b.pickup || '—';
 
   let tabBody = '';
   if (tab === 'overview') {
     tabBody = `
-    ${Comp.bookingCancellationCard(b)}
     <div class="field-row items-start">
       <div class="card flex-1">
         <p class="card-title">Customer Information</p>
@@ -21035,14 +21084,15 @@ function pageBookingDetails(params){
           </div>
           <div class="field-row">
             ${Comp.MetaField('Time slot', b.timeSlot)}
-            ${Comp.MetaField('Guests', b.guestsBreakdown)}
+            ${Comp.MetaField('Travellers', b.guestsBreakdown)}
           </div>
           <div class="field-row">
-            ${Comp.MetaField('Pickup location', b.pickup)}
+            ${Comp.MetaField('Pickup / Meeting point', pickupModeLabel)}
+            ${b.pickupMode === 'now' && b.pickupLocation ? Comp.MetaField('Pickup address', b.pickupLocation) : ''}
           </div>
         </div>
         ${b.channel === 'Viator' ? `<div class="locked-field-note">${ICON.lock} Availability &amp; scheduling for this booking are managed by Viator — not editable in this admin panel.</div>` : ''}
-        <div class="field-hint mt-2h">ⓘ Guest detail or pickup location changes must be requested by the customer from their own profile on the website — not from this admin panel.</div>
+        <div class="field-hint mt-2h">ⓘ Traveller detail or pickup location changes must be requested by the customer from their own profile on the website — not from this admin panel.</div>
       </div>
       <div class="card flex-1">
         <p class="card-title">Tour Option</p>
@@ -21073,11 +21123,89 @@ function pageBookingDetails(params){
           <td>${Comp.BookingStatusBadge(s.status)}</td>
         </tr>`).join('')})}
     </div>` : ''}`;
-  } else if (tab === 'guests') {
+  } else if (tab === 'travellers') {
+    const leadTraveller = b.guestList.find(g => g.primary) || b.guestList[0];
+    const otherTravellers = b.guestList.filter(g => !g.primary);
+
+    const renderTraveller = (g, idx) => {
+      const name = `${g.firstName} ${g.lastName}`;
+      const extraFields = (g.fields || []).map(f => Comp.MetaField(f.label, f.value)).join('');
+      return `
+      <div class="guest-row">
+        <div class="guest-row-header">
+          <span class="g-name">${idx === 0 ? 'Lead Traveller' : `Traveller ${idx}`}</span>
+          ${g.primary ? Comp.Badge('Lead Traveller', 'info') : ''}
+        </div>
+        <div class="guest-field-grid">
+          ${Comp.MetaField('First name', g.firstName)}
+          ${Comp.MetaField('Last name', g.lastName)}
+          ${Comp.MetaField('Age band', g.ageBand)}
+          ${extraFields}
+        </div>
+      </div>`;
+    };
+
     tabBody = `
-    ${Comp.Card({title:'Guest Details', body:`
-      <p class="field-hint mb-3h">${b.guestList.length} guest${b.guestList.length===1?'':'s'} added</p>
-      ${guestRows}`})}`;
+    <div class="card">
+      <p class="card-title">Lead Traveller</p>
+      <div class="field-stack">
+        <div class="field-row">
+          ${Comp.MetaField('First name', leadTraveller.firstName)}
+          ${Comp.MetaField('Last name', leadTraveller.lastName)}
+        </div>
+        <div class="field-row">
+          ${Comp.MetaField('Email', b.email)}
+          ${Comp.MetaField('Phone', b.phone)}
+        </div>
+        <div class="field-row">
+          ${Comp.MetaField('Age band', leadTraveller.ageBand)}
+          ${(leadTraveller.fields||[]).map(f => Comp.MetaField(f.label, f.value)).join('')}
+        </div>
+      </div>
+    </div>
+    ${otherTravellers.length ? `
+    <div class="card">
+      <p class="card-title">Additional Travellers</p>
+      <p class="field-hint card-hint card-hint--tight">${otherTravellers.length} additional traveller${otherTravellers.length===1?'':'s'}</p>
+      ${otherTravellers.map((g, i) => renderTraveller(g, i + 2)).join('')}
+    </div>` : ''}
+    ${b.specialRequirements ? `
+    <div class="card">
+      <p class="card-title">Special Requirements</p>
+      <p style="font-size:14px; color:var(--text-primary); margin:0;">${Comp._escHtml(b.specialRequirements)}</p>
+    </div>` : ''}
+    ${b.personalisation ? `
+    <div class="card">
+      <p class="card-title">Personalisation</p>
+      <div class="field-stack">
+        <div class="field-row">
+          ${b.personalisation.groupAge ? Comp.MetaField('Approximate group age', b.personalisation.groupAge) : ''}
+        </div>
+        ${b.personalisation.preferences ? `
+        <div>
+          <p class="g-label" style="font-size:11px; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:.5px; margin:0 0 4px;">Preferences / special requests</p>
+          <p style="font-size:14px; color:var(--text-primary); margin:0;">${Comp._escHtml(b.personalisation.preferences)}</p>
+        </div>` : ''}
+      </div>
+    </div>` : ''}
+    ${b.invoice && b.invoice.requested ? `
+    <div class="card">
+      <p class="card-title">Invoice Details</p>
+      <div class="field-stack">
+        <div class="field-row">
+          ${Comp.MetaField('Company name', b.invoice.companyName)}
+        </div>
+        <div class="field-row">
+          ${Comp.MetaField('Street address', b.invoice.street)}
+          ${Comp.MetaField('City', b.invoice.city)}
+        </div>
+        <div class="field-row">
+          ${Comp.MetaField('State / Province', b.invoice.state)}
+          ${Comp.MetaField('ZIP / Postal code', b.invoice.zip)}
+          ${Comp.MetaField('Country', b.invoice.country)}
+        </div>
+      </div>
+    </div>` : ''}`;
   } else if (tab === 'pricing') {
     tabBody = `
     ${Comp.Card({title:'Pricing Breakdown', body:`
@@ -21099,14 +21227,6 @@ function pageBookingDetails(params){
         ['Refund adjustment', b.paymentStatus === 'Refunded' ? (b.cancelNote && b.cancelNote.includes('did not agree') ? 'Full amount paid to Viator — loss absorbed by Rosotravel' : 'Settled per Viator agreement') : 'None']
       ])}
     </div>` : ''}`;
-  } else if (tab === 'versions' && hasVersions) {
-    tabBody = `
-    <div class="card">
-      <p class="card-title">Version History</p>
-      <p class="field-hint card-hint mt-0">A full snapshot is stored before every change or cancellation, for audit and rollback.</p>
-      ${Comp.Table({columns:[{label:'Change type'},{label:'Date',width:'110px'},{label:'Time',width:'140px'},{label:'Guests',width:'70px'},{label:'Price',width:'90px'},{label:'Saved',width:'100px'}], rows: b.versions.map(v => `
-        <tr><td class="cell-name">${v.changeType}</td><td class="cell-secondary">${v.date}</td><td class="cell-secondary">${v.time}</td><td class="cell-secondary">${v.guests}</td><td class="cell-secondary">$${Number(v.price).toFixed(2)}</td><td class="cell-secondary">${v.savedAt}</td></tr>`).join('')})}
-    </div>`;
   } else if (tab === 'activity') {
     tabBody = `
     ${Comp.Card({title:'Activity Log', body:`
@@ -21768,11 +21888,27 @@ function pageCustomerDetails(params){
       <td>${e.status === 'Open' ? Comp.Button('Resolve', {size:'btn-sm', onclick:`Comp.resolveCustomerEnquiry('${e.id}')`}) : ''}</td>
     </tr>`).join('');
 
+  // Build history log — merge all activity entries from all bookings, newest first
+  const historyEntries = [];
+  c.bookings.forEach(b => {
+    (b.activity || []).forEach(a => {
+      historyEntries.push({ time: a.time, label: a.label, bookingId: b.id, tour: b.tour });
+    });
+  });
+  // Sort: entries with a parseable date go first (newest), fallback entries like "Just now" go at the top
+  historyEntries.sort((a, b2) => {
+    const da = new Date(a.time), db = new Date(b2.time);
+    const va = isNaN(da) ? Infinity : -da.getTime();
+    const vb = isNaN(db) ? Infinity : -db.getTime();
+    return va - vb;
+  });
+
   const tabs = [
     {id:'overview', label:'Overview'},
     {id:'bookings', label:`Bookings · ${c.bookingCount}`},
     {id:'vouchers', label:`Vouchers · ${c.bookings.filter(b => ['Confirmed','Completed','Modified'].includes(b.status)).length}`},
-    {id:'enquiries', label:`Enquiries · ${enquiries.length}`}
+    {id:'enquiries', label:`Enquiries · ${enquiries.length}`},
+    {id:'history', label:`History Log · ${historyEntries.length}`}
   ];
   let body = '';
   if (tab === 'overview') {
@@ -21813,6 +21949,21 @@ function pageCustomerDetails(params){
       body:voucherRows ? Comp.Table({columns:[{label:'Voucher'},{label:'Tour'},{label:'Travel date',width:'120px'},{label:'Type',width:'160px'},{label:'',width:'110px'}], rows:voucherRows}) : '<p class="empty-state">No vouchers issued yet.</p>'});
   } else if (tab === 'enquiries') {
     body = Comp.Card({title:'Customer Enquiries', body:enquiryRows ? Comp.Table({columns:[{label:'Subject'},{label:'Booking',width:'100px'},{label:'Resolution',width:'160px'},{label:'Status',width:'100px'},{label:'',width:'90px'}], rows:enquiryRows}) : '<p class="empty-state">No enquiries on file.</p>'});
+  } else if (tab === 'history') {
+    const historyRows = historyEntries.map(e => `
+      <tr>
+        <td class="cell-secondary" style="white-space:nowrap;width:170px">${e.time}</td>
+        <td class="cell-name">${Comp._escHtml(e.label)}</td>
+        <td style="width:110px"><button type="button" class="btn-sm-link" onclick="Router.go('bookingDetails',{id:'${e.bookingId}'})">${e.bookingId}</button></td>
+        <td class="cell-secondary">${Comp._escHtml(e.tour)}</td>
+      </tr>`).join('');
+    body = Comp.Card({
+      title: 'History Log',
+      hint: 'All activity events across this customer\'s bookings, newest first.',
+      body: historyRows
+        ? Comp.Table({columns:[{label:'Time',width:'170px'},{label:'Event'},{label:'Booking',width:'110px'},{label:'Tour'}], rows:historyRows})
+        : '<p class="empty-state">No activity recorded yet.</p>'
+    });
   }
 
   return Comp.Shell(`
