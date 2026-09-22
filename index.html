@@ -523,7 +523,7 @@ const DATA = {
     {id:'cat-fam', name:'Family Friendly', description:'Experiences suitable for travelers of all ages, including children.', status:'Inactive', history:[]}
   ],
   bookings: [
-    {id:'BK-001', customer:'Alex Harrison', tour:'Premium Desert Safari Dubai (Dune Bashing & Dinner)', bookingDate:'12 May 2024', travelDate:'18 May 2024', guests:4, amount:380.00, status:'Completed', channel:'Rosotravel', confirmationType:'Instant',
+    {id:'BK-001', customer:'Alex Harrison', tour:'Premium Desert Safari Dubai (Dune Bashing & Dinner)', productId:'prod-10', bookingDate:'12 May 2024', travelDate:'18 May 2024', guests:4, amount:380.00, status:'Completed', channel:'Rosotravel', confirmationType:'Instant', couponCode:'SPRING24', discountAmount:10,
       email:'alex.harrison@email.com', phone:'+971 55 123 4567', nationality:'British',
       product:'Premium Desert Safari Dubai', timeSlot:'3:00 PM - 9:00 PM', guestsBreakdown:'4 Adults, 0 Children',
       pickupMode:'now', pickupLocation:'Hilton Dubai Creek, Dubai', pickup:'Hilton Dubai Creek',
@@ -544,7 +544,7 @@ const DATA = {
         {label:'Confirmation Sent', time:'12 May 2024, 10:20 AM'},
         {label:'Reminder Sent', time:'17 May 2024, 09:00 AM'}
       ]},
-    {id:'BK-002', customer:'Amelie Laurent', tour:'Dubai Half-Day Modern City Tour', bookingDate:'13 May 2024', travelDate:'15 May 2024', guests:2, amount:120.00, status:'Completed', channel:'Viator', confirmationType:'Instant',
+    {id:'BK-002', customer:'Amelie Laurent', tour:'Dubai Half-Day Modern City Tour', productId:'prod-10', bookingDate:'13 May 2024', couponCode:'WELCOME10', discountAmount:12, travelDate:'15 May 2024', guests:2, amount:120.00, status:'Completed', channel:'Viator', confirmationType:'Instant',
       email:'amelie.laurent@email.com', phone:'+971 55 223 4567', nationality:'French',
       product:'Dubai Half-Day Modern City Tour', timeSlot:'9:00 AM - 1:00 PM', guestsBreakdown:'2 Adults, 0 Children',
       pickupMode:'now', pickupLocation:'JW Marriott Marina, Dubai Marina', pickup:'JW Marriott Marina',
@@ -558,7 +558,7 @@ const DATA = {
       invoice:{requested:true, companyName:'Laurent Consulting SARL', street:'14 Rue de Rivoli', city:'Paris', state:'Île-de-France', zip:'75001', country:'France'},
       pricing:{baseLabel:'Base Price ($60.00 x 2 guests)', base:'$120.00', addonsLabel:'Add-ons', addons:'$0.00', subtotal:'$120.00', discount:'-$0.00', total:'$120.00', viatorRecommendedPrice:'$120.00', viatorNetPrice:'$96.00', viatorBookingFee:'$24.00', viatorPayout:'$96.00'},
       activity:[{label:'Booking Created', time:'13 May 2024, 09:00 AM'}, {label:'Payment Received', time:'13 May 2024, 09:05 AM'}, {label:'Tour Completed', time:'15 May 2024, 01:15 PM'}]},
-    {id:'BK-003', customer:'Carlos Ruiz', tour:'Hatta Mountain Trek & Adventure Day Out', bookingDate:'14 May 2024', travelDate:'20 May 2024', guests:1, amount:150.00, status:'Pending', channel:'Rosotravel', confirmationType:'Manual', hoursSincePending:20,
+    {id:'BK-003', customer:'Carlos Ruiz', tour:'Hatta Mountain Trek & Adventure Day Out', productId:'prod-11', bookingDate:'14 May 2024', travelDate:'20 May 2024', guests:1, amount:150.00, status:'Pending', channel:'Rosotravel', confirmationType:'Manual', hoursSincePending:20,
       email:'carlos.ruiz@email.com', phone:'+971 55 323 4567', nationality:'Spanish',
       product:'Hatta Mountain Trek & Adventure Day Out', timeSlot:'6:00 AM - 4:00 PM', guestsBreakdown:'1 Adult, 0 Children',
       pickupMode:'now', pickupLocation:'Downtown Dubai (Burj Khalifa Metro Station, Gate 4)', pickup:'Downtown Dubai',
@@ -571,7 +571,7 @@ const DATA = {
       invoice:null,
       pricing:{baseLabel:'Base Price ($150.00 x 1 guest)', base:'$150.00', addonsLabel:'Add-ons', addons:'$0.00', subtotal:'$150.00', discount:'-$0.00', total:'$150.00'},
       activity:[{label:'Booking Created', time:'14 May 2024, 02:30 PM'}]},
-    {id:'BK-004', customer:'Sarah Jenkins', tour:'Marina Dhow Cruise Dinner (Premium Lower Deck)', bookingDate:'14 May 2024', travelDate:'16 May 2024', guests:3, amount:210.00, status:'Confirmed', channel:'Viator', confirmationType:'Instant-then-manual', orderId:'ORD-1004',
+    {id:'BK-004', customer:'Sarah Jenkins', tour:'Marina Dhow Cruise Dinner (Premium Lower Deck)', productId:'prod-10', bookingDate:'14 May 2024', travelDate:'16 May 2024', guests:3, amount:210.00, status:'Confirmed', channel:'Viator', confirmationType:'Instant-then-manual', orderId:'ORD-1004',
       email:'sarah.jenkins@email.com', phone:'+971 55 423 4567', nationality:'American',
       product:'Marina Dhow Cruise Dinner', timeSlot:'7:00 PM - 9:30 PM', guestsBreakdown:'2 Adults, 1 Child',
       pickupMode:'meeting_point', pickupLocation:null, pickup:'Dubai Marina Mall',
@@ -586,7 +586,7 @@ const DATA = {
       invoice:null,
       pricing:{baseLabel:'Base Price ($70.00 x 3 guests)', base:'$210.00', addonsLabel:'Add-ons', addons:'$0.00', subtotal:'$210.00', discount:'-$0.00', total:'$210.00', viatorRecommendedPrice:'$210.00', viatorNetPrice:'$168.00', viatorBookingFee:'$42.00', viatorPayout:'$168.00'},
       activity:[{label:'Booking Created', time:'14 May 2024, 11:00 AM'}, {label:'Payment Received', time:'14 May 2024, 11:04 AM'}, {label:'Confirmation Sent', time:'14 May 2024, 11:06 AM'}]},
-    {id:'BK-010', customer:'Sarah Jenkins', tour:'Dubai Miracle Garden Entry Ticket', bookingDate:'14 May 2024', travelDate:'16 May 2024', guests:3, amount:90.00, status:'Confirmed', channel:'Rosotravel', confirmationType:'Instant', orderId:'ORD-1004',
+    {id:'BK-010', customer:'Sarah Jenkins', tour:'Dubai Miracle Garden Entry Ticket', productId:'prod-9', bookingDate:'14 May 2024', travelDate:'16 May 2024', guests:3, amount:90.00, status:'Confirmed', channel:'Rosotravel', confirmationType:'Instant', orderId:'ORD-1004',
       email:'sarah.jenkins@email.com', phone:'+971 55 423 4567', nationality:'American',
       product:'Dubai Miracle Garden Entry Ticket', timeSlot:'2:00 PM - 5:00 PM', guestsBreakdown:'2 Adults, 1 Child',
       pickupMode:'self_arrival', pickupLocation:null, pickup:'Self-arrival',
@@ -601,7 +601,7 @@ const DATA = {
       invoice:null,
       pricing:{baseLabel:'Base Price ($30.00 x 3 guests)', base:'$90.00', addonsLabel:'Add-ons', addons:'$0.00', subtotal:'$90.00', discount:'-$0.00', total:'$90.00'},
       activity:[{label:'Booking Created', time:'14 May 2024, 11:00 AM'}, {label:'Payment Received', time:'14 May 2024, 11:04 AM'}, {label:'Confirmation Sent', time:'14 May 2024, 11:06 AM'}]},
-    {id:'BK-005', customer:'Yuki Tanaka', tour:'Burj Khalifa Sunrise View & Observatory Pass', bookingDate:'15 May 2024', travelDate:'15 May 2024', guests:2, amount:190.00, status:'Cancelled', channel:'Rosotravel', confirmationType:'Instant',
+    {id:'BK-005', customer:'Yuki Tanaka', tour:'Burj Khalifa Sunrise View & Observatory Pass', productId:'prod-9', bookingDate:'15 May 2024', travelDate:'15 May 2024', guests:2, amount:190.00, status:'Cancelled', channel:'Rosotravel', confirmationType:'Instant',
       email:'yuki.tanaka@email.com', phone:'+971 55 523 4567', nationality:'Japanese',
       product:'Burj Khalifa Sunrise View & Observatory Pass', timeSlot:'5:30 AM - 7:30 AM', guestsBreakdown:'2 Adults, 0 Children',
       pickupMode:'self_arrival', pickupLocation:null, pickup:'Self-arrival',
@@ -617,7 +617,7 @@ const DATA = {
       activity:[{label:'Booking Created', time:'15 May 2024, 08:00 AM'}, {label:'Payment Received', time:'15 May 2024, 08:03 AM'}, {label:'Booking Cancelled', time:'15 May 2024, 06:00 PM'}],
       cancelReason:'Change of plans', cancelledBy:'Admin (you)',
       cancelNote:'This booking has been cancelled. Refund of $190.00 processed to original payment method.'},
-    {id:'BK-006', customer:'Ahmed Al-Mansoori', tour:'Abu Dhabi Grand Mosque & Louvre Day Tour', bookingDate:'15 May 2024', travelDate:'19 May 2024', guests:5, amount:650.00, status:'Confirmed', channel:'Viator', confirmationType:'Instant',
+    {id:'BK-006', customer:'Ahmed Al-Mansoori', tour:'Abu Dhabi Grand Mosque & Louvre Day Tour', productId:'prod-10', bookingDate:'15 May 2024', couponCode:'SUMMER25', discountAmount:25, travelDate:'19 May 2024', guests:5, amount:650.00, status:'Confirmed', channel:'Viator', confirmationType:'Instant',
       email:'ahmed.almansoori@email.com', phone:'+971 55 623 4567', nationality:'Emirati',
       product:'Abu Dhabi Grand Mosque & Louvre Day Tour', timeSlot:'8:00 AM - 6:00 PM', guestsBreakdown:'5 Adults, 0 Children',
       pickupMode:'now', pickupLocation:'Sheikh Zayed Road (Emirates Towers Metro Station)', pickup:'Sheikh Zayed Road',
@@ -630,7 +630,7 @@ const DATA = {
       invoice:{requested:true, companyName:'Al-Mansoori Trading LLC', street:'Office 1204, Al Moosa Tower 1', city:'Dubai', state:'Dubai', zip:'00000', country:'UAE'},
       pricing:{baseLabel:'Base Price ($130.00 x 5 guests)', base:'$650.00', addonsLabel:'Add-ons', addons:'$0.00', subtotal:'$650.00', discount:'-$0.00', total:'$650.00', viatorRecommendedPrice:'$650.00', viatorNetPrice:'$520.00', viatorBookingFee:'$130.00', viatorPayout:'$520.00'},
       activity:[{label:'Booking Created', time:'15 May 2024, 01:00 PM'}, {label:'Payment Received', time:'15 May 2024, 04:00 PM'}]},
-    {id:'BK-007', customer:'Elena Rostova', tour:'Dune Buggy Guided Adventure (Self-Drive Tour)', bookingDate:'16 May 2024', travelDate:'22 May 2024', guests:2, amount:320.00, status:'Pending', channel:'Rosotravel', confirmationType:'Manual', hoursSincePending:80,
+    {id:'BK-007', customer:'Elena Rostova', tour:'Dune Buggy Guided Adventure (Self-Drive Tour)', productId:'prod-11', bookingDate:'16 May 2024', travelDate:'22 May 2024', guests:2, amount:320.00, status:'Pending', channel:'Rosotravel', confirmationType:'Manual', hoursSincePending:80,
       email:'elena.rostova@email.com', phone:'+971 55 723 4567', nationality:'Russian',
       product:'Dune Buggy Guided Adventure', timeSlot:'2:00 PM - 6:00 PM', guestsBreakdown:'2 Adults, 0 Children',
       pickupMode:'now', pickupLocation:'Al Qudra Road (Big Red Dune area)', pickup:'Al Qudra Road',
@@ -644,7 +644,7 @@ const DATA = {
       invoice:null,
       pricing:{baseLabel:'Base Price ($160.00 x 2 guests)', base:'$320.00', addonsLabel:'Add-ons', addons:'$0.00', subtotal:'$320.00', discount:'-$0.00', total:'$320.00'},
       activity:[{label:'Booking Created', time:'16 May 2024, 03:20 PM'}]},
-    {id:'BK-008', customer:'Hans Schneider', tour:'Miracle Garden & Butterfly Garden Ticket Duo', bookingDate:'16 May 2024', travelDate:'17 May 2024', guests:4, amount:160.00, status:'Completed', channel:'Viator', confirmationType:'Instant',
+    {id:'BK-008', customer:'Hans Schneider', tour:'Miracle Garden & Butterfly Garden Ticket Duo', productId:'prod-9', bookingDate:'16 May 2024', travelDate:'17 May 2024', guests:4, amount:160.00, status:'Completed', channel:'Viator', confirmationType:'Instant',
       email:'hans.schneider@email.com', phone:'+971 55 823 4567', nationality:'German',
       product:'Miracle Garden & Butterfly Garden Ticket Duo', timeSlot:'10:00 AM - 2:00 PM', guestsBreakdown:'4 Adults, 0 Children',
       pickupMode:'self_arrival', pickupLocation:null, pickup:'Self-arrival',
@@ -657,7 +657,7 @@ const DATA = {
       invoice:{requested:true, companyName:'Schneider GmbH', street:'Hauptstraße 42', city:'Munich', state:'Bavaria', zip:'80331', country:'Germany'},
       pricing:{baseLabel:'Base Price ($40.00 x 4 guests)', base:'$160.00', addonsLabel:'Add-ons', addons:'$0.00', subtotal:'$160.00', discount:'-$0.00', total:'$160.00', viatorRecommendedPrice:'$160.00', viatorNetPrice:'$128.00', viatorBookingFee:'$32.00', viatorPayout:'$128.00'},
       activity:[{label:'Booking Created', time:'16 May 2024, 09:00 AM'}, {label:'Payment Received', time:'16 May 2024, 09:03 AM'}, {label:'Tour Completed', time:'17 May 2024, 02:15 PM'}]},
-    {id:'BK-009', customer:'Marco Silvestri', tour:'Skydive Dubai Tandem Jump (Palm Drop Zone)', bookingDate:'17 May 2024', travelDate:'23 May 2024', guests:1, amount:590.00, status:'Cancelled (Fraud – Viator)', channel:'Viator', confirmationType:'Instant',
+    {id:'BK-009', customer:'Marco Silvestri', tour:'Skydive Dubai Tandem Jump (Palm Drop Zone)', productId:'prod-11', bookingDate:'17 May 2024', travelDate:'23 May 2024', guests:1, amount:590.00, status:'Cancelled (Fraud – Viator)', channel:'Viator', confirmationType:'Instant',
       email:'marco.silvestri@email.com', phone:'+39 345 123 9876', nationality:'Italian',
       product:'Skydive Dubai Tandem Jump', timeSlot:'7:00 AM - 9:00 AM', guestsBreakdown:'1 Adult, 0 Children',
       pickupMode:'self_arrival', pickupLocation:null, pickup:'Self-arrival',
@@ -4376,7 +4376,7 @@ const Comp = {
     if (matches.length === 0) {
       panel.innerHTML = `<div class="search-select-empty">
         <p>No results found${q ? ` for "${q}"` : ''}.</p>
-        <button type="button" class="search-select-addnew" onmousedown="event.preventDefault(); Comp.searchSelectAddNew('${id}')">${data.addNewLabel}</button>
+        ${data.addNewLabel ? `<button type="button" class="search-select-addnew" onmousedown="event.preventDefault(); Comp.searchSelectAddNew('${id}')">${data.addNewLabel}</button>` : ''}
       </div>`;
     } else {
       panel.innerHTML = matches.map(o => `<div class="search-select-option" onmousedown="event.preventDefault(); Comp.searchSelectPick('${id}', '${o.value.replace(/'/g,"&#39;")}')">${o.value}${o.sub ? `<div class="ss-sub">${o.sub}</div>` : ''}</div>`).join('');
@@ -6075,28 +6075,121 @@ const Comp = {
     const fields = JSON.parse(decodeURIComponent(fieldsAttr));
     // A field is a <select> by default; `text:true` renders a free-text input
     // instead, for things like booking number or product name where an
-    // enumerated dropdown would be unusable.
-    const html = fields.map(f => `
-      <div class="filter-drawer-group">
-        <label for="fd_${f.id}">${f.label}</label>
-        ${f.text
-          ? `<input type="text" id="fd_${f.id}" class="filter-select w-full" placeholder="${Comp._escAttr(f.placeholder || '')}" value="${Comp._escAttr(f.value || '')}">`
-          : `<select id="fd_${f.id}" class="filter-select w-full">
-          ${f.options.map(o => `<option value="${o.value}" ${f.value===o.value?'selected':''}>${o.label}</option>`).join('')}
-        </select>`}
-      </div>`).join('') + (extraHtml || '');
+    // enumerated dropdown would be unusable. `searchable:true` renders a
+    // text search input + filtered option list for pick-one-from-many.
+    const html = fields.map(f => {
+      if (f.searchable && f.options) {
+        // Use the existing SearchSelect component (same pattern as City/Attraction in product wizard).
+        // Options exclude the "All" sentinel; value text doubles as the filter value (codes/cities match exactly).
+        const ssOpts = f.options.filter(o => o.value !== '').map(o => ({value: o.value}));
+        const curValue = f.value || '';
+        return `<div class="filter-drawer-group">
+            ${Comp.SearchSelect({id:'fd_'+f.id, label:f.label, required:false, placeholder:'All — type to filter...', value:curValue,
+              options: ssOpts, addNewLabel:'', addNewHandler:()=>{}})}
+          </div>`;
+      }
+      return `
+        <div class="filter-drawer-group">
+          <label for="fd_${f.id}">${f.label}</label>
+          ${f.text
+            ? `<input type="text" id="fd_${f.id}" class="filter-select w-full" placeholder="${Comp._escAttr(f.placeholder || '')}" value="${Comp._escAttr(f.value || '')}">`
+            : `<select id="fd_${f.id}" class="filter-select w-full">
+            ${f.options.map(o => `<option value="${o.value}" ${f.value===o.value?'selected':''}>${o.label}</option>`).join('')}
+          </select>`}
+        </div>`;
+    }).join('') + (extraHtml || '');
     Comp.openFilterDrawer('Filters', html,
       () => {
         const updates = {};
-        fields.forEach(f => { updates[f.id] = document.getElementById('fd_' + f.id).value; });
+        fields.forEach(f => {
+          if (f.searchable) {
+            // SearchSelect stores the chosen value as the visible input's text
+            const inp = document.getElementById('fd_' + f.id + 'Input');
+            updates[f.id] = inp ? inp.value.trim() : '';
+          } else {
+            const el = document.getElementById('fd_' + f.id);
+            updates[f.id] = el ? el.value : '';
+          }
+        });
         Router.go(route, {...params, ...updates});
       },
       () => {
         const resetParams = {...params};
-        fields.forEach(f => { resetParams[f.id] = ''; });
+        fields.forEach(f => {
+          resetParams[f.id] = '';
+          if (f.searchable) {
+            const inp = document.getElementById('fd_' + f.id + 'Input');
+            if (inp) inp.value = '';
+            const wrap = document.getElementById('fd_' + f.id);
+            if (wrap) wrap.classList.remove('open');
+          }
+        });
         Router.go(route, resetParams);
       }
     );
+  },
+  // Reusable searchable filter group — text input + filtered option list.
+  // id: base ID, label: display label, values: string[], current: selected value, allLabel: placeholder text, hint: optional hint.
+  _fdSearchableGroup(id, label, values, current, allLabel, hint){
+    const hiddenId = id + '_hidden';
+    const searchId = id + '_search';
+    const listId   = id + '_list';
+    const noResId  = id + '_noresults';
+    const curLabel = current || '';
+    return `
+      <div class="filter-drawer-group">
+        <label for="${searchId}">${label}</label>
+        <input type="text" id="${searchId}" class="filter-select w-full" autocomplete="off"
+          placeholder="Search ${label.toLowerCase()}..."
+          value="${Comp._escAttr(curLabel)}"
+          oninput="Comp._fdSearchFilter('${id}', this.value)"
+          onfocus="document.getElementById('${listId}').style.display=''"
+          onblur="setTimeout(()=>{ const l=document.getElementById('${listId}'); if(l) l.style.display='none'; },200)">
+        <input type="hidden" id="${hiddenId}" value="${Comp._escAttr(current||'')}">
+        <div id="${listId}" style="display:none; border:1px solid var(--border); border-radius:var(--radius-md); max-height:180px; overflow-y:auto; background:var(--surface); margin-top:4px; position:relative; z-index:50;">
+          <div class="fd-search-opt" data-value="" style="padding:8px 12px; cursor:pointer; font-size:var(--fs-sm); color:var(--text-muted);"
+            onmousedown="Comp._fdSearchSelectHidden('${id}','','')">— ${allLabel}</div>
+          ${values.map(v => `<div class="fd-search-opt" data-value="${Comp._escAttr(v)}" data-label="${Comp._escAttr(v.toLowerCase())}"
+            style="padding:8px 12px; cursor:pointer; font-size:var(--fs-sm);"
+            onmousedown="Comp._fdSearchSelectHidden('${id}','${Comp._escAttr(v)}','${Comp._escAttr(v)}')">${Comp._escHtml(v)}</div>`).join('')}
+          <div id="${noResId}" style="display:none; padding:8px 12px; font-size:var(--fs-sm); color:var(--text-muted);">No matches found.</div>
+        </div>
+        ${current ? `<p class="field-hint" style="margin-top:4px;">Selected: <strong>${Comp._escHtml(current)}</strong></p>` : ''}
+        ${hint ? `<p class="field-hint">${hint}</p>` : ''}
+      </div>`;
+  },
+  _fdSearchSelectHidden(id, value, label){
+    const hidden = document.getElementById(id+'_hidden');
+    const searchInput = document.getElementById(id+'_search');
+    const list = document.getElementById(id+'_list');
+    if (hidden) hidden.value = value;
+    if (searchInput) searchInput.value = label;
+    if (list) list.style.display = 'none';
+  },
+  _fdSearchFilter(fieldId, query){
+    const q = query.trim().toLowerCase();
+    const list = document.getElementById('fd_' + fieldId + '_list');
+    if (!list) return;
+    list.style.display = '';
+    let anyVisible = false;
+    list.querySelectorAll('.fd-search-opt[data-label]').forEach(el => {
+      const match = !q || el.getAttribute('data-label').includes(q);
+      el.style.display = match ? '' : 'none';
+      if (match) anyVisible = true;
+    });
+    const noRes = document.getElementById('fd_' + fieldId + '_noresults');
+    if (noRes) noRes.style.display = (!anyVisible && q) ? '' : 'none';
+    // Clear hidden value while user is typing
+    const hidden = document.getElementById('fd_' + fieldId);
+    if (hidden) hidden.value = '';
+  },
+  _fdSearchSelect(fieldId, value, label){
+    const hidden = document.getElementById('fd_' + fieldId);
+    const searchInput = document.getElementById('fd_' + fieldId + '_search');
+    const list = document.getElementById('fd_' + fieldId + '_list');
+    if (hidden) hidden.value = value;
+    if (searchInput) searchInput.value = label;
+    if (list) list.style.display = 'none';
   },
   // Count how many of a route-filter's fields currently have a non-empty
   // value, for the icon button's badge — takes the same params object the
@@ -6663,28 +6756,26 @@ const Comp = {
         </select>
       </div>
       <div class="filter-drawer-group">
-        <label for="fdCountry">Country</label>
-        <select id="fdCountry" class="filter-select w-full">
-          <option value="" ${!s.country?'selected':''}>All Countries</option>
-          ${opts(f.countries, s.country)}
-        </select>
+        ${Comp.SearchSelect({id:'fdCountry', label:'Country', required:false, placeholder:'All countries — type to filter...', value:s.country||'',
+          options:f.countries.map(v=>({value:v})), addNewLabel:'', addNewHandler:()=>{}})}
       </div>
       <div class="filter-drawer-group">
-        <label for="fdCity">City</label>
-        <select id="fdCity" class="filter-select w-full">
-          <option value="" ${!s.city?'selected':''}>All Cities</option>
-          ${opts(f.cities, s.city)}
-        </select>
-        <p class="field-hint">City and country are taken from the product each booking is for.</p>
+        ${Comp.SearchSelect({id:'fdCity', label:'City', required:false, placeholder:'All cities — type to filter...', value:s.city||'',
+          options:f.cities.map(v=>({value:v})), addNewLabel:'', addNewHandler:()=>{}})}
+        <p class="field-hint" style="margin-top:4px;">City and country are taken from the product each booking is for.</p>
       </div>`;
+
     const read = (id) => { const el = document.getElementById(id); return el ? el.value : ''; };
+    const readSS = (id) => { const el = document.getElementById(id+'Input'); return el ? el.value.trim() : ''; };
     Comp.openFilterDrawer('Filter Bookings', filtersHtml,
       () => {
         Object.assign(Comp._bookingFilterState, {
           channel: read('fdChannel'), status: read('fdBookingStatus'),
           dateBasis: read('fdDateBasis') || 'travel',
           dateFrom: read('fdDateFrom'), dateTo: read('fdDateTo'),
-          language: read('fdLanguage'), city: read('fdCity'), country: read('fdCountry')
+          language: read('fdLanguage'),
+          city: readSS('fdCity'),
+          country: readSS('fdCountry')
         });
         Comp.filterBookingsTable();
       },
@@ -6692,6 +6783,11 @@ const Comp = {
         Object.assign(Comp._bookingFilterState, {channel:'', status:'', dateBasis:'travel', dateFrom:'', dateTo:'', language:'', city:'', country:''});
         const box = document.getElementById('filterBookings');
         if (box) box.value = '';
+        ['fdCity','fdCountry'].forEach(id => {
+          const inp = document.getElementById(id+'Input'); if(inp) inp.value='';
+          const panel = document.getElementById(id+'Panel'); if(panel) panel.innerHTML='';
+          const wrap = document.getElementById(id); if(wrap) wrap.classList.remove('open');
+        });
         Comp.filterBookingsTable();
       }
     );
@@ -17745,9 +17841,6 @@ function pageReviewListing(params){
   if (p.fProductCode) list = list.filter(r => Comp._reviewProductCode(r) === p.fProductCode);
   if (p.fProductName) list = list.filter(r => (r.productName || '').toLowerCase().includes(p.fProductName.toLowerCase()));
   if (p.fReviewCity) list = list.filter(r => Comp._reviewCity(r) === p.fReviewCity);
-  // REV-02 — TOP flag.
-  if (p.fTop === 'yes') list = list.filter(r => !!r.isTop);
-  else if (p.fTop === 'no') list = list.filter(r => !r.isTop);
   const pendingCount = DATA.reviews.filter(r => r.moderationStatus === 'pending').length;
   // Only Rosotravel-sourced reviews' media is ever actionable by admin — media
   // on Viator/Tripadvisor reviews mirrors the source platform and can never
@@ -17763,10 +17856,9 @@ function pageReviewListing(params){
     const pendingMediaForReview = r.sourceType === 'Rosotravel' ? reviewMedia.filter(m => m.moderationStatus === 'pending').length : 0;
     return `
     <tr class="row-clickable" tabindex="0" role="button" aria-label="Open review from ${r.reviewerName}" onclick="Router.go('reviewDetail',{id:'${r.id}'})">
-      <td class="cell-name">${r.productName}${r.isTop ? ' <span class="badge badge-active">TOP</span>' : ''}<div class="text-muted-xs-regular">${r.reviewerName}, ${r.reviewerCountry}${Comp._reviewCity(r) ? ' \u00b7 ' + Comp._escHtml(Comp._reviewCity(r)) : ''}${r.bookingId ? ' \u00b7 ' + Comp._escHtml(r.bookingId) : ''}</div></td>
+      <td class="cell-name">${r.productName}<div class="text-muted-xs-regular">${r.reviewerName}, ${r.reviewerCountry}${Comp._reviewCity(r) ? ' \u00b7 ' + Comp._escHtml(Comp._reviewCity(r)) : ''}${r.bookingId ? ' \u00b7 ' + Comp._escHtml(r.bookingId) : ''}</div></td>
       <td class="cell-secondary">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</td>
       <td class="cell-secondary">${Comp.REVIEW_SOURCE_LABEL[r.sourceType]}</td>
-      <td>${r.verified ? Comp.Badge('Verified booking', true) : Comp.Badge('Not verified', false)}</td>
       <td class="cell-secondary" style="max-width:260px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${r.reviewText}${r.flagReason ? `<div class="mt-1">${Comp.Badge(r.flagReason, 'danger')}</div>` : ''}</td>
       <td class="cell-secondary">${reviewMedia.length ? `${reviewMedia.length} item${reviewMedia.length===1?'':'s'}${pendingMediaForReview ? ` ${Comp.Badge(pendingMediaForReview + ' pending', 'danger')}` : ''}` : '—'}</td>
       <td>${r.moderationStatus === 'approved' ? Comp.Badge('Approved', true) : r.moderationStatus === 'rejected' ? Comp.Badge('Rejected', 'danger') : r.moderationStatus === 'hidden' ? Comp.Badge('Hidden', 'warning') : Comp.Badge('Pending', 'danger')}</td>
@@ -17775,30 +17867,25 @@ function pageReviewListing(params){
         r.moderationStatus !== 'approved' ? {label:'Approve', handler:() => Comp.reviewModerate(r.id, 'approved')} : null,
         r.moderationStatus !== 'rejected' ? {label:'Reject', danger:true, handler:() => Comp.reviewModerate(r.id, 'rejected')} : null,
         r.moderationStatus !== 'hidden' ? {label:'Hide', handler:() => Comp.reviewModerate(r.id, 'hidden')} : null,
-        {label: r.isTop ? 'Unmark as TOP' : 'Mark as TOP', handler:() => Comp.toggleReviewTop(r.id)}
       ].filter(Boolean)) : Comp.RowMenu(r.productName, [
         {label:'View details', handler:() => Router.go('reviewDetail',{id:r.id})},
-        {label: r.isTop ? 'Unmark as TOP' : 'Mark as TOP', handler:() => Comp.toggleReviewTop(r.id)}
       ])}</td>
     </tr>`;
   }).join('');
 
   return Comp.Shell(`
     ${Comp.PageHeader({title:'Review Management'})}
-    ${pendingCount > 0 ? `<div class="status-banner is-incomplete"><span>${ICON.warning}</span><span><strong>${pendingCount} review(s)</strong> pending moderation.</span></div>` : ''}
-    ${pendingMedia > 0 ? `<div class="status-banner is-incomplete"><span>${ICON.image}</span><span><strong>${pendingMedia} media item(s)</strong> awaiting moderation — open the relevant review below to preview and moderate its media.</span></div>` : ''}
     <div class="filter-bar mb-4" role="search">
-      ${Comp.FilterIconButton(Comp.activeRouteFilterCount(p, ['fStatus','fSource','fBookingNo','fProductCode','fProductName','fReviewCity','fTop']), `Comp.openRouteFilterDrawer('reviewListing', '${encodeURIComponent(JSON.stringify(p))}', '${encodeURIComponent(JSON.stringify([
-        {id:'fStatus', label:'Moderation status', value:p.fStatus||'', options:[{value:'',label:'All statuses'},{value:'pending',label:'Pending'},{value:'approved',label:'Approved'},{value:'rejected',label:'Rejected'},{value:'hidden',label:'Hidden'}]},
+      ${Comp.FilterIconButton(Comp.activeRouteFilterCount(p, ['fStatus','fSource','fBookingNo','fProductCode','fProductName','fReviewCity']), `Comp.openRouteFilterDrawer('reviewListing', '${encodeURIComponent(JSON.stringify(p))}', '${encodeURIComponent(JSON.stringify([
+        {id:'fStatus', label:'Status', value:p.fStatus||'', options:[{value:'',label:'All statuses'},{value:'approved',label:'Approved'},{value:'rejected',label:'Rejected'},{value:'hidden',label:'Hidden'}]},
         {id:'fSource', label:'Source', value:p.fSource||'', options:[{value:'',label:'All sources'},{value:'Rosotravel',label:'Rosotravel'},{value:'Viator',label:'Viator'},{value:'Tripadvisor',label:'Tripadvisor'}]},
-        {id:'fTop', label:'TOP reviews', value:p.fTop||'', options:[{value:'',label:'All reviews'},{value:'yes',label:'Marked TOP only'},{value:'no',label:'Not marked TOP'}]},
         {id:'fBookingNo', label:'Booking number', value:p.fBookingNo||'', text:true, placeholder:'e.g. BK-001'},
-        {id:'fProductCode', label:'Product code', value:p.fProductCode||'', options:[{value:'',label:'All product codes'}].concat(Comp._reviewFacets().productCodes.map(c => ({value:c, label:c})))},
+        {id:'fProductCode', label:'Product code', value:p.fProductCode||'', searchable:true, options:[{value:'',label:'All product codes'}].concat(Comp._reviewFacets().productCodes.map(c => ({value:c, label:c})))},
         {id:'fProductName', label:'Product name', value:p.fProductName||'', text:true, placeholder:'Search product name'},
-        {id:'fReviewCity', label:'City', value:p.fReviewCity||'', options:[{value:'',label:'All cities'}].concat(Comp._reviewFacets().cities.map(c => ({value:c, label:c})))}
+        {id:'fReviewCity', label:'City', value:p.fReviewCity||'', searchable:true, options:[{value:'',label:'All cities'}].concat(Comp._reviewFacets().cities.map(c => ({value:c, label:c})))}
       ]))}')`)}
     </div>
-    ${Comp.Table({columns:[{label:'Product / Reviewer'},{label:'Rating',width:'110px'},{label:'Source',width:'140px'},{label:'Verification',width:'140px'},{label:'Review'},{label:'Media',width:'140px'},{label:'Status',width:'110px'},{label:'',width:'70px'}], rows, emptyText:'No reviews match this filter.'})}
+    ${Comp.Table({columns:[{label:'Product / Reviewer'},{label:'Rating',width:'110px'},{label:'Source',width:'140px'},{label:'Review'},{label:'Media',width:'140px'},{label:'Status',width:'110px'},{label:'',width:'70px'}], rows, emptyText:'No reviews match this filter.'})}
   `);
 }
 Comp.reviewModerate = function(id, newStatus){
@@ -17824,7 +17911,13 @@ Comp.reviewModerate = function(id, newStatus){
 };
 function pageReviewDetail(params){
   const r = DATA.reviews.find(x => x.id === (params && params.id)) || DATA.reviews[0];
+  const tab = (params && params.tab) || 'overview';
   const media = DATA.reviewMedia.filter(m => m.reviewId === r.id);
+  const tabs = [
+    {id:'overview', label:'Overview'},
+    {id:'history', label:'History Log'}
+  ];
+
   const mediaCards = media.map(m => `
     <div class="media-card">
       <div class="media-thumb" style="height:150px; font-size:32px;">${m.type === 'photo' ? '📷' : '🎥'}</div>
@@ -17836,6 +17929,29 @@ function pageReviewDetail(params){
         ${m.moderationStatus !== 'rejected' ? Comp.Button('Reject', {size:'btn-sm', variant:'btn-danger', onclick:`Comp.reviewMediaModerate('${m.id}','rejected')`}) : ''}
       </div>` : `<p class="field-hint mt-2h">${ICON.lock} Sourced from ${Comp.REVIEW_SOURCE_LABEL[r.sourceType].replace('Source: ','')} — media cannot be moderated by Rosotravel.</p>`}
     </div>`).join('');
+
+  let tabBody = '';
+  if (tab === 'overview') {
+    tabBody =
+      Comp.Card({title:'Review Text', body:`
+        <blockquote style="margin:0 0 16px; padding:14px 16px; border-left:3px solid var(--accent-500); background:var(--surface-sunken); border-radius:var(--radius-sm); font-size:15px; line-height:1.5; white-space:pre-wrap; font-style:italic;">"${r.reviewText}"</blockquote>
+        <p class="card-title text-sm">Details</p>
+        ${Comp._infoTable([
+          ['Product', r.productName],
+          ['Booking ID', r.bookingId ? `<button type="button" class="btn-sm-link" onclick="Comp.navigateWithReturn('bookingDetails',{id:'${r.bookingId}'}, 'Review — ${(r.reviewerName||'').replace(/'/g,"&#39;")}')">#${r.bookingId}</button>` : 'Not linked (imported review)'],
+          ['Source', Comp.REVIEW_SOURCE_LABEL[r.sourceType]],
+          ['Submitted', r.submittedAt],
+          ['Moderation status', r.moderationStatus.charAt(0).toUpperCase() + r.moderationStatus.slice(1)],
+          ['Helpful votes', String(r.helpfulCount)]
+        ])}`}) +
+      Comp.Card({title:'Attached Media', hint:'Preview and moderate photos/videos submitted with this review — customer media must be approved before it can appear in product galleries or Recent Experience snapshots.', body:`
+        ${media.length ? `<div class="media-grid">${mediaCards}</div>` : `<p class="empty-state">No media attached to this review.</p>`}`});
+  } else if (tab === 'history') {
+    tabBody =
+      Comp.Card({title:'History / Audit', body:`
+        ${(r.history && r.history.length) ? Comp.Timeline(r.history) : `<p class="empty-state">No history yet.</p>`}`});
+  }
+
   return Comp.Shell(`
     ${Comp.Breadcrumb([{label:'Review Management', route:'reviewListing'}, {label:r.reviewerName + ' — ' + r.productName}])}
     ${Comp.PageHeader({title:`${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)} — ${r.productName}`, actions:`
@@ -17845,21 +17961,10 @@ function pageReviewDetail(params){
         ${r.moderationStatus !== 'hidden' ? Comp.Button('Hide', {onclick:`Comp.reviewModerate('${r.id}','hidden')`}) : ''}` : ''}`, level:'h2'})}
     ${r.sourceType !== 'Rosotravel' ? `<div class="locked-field-note">${ICON.lock} This review is sourced from ${Comp.REVIEW_SOURCE_LABEL[r.sourceType].replace('Source: ','')} — per API/contract terms, it cannot be approved, rejected, or hidden by Rosotravel. It mirrors the source platform's own moderation as-is.</div>` : ''}
     ${r.flagReason ? `<div class="status-banner is-danger"><span>${ICON.warning}</span><span><strong>Flagged:</strong> ${r.flagReason}</span></div>` : ''}
-    ${Comp.Card({title:'Review Text', body:`
-      <blockquote style="margin:0 0 16px; padding:14px 16px; border-left:3px solid var(--accent-500); background:var(--surface-sunken); border-radius:var(--radius-sm); font-size:15px; line-height:1.5; white-space:pre-wrap; font-style:italic;">"${r.reviewText}"</blockquote>
-      <p class="card-title text-sm">Details</p>
-      ${Comp._infoTable([
-        ['Product', r.productName],
-        ['Booking ID', r.bookingId ? `<button type="button" class="btn-sm-link" onclick="Comp.navigateWithReturn('bookingDetails',{id:'${r.bookingId}'}, 'Review — ${(r.reviewerName||'').replace(/'/g,"&#39;")}')">#${r.bookingId}</button>` : 'Not linked (imported review)'],
-        ['Source', Comp.REVIEW_SOURCE_LABEL[r.sourceType]],
-        ['Submitted', r.submittedAt],
-        ['Moderation status', r.moderationStatus.charAt(0).toUpperCase() + r.moderationStatus.slice(1)],
-        ['Helpful votes', String(r.helpfulCount)]
-      ])}`})}
-    ${Comp.Card({title:'Attached Media', hint:`Preview and moderate photos/videos submitted with this review — customer media must be approved before it can appear in product galleries or Recent Experience snapshots.`, body:`
-      ${mediaCards ? `<div class="media-grid">${mediaCards}</div>` : `<p class="empty-state">No media attached to this review.</p>`}`})}
-    ${Comp.Card({title:'History / Audit', body:`
-      ${(r.history && r.history.length) ? Comp.Timeline(r.history) : `<p class="empty-state">No history yet.</p>`}`})}
+    <div class="ops-tabs" role="tablist">
+      ${tabs.map(t => `<button type="button" class="ops-tab ${tab===t.id?'is-active':''}" role="tab" aria-selected="${tab===t.id}" onclick="Router.go('reviewDetail',{id:'${r.id}', tab:'${t.id}'})">${t.label}</button>`).join('')}
+    </div>
+    ${tabBody}
   `);
 }
 Comp.reviewMediaModerate = function(id, newStatus){
@@ -19344,19 +19449,6 @@ Comp._reviewFacets = function(){
 // Feeds special blocks and recommendations elsewhere on the site. Deliberately
 // separate from Featured Reviews: TOP is a durable editorial quality mark on
 // the review itself, while Featured is per-destination surfacing.
-Comp.toggleReviewTop = function(id){
-  const r = DATA.reviews.find(x => x.id === id);
-  if (!r) return;
-  if (!r.isTop && r.moderationStatus !== 'approved') {
-    Comp.showToast('Only approved reviews can be marked TOP.', 'danger');
-    return;
-  }
-  r.isTop = !r.isTop;
-  r.history = r.history || [];
-  r.history.unshift({label: r.isTop ? 'Marked as TOP' : 'TOP mark removed', time:new Date().toLocaleString(), actor:'Admin (you)'});
-  Comp.showToast(r.isTop ? 'Review marked as TOP.' : 'TOP mark removed.', r.isTop ? 'success' : 'danger');
-  render();
-};
 
 // ---- REV-01: eligible pool instead of a fixed hand-picked pair ----
 //
@@ -19390,7 +19482,7 @@ Comp.featuredReviewsCard = function(entityType, entityId){
     <div style="display:flex; gap:12px; align-items:center; border:1px solid var(--border); border-radius:var(--radius-md); padding:10px 12px; margin-bottom:8px;">
       <div style="width:48px; height:48px; border-radius:var(--radius-sm); background:var(--surface-sunken); flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:var(--fs-xs); color:var(--text-muted);">Photo</div>
       <div class="flex-1-min">
-        <p style="margin:0; font-weight:700; font-size:var(--fs-sm);">${Comp._escHtml(r.reviewerName)} <span style="color:var(--text-muted); font-weight:400;">— ${r.rating}★</span>${r.isTop ? ' <span class="badge badge-active">TOP</span>' : ''}</p>
+        <p style="margin:0; font-weight:700; font-size:var(--fs-sm);">${Comp._escHtml(r.reviewerName)} <span style="color:var(--text-muted); font-weight:400;">— ${r.rating}★</span></p>
         <p style="margin:0; color:var(--text-muted); font-size:var(--fs-xs);">${Comp._escHtml(r.productName)}</p>
       </div>
       <button type="button" class="btn btn-sm btn-danger" onclick="Comp.removeFeaturedReview('${entityType}','${entityId}','${r.id}')">Remove from pool</button>
@@ -19472,7 +19564,7 @@ Comp.searchFeaturedReviews = function(entityType, entityId, query){
   resultsEl.innerHTML = matches.length ? matches.map(r => `
     <div class="row-clickable" style="display:flex; gap:10px; align-items:center; padding:8px; border:1px solid var(--border); border-radius:var(--radius-md); margin-bottom:6px; cursor:pointer;" onclick="Comp.selectFeaturedReview('${entityType}','${entityId}','${r.id}')">
       <div style="width:36px; height:36px; border-radius:var(--radius-sm); background:var(--surface-sunken); flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:10px; color:var(--text-muted);">Photo</div>
-      <div class="flex-1"><strong class="text-sm">${Comp._escHtml(r.reviewerName)}</strong> <span class="text-muted-xs">${r.rating}★ · ${Comp._escHtml(r.productName)}</span>${r.isTop ? ' <span class="badge badge-active">TOP</span>' : ''}</div>
+      <div class="flex-1"><strong class="text-sm">${Comp._escHtml(r.reviewerName)}</strong> <span class="text-muted-xs">${r.rating}★ · ${Comp._escHtml(r.productName)}</span></div>
     </div>`).join('') : `<p class="empty-state">No matching eligible reviews from ${cfg.scopeLabel}.</p>`;
 };
 Comp.selectFeaturedReview = function(entityType, entityId, reviewId){
@@ -21014,11 +21106,12 @@ function pageBookingListing(){
         data-status="${Comp._escAttr(b.status||'')}" data-language="${Comp._escAttr(b.language||'')}"
         data-city="${Comp._escAttr(Comp.bookingDestination(b).city)}" data-country="${Comp._escAttr(Comp.bookingDestination(b).country)}"
         data-travel-iso="${Comp._bookingDateToISO(b.travelDate)}" data-booking-iso="${Comp._bookingDateToISO(b.bookingDate)}"
+        data-email="${Comp._escAttr(b.email||'')}"
         onclick="Router.go('bookingDetails',{id:'${b.id}'})"
         onkeydown="if(event.key==='Enter'){Router.go('bookingDetails',{id:'${b.id}'})}">
       <td class="cell-name">#${b.id}${siblingCount ? `<div class="text-muted-xs-regular">🔗 ${siblingCount + 1}-item order</div>` : ''}</td>
-      <td class="cell-secondary">${b.customer}</td>
-      <td class="cell-secondary" style="max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${b.tour}</td>
+      <td class="cell-secondary">${b.customer}<div class="text-muted-xs-regular">${b.email || ''}</div></td>
+      <td class="cell-secondary" style="max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${b.tour}${b.productId ? `<div class="text-muted-xs-regular">${b.productId}</div>` : ''}</td>
       <td class="cell-secondary">${b.tourOption}<div class="text-muted-xs">${b.language}</div></td>
       <td>${Comp.ChannelTag(b.channel)}</td>
       <td class="cell-secondary">${b.bookingDate}</td>
@@ -21033,8 +21126,9 @@ function pageBookingListing(){
   }).join('');
   return Comp.Shell(`
     ${Comp.PageHeader({title:'Bookings'})}
-    <div class="filter-bar">
-      <input class="search-box" id="filterBookings" placeholder="Search booking ID, customer or tour..." oninput="Comp.filterBookingsTable()" style="width:280px;">
+    <div class="filter-bar" role="search">
+      <label for="filterBookings" class="visually-hidden">Search bookings</label>
+      <input class="search-box" id="filterBookings" placeholder="Search booking ID, customer, email or tour..." oninput="Comp.filterBookingsTable()">
       ${Comp.FilterIconButton(0, "Comp.openBookingFiltersDrawer()")}
     </div>
     ${Comp.Table({columns:[{label:'ID',width:'80px'},{label:'Customer',width:'140px'},{label:'Tour'},{label:'Option / Language',width:'130px'},{label:'Channel',width:'110px'},{label:'Booking Date',width:'120px'},{label:'Travel Date',width:'120px'},{label:'Guests',width:'70px'},{label:'Amount',width:'90px'},{label:'Status',width:'160px'},{label:'Action',width:'70px'}], rows, emptyText:'No bookings found.'})}
@@ -21062,8 +21156,7 @@ function pageBookingDetails(params){
   if (tab === 'overview') {
     tabBody = `
     <div class="field-row items-start">
-      <div class="card flex-1">
-        <p class="card-title">Customer Information</p>
+      ${Comp.Card({title:'Customer Information', className:'flex-1', body:`
         <div class="field-stack">
           <div class="field-row">
             ${Comp.MetaField('Name', b.customer)}
@@ -21073,10 +21166,8 @@ function pageBookingDetails(params){
             ${Comp.MetaField('Phone', b.phone)}
             ${Comp.MetaField('Nationality', b.nationality)}
           </div>
-        </div>
-      </div>
-      <div class="card flex-1">
-        <p class="card-title">Tour Information</p>
+        </div>`})}
+      ${Comp.Card({title:'Tour Information', className:'flex-1', body:`
         <div class="field-stack">
           <div class="field-row">
             ${Comp.MetaField('Product', b.product)}
@@ -21092,10 +21183,8 @@ function pageBookingDetails(params){
           </div>
         </div>
         ${b.channel === 'Viator' ? `<div class="locked-field-note">${ICON.lock} Availability &amp; scheduling for this booking are managed by Viator — not editable in this admin panel.</div>` : ''}
-        <div class="field-hint mt-2h">ⓘ Traveller detail or pickup location changes must be requested by the customer from their own profile on the website — not from this admin panel.</div>
-      </div>
-      <div class="card flex-1">
-        <p class="card-title">Tour Option</p>
+        <div class="field-hint mt-2h">ⓘ Traveller detail or pickup location changes must be requested by the customer from their own profile on the website — not from this admin panel.</div>`})}
+      ${Comp.Card({title:'Tour Option', className:'flex-1', body:`
         <div class="field-stack">
           <div class="field-row">
             ${Comp.MetaField('Tour name', b.tour)}
@@ -21108,21 +21197,19 @@ function pageBookingDetails(params){
             ${Comp.MetaField('Tour type', b.tourType)}
           </div>
         </div>
-        <div class="field-hint mt-2h">ⓘ The specific option, language and type the customer selected at checkout — shown here for quick reference without opening the product.</div>
-      </div>
+        <div class="field-hint mt-2h">ⓘ The specific option, language and type the customer selected at checkout — shown here for quick reference without opening the product.</div>`})}
     </div>
-    ${orderSiblings.length ? `<div class="card">
-      <p class="card-title">Other Items in This Order</p>
-      <p class="field-hint card-hint card-hint--tight">This booking is part of a multi-item order (${b.orderId}) — ${orderSiblings.length + 1} item${orderSiblings.length ? 's' : ''} total, purchased together in one checkout.</p>
-      ${Comp.Table({columns:[{label:'Booking'},{label:'Tour'},{label:'Channel',width:'110px'},{label:'Amount',width:'90px'},{label:'Status',width:'140px'}], rows: orderSiblings.map(s => `
+    ${orderSiblings.length ? Comp.Card({title:'Other Items in This Order', body:
+      '<p class="field-hint card-hint card-hint--tight">This booking is part of a multi-item order (' + b.orderId + ') — ' + (orderSiblings.length + 1) + ' item' + (orderSiblings.length ? 's' : '') + ' total, purchased together in one checkout.</p>' +
+      Comp.Table({columns:[{label:'Booking'},{label:'Tour'},{label:'Channel',width:'110px'},{label:'Amount',width:'90px'},{label:'Status',width:'140px'}], rows: orderSiblings.map(s => `
         <tr class="row-clickable" tabindex="0" role="button" onclick="Router.go('bookingDetails',{id:'${s.id}'})">
           <td class="cell-name">#${s.id}</td>
           <td class="cell-secondary">${s.tour}</td>
           <td>${Comp.ChannelTag(s.channel)}</td>
           <td class="cell-secondary">$${s.amount.toFixed(2)}</td>
           <td>${Comp.BookingStatusBadge(s.status)}</td>
-        </tr>`).join('')})}
-    </div>` : ''}`;
+        </tr>`).join('')})}) : ''}`;
+
   } else if (tab === 'travellers') {
     const leadTraveller = b.guestList.find(g => g.primary) || b.guestList[0];
     const otherTravellers = b.guestList.filter(g => !g.primary);
@@ -21146,8 +21233,7 @@ function pageBookingDetails(params){
     };
 
     tabBody = `
-    <div class="card">
-      <p class="card-title">Lead Traveller</p>
+    ${Comp.Card({title:'Lead Traveller', body:`
       <div class="field-stack">
         <div class="field-row">
           ${Comp.MetaField('First name', leadTraveller.firstName)}
@@ -21161,22 +21247,12 @@ function pageBookingDetails(params){
           ${Comp.MetaField('Age band', leadTraveller.ageBand)}
           ${(leadTraveller.fields||[]).map(f => Comp.MetaField(f.label, f.value)).join('')}
         </div>
-      </div>
-    </div>
-    ${otherTravellers.length ? `
-    <div class="card">
-      <p class="card-title">Additional Travellers</p>
-      <p class="field-hint card-hint card-hint--tight">${otherTravellers.length} additional traveller${otherTravellers.length===1?'':'s'}</p>
-      ${otherTravellers.map((g, i) => renderTraveller(g, i + 2)).join('')}
-    </div>` : ''}
-    ${b.specialRequirements ? `
-    <div class="card">
-      <p class="card-title">Special Requirements</p>
-      <p style="font-size:14px; color:var(--text-primary); margin:0;">${Comp._escHtml(b.specialRequirements)}</p>
-    </div>` : ''}
-    ${b.personalisation ? `
-    <div class="card">
-      <p class="card-title">Personalisation</p>
+      </div>`})}
+    ${otherTravellers.length ? Comp.Card({title:'Additional Travellers', hint:`${otherTravellers.length} additional traveller${otherTravellers.length===1?'':'s'}`, body:
+      otherTravellers.map((g, i) => renderTraveller(g, i + 2)).join('')}) : ''}
+    ${b.specialRequirements ? Comp.Card({title:'Special Requirements', body:`
+      <p style="font-size:14px; color:var(--text-primary); margin:0;">${Comp._escHtml(b.specialRequirements)}</p>`}) : ''}
+    ${b.personalisation ? Comp.Card({title:'Personalisation', body:`
       <div class="field-stack">
         <div class="field-row">
           ${b.personalisation.groupAge ? Comp.MetaField('Approximate group age', b.personalisation.groupAge) : ''}
@@ -21186,11 +21262,8 @@ function pageBookingDetails(params){
           <p class="g-label" style="font-size:11px; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:.5px; margin:0 0 4px;">Preferences / special requests</p>
           <p style="font-size:14px; color:var(--text-primary); margin:0;">${Comp._escHtml(b.personalisation.preferences)}</p>
         </div>` : ''}
-      </div>
-    </div>` : ''}
-    ${b.invoice && b.invoice.requested ? `
-    <div class="card">
-      <p class="card-title">Invoice Details</p>
+      </div>`}) : ''}
+    ${b.invoice && b.invoice.requested ? Comp.Card({title:'Invoice Details', body:`
       <div class="field-stack">
         <div class="field-row">
           ${Comp.MetaField('Company name', b.invoice.companyName)}
@@ -21204,8 +21277,7 @@ function pageBookingDetails(params){
           ${Comp.MetaField('ZIP / Postal code', b.invoice.zip)}
           ${Comp.MetaField('Country', b.invoice.country)}
         </div>
-      </div>
-    </div>` : ''}`;
+      </div>`}) : ''}`;
   } else if (tab === 'pricing') {
     tabBody = `
     ${Comp.Card({title:'Pricing Breakdown', body:`
@@ -21216,17 +21288,14 @@ function pageBookingDetails(params){
         <div class="booking-info-row"><span>Discount</span><span>${b.pricing.discount}</span></div>
         <div class="booking-info-row" style="border-top:1px solid var(--border); padding-top:8px; margin-top:4px; font-size:15px;"><span style="color:var(--text-primary); font-weight:600;">Total Amount</span><span style="font-size:16px;">${b.pricing.total}</span></div>
       </div>`})}
-    ${b.channel === 'Viator' ? `<div class="card">
-      <p class="card-title">Viator Settlement</p>
-      <p class="field-hint card-hint card-hint--tight">Feeds the Viator settlement export (recommended price, net price, booking fee, payout, refund adjustments).</p>
-      ${Comp._infoTable([
+    ${b.channel === 'Viator' ? Comp.Card({title:'Viator Settlement', hint:'Feeds the Viator settlement export (recommended price, net price, booking fee, payout, refund adjustments).', body:
+      Comp._infoTable([
         ['Recommended price', b.pricing.viatorRecommendedPrice || b.pricing.total],
         ['Net price (from Viator)', b.pricing.viatorNetPrice || '—'],
         ['Booking fee (Rosotravel margin)', b.pricing.viatorBookingFee || '—'],
         ['Amount payable to Viator', b.pricing.viatorPayout || '—'],
         ['Refund adjustment', b.paymentStatus === 'Refunded' ? (b.cancelNote && b.cancelNote.includes('did not agree') ? 'Full amount paid to Viator — loss absorbed by Rosotravel' : 'Settled per Viator agreement') : 'None']
-      ])}
-    </div>` : ''}`;
+      ])}) : ''}`;
   } else if (tab === 'activity') {
     tabBody = `
     ${Comp.Card({title:'Activity Log', body:`
@@ -21355,13 +21424,13 @@ Comp.couponEligibilityLabel = function(c){
   if (c.eligibilityLevel === 'user') {
     if (c.userEligibility === 'all') return 'User level: All users';
     if (c.userEligibility === 'firstTime') return 'User level: First-time users only';
-    const n = c.userEmails.length;
+    const n = (c.userEmails || []).length;
     return `User level: ${n} specific user${n===1?'':'s'}`;
   }
   const src = c.productSource && c.productSource !== 'All' ? ` · source: ${c.productSource} only` : '';
   if (c.productEligibility === 'all') {
     if (c.supplierNames && c.supplierNames.length) return `Product level: All products — narrowed to supplier(s): ${c.supplierNames.join(', ')}${src}`;
-    return `Product level: All products${src}`;
+    return `Product level: All products (Roso + Viator)${src}`;
   }
   const names = c.productIds.map(id => (DATA.products.find(p=>p.id===id)||{}).name).filter(Boolean);
   return `Product level: Specific — ${names.join(', ')}${src}`;
@@ -21451,15 +21520,24 @@ const COUPON_STATUS_ACTIVE = {'Active':true,'Fully redeemed':false,'Scheduled':f
 function pageCouponListing(params){
   const p = params || {};
   const q = (p.q || '').toLowerCase();
-  let list = DATA.coupons.filter(c => !q || c.code.toLowerCase().includes(q));
+  let list = DATA.coupons.filter(c => !q || c.code.toLowerCase().includes(q) || (c.description||'').toLowerCase().includes(q));
   if (p.fStatus) list = list.filter(c => Comp.getCouponStatus(c) === p.fStatus);
+  if (p.fEligLevel) list = list.filter(c => (c.eligibilityLevel || 'product') === p.fEligLevel);
+  if (p.fEligMode) {
+    list = list.filter(c => {
+      const level = c.eligibilityLevel || 'product';
+      const mode = level === 'user' ? c.userEligibility : c.productEligibility;
+      return mode === p.fEligMode;
+    });
+  }
+  if (p.fProductSource) list = list.filter(c => (c.productSource || 'All') === p.fProductSource);
 
   const rows = list.map(c => {
     const status = Comp.getCouponStatus(c);
     return `
     <tr class="row-clickable" tabindex="0" role="button" onclick="Router.go('couponDetails',{id:'${c.id}'})">
       ${Comp.BulkCheckboxTd('coupon', c.id)}
-      <td class="cell-name">${c.code}</td>
+      <td class="cell-name">${c.code}${c.description ? `<div class="text-muted-xs-regular">${Comp._escHtml(c.description)}</div>` : ''}</td>
       <td class="cell-secondary">${Comp.couponDiscountLabel(c)}</td>
       <td class="cell-secondary">${Comp.couponEligibilityLabel(c)}<div style="margin-top:3px;"><span class="badge ${(c.productSource||'All')==='All'?'badge-inactive':'badge-amber'}">Source: ${Comp._escHtml(c.productSource||'All')}</span></div></td>
       <td class="cell-secondary">${Comp.couponDateLabel(c)}</td>
@@ -21476,14 +21554,17 @@ function pageCouponListing(params){
     ${Comp.PageHeader({title:'Promotion Management', actions:`
 ${Comp.Button('+ Create coupon', {variant:'btn-primary', onclick:"Router.go('couponCreate')"})}`})}
     <div class="filter-bar" role="search">
-      <label for="couponSearch" class="visually-hidden">Search by code</label>
-      <input id="couponSearch" class="search-box" placeholder="Search by code" value="${Comp._escAttr(p.q||'')}" onkeydown="if(event.key==='Enter') Router.go('couponListing',{q:this.value})">
-      ${Comp.FilterIconButton(Comp.activeRouteFilterCount(p, ['fStatus']), `Comp.openRouteFilterDrawer('couponListing', '${encodeURIComponent(JSON.stringify(p))}', '${encodeURIComponent(JSON.stringify([
-        {id:'fStatus', label:'Status', value:p.fStatus||'', options:[{value:'',label:'All statuses'},{value:'Active',label:'Active'},{value:'Scheduled',label:'Scheduled'},{value:'Fully redeemed',label:'Fully redeemed'},{value:'Expired',label:'Expired'},{value:'Disabled',label:'Disabled'}]}
+      <label for="couponSearch" class="visually-hidden">Search by code or description</label>
+      <input id="couponSearch" class="search-box" placeholder="Search by code or description" value="${Comp._escAttr(p.q||'')}" onkeydown="if(event.key==='Enter') Router.go('couponListing',{q:this.value})">
+      ${Comp.FilterIconButton(Comp.activeRouteFilterCount(p, ['fStatus','fEligLevel','fEligMode','fProductSource']), `Comp.openRouteFilterDrawer('couponListing', '${encodeURIComponent(JSON.stringify(p))}', '${encodeURIComponent(JSON.stringify([
+        {id:'fStatus', label:'Status', value:p.fStatus||'', options:[{value:'',label:'All statuses'},{value:'Active',label:'Active'},{value:'Scheduled',label:'Scheduled'},{value:'Fully redeemed',label:'Fully redeemed'},{value:'Expired',label:'Expired'},{value:'Disabled',label:'Disabled'}]},
+        {id:'fEligLevel', label:'Eligibility level', value:p.fEligLevel||'', options:[{value:'',label:'All levels'},{value:'product',label:'Product Level'},{value:'user',label:'User Level'}]},
+        {id:'fEligMode', label:'Eligibility mode', value:p.fEligMode||'', options:[{value:'',label:'All modes'},{value:'all',label:'All (product/users)'},{value:'specific',label:'Specific product(s)/user(s)'},{value:'firstTime',label:'First-time users only'}]},
+        {id:'fProductSource', label:'Product source scope', value:p.fProductSource||'', options:[{value:'',label:'All sources'},{value:'All',label:'All (Rosotravel + Viator)'},{value:'Rosotravel',label:'Rosotravel only'},{value:'Viator',label:'Viator only'}]}
       ]))}')`)}
     </div>
     ${Comp.BulkActionBar('coupon')}
-    ${Comp.Table({columns:[{label:Comp.BulkCheckboxTh('coupon'),width:'40px'},{label:'Code'},{label:'Discount',width:'110px'},{label:'Eligibility'},{label:'Valid dates',width:'190px'},{label:'Status',width:'130px'},{label:'Action',width:'70px'}], rows, emptyText:'No coupons found.'})}
+    ${Comp.Table({columns:[{label:Comp.BulkCheckboxTh('coupon'),width:'40px'},{label:'Code / Description'},{label:'Discount',width:'110px'},{label:'Eligibility'},{label:'Valid dates',width:'190px'},{label:'Status',width:'130px'},{label:'Action',width:'70px'}], rows, emptyText:'No coupons found.'})}
     ${Comp.Pagination(`Showing ${list.length} of ${DATA.coupons.length} coupons`)}
   `);
 }
@@ -21555,7 +21636,7 @@ Comp.getMultiSelectValues = function(idPrefix){
 Comp.eligibilityPicker = function(opts){
   const { idPrefix, allLabel, specificLabel, mode, items, selectedIds, lockNote, maxUsersValue, supplierItems, selectedSuppliers, firstTimeOption } = opts;
   const itemsHtml = items.map(it => `
-    <label class="eligibility-item" data-label="${Comp._escAttr(it.label.toLowerCase())}" style="display:flex; align-items:center; gap:8px; padding:6px 4px; cursor:pointer;">
+    <label class="eligibility-item" data-label="${Comp._escAttr((it.searchLabel || it.label).toLowerCase())}" style="display:flex; align-items:center; gap:8px; padding:6px 4px; cursor:pointer;">
       <input type="checkbox" value="${it.id}" ${selectedIds.includes(it.id)?'checked':''} onchange="Comp.updateEligibilityCount('${idPrefix}')">
       <span>${it.label}</span>
     </label>`).join('');
@@ -21592,7 +21673,7 @@ Comp.eligibilityPicker = function(opts){
       <p id="${idPrefix}-sup-count" class="field-hint" style="margin:8px 0 0;">${(selectedSuppliers||[]).length} selected</p>
     </div>` : ''}
     <div id="${idPrefix}-searchwrap" style="${mode==='specific'?'':'display:none;'} margin-top:10px;">
-      <input type="text" id="${idPrefix}-search" class="search-box w-full" placeholder="Search..." oninput="Comp.filterEligibilityItems('${idPrefix}', this.value)">
+      <input type="text" id="${idPrefix}-search" class="search-box w-full" placeholder="${opts.searchPlaceholder || 'Search...'}" oninput="Comp.filterEligibilityItems('${idPrefix}', this.value)">
     </div>
     <div id="${idPrefix}-picker" style="${mode==='specific'?'':'display:none;'} border:1px solid var(--border); border-radius:var(--radius-md); max-height:220px; overflow-y:auto; padding:6px 10px; margin:8px 0 0;">
       ${items.length ? itemsHtml : '<p class="empty-state" style="margin:8px 0;">Nothing available to select.</p>'}
@@ -21618,6 +21699,13 @@ Comp.toggleEligibilityLevel = function(){
   const level = document.getElementById('couponEligLevel').value;
   document.getElementById('couponEligProductSection').style.display = level === 'product' ? '' : 'none';
   document.getElementById('couponEligUserSection').style.display = level === 'user' ? '' : 'none';
+  // Reset user-product picker state when switching levels
+  const userProductPicker = document.getElementById('couponUserProduct-picker');
+  const userProductSearch = document.getElementById('couponUserProduct-searchwrap');
+  const userProductMode = document.getElementById('couponUserProduct-mode');
+  if (userProductPicker && level !== 'user') {
+    // reset handled by display toggle above
+  }
 };
 Comp.toggleEligibilityMode = function(idPrefix){
   const mode = document.getElementById(idPrefix+'-mode').value;
@@ -21642,7 +21730,13 @@ Comp.getEligibilitySelection = function(idPrefix){
 function pageCouponCreate(params){
   const editId = params && params.id;
   const c = editId ? DATA.coupons.find(x => x.id === editId) : null;
-  const productItems = DATA.products.filter(p => p.status === 'Active').map(p => ({id:p.id, label:`${p.name} — ${p.city}`}));
+  // Include both Rosotravel (Internal) and Viator (External) active products
+  const productItems = DATA.products.filter(p => p.status === 'Active').map(p => ({
+    id: p.id,
+    label: `${p.name} — ${p.city}`,
+    // For data-label: include product code so users can search by code
+    searchLabel: `${p.name} ${p.productCode || ''} ${p.city} ${p.sourceType === 'External' ? 'Viator' : 'Rosotravel'}`
+  }));
   const supplierNames = [...new Set(DATA.products.filter(p => p.supplierName).map(p => p.supplierName))];
   const customerItems = Comp.getCustomers().map(cu => ({id:cu.email, label:`${cu.name} (${cu.email})`}));
 
@@ -21696,20 +21790,47 @@ function pageCouponCreate(params){
         </div>
         <div id="couponEligProductSection" style="${(c && c.eligibilityLevel==='user') ? 'display:none;' : ''} margin-top:16px; padding-top:14px; border-top:1px solid var(--border);">
           ${Comp.eligibilityPicker({
-            idPrefix:'couponProduct', title:'Product Level', allLabel:'All products (Rosotravel-direct)', specificLabel:'Specific product(s)',
+            idPrefix:'couponProduct', title:'Product Level', allLabel:'All products (Rosotravel + Viator)', specificLabel:'Specific product(s)',
             mode: c ? c.productEligibility : 'all', items: productItems, selectedIds: c ? c.productIds : [],
             maxUsersValue: c && c.maxUsersAllowed != null ? c.maxUsersAllowed : null,
             supplierItems: supplierNames, selectedSuppliers: c ? (c.supplierNames||[]) : [],
-            lockNote:'When "All products" is selected, you can optionally narrow it down to specific Viator supplier(s) below.'
+            lockNote:'When "All products" is selected, you can optionally narrow it down to specific Viator supplier(s) below.',
+            searchPlaceholder: 'Search by product name, code or city...'
           })}
         </div>
         <div id="couponEligUserSection" style="${(c && c.eligibilityLevel==='user') ? '' : 'display:none;'} margin-top:16px; padding-top:14px; border-top:1px solid var(--border);">
           ${Comp.eligibilityPicker({
             idPrefix:'couponUser', title:'User Level', allLabel:'All users', specificLabel:'Specific user(s)',
-          mode: c ? c.userEligibility : 'all', items: customerItems, selectedIds: c ? c.userEmails : [],
-          maxUsersValue: c && c.maxUsersAllowed != null ? c.maxUsersAllowed : null,
-          firstTimeOption: true
-        })}
+            mode: c ? c.userEligibility : 'all', items: customerItems, selectedIds: c ? c.userEmails : [],
+            maxUsersValue: c && c.maxUsersAllowed != null ? c.maxUsersAllowed : null,
+            firstTimeOption: true,
+            searchPlaceholder: 'Search by name or email...'
+          })}
+          <div style="margin-top:16px; padding-top:14px; border-top:1px solid var(--border);">
+            <p class="card-title text-sm" style="margin-bottom:8px;">Product scope for these users</p>
+            <p class="field-hint mb-2">Optionally restrict which products these users can apply this coupon to. Leave as "All products" to apply across everything they can book.</p>
+            ${Comp.eligibilityPicker({
+              idPrefix:'couponUserProduct', title:'', allLabel:'All products (Rosotravel + Viator)', specificLabel:'Specific product(s)',
+              mode: c ? (c.userProductEligibility || 'all') : 'all', items: productItems, selectedIds: c ? (c.userProductIds || []) : [],
+              searchPlaceholder: 'Search by product name, code or city...'
+            })}
+          </div>
+        </div>
+        <div style="margin-top:16px; padding-top:14px; border-top:1px solid var(--border);">
+          <p class="card-title text-sm" style="margin-bottom:4px;">Usage limits</p>
+          <p class="field-hint mb-3">Optionally cap how many times this coupon can be used in total, and how many times each individual customer can use it.</p>
+          <div class="field-row">
+            <div class="field flex-1">
+              <label for="couponMaxTotalUses">Total redemption limit</label>
+              <input id="couponMaxTotalUses" type="number" min="1" class="card-input" placeholder="Unlimited" value="${c && c.maxTotalUses != null ? c.maxTotalUses : ''}">
+              <p class="field-hint">Maximum total number of times this coupon can be redeemed across all customers.</p>
+            </div>
+            <div class="field flex-1">
+              <label for="couponMaxUsesPerCustomer">Per-customer limit</label>
+              <input id="couponMaxUsesPerCustomer" type="number" min="1" class="card-input" placeholder="Unlimited" value="${c && c.maxUsesPerCustomer != null ? c.maxUsesPerCustomer : ''}">
+              <p class="field-hint">Maximum number of times a single customer can use this coupon.</p>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -21772,6 +21893,22 @@ Comp.submitCouponForm = function(editId){
     if (userMode === 'all') { const raw = document.getElementById('couponUser-maxusers-input').value; maxUsersAllowed = raw ? parseInt(raw, 10) : null; }
   }
 
+  // Usage limits (from the dedicated Usage Limits card)
+  const maxTotalUsesRaw = document.getElementById('couponMaxTotalUses').value;
+  const maxUsesPerCustRaw = document.getElementById('couponMaxUsesPerCustomer').value;
+  const maxTotalUses = maxTotalUsesRaw ? parseInt(maxTotalUsesRaw, 10) : null;
+  const maxUsesPerCustomer = maxUsesPerCustRaw ? parseInt(maxUsesPerCustRaw, 10) : null;
+
+  // User-level product scope (only relevant when eligibilityLevel === 'user')
+  let userProductMode = 'all', userProductIds = [];
+  if (eligibilityLevel === 'user') {
+    const userProdModeEl = document.getElementById('couponUserProduct-mode');
+    if (userProdModeEl) {
+      userProductMode = userProdModeEl.value;
+      userProductIds = userProductMode === 'specific' ? Comp.getEligibilitySelection('couponUserProduct') : [];
+    }
+  }
+
   let c = editId ? DATA.coupons.find(x => x.id === editId) : null;
   const isNew = !c;
   if (isNew) { c = {id:'cp-'+Date.now(), usedCount:0, history:[]}; DATA.coupons.push(c); }
@@ -21782,9 +21919,9 @@ Comp.submitCouponForm = function(editId){
     productEligibility: productMode, productIds,
     supplierNames,
     userEligibility: userMode, userEmails,
+    userProductEligibility: userProductMode, userProductIds,
     maxUsersAllowed,
-    minBookingValue, maxTotalUses: isNew ? null : c.maxTotalUses,
-    maxUsesPerCustomer: isNew ? null : c.maxUsesPerCustomer,
+    minBookingValue, maxTotalUses, maxUsesPerCustomer,
     validFrom, validUntil, disabled: c.disabled || false
   });
   c.history = c.history || [];
@@ -21796,34 +21933,64 @@ function pageCouponDetails(params){
   const c = DATA.coupons.find(x => x.id === (params && params.id));
   if (!c) return pageCouponListing();
   const status = Comp.getCouponStatus(c);
+  const tab = (params && params.tab) || 'overview';
+  const tabs = [
+    {id:'overview',   label:'Overview'},
+    {id:'historyLog', label:'History Log'}
+  ];
+  let body = '';
+  if (tab === 'overview') {
+    body = Comp.Card({title:'Overview', body: Comp._infoTable([
+      ['Status', Comp.Badge(status, COUPON_STATUS_ACTIVE[status])],
+      ['Discount', Comp.couponDiscountLabel(c)],
+      ['Product source scope', c.productSource || 'All'],
+      ['Eligibility level', c.eligibilityLevel === 'user' ? 'User Level' : 'Product Level'],
+      ['Eligibility', c.eligibilityLevel === 'user'
+        ? (c.userEligibility === 'all' ? 'All users' : c.userEligibility === 'firstTime' ? 'First-time users only (first booking)' : (c.userEmails||[]).join(', '))
+        : (c.productEligibility === 'all'
+            ? (c.supplierNames && c.supplierNames.length ? `All products — narrowed to suppliers: ${c.supplierNames.join(', ')}` : 'All products (Rosotravel + Viator)')
+            : (c.productIds||[]).map(id => (DATA.products.find(p=>p.id===id)||{}).name).filter(Boolean).join(', '))],
+      ...(c.eligibilityLevel === 'user' ? [['Product scope (for these users)', c.userProductEligibility === 'specific' && c.userProductIds && c.userProductIds.length
+        ? c.userProductIds.map(id => (DATA.products.find(p=>p.id===id)||{}).name).filter(Boolean).join(', ')
+        : 'All products (Rosotravel + Viator)']] : []),
+      ['Maximum users allowed', c.maxUsersAllowed != null ? String(c.maxUsersAllowed) : 'Unlimited'],
+      ['Minimum booking value', `€${(c.minBookingValue||0).toFixed(2)}`],
+      ['Total redemption limit', `${c.usedCount} used / ${c.maxTotalUses != null ? c.maxTotalUses : 'Unlimited'}`],
+      ['Per-customer limit', c.maxUsesPerCustomer ? `${c.maxUsesPerCustomer} per customer` : 'Unlimited'],
+      ['Valid dates', Comp.couponDateLabel(c)]
+    ])});
+  } else {
+    body = Comp.Card({title:'History Log', body: c.history.length ? Comp.Timeline(c.history) : '<p class="empty-state">No history yet.</p>'});
+  }
   return Comp.Shell(`
     ${Comp.Breadcrumb([{label:'Discount Coupons', route:'couponListing'}, {label:c.code}])}
     ${Comp.PageHeader({title:`${c.code}`, actions:`
         ${Comp.Button('Edit', {onclick:`Router.go('couponCreate',{id:'${c.id}'})`})}
         ${Comp.Button(c.disabled ? 'Enable' : 'Disable', {variant:'btn-amber', onclick:`Comp.confirmToggleCouponStatus('${c.id}')`})}`})}
-    ${Comp.Card({title:'Overview', body:`
-      ${Comp._infoTable([
-        ['Status', Comp.Badge(status, COUPON_STATUS_ACTIVE[status])],
-        ['Discount', Comp.couponDiscountLabel(c)],
-        ['Eligibility level', c.eligibilityLevel === 'user' ? 'User Level' : 'Product Level'],
-        ['Eligibility', c.eligibilityLevel === 'user'
-          ? (c.userEligibility === 'all' ? 'All users' : c.userEligibility === 'firstTime' ? 'First-time users only (first booking)' : c.userEmails.join(', '))
-          : (c.productEligibility === 'all'
-              ? (c.supplierNames && c.supplierNames.length ? `All products — narrowed to: ${c.supplierNames.join(', ')}` : 'All products (Rosotravel-direct)')
-              : c.productIds.map(id => (DATA.products.find(p=>p.id===id)||{}).name).filter(Boolean).join(', '))],
-        ['Maximum users allowed', c.maxUsersAllowed != null ? c.maxUsersAllowed : 'Unlimited'],
-        ['Minimum booking value', `€${c.minBookingValue.toFixed(2)}`],
-        ['Usage', `${c.usedCount} / ${c.maxTotalUses != null ? c.maxTotalUses : 'Unlimited'}${c.maxUsesPerCustomer ? ` (max ${c.maxUsesPerCustomer} per customer)` : ''}`],
-        ['Valid dates', Comp.couponDateLabel(c)]
-      ])}`})}
-    ${Comp.Card({title:'History / Audit', body:`
-      ${c.history.length ? Comp.Timeline(c.history) : '<p class="empty-state">No history yet.</p>'}`})}
+    <div class="ops-tabs" role="tablist">
+      ${tabs.map(t => `<button type="button" class="ops-tab ${tab===t.id?'is-active':''}" onclick="Router.go('couponDetails',{id:'${c.id}',tab:'${t.id}'})">${t.label}</button>`).join('')}
+    </div>
+    ${body}
   `);
 }
 
 function pageCustomerListing(){
   const customers = Comp.getCustomers();
-  const rows = customers.map(c => `
+  const newsletterState = Comp._customerNewsletterFilter || '';
+  const statusState     = Comp._customerStatusFilter     || '';
+  const rows = customers.filter(c => {
+    if (newsletterState === 'opted_in'  && c.newsletterConsent !== true)  return false;
+    if (newsletterState === 'opted_out' && c.newsletterConsent !== false) return false;
+    if (newsletterState === 'not_set'   && c.newsletterConsent !== null)  return false;
+    if (statusState && c.accountStatus !== statusState) return false;
+    return true;
+  }).map(c => {
+    const newsletterBadge = c.newsletterConsent === true
+      ? Comp.Badge('Opted in', true)
+      : c.newsletterConsent === false
+        ? Comp.Badge('Opted out', false)
+        : `<span class="text-muted-xs">—</span>`;
+    return `
     <tr class="row-clickable" tabindex="0" role="button" aria-label="View ${c.name}" onclick="Router.go('customerDetails',{email:'${encodeURIComponent(c.email)}'})">
       <td class="cell-name">${c.name}${c.hasFraudFlag ? ' ' + Comp.Badge('Fraud flag', 'danger') : ''}</td>
       <td class="cell-secondary">${c.email}</td>
@@ -21832,19 +21999,65 @@ function pageCustomerListing(){
       <td class="cell-secondary">${c.bookingCount}</td>
       <td class="cell-secondary">$${c.totalSpent.toFixed(2)}</td>
       <td class="cell-secondary">${c.lastBookingDate}</td>
+      <td>${newsletterBadge}</td>
       <td>${Comp.Badge(c.accountStatus, c.accountStatus==='Active')}</td>
       <td onclick="event.stopPropagation()">${Comp.RowMenu(c.name, [
         {label:'View details', handler:() => Router.go('customerDetails',{email:encodeURIComponent(c.email)})},
         {label: c.accountStatus==='Active' ? 'Deactivate' : 'Activate', danger: c.accountStatus==='Active', handler:() => Comp.confirmToggleCustomerStatus(c.email)}
       ])}</td>
-    </tr>`).join('');
+    </tr>`;
+  }).join('');
+  const activeFilters = (newsletterState ? 1 : 0) + (statusState ? 1 : 0);
   return Comp.Shell(`
     ${Comp.PageHeader({title:'Customer Management'})}
-    ${Comp.FilterBar('Search customers', 'filterCustomers')}
-    ${Comp.Table({columns:[{label:'Name'},{label:'Email',width:'200px'},{label:'Phone',width:'150px'},{label:'Signup date',width:'120px'},{label:'Bookings',width:'90px'},{label:'Total spent',width:'110px'},{label:'Last booking',width:'130px'},{label:'Account',width:'110px'},{label:'Action',width:'60px'}], rows, emptyText:'No customers found.'})}
+    <div class="filter-bar" role="search">
+      <label for="filterCustomers" class="visually-hidden">Search customers</label>
+      <input id="filterCustomers" class="search-box" placeholder="Search by name or email address" oninput="Comp.filterTable('filterCustomers')">
+      ${Comp.FilterIconButton(activeFilters, "Comp.openCustomerFilterDrawer()")}
+    </div>
+    ${Comp.Table({columns:[{label:'Name'},{label:'Email',width:'200px'},{label:'Phone',width:'150px'},{label:'Signup date',width:'120px'},{label:'Bookings',width:'90px'},{label:'Total spent',width:'110px'},{label:'Last booking',width:'130px'},{label:'Newsletter',width:'110px'},{label:'Status',width:'110px'},{label:'Action',width:'60px'}], rows, emptyText:'No customers found.'})}
     ${Comp.Pagination(`Showing ${customers.length} of ${customers.length} customers`)}
   `);
 }
+
+Comp._customerNewsletterFilter = '';
+Comp._customerStatusFilter = '';
+Comp.openCustomerFilterDrawer = function(){
+  const curNewsletter = Comp._customerNewsletterFilter || '';
+  const curStatus     = Comp._customerStatusFilter     || '';
+  const filtersHtml = `
+    <div class="filter-drawer-group">
+      <label for="fdCustStatus">Status</label>
+      <select id="fdCustStatus" class="filter-select w-full">
+        <option value=""             ${curStatus===''            ?'selected':''}>All</option>
+        <option value="Active"       ${curStatus==='Active'      ?'selected':''}>Active</option>
+        <option value="Deactivated"  ${curStatus==='Deactivated' ?'selected':''}>Deactivated</option>
+      </select>
+    </div>
+    <div class="filter-drawer-group">
+      <label for="fdNewsletter">Newsletter consent</label>
+      <select id="fdNewsletter" class="filter-select w-full">
+        <option value=""          ${curNewsletter===''           ?'selected':''}>All</option>
+        <option value="opted_in"  ${curNewsletter==='opted_in'   ?'selected':''}>Opted in</option>
+        <option value="opted_out" ${curNewsletter==='opted_out'  ?'selected':''}>Opted out</option>
+        <option value="not_set"   ${curNewsletter==='not_set'    ?'selected':''}>Not captured</option>
+      </select>
+    </div>`;
+  Comp.openFilterDrawer(
+    'Filter Customers',
+    filtersHtml,
+    () => {
+      Comp._customerNewsletterFilter = (document.getElementById('fdNewsletter') || {}).value || '';
+      Comp._customerStatusFilter     = (document.getElementById('fdCustStatus') || {}).value || '';
+      render();
+    },
+    () => {
+      Comp._customerNewsletterFilter = '';
+      Comp._customerStatusFilter     = '';
+      render();
+    }
+  );
+};
 
 function pageCustomerDetails(params){
   const email = decodeURIComponent((params && params.email) || '');
@@ -21853,30 +22066,61 @@ function pageCustomerDetails(params){
   if (!c) return Comp.Shell(`<p class="empty-state">Customer not found.</p>`);
   const tab = (params && params.tab) || 'overview';
 
-  const bookingRows = c.bookings.map(b => {
+  const bDateFrom  = (params && params.bDateFrom)  || '';
+  const bDateTo    = (params && params.bDateTo)    || '';
+  const bDateBasis = (params && params.bDateBasis) || 'travel';
+  const filteredBookings = c.bookings.filter(b => {
+    const iso = Comp._bookingDateToISO(bDateBasis === 'booking' ? b.bookingDate : b.travelDate);
+    if (bDateFrom && iso && iso < bDateFrom) return false;
+    if (bDateTo   && iso && iso > bDateTo)   return false;
+    return true;
+  });
+  const bookingRows = filteredBookings.map(b => {
     const siblingCount = Comp.getOrderSiblings(b).length;
     return `
     <tr class="row-clickable" tabindex="0" role="button" onclick="Router.go('bookingDetails',{id:'${b.id}'})">
       <td class="cell-name">${b.id}${siblingCount ? `<div class="text-muted-xs-regular">🔗 ${b.orderId} — ${siblingCount + 1} items in this order</div>` : ''}</td>
-      <td class="cell-secondary">${b.tour}</td>
+      <td class="cell-secondary">${b.tour}${b.productId ? `<div class="text-muted-xs-regular">${b.productId}</div>` : ''}</td>
       <td class="cell-secondary">${b.tourOption}<div class="text-muted-xs">${b.language}</div></td>
+      <td class="cell-secondary">${b.bookingDate}</td>
       <td class="cell-secondary">${b.travelDate}</td>
       <td class="cell-secondary">$${b.amount.toFixed(2)}</td>
       <td>${Comp.Badge(b.status, b.status==='Confirmed' || b.status==='Completed')}</td>
     </tr>`;
   }).join('');
 
-  // Vouchers derived from booking lifecycle — per scope, a new voucher is
-  // generated after every successful change, and one exists for every
-  // confirmed/completed booking.
-  const voucherRows = c.bookings.filter(b => ['Confirmed','Completed','Modified'].includes(b.status)).map(b => `
-    <tr>
-      <td class="cell-name">V-${b.id}${b.versions && b.versions.length ? '-R' + b.versions.length : ''}</td>
-      <td class="cell-secondary">${b.tour}</td>
-      <td class="cell-secondary">${b.travelDate}</td>
-      <td class="cell-secondary">${b.versions && b.versions.length ? `Reissued (${b.versions.length} revision${b.versions.length===1?'':'s'})` : 'Original'}</td>
-      <td>${Comp.Button('View booking', {size:'btn-sm', onclick:`Router.go('bookingDetails',{id:'${b.id}'})`})}</td>
-    </tr>`).join('');
+  // Discounts used by this customer — from bookings with a couponCode,
+  // plus any user-level specific coupons assigned to their email.
+  const usedDiscountBookings = c.bookings.filter(b => b.couponCode);
+  const assignedCoupons = DATA.coupons.filter(cp =>
+    cp.userEligibility === 'specific' && cp.userEmails.includes(c.email)
+  );
+  // Merge: used bookings first, then assigned-but-unused coupons
+  const usedCouponCodes = new Set(usedDiscountBookings.map(b => b.couponCode));
+  const discountRows = [
+    ...usedDiscountBookings.map(b => {
+      const cp = DATA.coupons.find(x => x.code === b.couponCode);
+      const discountLabel = cp ? Comp.couponDiscountLabel(cp) : b.couponCode;
+      return `<tr>
+        <td class="cell-name"><strong>${Comp._escHtml(b.couponCode)}</strong></td>
+        <td class="cell-secondary">${discountLabel}</td>
+        <td class="cell-secondary"><button type="button" class="btn-sm-link" onclick="Router.go('bookingDetails',{id:'${b.id}'})">${b.id}</button></td>
+        <td class="cell-secondary">${b.bookingDate}</td>
+        <td class="cell-secondary text-success"><strong>−$${(b.discountAmount || 0).toFixed(2)}</strong></td>
+        <td>${Comp.Badge('Used', true)}</td>
+      </tr>`;
+    }),
+    ...assignedCoupons.filter(cp => !usedCouponCodes.has(cp.code)).map(cp => {
+      return `<tr>
+        <td class="cell-name"><strong>${Comp._escHtml(cp.code)}</strong></td>
+        <td class="cell-secondary">${Comp.couponDiscountLabel(cp)}</td>
+        <td class="cell-secondary">—</td>
+        <td class="cell-secondary">Valid until ${cp.validUntil}</td>
+        <td class="cell-secondary">—</td>
+        <td>${Comp.Badge('Not used', false)}</td>
+      </tr>`;
+    })
+  ].join('');
 
   const enquiries = DATA.customerEnquiries.filter(e => e.customerEmail === c.email);
   const enquiryRows = enquiries.map(e => `
@@ -21906,15 +22150,17 @@ function pageCustomerDetails(params){
   const tabs = [
     {id:'overview', label:'Overview'},
     {id:'bookings', label:`Bookings · ${c.bookingCount}`},
-    {id:'vouchers', label:`Vouchers · ${c.bookings.filter(b => ['Confirmed','Completed','Modified'].includes(b.status)).length}`},
+    {id:'discounts', label:`Discounts · ${usedDiscountBookings.length + assignedCoupons.filter(cp => !usedCouponCodes.has(cp.code)).length}`},
     {id:'enquiries', label:`Enquiries · ${enquiries.length}`},
     {id:'history', label:`History Log · ${historyEntries.length}`}
   ];
   let body = '';
   if (tab === 'overview') {
-    body = `<div class="card">
-      <p class="card-title">Overview</p>
+    body = `${Comp.Card({title:'Overview', body:`
       ${Comp._infoTable([
+        ['Name', c.name || '—'],
+        ['Email', c.email || '—'],
+        ['Phone', c.phone || '—'],
         ['Nationality', c.nationality || '—'],
         ['Customer since', c.signupDate || '—'],
         ['Total bookings', String(c.bookingCount)],
@@ -21925,28 +22171,39 @@ function pageCustomerDetails(params){
           ? 'Not yet captured — customer has not set this during signup/checkout'
           : `${c.newsletterConsent ? Comp.Badge('Opted in', true) : Comp.Badge('Opted out', false)}${c.newsletterConsent ? ` — sent to ${c.email}` : ''}`]
       ])}
-      <p class="field-hint mt-2h">ⓘ Consent is set by the customer themselves on the website (signup/checkout) — shown here read-only, not editable from the admin panel.</p>
-    </div>
-    ${c.preferences ? `<div class="card">
-      <p class="card-title">Preferences</p>
-      <p class="field-hint card-hint card-hint--tight">Set by the customer on their profile — read-only here.</p>
-      ${Comp._infoTable([
+      <p class="field-hint mt-2h">ⓘ Consent is set by the customer themselves on the website (signup/checkout) — shown here read-only, not editable from the admin panel.</p>`})}
+    ${c.preferences ? Comp.Card({title:'Preferences', hint:'Set by the customer on their profile — read-only here.', body:
+      Comp._infoTable([
         ['Preferred language', c.preferences.language || '—'],
         ['Preferred currency', c.preferences.currency || '—'],
         ['Travel interests', (c.preferences.travelInterests || []).length ? c.preferences.travelInterests.join(', ') : '—']
-      ])}
-    </div>` : `<div class="card"><p class="card-title">Preferences</p><p class="empty-state">No preferences set on this customer's profile yet.</p></div>`}
-    ${c.cancellationLog.length ? `<div class="card">
-      <p class="card-title">Cancellations &amp; Refunds</p>
-      <p class="field-hint card-hint card-hint--tight">Reason and who initiated each cancellation/refund is retained for business records — distinguishes admin-initiated actions from customer self-service (once available on the website).</p>
-      ${Comp.Table({columns:[{label:'Booking'},{label:'Tour'},{label:'Reason'},{label:'Scope'},{label:'Initiated by'}], rows: c.cancellationLog.map(l => `
-        <tr><td class="cell-name"><button type="button" class="btn-sm-link" onclick="Router.go('bookingDetails',{id:'${l.bookingId}'})">#${l.bookingId}</button></td><td class="cell-secondary">${l.tour}</td><td class="cell-secondary">${l.reason}</td><td class="cell-secondary">${l.scope}</td><td class="cell-secondary">${l.by}</td></tr>`).join('')})}
-    </div>` : ''}`;
+      ])}) : Comp.Card({title:'Preferences', body:'<p class="empty-state">No preferences set on this customer\'s profile yet.</p>'})}
+    ${c.cancellationLog.length ? Comp.Card({title:'Cancellations &amp; Refunds', hint:'Reason and who initiated each cancellation/refund is retained for business records — distinguishes admin-initiated actions from customer self-service (once available on the website).', body:
+      Comp.Table({columns:[{label:'Booking'},{label:'Tour'},{label:'Reason'},{label:'Scope'},{label:'Initiated by'}], rows: c.cancellationLog.map(l => `
+        <tr><td class="cell-name"><button type="button" class="btn-sm-link" onclick="Router.go('bookingDetails',{id:'${l.bookingId}'})">#${l.bookingId}</button></td><td class="cell-secondary">${l.tour}</td><td class="cell-secondary">${l.reason}</td><td class="cell-secondary">${l.scope}</td><td class="cell-secondary">${l.by}</td></tr>`).join('')})}) : ''}`;
   } else if (tab === 'bookings') {
-    body = Comp.Card({title:'Bookings', body:Comp.Table({columns:[{label:'Booking ID',width:'110px'},{label:'Tour'},{label:'Option / Language',width:'130px'},{label:'Travel date',width:'120px'},{label:'Amount',width:'100px'},{label:'Status',width:'120px'}], rows:bookingRows, emptyText:'No bookings yet.'})});
-  } else if (tab === 'vouchers') {
-    body = Comp.Card({title:'Vouchers', hint:'A new voucher is generated after every successful booking change.',
-      body:voucherRows ? Comp.Table({columns:[{label:'Voucher'},{label:'Tour'},{label:'Travel date',width:'120px'},{label:'Type',width:'160px'},{label:'',width:'110px'}], rows:voucherRows}) : '<p class="empty-state">No vouchers issued yet.</p>'});
+    const _bEnc = encodeURIComponent(c.email);
+    const dateFilterBar = `
+      <div class="filter-bar" style="margin-bottom:12px;gap:8px;flex-wrap:wrap;align-items:center;">
+        <span class="field-hint" style="margin:0;line-height:2">Filter by:</span>
+        <select class="filter-select" style="width:140px"
+          onchange="Router.go('customerDetails',{email:'${_bEnc}',tab:'bookings',bDateBasis:this.value,bDateFrom:'${bDateFrom}',bDateTo:'${bDateTo}'})">
+          <option value="travel"  ${bDateBasis==='travel'  ?'selected':''}>Travel date</option>
+          <option value="booking" ${bDateBasis==='booking' ?'selected':''}>Booking date</option>
+        </select>
+        <input type="date" class="card-input" style="width:150px" value="${bDateFrom}"
+          onchange="Router.go('customerDetails',{email:'${_bEnc}',tab:'bookings',bDateBasis:'${bDateBasis}',bDateFrom:this.value,bDateTo:'${bDateTo}'})">
+        <span class="field-hint" style="margin:0;line-height:2">to</span>
+        <input type="date" class="card-input" style="width:150px" value="${bDateTo}"
+          onchange="Router.go('customerDetails',{email:'${_bEnc}',tab:'bookings',bDateBasis:'${bDateBasis}',bDateFrom:'${bDateFrom}',bDateTo:this.value})">
+        ${(bDateFrom || bDateTo) ? `<button type="button" class="btn-ghost btn-sm" onclick="Router.go('customerDetails',{email:'${_bEnc}',tab:'bookings'})">Clear</button>` : ''}
+      </div>`;
+    body = Comp.Card({title:`Bookings${(bDateFrom||bDateTo) ? ' (filtered)' : ''}`, body: dateFilterBar + Comp.Table({columns:[{label:'Booking ID',width:'110px'},{label:'Tour'},{label:'Option / Language',width:'130px'},{label:'Booking date',width:'120px'},{label:'Travel date',width:'120px'},{label:'Amount',width:'100px'},{label:'Status',width:'120px'}], rows:bookingRows, emptyText:'No bookings found for selected dates.'})});
+  } else if (tab === 'discounts') {
+    body = Comp.Card({title:'Discounts', hint:'Discount codes used by this customer, plus any codes assigned specifically to them.',
+      body: discountRows
+        ? Comp.Table({columns:[{label:'Code',width:'130px'},{label:'Discount',width:'130px'},{label:'Booking',width:'100px'},{label:'Date / Validity',width:'150px'},{label:'Saved',width:'90px'},{label:'Status',width:'100px'}], rows:discountRows})
+        : '<p class="empty-state">No discounts used or assigned to this customer.</p>'});
   } else if (tab === 'enquiries') {
     body = Comp.Card({title:'Customer Enquiries', body:enquiryRows ? Comp.Table({columns:[{label:'Subject'},{label:'Booking',width:'100px'},{label:'Resolution',width:'160px'},{label:'Status',width:'100px'},{label:'',width:'90px'}], rows:enquiryRows}) : '<p class="empty-state">No enquiries on file.</p>'});
   } else if (tab === 'history') {
