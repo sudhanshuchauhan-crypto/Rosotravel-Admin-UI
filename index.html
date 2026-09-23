@@ -528,7 +528,7 @@ const DATA = {
     {id:'cat-water-bkk', name:'Water Activities', city:'Bangkok', description:'Chao Phraya river cruises, floating market tours, and canal boat experiences in Bangkok.', status:'Active', history:[]}
   ],
   bookings: [
-    {id:'BK-001', customer:'Alex Harrison', tour:'Premium Desert Safari Dubai (Dune Bashing & Dinner)', productId:'prod-10', bookingDate:'12 May 2024', travelDate:'18 May 2024', guests:4, amount:380.00, status:'Completed', channel:'Rosotravel', confirmationType:'Instant', couponCode:'SPRING24', discountAmount:10,
+    {id:'BK-001', customer:'Alex Harrison', tour:'Premium Desert Safari Dubai (Dune Bashing & Dinner)', productId:'prod-10', bookingDate:'12 May 2024', bookingTime:'10:24 AM', travelDate:'18 May 2024', guests:4, amount:380.00, status:'Completed', channel:'Rosotravel', confirmationType:'Instant', couponCode:'SPRING24', discountAmount:10,
       email:'alex.harrison@email.com', phone:'+971 55 123 4567', nationality:'British',
       product:'Premium Desert Safari Dubai', timeSlot:'3:00 PM - 9:00 PM', guestsBreakdown:'4 Adults, 0 Children',
       pickupMode:'now', pickupLocation:'Hilton Dubai Creek, Dubai', pickup:'Hilton Dubai Creek',
@@ -549,7 +549,7 @@ const DATA = {
         {label:'Confirmation Sent', time:'12 May 2024, 10:20 AM'},
         {label:'Reminder Sent', time:'17 May 2024, 09:00 AM'}
       ]},
-    {id:'BK-002', customer:'Amelie Laurent', tour:'Dubai Half-Day Modern City Tour', productId:'prod-10', bookingDate:'13 May 2024', couponCode:'WELCOME10', discountAmount:12, travelDate:'15 May 2024', guests:2, amount:120.00, status:'Completed', channel:'Viator', confirmationType:'Instant',
+    {id:'BK-002', customer:'Amelie Laurent', tour:'Dubai Half-Day Modern City Tour', productId:'prod-10', bookingDate:'13 May 2024', bookingTime:'3:47 PM', couponCode:'WELCOME10', discountAmount:12, travelDate:'15 May 2024', guests:2, amount:120.00, status:'Completed', channel:'Viator', confirmationType:'Instant',
       email:'amelie.laurent@email.com', phone:'+971 55 223 4567', nationality:'French',
       product:'Dubai Half-Day Modern City Tour', timeSlot:'9:00 AM - 1:00 PM', guestsBreakdown:'2 Adults, 0 Children',
       pickupMode:'now', pickupLocation:'JW Marriott Marina, Dubai Marina', pickup:'JW Marriott Marina',
@@ -563,7 +563,7 @@ const DATA = {
       invoice:{requested:true, companyName:'Laurent Consulting SARL', street:'14 Rue de Rivoli', city:'Paris', state:'Île-de-France', zip:'75001', country:'France'},
       pricing:{baseLabel:'Base Price ($60.00 x 2 guests)', base:'$120.00', addonsLabel:'Add-ons', addons:'$0.00', subtotal:'$120.00', discount:'-$0.00', total:'$120.00', viatorRecommendedPrice:'$120.00', viatorNetPrice:'$96.00', viatorBookingFee:'$24.00', viatorPayout:'$96.00'},
       activity:[{label:'Booking Created', time:'13 May 2024, 09:00 AM'}, {label:'Payment Received', time:'13 May 2024, 09:05 AM'}, {label:'Tour Completed', time:'15 May 2024, 01:15 PM'}]},
-    {id:'BK-003', customer:'Carlos Ruiz', tour:'Hatta Mountain Trek & Adventure Day Out', productId:'prod-11', bookingDate:'14 May 2024', travelDate:'20 May 2024', guests:1, amount:150.00, status:'Pending', channel:'Rosotravel', confirmationType:'Manual', hoursSincePending:20,
+    {id:'BK-003', customer:'Carlos Ruiz', tour:'Hatta Mountain Trek & Adventure Day Out', productId:'prod-11', bookingDate:'14 May 2024', bookingTime:'11:05 AM', travelDate:'20 May 2024', guests:1, amount:150.00, status:'Pending', channel:'Rosotravel', confirmationType:'Manual', hoursSincePending:20,
       email:'carlos.ruiz@email.com', phone:'+971 55 323 4567', nationality:'Spanish',
       product:'Hatta Mountain Trek & Adventure Day Out', timeSlot:'6:00 AM - 4:00 PM', guestsBreakdown:'1 Adult, 0 Children',
       pickupMode:'now', pickupLocation:'Downtown Dubai (Burj Khalifa Metro Station, Gate 4)', pickup:'Downtown Dubai',
@@ -576,7 +576,7 @@ const DATA = {
       invoice:null,
       pricing:{baseLabel:'Base Price ($150.00 x 1 guest)', base:'$150.00', addonsLabel:'Add-ons', addons:'$0.00', subtotal:'$150.00', discount:'-$0.00', total:'$150.00'},
       activity:[{label:'Booking Created', time:'14 May 2024, 02:30 PM'}]},
-    {id:'BK-004', customer:'Sarah Jenkins', tour:'Marina Dhow Cruise Dinner (Premium Lower Deck)', productId:'prod-10', bookingDate:'14 May 2024', travelDate:'16 May 2024', guests:3, amount:210.00, status:'Confirmed', channel:'Viator', confirmationType:'Instant-then-manual', orderId:'ORD-1004',
+    {id:'BK-004', customer:'Sarah Jenkins', tour:'Marina Dhow Cruise Dinner (Premium Lower Deck)', productId:'prod-10', bookingDate:'14 May 2024', bookingTime:'6:52 PM', travelDate:'16 May 2024', guests:3, amount:210.00, status:'Confirmed', channel:'Viator', confirmationType:'Instant-then-manual', orderId:'ORD-1004',
       email:'sarah.jenkins@email.com', phone:'+971 55 423 4567', nationality:'American',
       product:'Marina Dhow Cruise Dinner', timeSlot:'7:00 PM - 9:30 PM', guestsBreakdown:'2 Adults, 1 Child',
       pickupMode:'meeting_point', pickupLocation:null, pickup:'Dubai Marina Mall',
@@ -591,7 +591,7 @@ const DATA = {
       invoice:null,
       pricing:{baseLabel:'Base Price ($70.00 x 3 guests)', base:'$210.00', addonsLabel:'Add-ons', addons:'$0.00', subtotal:'$210.00', discount:'-$0.00', total:'$210.00', viatorRecommendedPrice:'$210.00', viatorNetPrice:'$168.00', viatorBookingFee:'$42.00', viatorPayout:'$168.00'},
       activity:[{label:'Booking Created', time:'14 May 2024, 11:00 AM'}, {label:'Payment Received', time:'14 May 2024, 11:04 AM'}, {label:'Confirmation Sent', time:'14 May 2024, 11:06 AM'}]},
-    {id:'BK-010', customer:'Sarah Jenkins', tour:'Dubai Miracle Garden Entry Ticket', productId:'prod-9', bookingDate:'14 May 2024', travelDate:'16 May 2024', guests:3, amount:90.00, status:'Confirmed', channel:'Rosotravel', confirmationType:'Instant', orderId:'ORD-1004',
+    {id:'BK-010', customer:'Sarah Jenkins', tour:'Dubai Miracle Garden Entry Ticket', productId:'prod-9', bookingDate:'14 May 2024', bookingTime:'6:53 PM', travelDate:'16 May 2024', guests:3, amount:90.00, status:'Confirmed', channel:'Rosotravel', confirmationType:'Instant', orderId:'ORD-1004',
       email:'sarah.jenkins@email.com', phone:'+971 55 423 4567', nationality:'American',
       product:'Dubai Miracle Garden Entry Ticket', timeSlot:'2:00 PM - 5:00 PM', guestsBreakdown:'2 Adults, 1 Child',
       pickupMode:'self_arrival', pickupLocation:null, pickup:'Self-arrival',
@@ -606,7 +606,7 @@ const DATA = {
       invoice:null,
       pricing:{baseLabel:'Base Price ($30.00 x 3 guests)', base:'$90.00', addonsLabel:'Add-ons', addons:'$0.00', subtotal:'$90.00', discount:'-$0.00', total:'$90.00'},
       activity:[{label:'Booking Created', time:'14 May 2024, 11:00 AM'}, {label:'Payment Received', time:'14 May 2024, 11:04 AM'}, {label:'Confirmation Sent', time:'14 May 2024, 11:06 AM'}]},
-    {id:'BK-005', customer:'Yuki Tanaka', tour:'Burj Khalifa Sunrise View & Observatory Pass', productId:'prod-9', bookingDate:'15 May 2024', travelDate:'15 May 2024', guests:2, amount:190.00, status:'Cancelled', channel:'Rosotravel', confirmationType:'Instant',
+    {id:'BK-005', customer:'Yuki Tanaka', tour:'Burj Khalifa Sunrise View & Observatory Pass', productId:'prod-9', bookingDate:'15 May 2024', bookingTime:'9:18 AM', travelDate:'15 May 2024', guests:2, amount:190.00, status:'Cancelled', channel:'Rosotravel', confirmationType:'Instant',
       email:'yuki.tanaka@email.com', phone:'+971 55 523 4567', nationality:'Japanese',
       product:'Burj Khalifa Sunrise View & Observatory Pass', timeSlot:'5:30 AM - 7:30 AM', guestsBreakdown:'2 Adults, 0 Children',
       pickupMode:'self_arrival', pickupLocation:null, pickup:'Self-arrival',
@@ -622,7 +622,7 @@ const DATA = {
       activity:[{label:'Booking Created', time:'15 May 2024, 08:00 AM'}, {label:'Payment Received', time:'15 May 2024, 08:03 AM'}, {label:'Booking Cancelled', time:'15 May 2024, 06:00 PM'}],
       cancelReason:'Change of plans', cancelledBy:'Admin (you)',
       cancelNote:'This booking has been cancelled. Refund of $190.00 processed to original payment method.'},
-    {id:'BK-006', customer:'Ahmed Al-Mansoori', tour:'Abu Dhabi Grand Mosque & Louvre Day Tour', productId:'prod-10', bookingDate:'15 May 2024', couponCode:'SUMMER25', discountAmount:25, travelDate:'19 May 2024', guests:5, amount:650.00, status:'Confirmed', channel:'Viator', confirmationType:'Instant',
+    {id:'BK-006', customer:'Ahmed Al-Mansoori', tour:'Abu Dhabi Grand Mosque & Louvre Day Tour', productId:'prod-10', bookingDate:'15 May 2024', bookingTime:'2:30 PM', couponCode:'SUMMER25', discountAmount:25, travelDate:'19 May 2024', guests:5, amount:650.00, status:'Confirmed', channel:'Viator', confirmationType:'Instant',
       email:'ahmed.almansoori@email.com', phone:'+971 55 623 4567', nationality:'Emirati',
       product:'Abu Dhabi Grand Mosque & Louvre Day Tour', timeSlot:'8:00 AM - 6:00 PM', guestsBreakdown:'5 Adults, 0 Children',
       pickupMode:'now', pickupLocation:'Sheikh Zayed Road (Emirates Towers Metro Station)', pickup:'Sheikh Zayed Road',
@@ -635,7 +635,7 @@ const DATA = {
       invoice:{requested:true, companyName:'Al-Mansoori Trading LLC', street:'Office 1204, Al Moosa Tower 1', city:'Dubai', state:'Dubai', zip:'00000', country:'UAE'},
       pricing:{baseLabel:'Base Price ($130.00 x 5 guests)', base:'$650.00', addonsLabel:'Add-ons', addons:'$0.00', subtotal:'$650.00', discount:'-$0.00', total:'$650.00', viatorRecommendedPrice:'$650.00', viatorNetPrice:'$520.00', viatorBookingFee:'$130.00', viatorPayout:'$520.00'},
       activity:[{label:'Booking Created', time:'15 May 2024, 01:00 PM'}, {label:'Payment Received', time:'15 May 2024, 04:00 PM'}]},
-    {id:'BK-007', customer:'Elena Rostova', tour:'Dune Buggy Guided Adventure (Self-Drive Tour)', productId:'prod-11', bookingDate:'16 May 2024', travelDate:'22 May 2024', guests:2, amount:320.00, status:'Pending', channel:'Rosotravel', confirmationType:'Manual', hoursSincePending:80,
+    {id:'BK-007', customer:'Elena Rostova', tour:'Dune Buggy Guided Adventure (Self-Drive Tour)', productId:'prod-11', bookingDate:'16 May 2024', bookingTime:'4:15 PM', travelDate:'22 May 2024', guests:2, amount:320.00, status:'Pending', channel:'Rosotravel', confirmationType:'Manual', hoursSincePending:80,
       email:'elena.rostova@email.com', phone:'+971 55 723 4567', nationality:'Russian',
       product:'Dune Buggy Guided Adventure', timeSlot:'2:00 PM - 6:00 PM', guestsBreakdown:'2 Adults, 0 Children',
       pickupMode:'now', pickupLocation:'Al Qudra Road (Big Red Dune area)', pickup:'Al Qudra Road',
@@ -649,7 +649,7 @@ const DATA = {
       invoice:null,
       pricing:{baseLabel:'Base Price ($160.00 x 2 guests)', base:'$320.00', addonsLabel:'Add-ons', addons:'$0.00', subtotal:'$320.00', discount:'-$0.00', total:'$320.00'},
       activity:[{label:'Booking Created', time:'16 May 2024, 03:20 PM'}]},
-    {id:'BK-008', customer:'Hans Schneider', tour:'Miracle Garden & Butterfly Garden Ticket Duo', productId:'prod-9', bookingDate:'16 May 2024', travelDate:'17 May 2024', guests:4, amount:160.00, status:'Completed', channel:'Viator', confirmationType:'Instant',
+    {id:'BK-008', customer:'Hans Schneider', tour:'Miracle Garden & Butterfly Garden Ticket Duo', productId:'prod-9', bookingDate:'16 May 2024', bookingTime:'8:44 AM', travelDate:'17 May 2024', guests:4, amount:160.00, status:'Completed', channel:'Viator', confirmationType:'Instant',
       email:'hans.schneider@email.com', phone:'+971 55 823 4567', nationality:'German',
       product:'Miracle Garden & Butterfly Garden Ticket Duo', timeSlot:'10:00 AM - 2:00 PM', guestsBreakdown:'4 Adults, 0 Children',
       pickupMode:'self_arrival', pickupLocation:null, pickup:'Self-arrival',
@@ -662,7 +662,7 @@ const DATA = {
       invoice:{requested:true, companyName:'Schneider GmbH', street:'Hauptstraße 42', city:'Munich', state:'Bavaria', zip:'80331', country:'Germany'},
       pricing:{baseLabel:'Base Price ($40.00 x 4 guests)', base:'$160.00', addonsLabel:'Add-ons', addons:'$0.00', subtotal:'$160.00', discount:'-$0.00', total:'$160.00', viatorRecommendedPrice:'$160.00', viatorNetPrice:'$128.00', viatorBookingFee:'$32.00', viatorPayout:'$128.00'},
       activity:[{label:'Booking Created', time:'16 May 2024, 09:00 AM'}, {label:'Payment Received', time:'16 May 2024, 09:03 AM'}, {label:'Tour Completed', time:'17 May 2024, 02:15 PM'}]},
-    {id:'BK-009', customer:'Marco Silvestri', tour:'Skydive Dubai Tandem Jump (Palm Drop Zone)', productId:'prod-11', bookingDate:'17 May 2024', travelDate:'23 May 2024', guests:1, amount:590.00, status:'Cancelled (Fraud – Viator)', channel:'Viator', confirmationType:'Instant',
+    {id:'BK-009', customer:'Marco Silvestri', tour:'Skydive Dubai Tandem Jump (Palm Drop Zone)', productId:'prod-11', bookingDate:'17 May 2024', bookingTime:'1:09 PM', travelDate:'23 May 2024', guests:1, amount:590.00, status:'Cancelled (Fraud – Viator)', channel:'Viator', confirmationType:'Instant',
       email:'marco.silvestri@email.com', phone:'+39 345 123 9876', nationality:'Italian',
       product:'Skydive Dubai Tandem Jump', timeSlot:'7:00 AM - 9:00 AM', guestsBreakdown:'1 Adult, 0 Children',
       pickupMode:'self_arrival', pickupLocation:null, pickup:'Self-arrival',
@@ -1099,7 +1099,7 @@ DATA.customerAccounts = {
   'ahmed.almansoori@email.com': { signupDate:'25 Jun 2026', newsletterConsent:false, preferences:{ language:'Arabic', currency:'AED', travelInterests:['Family','Premium'] } },
   'marco.silvestri@email.com': { signupDate:'14 May 2024' }, // newsletter consent not yet captured, no preferences on file
   'hans.schneider@email.com': { signupDate:'9 May 2024' },
-  'carlos.ruiz@email.com': { signupDate:'22 Jun 2026' },
+  'carlos.ruiz@email.com': { signupDate:'22 Jun 2026', status:'Hibernating', deleteRequestedAt:'2026-09-10', deleteReason:'Customer requested account deletion' },
   'elena.rostova@email.com': { signupDate:'5 Jul 2026' }
 };
 
@@ -6799,9 +6799,9 @@ const Comp = {
     const opts = (list, cur) => list.map(v => `<option value="${Comp._escAttr(v)}" ${cur===v?'selected':''}>${Comp._escHtml(v)}</option>`).join('');
     const filtersHtml = `
       <div class="filter-drawer-group">
-        <label for="fdChannel">Sales channel</label>
+        <label for="fdChannel">Supplier</label>
         <select id="fdChannel" class="filter-select w-full">
-          <option value="" ${!s.channel?'selected':''}>All Channels</option>
+          <option value="" ${!s.channel?'selected':''}>All Suppliers</option>
           <option value="Rosotravel" ${s.channel==='Rosotravel'?'selected':''}>Rosotravel</option>
           <option value="Viator" ${s.channel==='Viator'?'selected':''}>Viator</option>
         </select>
@@ -17971,7 +17971,7 @@ Comp.blogReturnForFixes = function(id){
 // reviews, multi-source labeling (Rosotravel/Viator/Tripadvisor),
 // moderation (pending/approved/rejected/hidden), and media moderation.
 // ============================================================
-Comp.REVIEW_SOURCE_LABEL = { 'Rosotravel':'Source: Rosotravel', 'Viator':'Source: Viator', 'Tripadvisor':'Source: Tripadvisor' };
+Comp.REVIEW_SOURCE_LABEL = { 'Rosotravel':'Rosotravel', 'Viator':'Viator', 'Tripadvisor':'Tripadvisor' };
 function pageReviewListing(params){
   const p = params || {};
   let list = DATA.reviews;
@@ -18000,7 +18000,7 @@ function pageReviewListing(params){
       <td class="cell-name">${r.productName}<div class="text-muted-xs-regular">${r.reviewerName}, ${r.reviewerCountry}${Comp._reviewCity(r) ? ' \u00b7 ' + Comp._escHtml(Comp._reviewCity(r)) : ''}${r.bookingId ? ' \u00b7 ' + Comp._escHtml(r.bookingId) : ''}</div></td>
       <td class="cell-secondary">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</td>
       <td class="cell-secondary">${Comp.REVIEW_SOURCE_LABEL[r.sourceType]}</td>
-      <td class="cell-secondary" style="max-width:260px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${r.reviewText}${r.flagReason ? `<div class="mt-1">${Comp.Badge(r.flagReason, 'danger')}</div>` : ''}</td>
+      <td class="cell-secondary" style="max-width:260px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${r.reviewText}</td>
       <td class="cell-secondary">${reviewMedia.length ? `${reviewMedia.length} item${reviewMedia.length===1?'':'s'}${pendingMediaForReview ? ` ${Comp.Badge(pendingMediaForReview + ' pending', 'danger')}` : ''}` : '—'}</td>
       <td>${r.moderationStatus === 'approved' ? Comp.Badge('Approved', true) : r.moderationStatus === 'rejected' ? Comp.Badge('Rejected', 'danger') : r.moderationStatus === 'hidden' ? Comp.Badge('Hidden', 'warning') : Comp.Badge('Pending', 'danger')}</td>
       <td onclick="event.stopPropagation()">${r.sourceType === 'Rosotravel' ? Comp.RowMenu(r.productName, [
@@ -18033,7 +18033,7 @@ Comp.reviewModerate = function(id, newStatus){
   const r = DATA.reviews.find(x => x.id === id);
   if (!r) return;
   if (r.sourceType !== 'Rosotravel') {
-    Comp.showToast(`Reviews sourced from ${Comp.REVIEW_SOURCE_LABEL[r.sourceType].replace('Source: ','')} cannot be moderated by Rosotravel (API/contract restriction).`, 'danger');
+    Comp.showToast(`Reviews sourced from ${Comp.REVIEW_SOURCE_LABEL[r.sourceType]} cannot be moderated by Rosotravel (API/contract restriction).`, 'danger');
     return;
   }
   Comp.openConfirm({
@@ -18068,7 +18068,7 @@ function pageReviewDetail(params){
       ${r.sourceType === 'Rosotravel' ? `<div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:10px;">
         ${m.moderationStatus !== 'approved' ? Comp.Button('Approve', {size:'btn-sm', onclick:`Comp.reviewMediaModerate('${m.id}','approved')`}) : ''}
         ${m.moderationStatus !== 'rejected' ? Comp.Button('Reject', {size:'btn-sm', variant:'btn-danger', onclick:`Comp.reviewMediaModerate('${m.id}','rejected')`}) : ''}
-      </div>` : `<p class="field-hint mt-2h">${ICON.lock} Sourced from ${Comp.REVIEW_SOURCE_LABEL[r.sourceType].replace('Source: ','')} — media cannot be moderated by Rosotravel.</p>`}
+      </div>` : `<p class="field-hint mt-2h">${ICON.lock} Sourced from ${Comp.REVIEW_SOURCE_LABEL[r.sourceType]} — media cannot be moderated by Rosotravel.</p>`}
     </div>`).join('');
 
   let tabBody = '';
@@ -18081,9 +18081,7 @@ function pageReviewDetail(params){
           ['Product', r.productName],
           ['Booking ID', r.bookingId ? `<button type="button" class="btn-sm-link" onclick="Comp.navigateWithReturn('bookingDetails',{id:'${r.bookingId}'}, 'Review — ${(r.reviewerName||'').replace(/'/g,"&#39;")}')">#${r.bookingId}</button>` : 'Not linked (imported review)'],
           ['Source', Comp.REVIEW_SOURCE_LABEL[r.sourceType]],
-          ['Submitted', r.submittedAt],
-          ['Moderation status', r.moderationStatus.charAt(0).toUpperCase() + r.moderationStatus.slice(1)],
-          ['Helpful votes', String(r.helpfulCount)]
+          ['Submitted', r.submittedAt]
         ])}`}) +
       Comp.Card({title:'Attached Media', hint:'Preview and moderate photos/videos submitted with this review — customer media must be approved before it can appear in product galleries or Recent Experience snapshots.', body:`
         ${media.length ? `<div class="media-grid">${mediaCards}</div>` : `<p class="empty-state">No media attached to this review.</p>`}`});
@@ -18100,7 +18098,7 @@ function pageReviewDetail(params){
         ${r.moderationStatus !== 'approved' ? Comp.Button('Approve', {variant:'btn-primary', onclick:`Comp.reviewModerate('${r.id}','approved')`}) : ''}
         ${r.moderationStatus !== 'rejected' ? Comp.Button('Reject', {variant:'btn-danger', onclick:`Comp.reviewModerate('${r.id}','rejected')`}) : ''}
         ${r.moderationStatus !== 'hidden' ? Comp.Button('Hide', {onclick:`Comp.reviewModerate('${r.id}','hidden')`}) : ''}` : ''}`, level:'h2'})}
-    ${r.sourceType !== 'Rosotravel' ? `<div class="locked-field-note">${ICON.lock} This review is sourced from ${Comp.REVIEW_SOURCE_LABEL[r.sourceType].replace('Source: ','')} — per API/contract terms, it cannot be approved, rejected, or hidden by Rosotravel. It mirrors the source platform's own moderation as-is.</div>` : ''}
+    ${r.sourceType !== 'Rosotravel' ? `<div class="locked-field-note">${ICON.lock} This review is sourced from ${Comp.REVIEW_SOURCE_LABEL[r.sourceType]} — per API/contract terms, it cannot be approved, rejected, or hidden by Rosotravel. It mirrors the source platform's own moderation as-is.</div>` : ''}
     ${r.flagReason ? `<div class="status-banner is-danger"><span>${ICON.warning}</span><span><strong>Flagged:</strong> ${r.flagReason}</span></div>` : ''}
     <div class="ops-tabs" role="tablist">
       ${tabs.map(t => `<button type="button" class="ops-tab ${tab===t.id?'is-active':''}" role="tab" aria-selected="${tab===t.id}" onclick="Router.go('reviewDetail',{id:'${r.id}', tab:'${t.id}'})">${t.label}</button>`).join('')}
@@ -18113,7 +18111,7 @@ Comp.reviewMediaModerate = function(id, newStatus){
   if (!m) return;
   const parentReview = DATA.reviews.find(r => r.id === m.reviewId);
   if (parentReview && parentReview.sourceType !== 'Rosotravel') {
-    Comp.showToast(`Media on reviews sourced from ${Comp.REVIEW_SOURCE_LABEL[parentReview.sourceType].replace('Source: ','')} cannot be moderated by Rosotravel (API/contract restriction).`, 'danger');
+    Comp.showToast(`Media on reviews sourced from ${Comp.REVIEW_SOURCE_LABEL[parentReview.sourceType]} cannot be moderated by Rosotravel (API/contract restriction).`, 'danger');
     return;
   }
   m.moderationStatus = newStatus;
@@ -21250,13 +21248,13 @@ function pageBookingListing(){
         data-email="${Comp._escAttr(b.email||'')}"
         onclick="Router.go('bookingDetails',{id:'${b.id}'})"
         onkeydown="if(event.key==='Enter'){Router.go('bookingDetails',{id:'${b.id}'})}">
-      <td class="cell-name">#${b.id}${siblingCount ? `<div class="text-muted-xs-regular">🔗 ${siblingCount + 1}-item order</div>` : ''}</td>
+      <td class="cell-name">#${b.id}</td>
       <td class="cell-secondary">${b.customer}<div class="text-muted-xs-regular">${b.email || ''}</div></td>
       <td class="cell-secondary" style="max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${b.tour}${b.productId ? `<div class="text-muted-xs-regular">${b.productId}</div>` : ''}</td>
       <td class="cell-secondary">${b.tourOption}<div class="text-muted-xs">${b.language}</div></td>
       <td>${Comp.ChannelTag(b.channel)}</td>
-      <td class="cell-secondary">${b.bookingDate}</td>
-      <td class="cell-secondary">${b.travelDate}</td>
+      <td class="cell-secondary">${b.bookingDate}${b.bookingTime ? `<div class="text-muted-xs-regular">${b.bookingTime}</div>` : ''}</td>
+      <td class="cell-secondary">${b.travelDate}${b.timeSlot ? `<div class="text-muted-xs-regular">${b.timeSlot.split(' - ')[0]}</div>` : ''}</td>
       <td class="cell-secondary">${b.guests}</td>
       <td class="cell-secondary">$${b.amount.toFixed(2)}</td>
       <td>${Comp.BookingStatusBadge(b.status)}</td>
@@ -21272,7 +21270,7 @@ function pageBookingListing(){
       <input class="search-box" id="filterBookings" placeholder="Search booking ID, customer, email or tour..." oninput="Comp.filterBookingsTable()">
       ${Comp.FilterIconButton(0, "Comp.openBookingFiltersDrawer()")}
     </div>
-    ${Comp.Table({columns:[{label:'ID',width:'80px'},{label:'Customer',width:'140px'},{label:'Tour'},{label:'Option / Language',width:'130px'},{label:'Channel',width:'110px'},{label:'Booking Date',width:'120px'},{label:'Travel Date',width:'120px'},{label:'Guests',width:'70px'},{label:'Amount',width:'90px'},{label:'Status',width:'160px'},{label:'Action',width:'70px'}], rows, emptyText:'No bookings found.'})}
+    ${Comp.Table({columns:[{label:'ID',width:'80px'},{label:'Customer',width:'140px'},{label:'Tour'},{label:'Option / Language',width:'130px'},{label:'Supplier',width:'110px'},{label:'Booking Date',width:'120px'},{label:'Travel Date',width:'120px'},{label:'Guests',width:'70px'},{label:'Amount',width:'90px'},{label:'Status',width:'160px'},{label:'Action',width:'70px'}], rows, emptyText:'No bookings found.'})}
     ${Comp.Pagination(`Showing 1–${DATA.bookings.length} of ${DATA.bookings.length} bookings`)}
   `);
 }
@@ -21312,7 +21310,7 @@ function pageBookingDetails(params){
         <div class="field-stack">
           <div class="field-row">
             ${Comp.MetaField('Product', b.product)}
-            ${Comp.MetaField('Travel date', b.travelDate)}
+            ${Comp.MetaField('Travel date', b.travelDate + (b.timeSlot ? `<div class="text-muted-xs-regular">${b.timeSlot}</div>` : ''))}
           </div>
           <div class="field-row">
             ${Comp.MetaField('Time slot', b.timeSlot)}
@@ -21322,9 +21320,11 @@ function pageBookingDetails(params){
             ${Comp.MetaField('Pickup / Meeting point', pickupModeLabel)}
             ${b.pickupMode === 'now' && b.pickupLocation ? Comp.MetaField('Pickup address', b.pickupLocation) : ''}
           </div>
+          <div class="field-row">
+            ${Comp.MetaField('Tour type', b.tourType)}
+          </div>
         </div>
-        ${b.channel === 'Viator' ? `<div class="locked-field-note">${ICON.lock} Availability &amp; scheduling for this booking are managed by Viator — not editable in this admin panel.</div>` : ''}
-        <div class="field-hint mt-2h">ⓘ Traveller detail or pickup location changes must be requested by the customer from their own profile on the website — not from this admin panel.</div>`})}
+        ${b.channel === 'Viator' ? `<div class="locked-field-note">${ICON.lock} Availability &amp; scheduling for this booking are managed by Viator — not editable in this admin panel.</div>` : ''}`})}
       ${Comp.Card({title:'Tour Option', className:'flex-1', body:`
         <div class="field-stack">
           <div class="field-row">
@@ -21334,15 +21334,12 @@ function pageBookingDetails(params){
             ${Comp.MetaField('Option', b.tourOption)}
             ${Comp.MetaField('Language', b.language)}
           </div>
-          <div class="field-row">
-            ${Comp.MetaField('Tour type', b.tourType)}
-          </div>
         </div>
-        <div class="field-hint mt-2h">ⓘ The specific option, language and type the customer selected at checkout — shown here for quick reference without opening the product.</div>`})}
+`})}
     </div>
     ${orderSiblings.length ? Comp.Card({title:'Other Items in This Order', body:
       '<p class="field-hint card-hint card-hint--tight">This booking is part of a multi-item order (' + b.orderId + ') — ' + (orderSiblings.length + 1) + ' item' + (orderSiblings.length ? 's' : '') + ' total, purchased together in one checkout.</p>' +
-      Comp.Table({columns:[{label:'Booking'},{label:'Tour'},{label:'Channel',width:'110px'},{label:'Amount',width:'90px'},{label:'Status',width:'140px'}], rows: orderSiblings.map(s => `
+      Comp.Table({columns:[{label:'Booking'},{label:'Tour'},{label:'Supplier',width:'110px'},{label:'Amount',width:'90px'},{label:'Status',width:'140px'}], rows: orderSiblings.map(s => `
         <tr class="row-clickable" tabindex="0" role="button" onclick="Router.go('bookingDetails',{id:'${s.id}'})">
           <td class="cell-name">#${s.id}</td>
           <td class="cell-secondary">${s.tour}</td>
@@ -21463,9 +21460,9 @@ function pageBookingDetails(params){
     ${Comp.Card({body:`
       <div class="field-row">
         ${Comp.MetaField('Booking ID', '#'+b.id)}
-        ${Comp.MetaField('Status', Comp.BookingStatusBadge(b.status))}
-        ${Comp.MetaField('Created on', b.bookingDate)}
-        ${Comp.MetaField('Sales channel', Comp.ChannelTag(b.channel))}
+        ${Comp.MetaField('Booking status', Comp.BookingStatusBadge(b.status))}
+        ${Comp.MetaField('Created on', b.bookingDate + (b.bookingTime ? `<div class="text-muted-xs-regular">${b.bookingTime}</div>` : ''))}
+        ${Comp.MetaField('Supplier', Comp.ChannelTag(b.channel))}
       </div>
       <div class="field-row mt-4">
         ${Comp.MetaField('Payment status', Comp.BookingStatusBadge(b.paymentStatus))}
@@ -21492,6 +21489,10 @@ function pageBookingDetails(params){
 Comp.confirmToggleCustomerStatus = function(email){
     const c = Comp.getCustomers().find(x => x.email === email);
     if (!c) return;
+    if (c.accountStatus === 'Hibernating') {
+      Comp.showToast('This account is in a deletion cooling period (Hibernating) — activate/deactivate is not allowed until the 30-day window expires or the request is cancelled.', 'danger');
+      return;
+    }
     const activating = c.accountStatus !== 'Active';
     const warningHtml = !activating ? `<div class="field"><label for="custDeactivateReason">Reason <span class="required">*</span></label>
       <select id="custDeactivateReason"><option>Suspected fraud — repeated no-shows</option><option>Suspected fraud — slot-blocking / never fulfilled</option><option>Payment dispute abuse</option><option>Requested by customer</option><option>Other</option></select>
@@ -21533,6 +21534,8 @@ Comp.getCustomers = function(){
       hasFraudFlag: c.bookings.some(b => b.cancelNote && b.cancelNote.toLowerCase().includes('fraud')),
       accountStatus: account.status || 'Active',
       deactivationReason: account.deactivationReason || null,
+      deleteRequestedAt: account.deleteRequestedAt || null,
+      deleteReason: account.deleteReason || null,
       newsletterConsent: account.newsletterConsent === undefined ? null : account.newsletterConsent,
       signupDate: account.signupDate || null,
       preferences: account.preferences || null,
@@ -21568,13 +21571,16 @@ Comp.couponEligibilityLabel = function(c){
     const n = (c.userEmails || []).length;
     return `User level: ${n} specific user${n===1?'':'s'}`;
   }
-  const src = c.productSource && c.productSource !== 'All' ? ` · source: ${c.productSource} only` : '';
+  const src = c.productSource || 'All';
+  const srcLabel = src === 'Rosotravel' ? 'Rosotravel only'
+                 : src === 'Viator'      ? 'Viator only'
+                 : 'All (Rosotravel + Viator)';
   if (c.productEligibility === 'all') {
-    if (c.supplierNames && c.supplierNames.length) return `Product level: All products — narrowed to supplier(s): ${c.supplierNames.join(', ')}${src}`;
-    return `Product level: All products (Roso + Viator)${src}`;
+    return `All products · ${srcLabel}`;
   }
-  const names = c.productIds.map(id => (DATA.products.find(p=>p.id===id)||{}).name).filter(Boolean);
-  return `Product level: Specific — ${names.join(', ')}${src}`;
+  const names = (c.productIds || []).map(id => (DATA.products.find(p=>p.id===id)||{}).name).filter(Boolean);
+  const nameStr = names.length ? names.join(', ') : `${(c.productIds||[]).length} product(s)`;
+  return `Specific: ${nameStr} · ${srcLabel}`;
 };
 // CPN-01 — per-item application logic. The spec applies a code item-by-item
 // based on each item's product source, so a mixed cart is discounted
@@ -21680,7 +21686,7 @@ function pageCouponListing(params){
       ${Comp.BulkCheckboxTd('coupon', c.id)}
       <td class="cell-name">${c.code}${c.description ? `<div class="text-muted-xs-regular">${Comp._escHtml(c.description)}</div>` : ''}</td>
       <td class="cell-secondary">${Comp.couponDiscountLabel(c)}</td>
-      <td class="cell-secondary">${Comp.couponEligibilityLabel(c)}<div style="margin-top:3px;"><span class="badge ${(c.productSource||'All')==='All'?'badge-inactive':'badge-amber'}">Source: ${Comp._escHtml(c.productSource||'All')}</span></div></td>
+      <td class="cell-secondary">${Comp.couponEligibilityLabel(c)}</td>
       <td class="cell-secondary">${Comp.couponDateLabel(c)}</td>
       <td>${Comp.Badge(status, COUPON_STATUS_ACTIVE[status])}</td>
       <td onclick="event.stopPropagation()">${Comp.RowMenu(c.code, [
@@ -21807,21 +21813,6 @@ Comp.eligibilityPicker = function(opts){
       </select>
     </div>
     ${firstTimeOption ? `<div id="${idPrefix}-firsttimenote" class="field-hint" style="${mode==='firstTime'?'':'display:none;'} margin-top:-4px;">Valid only for a customer's first completed booking — returning customers cannot apply this code.</div>` : ''}
-    <div id="${idPrefix}-maxusers" class="field" style="${mode==='all'?'':'display:none;'} margin-top:10px;">
-      <label for="${idPrefix}-maxusers-input">Maximum number of users allowed</label>
-      <input type="number" min="1" id="${idPrefix}-maxusers-input" class="card-input" placeholder="Unlimited" value="${maxUsersValue!=null?maxUsersValue:''}">
-    </div>
-    ${supplierItems ? `
-    <div id="${idPrefix}-supwrap" style="${mode==='all'?'':'display:none;'} margin-top:10px;">
-      <label for="${idPrefix}-sup-search">Restrict to supplier(s) (optional)</label>
-      <p class="field-hint card-hint mb-2">Leave empty to apply across all suppliers and Rosotravel-direct products. Select one or more to narrow "All products" down to just those suppliers.</p>
-      <input type="text" id="${idPrefix}-sup-search" class="search-box" style="width:100%; margin-bottom:8px;" placeholder="Search suppliers..." oninput="Comp.filterEligibilityItems('${idPrefix}-sup', this.value)">
-      <div id="${idPrefix}-sup-picker" style="border:1px solid var(--border); border-radius:var(--radius-md); max-height:180px; overflow-y:auto; padding:6px 10px;">
-        ${supplierItems.length ? supplierItemsHtml : '<p class="empty-state" style="margin:8px 0;">No suppliers available.</p>'}
-        <p id="${idPrefix}-sup-noresults" class="empty-state" style="margin:8px 0; display:none;">No matches found.</p>
-      </div>
-      <p id="${idPrefix}-sup-count" class="field-hint" style="margin:8px 0 0;">${(selectedSuppliers||[]).length} selected</p>
-    </div>` : ''}
     <div id="${idPrefix}-searchwrap" style="${mode==='specific'?'':'display:none;'} margin-top:10px;">
       <input type="text" id="${idPrefix}-search" class="search-box w-full" placeholder="${opts.searchPlaceholder || 'Search...'}" oninput="Comp.filterEligibilityItems('${idPrefix}', this.value)">
     </div>
@@ -22141,21 +22132,15 @@ Comp.submitCouponForm = function(editId){
   if (dupe) { Comp.showToast(`Coupon code "${code}" already exists.`, 'danger'); return; }
 
   const eligibilityLevel = document.getElementById('couponEligLevel').value;
-  let productMode = 'all', productIds = [], userMode = 'all', userEmails = [], maxUsersAllowed = null, supplierNames = [];
+  let productMode = 'all', productIds = [], userMode = 'all', userEmails = [], supplierNames = [];
   if (eligibilityLevel === 'product') {
     productMode = document.getElementById('couponProduct-mode').value;
     productIds = productMode === 'specific' ? Comp.getEligibilitySelection('couponProduct') : [];
     if (productMode === 'specific' && productIds.length === 0) { Comp.showToast('Select at least one specific product, or switch back to "All products".', 'danger'); return; }
-    if (productMode === 'all') {
-      const raw = document.getElementById('couponProduct-maxusers-input').value;
-      maxUsersAllowed = raw ? parseInt(raw, 10) : null;
-      supplierNames = Comp.getEligibilitySelection('couponProduct-sup');
-    }
   } else {
     userMode = document.getElementById('couponUser-mode').value;
     userEmails = userMode === 'specific' ? Comp.getEligibilitySelection('couponUser') : [];
     if (userMode === 'specific' && userEmails.length === 0) { Comp.showToast('Select at least one specific user, or switch back to "All users".', 'danger'); return; }
-    if (userMode === 'all') { const raw = document.getElementById('couponUser-maxusers-input').value; maxUsersAllowed = raw ? parseInt(raw, 10) : null; }
   }
 
   // Usage limits (from the dedicated Usage Limits card)
@@ -22216,12 +22201,11 @@ function pageCouponDetails(params){
       ['Eligibility', c.eligibilityLevel === 'user'
         ? (c.userEligibility === 'all' ? 'All users' : c.userEligibility === 'firstTime' ? 'First-time users only (first booking)' : (c.userEmails||[]).join(', '))
         : (c.productEligibility === 'all'
-            ? (c.supplierNames && c.supplierNames.length ? `All products — narrowed to suppliers: ${c.supplierNames.join(', ')}` : 'All products (Rosotravel + Viator)')
+            ? 'All products (Rosotravel + Viator)'
             : (c.productIds||[]).map(id => (DATA.products.find(p=>p.id===id)||{}).name).filter(Boolean).join(', '))],
       ...(c.eligibilityLevel === 'user' ? [['Product scope (for these users)', c.userProductEligibility === 'specific' && c.userProductIds && c.userProductIds.length
         ? c.userProductIds.map(id => (DATA.products.find(p=>p.id===id)||{}).name).filter(Boolean).join(', ')
         : 'All products (Rosotravel + Viator)']] : []),
-      ['Maximum users allowed', c.maxUsersAllowed != null ? String(c.maxUsersAllowed) : 'Unlimited'],
       ['Minimum booking value', `€${(c.minBookingValue||0).toFixed(2)}`],
       ['Total redemption limit', `${c.usedCount} used / ${c.maxTotalUses != null ? c.maxTotalUses : 'Unlimited'}`],
       ['Per-customer limit', c.maxUsesPerCustomer ? `${c.maxUsesPerCustomer} per customer` : 'Unlimited'],
@@ -22268,10 +22252,10 @@ function pageCustomerListing(){
       <td class="cell-secondary">$${c.totalSpent.toFixed(2)}</td>
       <td class="cell-secondary">${c.lastBookingDate}</td>
       <td>${newsletterBadge}</td>
-      <td>${Comp.Badge(c.accountStatus, c.accountStatus==='Active')}</td>
+      <td>${c.accountStatus === 'Hibernating' ? Comp.Badge('Hibernating', 'amber') : Comp.Badge(c.accountStatus, c.accountStatus==='Active')}</td>
       <td onclick="event.stopPropagation()">${Comp.RowMenu(c.name, [
         {label:'View details', handler:() => Router.go('customerDetails',{email:encodeURIComponent(c.email)})},
-        {label: c.accountStatus==='Active' ? 'Deactivate' : 'Activate', danger: c.accountStatus==='Active', handler:() => Comp.confirmToggleCustomerStatus(c.email)}
+        ...(c.accountStatus === 'Hibernating' ? [] : [{label: c.accountStatus==='Active' ? 'Deactivate' : 'Activate', danger: c.accountStatus==='Active', handler:() => Comp.confirmToggleCustomerStatus(c.email)}])
       ])}</td>
     </tr>`;
   }).join('');
@@ -22283,7 +22267,7 @@ function pageCustomerListing(){
       <input id="filterCustomers" class="search-box" placeholder="Search by name or email address" oninput="Comp.filterTable('filterCustomers')">
       ${Comp.FilterIconButton(activeFilters, "Comp.openCustomerFilterDrawer()")}
     </div>
-    ${Comp.Table({columns:[{label:'Name'},{label:'Email',width:'200px'},{label:'Phone',width:'150px'},{label:'Signup date',width:'120px'},{label:'Bookings',width:'90px'},{label:'Total spent',width:'110px'},{label:'Last booking',width:'130px'},{label:'Newsletter',width:'110px'},{label:'Status',width:'110px'},{label:'Action',width:'60px'}], rows, emptyText:'No customers found.'})}
+    ${Comp.Table({columns:[{label:'Name'},{label:'Email',width:'200px'},{label:'Phone',width:'150px'},{label:'Account created',width:'130px'},{label:'Bookings',width:'90px'},{label:'Total spent',width:'110px'},{label:'Last booking',width:'130px'},{label:'Newsletter',width:'110px'},{label:'Status',width:'110px'},{label:'Action',width:'60px'}], rows, emptyText:'No customers found.'})}
     ${Comp.Pagination(`Showing ${customers.length} of ${customers.length} customers`)}
   `);
 }
@@ -22337,21 +22321,23 @@ function pageCustomerDetails(params){
   const bDateFrom  = (params && params.bDateFrom)  || '';
   const bDateTo    = (params && params.bDateTo)    || '';
   const bDateBasis = (params && params.bDateBasis) || 'travel';
+  const bStatus    = (params && params.bStatus)    || '';
   const filteredBookings = c.bookings.filter(b => {
     const iso = Comp._bookingDateToISO(bDateBasis === 'booking' ? b.bookingDate : b.travelDate);
     if (bDateFrom && iso && iso < bDateFrom) return false;
     if (bDateTo   && iso && iso > bDateTo)   return false;
+    if (bStatus && b.status !== bStatus) return false;
     return true;
   });
   const bookingRows = filteredBookings.map(b => {
     const siblingCount = Comp.getOrderSiblings(b).length;
     return `
     <tr class="row-clickable" tabindex="0" role="button" onclick="Router.go('bookingDetails',{id:'${b.id}'})">
-      <td class="cell-name">${b.id}${siblingCount ? `<div class="text-muted-xs-regular">🔗 ${b.orderId} — ${siblingCount + 1} items in this order</div>` : ''}</td>
+      <td class="cell-name">${b.id}</td>
       <td class="cell-secondary">${b.tour}${b.productId ? `<div class="text-muted-xs-regular">${b.productId}</div>` : ''}</td>
       <td class="cell-secondary">${b.tourOption}<div class="text-muted-xs">${b.language}</div></td>
-      <td class="cell-secondary">${b.bookingDate}</td>
-      <td class="cell-secondary">${b.travelDate}</td>
+      <td class="cell-secondary">${b.bookingDate}${b.bookingTime ? `<div class="text-muted-xs-regular">${b.bookingTime}</div>` : ''}</td>
+      <td class="cell-secondary">${b.travelDate}${b.timeSlot ? `<div class="text-muted-xs-regular">${b.timeSlot.split(' - ')[0]}</div>` : ''}</td>
       <td class="cell-secondary">$${b.amount.toFixed(2)}</td>
       <td>${Comp.Badge(b.status, b.status==='Confirmed' || b.status==='Completed')}</td>
     </tr>`;
@@ -22374,20 +22360,10 @@ function pageCustomerDetails(params){
         <td class="cell-secondary">${discountLabel}</td>
         <td class="cell-secondary"><button type="button" class="btn-sm-link" onclick="Router.go('bookingDetails',{id:'${b.id}'})">${b.id}</button></td>
         <td class="cell-secondary">${b.bookingDate}</td>
-        <td class="cell-secondary text-success"><strong>−$${(b.discountAmount || 0).toFixed(2)}</strong></td>
-        <td>${Comp.Badge('Used', true)}</td>
+        <td class="cell-secondary text-success"><strong>$${(b.discountAmount || 0).toFixed(2)}</strong></td>
       </tr>`;
     }),
-    ...assignedCoupons.filter(cp => !usedCouponCodes.has(cp.code)).map(cp => {
-      return `<tr>
-        <td class="cell-name"><strong>${Comp._escHtml(cp.code)}</strong></td>
-        <td class="cell-secondary">${Comp.couponDiscountLabel(cp)}</td>
-        <td class="cell-secondary">—</td>
-        <td class="cell-secondary">Valid until ${cp.validUntil}</td>
-        <td class="cell-secondary">—</td>
-        <td>${Comp.Badge('Not used', false)}</td>
-      </tr>`;
-    })
+    // Not-used assigned coupons intentionally not shown in customer listing
   ].join('');
 
   const enquiries = DATA.customerEnquiries.filter(e => e.customerEmail === c.email);
@@ -22418,7 +22394,7 @@ function pageCustomerDetails(params){
   const tabs = [
     {id:'overview', label:'Overview'},
     {id:'bookings', label:`Bookings · ${c.bookingCount}`},
-    {id:'discounts', label:`Discounts · ${usedDiscountBookings.length + assignedCoupons.filter(cp => !usedCouponCodes.has(cp.code)).length}`},
+    {id:'discounts', label:`Discounts · ${usedDiscountBookings.length}`},
     {id:'enquiries', label:`Enquiries · ${enquiries.length}`},
     {id:'history', label:`History Log · ${historyEntries.length}`}
   ];
@@ -22430,16 +22406,18 @@ function pageCustomerDetails(params){
         ['Email', c.email || '—'],
         ['Phone', c.phone || '—'],
         ['Nationality', c.nationality || '—'],
-        ['Customer since', c.signupDate || '—'],
+        ['Account created', c.signupDate || '—'],
         ['Total bookings', String(c.bookingCount)],
         ['Total spent', `$${c.totalSpent.toFixed(2)}`],
         ['Last booking date', c.lastBookingDate],
-        ['Account status', c.accountStatus === 'Active' ? Comp.Badge('Active', true) : `${Comp.Badge('Deactivated', false)}${c.deactivationReason ? ` — ${c.deactivationReason}` : ''}`],
+        ['Account status', c.accountStatus === 'Hibernating'
+          ? `${Comp.Badge('Hibernating', 'amber')} — Deletion requested on ${c.deleteRequestedAt || '—'}${c.deleteReason ? ` (${c.deleteReason})` : ''} · 30-day cooling period active`
+          : c.accountStatus === 'Active' ? Comp.Badge('Active', true) : `${Comp.Badge('Deactivated', false)}${c.deactivationReason ? ` — ${c.deactivationReason}` : ''}`],
         ['Newsletter / marketing consent', c.newsletterConsent === null
           ? 'Not yet captured — customer has not set this during signup/checkout'
           : `${c.newsletterConsent ? Comp.Badge('Opted in', true) : Comp.Badge('Opted out', false)}${c.newsletterConsent ? ` — sent to ${c.email}` : ''}`]
       ])}
-      <p class="field-hint mt-2h">ⓘ Consent is set by the customer themselves on the website (signup/checkout) — shown here read-only, not editable from the admin panel.</p>`})}
+      `})}
     ${c.preferences ? Comp.Card({title:'Preferences', hint:'Set by the customer on their profile — read-only here.', body:
       Comp._infoTable([
         ['Preferred language', c.preferences.language || '—'],
@@ -22455,22 +22433,31 @@ function pageCustomerDetails(params){
       <div class="filter-bar" style="margin-bottom:12px;gap:8px;flex-wrap:wrap;align-items:center;">
         <span class="field-hint" style="margin:0;line-height:2">Filter by:</span>
         <select class="filter-select" style="width:140px"
-          onchange="Router.go('customerDetails',{email:'${_bEnc}',tab:'bookings',bDateBasis:this.value,bDateFrom:'${bDateFrom}',bDateTo:'${bDateTo}'})">
+          onchange="Router.go('customerDetails',{email:'${_bEnc}',tab:'bookings',bDateBasis:this.value,bDateFrom:'${bDateFrom}',bDateTo:'${bDateTo}',bStatus:'${bStatus}'})">
           <option value="travel"  ${bDateBasis==='travel'  ?'selected':''}>Travel date</option>
           <option value="booking" ${bDateBasis==='booking' ?'selected':''}>Booking date</option>
         </select>
         <input type="date" class="card-input" style="width:150px" value="${bDateFrom}"
-          onchange="Router.go('customerDetails',{email:'${_bEnc}',tab:'bookings',bDateBasis:'${bDateBasis}',bDateFrom:this.value,bDateTo:'${bDateTo}'})">
+          onchange="Router.go('customerDetails',{email:'${_bEnc}',tab:'bookings',bDateBasis:'${bDateBasis}',bDateFrom:this.value,bDateTo:'${bDateTo}',bStatus:'${bStatus}'})">
         <span class="field-hint" style="margin:0;line-height:2">to</span>
         <input type="date" class="card-input" style="width:150px" value="${bDateTo}"
-          onchange="Router.go('customerDetails',{email:'${_bEnc}',tab:'bookings',bDateBasis:'${bDateBasis}',bDateFrom:'${bDateFrom}',bDateTo:this.value})">
-        ${(bDateFrom || bDateTo) ? `<button type="button" class="btn-ghost btn-sm" onclick="Router.go('customerDetails',{email:'${_bEnc}',tab:'bookings'})">Clear</button>` : ''}
+          onchange="Router.go('customerDetails',{email:'${_bEnc}',tab:'bookings',bDateBasis:'${bDateBasis}',bDateFrom:'${bDateFrom}',bDateTo:this.value,bStatus:'${bStatus}'})">
+        <select class="filter-select" style="width:140px"
+          onchange="Router.go('customerDetails',{email:'${_bEnc}',tab:'bookings',bDateBasis:'${bDateBasis}',bDateFrom:'${bDateFrom}',bDateTo:'${bDateTo}',bStatus:this.value})">
+          <option value="" ${!bStatus?'selected':''}>All statuses</option>
+          <option value="Confirmed"  ${bStatus==='Confirmed'  ?'selected':''}>Confirmed</option>
+          <option value="Completed"  ${bStatus==='Completed'  ?'selected':''}>Completed</option>
+          <option value="Pending"    ${bStatus==='Pending'    ?'selected':''}>Pending</option>
+          <option value="Cancelled"  ${bStatus==='Cancelled'  ?'selected':''}>Cancelled</option>
+          <option value="Refunded"   ${bStatus==='Refunded'   ?'selected':''}>Refunded</option>
+        </select>
+        ${(bDateFrom || bDateTo || bStatus) ? `<button type="button" class="btn-ghost btn-sm" onclick="Router.go('customerDetails',{email:'${_bEnc}',tab:'bookings'})">Clear</button>` : ''}
       </div>`;
-    body = Comp.Card({title:`Bookings${(bDateFrom||bDateTo) ? ' (filtered)' : ''}`, body: dateFilterBar + Comp.Table({columns:[{label:'Booking ID',width:'110px'},{label:'Tour'},{label:'Option / Language',width:'130px'},{label:'Booking date',width:'120px'},{label:'Travel date',width:'120px'},{label:'Amount',width:'100px'},{label:'Status',width:'120px'}], rows:bookingRows, emptyText:'No bookings found for selected dates.'})});
+    body = Comp.Card({title:`Bookings${(bDateFrom||bDateTo||bStatus) ? ' (filtered)' : ''}`, body: dateFilterBar + Comp.Table({columns:[{label:'Booking ID',width:'110px'},{label:'Tour'},{label:'Option / Language',width:'130px'},{label:'Booking date',width:'120px'},{label:'Travel date',width:'120px'},{label:'Amount',width:'100px'},{label:'Status',width:'120px'}], rows:bookingRows, emptyText:'No bookings found for selected dates.'})});
   } else if (tab === 'discounts') {
-    body = Comp.Card({title:'Discounts', hint:'Discount codes used by this customer, plus any codes assigned specifically to them.',
+    body = Comp.Card({title:'Discounts', hint:'Discount codes used/redeemed by this customer.',
       body: discountRows
-        ? Comp.Table({columns:[{label:'Code',width:'130px'},{label:'Discount',width:'130px'},{label:'Booking',width:'100px'},{label:'Date / Validity',width:'150px'},{label:'Saved',width:'90px'},{label:'Status',width:'100px'}], rows:discountRows})
+        ? Comp.Table({columns:[{label:'Code',width:'130px'},{label:'Discount',width:'130px'},{label:'Booking',width:'100px'},{label:'Date / Validity',width:'150px'},{label:'Saved',width:'90px'}], rows:discountRows})
         : '<p class="empty-state">No discounts used or assigned to this customer.</p>'});
   } else if (tab === 'enquiries') {
     body = Comp.Card({title:'Customer Enquiries', body:enquiryRows ? Comp.Table({columns:[{label:'Subject'},{label:'Booking',width:'100px'},{label:'Resolution',width:'160px'},{label:'Status',width:'100px'},{label:'',width:'90px'}], rows:enquiryRows}) : '<p class="empty-state">No enquiries on file.</p>'});
@@ -22490,8 +22477,11 @@ function pageCustomerDetails(params){
 
   return Comp.Shell(`
     ${Comp.Breadcrumb([{label:'Customer Management', route:'customerListing'}, {label:c.name}])}
-    ${Comp.PageHeader({title:`${c.name}`, actions:`
-        ${Comp.Button(c.accountStatus === 'Active' ? 'Deactivate account' : 'Activate account', {variant: c.accountStatus === 'Active' ? 'btn-amber' : 'btn-primary', onclick:`Comp.confirmToggleCustomerStatus('${c.email}')`})}`})}
+    ${Comp.PageHeader({title:`${c.name}`, actions:
+        c.accountStatus === 'Hibernating'
+          ? `<span class="field-hint" style="margin:0;line-height:2;color:var(--amber,#b45309);">🔒 Hibernating — no account actions allowed during 30-day cooling period</span>`
+          : Comp.Button(c.accountStatus === 'Active' ? 'Deactivate account' : 'Activate account', {variant: c.accountStatus === 'Active' ? 'btn-amber' : 'btn-primary', onclick:`Comp.confirmToggleCustomerStatus('${c.email}')`})
+    })}
     <div class="ops-tabs" role="tablist">
       ${tabs.map(t => `<button type="button" class="ops-tab ${tab===t.id?'is-active':''}" onclick="Router.go('customerDetails',{email:'${encodeURIComponent(c.email)}', tab:'${t.id}'})">${t.label}</button>`).join('')}
     </div>
