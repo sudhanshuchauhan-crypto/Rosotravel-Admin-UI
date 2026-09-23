@@ -520,7 +520,12 @@ const DATA = {
     {id:'cat-nat', name:'Nature & Wildlife', description:'Wildlife encounters, national parks, and nature-focused excursions.', status:'Active', history:[]},
     {id:'cat-water', name:'Water Activities', description:'Cruises, snorkeling, diving, and other water-based experiences.', status:'Active', history:[]},
     {id:'cat-city', name:'City Tours', description:'Guided city walks, hop-on-hop-off buses, and urban sightseeing passes.', status:'Active', history:[]},
-    {id:'cat-fam', name:'Family Friendly', description:'Experiences suitable for travelers of all ages, including children.', status:'Inactive', history:[]}
+    {id:'cat-fam', name:'Family Friendly', description:'Experiences suitable for travelers of all ages, including children.', status:'Inactive', history:[]},
+    {id:'cat-adv-dxb', name:'Adventure & Outdoor', city:'Dubai', description:'Desert safaris, dune bashing, and adrenaline-fuelled outdoor experiences in and around Dubai.', status:'Active', history:[]},
+    {id:'cat-food-par', name:'Food & Drink', city:'Paris', description:'Parisian culinary tours, wine tastings, patisserie walks, and gourmet dining experiences.', status:'Active', history:[]},
+    {id:'cat-cul-rom', name:'Culture & Heritage', city:'Rome', description:'Vatican tours, Colosseum visits, and deep-dives into Rome\'s ancient and Renaissance heritage.', status:'Active', history:[]},
+    {id:'cat-city-nyc', name:'City Tours', city:'New York', description:'Manhattan walking tours, hop-on-hop-off buses, and iconic NYC sightseeing routes.', status:'Active', history:[]},
+    {id:'cat-water-bkk', name:'Water Activities', city:'Bangkok', description:'Chao Phraya river cruises, floating market tours, and canal boat experiences in Bangkok.', status:'Active', history:[]}
   ],
   bookings: [
     {id:'BK-001', customer:'Alex Harrison', tour:'Premium Desert Safari Dubai (Dune Bashing & Dinner)', productId:'prod-10', bookingDate:'12 May 2024', travelDate:'18 May 2024', guests:4, amount:380.00, status:'Completed', channel:'Rosotravel', confirmationType:'Instant', couponCode:'SPRING24', discountAmount:10,
@@ -11094,7 +11099,7 @@ function pageAttractionHistoryLog(params){
    PAGES — MASTER DATA / CATEGORY (Taxonomy)
    ============================================================= */
 function pageCategoryListing(){
-  const rows = DATA.categories.map(cat => {
+  const rows = DATA.categories.filter(cat => !!cat.city).map(cat => {
     const idxState = cat.indexability || 'Noindex';
     const idxBadge = Comp.Badge(idxState, idxState === 'Indexable');
     const gsc = cat.gscStatus || {status:'—', lastChecked:null};
@@ -11103,12 +11108,12 @@ function pageCategoryListing(){
       : '<span class="field-hint">—</span>';
     const gscSub = gsc.lastChecked ? '<div style="font-size:11px;color:var(--text-muted);margin-top:2px;">Checked ' + Comp._escHtml(gsc.lastChecked) + '</div>' : '';
     return `
-    <tr class="row-clickable" tabindex="0" role="button" aria-label="View ${cat.name} details"
+    <tr class="row-clickable" tabindex="0" role="button" aria-label="View ${cat.city ? cat.name + ' in ' + cat.city : cat.name} details"
         onclick="Router.go('categoryDetails',{id:'${cat.id}'})"
         onkeydown="if(event.key==='Enter'){Router.go('categoryDetails',{id:'${cat.id}'})}">
       ${Comp.BulkCheckboxTd('category', cat.id)}
       <td class="cell-secondary" style="font-size:var(--fs-sm);color:var(--text-secondary);white-space:nowrap;">${Comp._escHtml(cat.id)}</td>
-      <td class="cell-name">${cat.name}${Comp.ListingPendingBadge('categoryDetails',{id:cat.id})}</td>
+      <td class="cell-name">${cat.city ? Comp._escHtml(cat.name + ' in ' + cat.city) : Comp._escHtml(cat.name)}${Comp.ListingPendingBadge('categoryDetails',{id:cat.id})}</td>
       <td class="cell-secondary">${cat.group || '—'}</td>
       <td class="cell-secondary" style="max-width:260px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${cat.description}</td>
       <td>${idxBadge}</td>
@@ -11125,7 +11130,7 @@ function pageCategoryListing(){
     ${Comp.FilterBar('Search taxonomies', 'filterCategories', 'Comp.openCategoryFilterDrawer()')}
     ${Comp.BulkActionBar('category')}
     ${Comp.Table({columns:[{label:Comp.BulkCheckboxTh('category'),width:'40px'},{label:'ID',width:'100px'},{label:'Taxonomy',width:'200px'},{label:'Group',width:'110px'},{label:'Description'},{label:'Indexability',width:'120px'},{label:'Google Index (GSC)',width:'150px'},{label:'Status',width:'140px'},{label:'Action',width:'70px'}], rows, emptyText:'No taxonomies found.'})}
-    ${Comp.Pagination('Showing ' + DATA.categories.length + ' of ' + DATA.categories.length + ' taxonomies')}
+    ${Comp.Pagination('Showing ' + DATA.categories.filter(c => !!c.city).length + ' of ' + DATA.categories.filter(c => !!c.city).length + ' taxonomies')}
   `);
 }
 
@@ -11133,6 +11138,7 @@ function pageCategoryDetails(params){
   const category = DATA.categories.find(c => c.id === params.id) || DATA.categories[0];
   const tab = (params && params.tab) || 'seo';
   const productCount = DATA.products.filter(p => p.category === category.name).length;
+  const categoryDisplayName = category.city ? category.name + ' in ' + category.city : category.name;
   const tabs = [
     {id:'seo',          label:'SEO Content'},
     {id:'optimization', label:'Optimization'},
@@ -11146,13 +11152,13 @@ function pageCategoryDetails(params){
   if (tab === 'seo') {
     tabBody = `
     ${Comp.AiCard({id:'category-seo', title:'SEO data', fieldsHtml:`
-      ${aiField('Meta title', category.name + ' Experiences — Browse Top Rated Tours')}
-      ${aiField('Meta description', 'Discover the best ' + category.name.toLowerCase() + ' experiences with Rosotravel.', 'textarea')}
+      ${aiField('Meta title', categoryDisplayName + ' Experiences — Browse Top Rated Tours')}
+      ${aiField('Meta description', 'Discover the best ' + categoryDisplayName.toLowerCase() + ' experiences with Rosotravel.', 'textarea')}
     `})}
     ${Comp.AiCard({id:'category-info', title:'Taxonomy information', fieldsHtml:`
       <div class="field">
         <label class="field-label">Taxonomy name</label>
-        <input type="text" class="form-input" value="${category.name}" disabled readonly aria-label="Taxonomy name — read only">
+        <input type="text" class="form-input" value="${categoryDisplayName}" disabled readonly aria-label="Taxonomy name — read only">
         <p class="field-hint mt-1">System-governed — cannot be edited here.</p>
       </div>
       <div class="field">
@@ -11166,19 +11172,19 @@ function pageCategoryDetails(params){
       </div>
       ${aiField('Supporting Snippet', category.description, 'textarea')}
     `})}
-    ${Comp.AiCard({id:'category-about', title:`About Rosotravel in ${category.name}`, noRegen:true, fieldsHtml:
-      Comp.EntitySpecialisationField(category.name, 'categoryAbout', category.specialisations) +
+    ${Comp.AiCard({id:'category-about', title:`About Rosotravel in ${categoryDisplayName}`, noRegen:true, fieldsHtml:
+      Comp.EntitySpecialisationField(categoryDisplayName, 'categoryAbout', category.specialisations) +
       `<div class="field">
         <label id="categoryAboutMediaLbl">Media upload</label>
         <div class="upload-area" role="button" tabindex="0" aria-labelledby="categoryAboutMediaLbl" onclick="Comp.handleUploadAreaClick(this, function(filename, altText){ Comp.showToast('Media uploaded: ' + filename + ' (Alt: ' + altText + ')', 'success'); })"><div class="up-title">Click to upload</div><div class="up-sub">or drag and drop</div><div class="up-hint">PNG, JPG, WEBP or MP4 (max. 1200×400px)</div></div>
         <p class="field-hint">You can upload multiple images</p>
       </div>`
     })}
-    ${Comp.AiCard({id:'category-different', title:`What makes ${category.name} different?`, noEdit:true, fieldsHtml:`
+    ${Comp.AiCard({id:'category-different', title:`What makes ${categoryDisplayName} different?`, noEdit:true, fieldsHtml:`
       <div class="field">
         <label class="field-label">Heading</label>
         <div style="font-size:var(--fs-xl);font-weight:700;line-height:1.25;margin-bottom:var(--sp-2);">
-          What makes ${Comp._escHtml(category.name)} <em style="font-style:italic;font-weight:700;">tours different?</em>
+          What makes ${Comp._escHtml(categoryDisplayName)} <em style="font-style:italic;font-weight:700;">tours different?</em>
         </div>
         <p class="field-hint">Heading is auto-generated from taxonomy name — not editable.</p>
       </div>
@@ -11203,7 +11209,7 @@ function pageCategoryDetails(params){
       </div>
     `})}
     ${Comp.AiCard({id:'category-faq', title:'Frequently asked questions', stackAttrs:'data-max-items="10"', fieldsHtml:
-      Comp.FaqItem(1, `What type of experiences does ${category.name} include?`, `${category.name} covers a wide range of curated travel experiences available through Rosotravel, from guided tours to self-guided itineraries.`, true) +
+      Comp.FaqItem(1, `What type of experiences does ${categoryDisplayName} include?`, `${categoryDisplayName} covers a wide range of curated travel experiences available through Rosotravel, from guided tours to self-guided itineraries.`, true) +
       `<button type="button" class="add-item-btn" data-item-type="faq">+ Add Another FAQ</button>`
     })}`;
   } else if (tab === 'optimization') {
@@ -11211,9 +11217,9 @@ function pageCategoryDetails(params){
       title:'Page Optimization', idPrefix:'catopt-'+category.id,
       saveTarget:{array:'categories', id:category.id},
       schemaType:'WebPage', schemaTypes:['WebPage','FAQPage','BreadcrumbList','Article'],
-      schemaData:{ name:category.name + ' Experiences',
-        description:'Discover the best ' + category.name.toLowerCase() + ' experiences with Rosotravel.',
-        url:'https://rosotravel.com/category/' + category.name.toLowerCase().replace(/[^a-z0-9]+/g,'-') },
+      schemaData:{ name:categoryDisplayName + ' Experiences',
+        description:'Discover the best ' + categoryDisplayName.toLowerCase() + ' experiences with Rosotravel.',
+        url:'https://rosotravel.com/category/' + categoryDisplayName.toLowerCase().replace(/[^a-z0-9]+/g,'-') },
       showReadTime:false, showCta:false
     });
   } else if (tab === 'assets') {
@@ -11239,8 +11245,8 @@ function pageCategoryDetails(params){
   }
 
   const body = `
-    ${Comp.Breadcrumb([{label:'Taxonomies', route:'categoryListing'}, {label:category.name}])}
-    ${Comp.PageHeader({title:category.name, actions:`
+    ${Comp.Breadcrumb([{label:'Taxonomies', route:'categoryListing'}, {label:categoryDisplayName}])}
+    ${Comp.PageHeader({title:categoryDisplayName, actions:`
         ${Comp.Button('↻ Regenerate all', {onclick:'Comp.categoryOpenRegenScopeModal()'})}
         ${Comp.Button((category.indexability||'Noindex')==='Indexable' ? '● Indexable' : '○ Noindex', {variant:(category.indexability||'Noindex')==='Indexable' ? 'btn-primary' : '', onclick:`Comp.toggleIndexability('category','${category.id}')`})}
         ${Comp.Button(category.status==='Active' ? 'Deactivate' : 'Activate', {variant:'btn-amber', onclick:`Comp.confirmToggleCategoryStatus('${category.id}')`})}`, level:'h2'})}
@@ -11256,8 +11262,9 @@ function pageCategoryDetails(params){
 
 function pageCategoryHistoryLog(params){
   const category = DATA.categories.find(c => c.id === params.id) || DATA.categories[0];
+  const categoryDisplayName = category.city ? category.name + ' in ' + category.city : category.name;
   const body = `
-    ${Comp.Breadcrumb([{label:'Taxonomies', route:'categoryListing'}, {label:category.name, route:'categoryDetails', params:{id:category.id}}, {label:'History logs'}])}
+    ${Comp.Breadcrumb([{label:'Taxonomies', route:'categoryListing'}, {label:categoryDisplayName, route:'categoryDetails', params:{id:category.id}}, {label:'History logs'}])}
     ${Comp.PageHeader({title:"Activity log", level:"h2"})}
     <div class="card">
       ${category.history && category.history.length ? Comp.Timeline(category.history) : `<p class="empty-state">No activity recorded yet for this taxonomy.</p>`}
