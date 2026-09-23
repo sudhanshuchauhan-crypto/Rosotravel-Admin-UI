@@ -528,7 +528,7 @@ const DATA = {
     {id:'cat-water-bkk', name:'Water Activities', city:'Bangkok', description:'Chao Phraya river cruises, floating market tours, and canal boat experiences in Bangkok.', status:'Active', history:[]}
   ],
   bookings: [
-    {id:'BK-001', customer:'Alex Harrison', tour:'Premium Desert Safari Dubai (Dune Bashing & Dinner)', productId:'prod-10', bookingDate:'12 May 2024', bookingTime:'10:24 AM', travelDate:'18 May 2024', guests:4, amount:380.00, status:'Completed', channel:'Rosotravel', confirmationType:'Instant', couponCode:'SPRING24', discountAmount:10,
+    {id:'BK-001', customer:'Alex Harrison', tour:'Premium Desert Safari Dubai (Dune Bashing & Dinner)', productId:'prod-9', tourOption:'Premium with Dinner', language:'English', bookingDate:'12 May 2024', bookingTime:'10:24 AM', travelDate:'18 May 2024', guests:4, amount:380.00, status:'Completed', channel:'Rosotravel', confirmationType:'Instant', couponCode:'SPRING24', discountAmount:10,
       email:'alex.harrison@email.com', phone:'+971 55 123 4567', nationality:'British',
       product:'Premium Desert Safari Dubai', timeSlot:'3:00 PM - 9:00 PM', guestsBreakdown:'4 Adults, 0 Children',
       pickupMode:'now', pickupLocation:'Hilton Dubai Creek, Dubai', pickup:'Hilton Dubai Creek',
@@ -542,14 +542,14 @@ const DATA = {
       specialRequirements:'Emma — vegetarian meal preferred.',
       personalisation:{groupAge:'35–50', preferences:'Family celebrating our anniversary trip. Love cultural experiences and local cuisine.'},
       invoice:null,
-      pricing:{baseLabel:'Base Price ($75.00 x 4 guests)', base:'$300.00', addonsLabel:'Add-ons (Quad Biking + Photo)', addons:'$80.00', subtotal:'$380.00', discount:'-$0.00', total:'$380.00'},
+      pricing:{guestPricing:[{type:'Adult',count:2,unitPrice:75},{type:'Youth',count:1,unitPrice:60},{type:'Child',count:1,unitPrice:40}], addonsLabel:'Add-ons (Quad Biking + Photo)', addons:'$80.00', subtotal:'$380.00', discount:'-$10.00', total:'$370.00'},
       activity:[
         {label:'Booking Created', time:'12 May 2024, 10:15 AM'},
         {label:'Payment Received', time:'12 May 2024, 10:18 AM'},
         {label:'Confirmation Sent', time:'12 May 2024, 10:20 AM'},
         {label:'Reminder Sent', time:'17 May 2024, 09:00 AM'}
       ]},
-    {id:'BK-002', customer:'Amelie Laurent', tour:'Dubai Half-Day Modern City Tour', productId:'prod-10', bookingDate:'13 May 2024', bookingTime:'3:47 PM', couponCode:'WELCOME10', discountAmount:12, travelDate:'15 May 2024', guests:2, amount:120.00, status:'Completed', channel:'Viator', confirmationType:'Instant',
+    {id:'BK-002', customer:'Amelie Laurent', tour:'Dubai Half-Day Modern City Tour', productId:'prod-10', tourOption:'Standard Group Tour', language:'French', bookingDate:'13 May 2024', bookingTime:'3:47 PM', couponCode:'WELCOME10', discountAmount:12, travelDate:'15 May 2024', guests:2, amount:120.00, status:'Completed', channel:'Viator', confirmationType:'Instant',
       email:'amelie.laurent@email.com', phone:'+971 55 223 4567', nationality:'French',
       product:'Dubai Half-Day Modern City Tour', timeSlot:'9:00 AM - 1:00 PM', guestsBreakdown:'2 Adults, 0 Children',
       pickupMode:'now', pickupLocation:'JW Marriott Marina, Dubai Marina', pickup:'JW Marriott Marina',
@@ -563,7 +563,7 @@ const DATA = {
       invoice:{requested:true, companyName:'Laurent Consulting SARL', street:'14 Rue de Rivoli', city:'Paris', state:'Île-de-France', zip:'75001', country:'France'},
       pricing:{baseLabel:'Base Price ($60.00 x 2 guests)', base:'$120.00', addonsLabel:'Add-ons', addons:'$0.00', subtotal:'$120.00', discount:'-$0.00', total:'$120.00', viatorRecommendedPrice:'$120.00', viatorNetPrice:'$96.00', viatorBookingFee:'$24.00', viatorPayout:'$96.00'},
       activity:[{label:'Booking Created', time:'13 May 2024, 09:00 AM'}, {label:'Payment Received', time:'13 May 2024, 09:05 AM'}, {label:'Tour Completed', time:'15 May 2024, 01:15 PM'}]},
-    {id:'BK-003', customer:'Carlos Ruiz', tour:'Hatta Mountain Trek & Adventure Day Out', productId:'prod-11', bookingDate:'14 May 2024', bookingTime:'11:05 AM', travelDate:'20 May 2024', guests:1, amount:150.00, status:'Pending', channel:'Rosotravel', confirmationType:'Manual', hoursSincePending:20,
+    {id:'BK-003', customer:'Carlos Ruiz', tour:'Hatta Mountain Trek & Adventure Day Out', productId:'prod-11', tourOption:'Small Group Adventure', language:'Spanish', bookingDate:'14 May 2024', bookingTime:'11:05 AM', travelDate:'20 May 2024', guests:1, amount:150.00, status:'Pending', channel:'Rosotravel', confirmationType:'Manual', hoursSincePending:20,
       email:'carlos.ruiz@email.com', phone:'+971 55 323 4567', nationality:'Spanish',
       product:'Hatta Mountain Trek & Adventure Day Out', timeSlot:'6:00 AM - 4:00 PM', guestsBreakdown:'1 Adult, 0 Children',
       pickupMode:'now', pickupLocation:'Downtown Dubai (Burj Khalifa Metro Station, Gate 4)', pickup:'Downtown Dubai',
@@ -576,7 +576,7 @@ const DATA = {
       invoice:null,
       pricing:{baseLabel:'Base Price ($150.00 x 1 guest)', base:'$150.00', addonsLabel:'Add-ons', addons:'$0.00', subtotal:'$150.00', discount:'-$0.00', total:'$150.00'},
       activity:[{label:'Booking Created', time:'14 May 2024, 02:30 PM'}]},
-    {id:'BK-004', customer:'Sarah Jenkins', tour:'Marina Dhow Cruise Dinner (Premium Lower Deck)', productId:'prod-10', bookingDate:'14 May 2024', bookingTime:'6:52 PM', travelDate:'16 May 2024', guests:3, amount:210.00, status:'Confirmed', channel:'Viator', confirmationType:'Instant-then-manual', orderId:'ORD-1004',
+    {id:'BK-004', customer:'Sarah Jenkins', tour:'Marina Dhow Cruise Dinner (Premium Lower Deck)', productId:'prod-8', tourOption:'Premium Lower Deck', language:'English', bookingDate:'14 May 2024', bookingTime:'6:52 PM', travelDate:'16 May 2024', guests:3, amount:210.00, status:'Confirmed', channel:'Viator', confirmationType:'Instant-then-manual', orderId:'ORD-1004',
       email:'sarah.jenkins@email.com', phone:'+971 55 423 4567', nationality:'American',
       product:'Marina Dhow Cruise Dinner', timeSlot:'7:00 PM - 9:30 PM', guestsBreakdown:'2 Adults, 1 Child',
       pickupMode:'meeting_point', pickupLocation:null, pickup:'Dubai Marina Mall',
@@ -591,7 +591,7 @@ const DATA = {
       invoice:null,
       pricing:{baseLabel:'Base Price ($70.00 x 3 guests)', base:'$210.00', addonsLabel:'Add-ons', addons:'$0.00', subtotal:'$210.00', discount:'-$0.00', total:'$210.00', viatorRecommendedPrice:'$210.00', viatorNetPrice:'$168.00', viatorBookingFee:'$42.00', viatorPayout:'$168.00'},
       activity:[{label:'Booking Created', time:'14 May 2024, 11:00 AM'}, {label:'Payment Received', time:'14 May 2024, 11:04 AM'}, {label:'Confirmation Sent', time:'14 May 2024, 11:06 AM'}]},
-    {id:'BK-010', customer:'Sarah Jenkins', tour:'Dubai Miracle Garden Entry Ticket', productId:'prod-9', bookingDate:'14 May 2024', bookingTime:'6:53 PM', travelDate:'16 May 2024', guests:3, amount:90.00, status:'Confirmed', channel:'Rosotravel', confirmationType:'Instant', orderId:'ORD-1004',
+    {id:'BK-010', customer:'Sarah Jenkins', tour:'Dubai Miracle Garden Entry Ticket', productId:'prod-10', tourOption:'General Admission', language:'English', bookingDate:'14 May 2024', bookingTime:'6:53 PM', travelDate:'16 May 2024', guests:3, amount:90.00, status:'Confirmed', channel:'Rosotravel', confirmationType:'Instant', orderId:'ORD-1004',
       email:'sarah.jenkins@email.com', phone:'+971 55 423 4567', nationality:'American',
       product:'Dubai Miracle Garden Entry Ticket', timeSlot:'2:00 PM - 5:00 PM', guestsBreakdown:'2 Adults, 1 Child',
       pickupMode:'self_arrival', pickupLocation:null, pickup:'Self-arrival',
@@ -606,7 +606,7 @@ const DATA = {
       invoice:null,
       pricing:{baseLabel:'Base Price ($30.00 x 3 guests)', base:'$90.00', addonsLabel:'Add-ons', addons:'$0.00', subtotal:'$90.00', discount:'-$0.00', total:'$90.00'},
       activity:[{label:'Booking Created', time:'14 May 2024, 11:00 AM'}, {label:'Payment Received', time:'14 May 2024, 11:04 AM'}, {label:'Confirmation Sent', time:'14 May 2024, 11:06 AM'}]},
-    {id:'BK-005', customer:'Yuki Tanaka', tour:'Burj Khalifa Sunrise View & Observatory Pass', productId:'prod-9', bookingDate:'15 May 2024', bookingTime:'9:18 AM', travelDate:'15 May 2024', guests:2, amount:190.00, status:'Cancelled', channel:'Rosotravel', confirmationType:'Instant',
+    {id:'BK-005', customer:'Yuki Tanaka', tour:'Burj Khalifa Sunrise View & Observatory Pass', productId:'prod-9', tourOption:'At the Top (Floors 124 & 125)', language:'Japanese', bookingDate:'15 May 2024', bookingTime:'9:18 AM', travelDate:'15 May 2024', guests:2, amount:190.00, status:'Cancelled', channel:'Rosotravel', confirmationType:'Instant',
       email:'yuki.tanaka@email.com', phone:'+971 55 523 4567', nationality:'Japanese',
       product:'Burj Khalifa Sunrise View & Observatory Pass', timeSlot:'5:30 AM - 7:30 AM', guestsBreakdown:'2 Adults, 0 Children',
       pickupMode:'self_arrival', pickupLocation:null, pickup:'Self-arrival',
@@ -622,7 +622,7 @@ const DATA = {
       activity:[{label:'Booking Created', time:'15 May 2024, 08:00 AM'}, {label:'Payment Received', time:'15 May 2024, 08:03 AM'}, {label:'Booking Cancelled', time:'15 May 2024, 06:00 PM'}],
       cancelReason:'Change of plans', cancelledBy:'Admin (you)',
       cancelNote:'This booking has been cancelled. Refund of $190.00 processed to original payment method.'},
-    {id:'BK-006', customer:'Ahmed Al-Mansoori', tour:'Abu Dhabi Grand Mosque & Louvre Day Tour', productId:'prod-10', bookingDate:'15 May 2024', bookingTime:'2:30 PM', couponCode:'SUMMER25', discountAmount:25, travelDate:'19 May 2024', guests:5, amount:650.00, status:'Confirmed', channel:'Viator', confirmationType:'Instant',
+    {id:'BK-006', customer:'Ahmed Al-Mansoori', tour:'Abu Dhabi Grand Mosque & Louvre Day Tour', productId:'prod-6', tourOption:'Full-Day Private Tour', language:'Arabic', bookingDate:'15 May 2024', bookingTime:'2:30 PM', couponCode:'SUMMER25', discountAmount:25, travelDate:'19 May 2024', guests:5, amount:650.00, status:'Confirmed', channel:'Viator', confirmationType:'Instant',
       email:'ahmed.almansoori@email.com', phone:'+971 55 623 4567', nationality:'Emirati',
       product:'Abu Dhabi Grand Mosque & Louvre Day Tour', timeSlot:'8:00 AM - 6:00 PM', guestsBreakdown:'5 Adults, 0 Children',
       pickupMode:'now', pickupLocation:'Sheikh Zayed Road (Emirates Towers Metro Station)', pickup:'Sheikh Zayed Road',
@@ -635,7 +635,7 @@ const DATA = {
       invoice:{requested:true, companyName:'Al-Mansoori Trading LLC', street:'Office 1204, Al Moosa Tower 1', city:'Dubai', state:'Dubai', zip:'00000', country:'UAE'},
       pricing:{baseLabel:'Base Price ($130.00 x 5 guests)', base:'$650.00', addonsLabel:'Add-ons', addons:'$0.00', subtotal:'$650.00', discount:'-$0.00', total:'$650.00', viatorRecommendedPrice:'$650.00', viatorNetPrice:'$520.00', viatorBookingFee:'$130.00', viatorPayout:'$520.00'},
       activity:[{label:'Booking Created', time:'15 May 2024, 01:00 PM'}, {label:'Payment Received', time:'15 May 2024, 04:00 PM'}]},
-    {id:'BK-007', customer:'Elena Rostova', tour:'Dune Buggy Guided Adventure (Self-Drive Tour)', productId:'prod-11', bookingDate:'16 May 2024', bookingTime:'4:15 PM', travelDate:'22 May 2024', guests:2, amount:320.00, status:'Pending', channel:'Rosotravel', confirmationType:'Manual', hoursSincePending:80,
+    {id:'BK-007', customer:'Elena Rostova', tour:'Dune Buggy Guided Adventure (Self-Drive Tour)', productId:'prod-11', tourOption:'Self-Drive 2-Seater Buggy', language:'Russian', bookingDate:'16 May 2024', bookingTime:'4:15 PM', travelDate:'22 May 2024', guests:2, amount:320.00, status:'Pending', channel:'Rosotravel', confirmationType:'Manual', hoursSincePending:80,
       email:'elena.rostova@email.com', phone:'+971 55 723 4567', nationality:'Russian',
       product:'Dune Buggy Guided Adventure', timeSlot:'2:00 PM - 6:00 PM', guestsBreakdown:'2 Adults, 0 Children',
       pickupMode:'now', pickupLocation:'Al Qudra Road (Big Red Dune area)', pickup:'Al Qudra Road',
@@ -649,7 +649,7 @@ const DATA = {
       invoice:null,
       pricing:{baseLabel:'Base Price ($160.00 x 2 guests)', base:'$320.00', addonsLabel:'Add-ons', addons:'$0.00', subtotal:'$320.00', discount:'-$0.00', total:'$320.00'},
       activity:[{label:'Booking Created', time:'16 May 2024, 03:20 PM'}]},
-    {id:'BK-008', customer:'Hans Schneider', tour:'Miracle Garden & Butterfly Garden Ticket Duo', productId:'prod-9', bookingDate:'16 May 2024', bookingTime:'8:44 AM', travelDate:'17 May 2024', guests:4, amount:160.00, status:'Completed', channel:'Viator', confirmationType:'Instant',
+    {id:'BK-008', customer:'Hans Schneider', tour:'Miracle Garden & Butterfly Garden Ticket Duo', productId:'prod-7', tourOption:'Combo Ticket (Both Gardens)', language:'German', bookingDate:'16 May 2024', bookingTime:'8:44 AM', travelDate:'17 May 2024', guests:4, amount:160.00, status:'Completed', channel:'Viator', confirmationType:'Instant',
       email:'hans.schneider@email.com', phone:'+971 55 823 4567', nationality:'German',
       product:'Miracle Garden & Butterfly Garden Ticket Duo', timeSlot:'10:00 AM - 2:00 PM', guestsBreakdown:'4 Adults, 0 Children',
       pickupMode:'self_arrival', pickupLocation:null, pickup:'Self-arrival',
@@ -662,7 +662,7 @@ const DATA = {
       invoice:{requested:true, companyName:'Schneider GmbH', street:'Hauptstraße 42', city:'Munich', state:'Bavaria', zip:'80331', country:'Germany'},
       pricing:{baseLabel:'Base Price ($40.00 x 4 guests)', base:'$160.00', addonsLabel:'Add-ons', addons:'$0.00', subtotal:'$160.00', discount:'-$0.00', total:'$160.00', viatorRecommendedPrice:'$160.00', viatorNetPrice:'$128.00', viatorBookingFee:'$32.00', viatorPayout:'$128.00'},
       activity:[{label:'Booking Created', time:'16 May 2024, 09:00 AM'}, {label:'Payment Received', time:'16 May 2024, 09:03 AM'}, {label:'Tour Completed', time:'17 May 2024, 02:15 PM'}]},
-    {id:'BK-009', customer:'Marco Silvestri', tour:'Skydive Dubai Tandem Jump (Palm Drop Zone)', productId:'prod-11', bookingDate:'17 May 2024', bookingTime:'1:09 PM', travelDate:'23 May 2024', guests:1, amount:590.00, status:'Cancelled (Fraud – Viator)', channel:'Viator', confirmationType:'Instant',
+    {id:'BK-009', customer:'Marco Silvestri', tour:'Skydive Dubai Tandem Jump (Palm Drop Zone)', productId:'prod-3', tourOption:'Tandem Jump — Palm Drop Zone', language:'Italian', bookingDate:'17 May 2024', bookingTime:'1:09 PM', travelDate:'23 May 2024', guests:1, amount:590.00, status:'Cancelled (Fraud – Viator)', channel:'Viator', confirmationType:'Instant',
       email:'marco.silvestri@email.com', phone:'+39 345 123 9876', nationality:'Italian',
       product:'Skydive Dubai Tandem Jump', timeSlot:'7:00 AM - 9:00 AM', guestsBreakdown:'1 Adult, 0 Children',
       pickupMode:'self_arrival', pickupLocation:null, pickup:'Self-arrival',
@@ -6782,17 +6782,19 @@ const Comp = {
   // Facet values come from the data, so a filter can never offer an option
   // that matches nothing.
   _bookingFacets(){
-    const languages = new Set(), cities = new Set(), countries = new Set();
+    const languages = new Set(), cities = new Set(), countries = new Set(), products = new Set(), productIds = new Set();
     DATA.bookings.forEach(b => {
       if (b.language) languages.add(b.language);
       const d = Comp.bookingDestination(b);
       if (d.city) cities.add(d.city);
       if (d.country) countries.add(d.country);
+      if (b.tour) products.add(b.tour);
+      if (b.productId) productIds.add(b.productId);
     });
     const sorted = (s) => [...s].sort();
-    return {languages: sorted(languages), cities: sorted(cities), countries: sorted(countries)};
+    return {languages: sorted(languages), cities: sorted(cities), countries: sorted(countries), products: sorted(products), productIds: sorted(productIds)};
   },
-  _bookingFilterState: {channel:'', status:'', dateBasis:'travel', dateFrom:'', dateTo:'', language:'', city:'', country:''},
+  _bookingFilterState: {channel:'', status:'', dateBasis:'travel', dateFrom:'', dateTo:'', language:'', city:'', country:'', product:'', productId:''},
   openBookingFiltersDrawer(){
     const s = Comp._bookingFilterState;
     const f = Comp._bookingFacets();
@@ -6846,6 +6848,14 @@ const Comp = {
         ${Comp.SearchSelect({id:'fdCity', label:'City', required:false, placeholder:'All cities — type to filter...', value:s.city||'',
           options:f.cities.map(v=>({value:v})), addNewLabel:'', addNewHandler:()=>{}})}
         <p class="field-hint" style="margin-top:4px;">City and country are taken from the product each booking is for.</p>
+      </div>
+      <div class="filter-drawer-group">
+        ${Comp.SearchSelect({id:'fdProduct', label:'Product name', required:false, placeholder:'All products — type to filter...', value:s.product||'',
+          options:f.products.map(v=>({value:v})), addNewLabel:'', addNewHandler:()=>{}})}
+      </div>
+      <div class="filter-drawer-group">
+        ${Comp.SearchSelect({id:'fdProductId', label:'Product code', required:false, placeholder:'All codes — type to filter...', value:s.productId||'',
+          options:f.productIds.map(v=>({value:v})), addNewLabel:'', addNewHandler:()=>{}})}
       </div>`;
 
     const read = (id) => { const el = document.getElementById(id); return el ? el.value : ''; };
@@ -6858,15 +6868,17 @@ const Comp = {
           dateFrom: read('fdDateFrom'), dateTo: read('fdDateTo'),
           language: read('fdLanguage'),
           city: readSS('fdCity'),
-          country: readSS('fdCountry')
+          country: readSS('fdCountry'),
+          product: readSS('fdProduct'),
+          productId: readSS('fdProductId')
         });
         Comp.filterBookingsTable();
       },
       () => {
-        Object.assign(Comp._bookingFilterState, {channel:'', status:'', dateBasis:'travel', dateFrom:'', dateTo:'', language:'', city:'', country:''});
+        Object.assign(Comp._bookingFilterState, {channel:'', status:'', dateBasis:'travel', dateFrom:'', dateTo:'', language:'', city:'', country:'', product:'', productId:''});
         const box = document.getElementById('filterBookings');
         if (box) box.value = '';
-        ['fdCity','fdCountry'].forEach(id => {
+        ['fdCity','fdCountry','fdProduct','fdProductId'].forEach(id => {
           const inp = document.getElementById(id+'Input'); if(inp) inp.value='';
           const panel = document.getElementById(id+'Panel'); if(panel) panel.innerHTML='';
           const wrap = document.getElementById(id); if(wrap) wrap.classList.remove('open');
@@ -6886,7 +6898,7 @@ const Comp = {
     if (statusOverride !== undefined) st.status = statusOverride;
     const q = input.value.trim().toLowerCase();
     const basis = st.dateBasis === 'booking' ? 'booking' : 'travel';
-    const activeCount = ['channel','status','language','city','country','dateFrom','dateTo'].filter(k => st[k]).length;
+    const activeCount = ['channel','status','language','city','country','dateFrom','dateTo','product','productId'].filter(k => st[k]).length;
     Comp._updateFilterBadge('filterBookings', activeCount);
     let visibleCount = 0;
     tbody.querySelectorAll('tr:not(.no-results-row)').forEach(tr => {
@@ -6894,15 +6906,17 @@ const Comp = {
       const text = tr.textContent.toLowerCase();
       const iso = basis === 'booking' ? (d.bookingIso || '') : (d.travelIso || '');
       const show = (!q || text.includes(q))
-        && (!st.channel  || d.channel === st.channel)
-        && (!st.status   || (d.status || '').toLowerCase() === st.status.toLowerCase())
-        && (!st.language || d.language === st.language)
-        && (!st.city     || d.city === st.city)
-        && (!st.country  || d.country === st.country)
+        && (!st.channel   || d.channel === st.channel)
+        && (!st.status    || (d.status || '').toLowerCase() === st.status.toLowerCase())
+        && (!st.language  || d.language === st.language)
+        && (!st.city      || d.city === st.city)
+        && (!st.country   || d.country === st.country)
+        && (!st.product   || text.includes(st.product.toLowerCase()))
+        && (!st.productId || (d.productId || '').toLowerCase() === st.productId.toLowerCase())
         // A row whose date could not be parsed is excluded when a range is
         // set, rather than silently passing the filter.
-        && (!st.dateFrom || (iso && iso >= st.dateFrom))
-        && (!st.dateTo   || (iso && iso <= st.dateTo));
+        && (!st.dateFrom  || (iso && iso >= st.dateFrom))
+        && (!st.dateTo    || (iso && iso <= st.dateTo));
       tr.style.display = show ? '' : 'none';
       if (show) visibleCount++;
     });
@@ -20469,11 +20483,7 @@ function pageStaticPageEditor(params){
     ${Comp.Breadcrumb([{label:'Static Pages', route:'staticPagesList'}, {label:p.name}])}
     ${Comp.PageHeader({title:`${p.name}`, subtitle:`<span class="sp-chips">${Comp.spStatusBadgesHtml(p)}${pendingLangLabel && pub.hasDraftPending ? Comp.Badge(pendingLangLabel, 'info') : ''}</span>`, subtitleClass:'page-sub', actions: headerActions})}
     <div class="sp-toolbar">${modeSwitcher}${isLiveMode && liveVer ? '<span class="sp-live-note">Published '+Comp._escHtml(liveVer.publishedAt)+' by '+Comp._escHtml(liveVer.publishedBy)+'</span>' : ''}</div>
-    ${(isLiveMode || isActivityMode) ? '' : Comp.contentLanguageBar('sp', true, {languages: SP_LANGS.map(function(c){return c;}), selected: _activeLang, onLanguageChange: '(v) => Comp._spOnLangChange(v)'})}
-    ${(isLiveMode || isActivityMode) ? '' : Comp._renderUrlCanonicalCard('sp', (code) => {
-      const base = (p.canonicalUrl || '/' + p.name.toLowerCase().replace(/[^a-z0-9]+/g,'-') + '/');
-      return {slug: base.replace(/^\/|\/$/g,''), canonical: `https://rosotravel.com/${code}${base}`};
-    })}
+    ${(isLiveMode || isActivityMode) ? '' : Comp.spLiveLangBar(p, _activeLang)}
     ${!isActivityMode ? `<div class="ops-tabs" role="tablist">
       ${tabs.map(t => `<button type="button" class="ops-tab ${tab===t.id?'is-active':''}" onclick="Comp.spGoEditor('${p.id}',{id:'${p.id}', tab:'${t.id}', mode:'${isLiveMode?'live':'draft'}'})">${t.label}</button>`).join('')}
     </div>` : ''}
@@ -21245,7 +21255,7 @@ function pageBookingListing(){
         data-status="${Comp._escAttr(b.status||'')}" data-language="${Comp._escAttr(b.language||'')}"
         data-city="${Comp._escAttr(Comp.bookingDestination(b).city)}" data-country="${Comp._escAttr(Comp.bookingDestination(b).country)}"
         data-travel-iso="${Comp._bookingDateToISO(b.travelDate)}" data-booking-iso="${Comp._bookingDateToISO(b.bookingDate)}"
-        data-email="${Comp._escAttr(b.email||'')}"
+        data-email="${Comp._escAttr(b.email||'')}" data-product-id="${Comp._escAttr(b.productId||'')}"
         onclick="Router.go('bookingDetails',{id:'${b.id}'})"
         onkeydown="if(event.key==='Enter'){Router.go('bookingDetails',{id:'${b.id}'})}">
       <td class="cell-name">#${b.id}</td>
@@ -21267,7 +21277,7 @@ function pageBookingListing(){
     ${Comp.PageHeader({title:'Bookings'})}
     <div class="filter-bar" role="search">
       <label for="filterBookings" class="visually-hidden">Search bookings</label>
-      <input class="search-box" id="filterBookings" placeholder="Search booking ID, customer, email or tour..." oninput="Comp.filterBookingsTable()">
+      <input class="search-box" id="filterBookings" placeholder="Search by booking ID, customer, email, tour or product code..." oninput="Comp.filterBookingsTable()">
       ${Comp.FilterIconButton(0, "Comp.openBookingFiltersDrawer()")}
     </div>
     ${Comp.Table({columns:[{label:'ID',width:'80px'},{label:'Customer',width:'140px'},{label:'Tour'},{label:'Option / Language',width:'130px'},{label:'Supplier',width:'110px'},{label:'Booking Date',width:'120px'},{label:'Travel Date',width:'120px'},{label:'Guests',width:'70px'},{label:'Amount',width:'90px'},{label:'Status',width:'160px'},{label:'Action',width:'70px'}], rows, emptyText:'No bookings found.'})}
@@ -21310,6 +21320,9 @@ function pageBookingDetails(params){
         <div class="field-stack">
           <div class="field-row">
             ${Comp.MetaField('Product', b.product)}
+            ${Comp.MetaField('Product code', b.productId || '—')}
+          </div>
+          <div class="field-row">
             ${Comp.MetaField('Travel date', b.travelDate + (b.timeSlot ? `<div class="text-muted-xs-regular">${b.timeSlot}</div>` : ''))}
           </div>
           <div class="field-row">
@@ -21417,13 +21430,26 @@ function pageBookingDetails(params){
         </div>
       </div>`}) : ''}`;
   } else if (tab === 'pricing') {
+    // Build per-guest-type rows — use guestPricing array if present, else fall back to legacy baseLabel
+    const guestRows = (b.pricing.guestPricing && b.pricing.guestPricing.length)
+      ? b.pricing.guestPricing.map(g => {
+          const lineTotal = (g.unitPrice * g.count).toFixed(2);
+          return `<div class="booking-info-row"><span>${g.type} &nbsp;<span class="text-muted-xs-regular">$${g.unitPrice.toFixed(2)} × ${g.count}</span></span><span>$${lineTotal}</span></div>`;
+        }).join('')
+      : `<div class="booking-info-row"><span>${b.pricing.baseLabel}</span><span>${b.pricing.base}</span></div>`;
+    // Discount row — show coupon code if present
+    const discountIsZero = !b.pricing.discount || b.pricing.discount === '-$0.00' || b.pricing.discount === '$0.00';
+    const discountLabel = b.couponCode
+      ? `Discount <span class="text-muted-xs-regular" style="margin-left:6px;">${Comp._escHtml(b.couponCode)}</span>`
+      : 'Discount';
+    const discountDisplay = discountIsZero ? '<span style="color:var(--text-muted);">—</span>' : `<span style="color:var(--color-danger, #e53e3e);">${b.pricing.discount}</span>`;
     tabBody = `
     ${Comp.Card({title:'Pricing Breakdown', body:`
       <div class="booking-info-table">
-        <div class="booking-info-row"><span>${b.pricing.baseLabel}</span><span>${b.pricing.base}</span></div>
-        <div class="booking-info-row"><span>${b.pricing.addonsLabel}</span><span>${b.pricing.addons}</span></div>
+        ${guestRows}
+        ${b.pricing.addons && b.pricing.addons !== '$0.00' ? `<div class="booking-info-row"><span>${b.pricing.addonsLabel}</span><span>${b.pricing.addons}</span></div>` : ''}
         <div class="booking-info-row" style="border-top:1px solid var(--border); padding-top:8px; margin-top:4px;"><span>Subtotal</span><span>${b.pricing.subtotal}</span></div>
-        <div class="booking-info-row"><span>Discount</span><span>${b.pricing.discount}</span></div>
+        <div class="booking-info-row"><span>${discountLabel}</span>${discountDisplay}</div>
         <div class="booking-info-row" style="border-top:1px solid var(--border); padding-top:8px; margin-top:4px; font-size:15px;"><span style="color:var(--text-primary); font-weight:600;">Total Amount</span><span style="font-size:16px;">${b.pricing.total}</span></div>
       </div>`})}
     ${b.channel === 'Viator' ? Comp.Card({title:'Viator Settlement', hint:'Feeds the Viator settlement export (recommended price, net price, booking fee, payout, refund adjustments).', body:
@@ -22356,7 +22382,7 @@ function pageCustomerDetails(params){
       const cp = DATA.coupons.find(x => x.code === b.couponCode);
       const discountLabel = cp ? Comp.couponDiscountLabel(cp) : b.couponCode;
       return `<tr>
-        <td class="cell-name"><strong>${Comp._escHtml(b.couponCode)}</strong></td>
+        <td class="cell-name">${cp ? `<button type="button" class="btn-sm-link" style="font-weight:700;" onclick="Router.go('couponDetails',{id:'${cp.id}'})">${Comp._escHtml(b.couponCode)}</button>` : `<strong>${Comp._escHtml(b.couponCode)}</strong>`}</td>
         <td class="cell-secondary">${discountLabel}</td>
         <td class="cell-secondary"><button type="button" class="btn-sm-link" onclick="Router.go('bookingDetails',{id:'${b.id}'})">${b.id}</button></td>
         <td class="cell-secondary">${b.bookingDate}</td>
