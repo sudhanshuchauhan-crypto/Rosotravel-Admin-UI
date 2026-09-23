@@ -6618,6 +6618,84 @@ const Comp = {
     let empty = table.querySelector('.no-results-row');
     if(visible === 0){ if(!empty){ const cols=table.querySelectorAll('thead th').length; empty=document.createElement('tr'); empty.className='no-results-row'; empty.innerHTML='<td colspan="'+cols+'" class="table-empty">No cities match your filters.</td>'; table.querySelector('tbody').appendChild(empty); } } else if(empty){ empty.remove(); }
   },
+  // ---- Category (Taxonomy) listing filter ----
+  _categoryFilters: {status:'', group:'', indexability:'', gsc:''},
+  openCategoryFilterDrawer(){
+    const f = Comp._categoryFilters;
+    const opt = (val, cur, label) => `<option value="${val}" ${cur===val?'selected':''}>${label||val||'All'}</option>`;
+    const groups = [...new Set(DATA.categories.map(c => c.group).filter(Boolean))].sort();
+    const html =
+      '<div class="filter-drawer-group">' +
+        '<label for="catf-status">Status</label>' +
+        '<select id="catf-status" class="filter-select w-full">' +
+          opt('', f.status, 'All statuses') + opt('Active', f.status) + opt('Inactive', f.status) +
+        '</select>' +
+      '</div>' +
+      '<div class="filter-drawer-group">' +
+        '<label for="catf-group">Group</label>' +
+        '<select id="catf-group" class="filter-select w-full">' +
+          opt('', f.group, 'All groups') + groups.map(g => opt(g, f.group)).join('') +
+        '</select>' +
+      '</div>' +
+      '<div class="filter-drawer-group">' +
+        '<label for="catf-indexability">Indexability</label>' +
+        '<select id="catf-indexability" class="filter-select w-full">' +
+          opt('', f.indexability, 'All') + opt('Indexable', f.indexability) + opt('Noindex', f.indexability) +
+        '</select>' +
+      '</div>' +
+      '<div class="filter-drawer-group">' +
+        '<label for="catf-gsc">Google Index (GSC)</label>' +
+        '<select id="catf-gsc" class="filter-select w-full">' +
+          opt('', f.gsc, 'All') + opt('Indexed', f.gsc) + opt('Not indexed', f.gsc) + opt('—', f.gsc, 'Unknown / No data') +
+        '</select>' +
+      '</div>';
+    Comp.openFilterDrawer('Filters', html,
+      () => {
+        Comp._categoryFilters = {
+          status:       document.getElementById('catf-status').value,
+          group:        document.getElementById('catf-group').value,
+          indexability: document.getElementById('catf-indexability').value,
+          gsc:          document.getElementById('catf-gsc').value
+        };
+        Comp._applyCategoryFilters();
+      },
+      () => {
+        Comp._categoryFilters = {status:'', group:'', indexability:'', gsc:''};
+        document.getElementById('filterCategories').value = '';
+        Comp._applyCategoryFilters();
+      }
+    );
+  },
+  _applyCategoryFilters(){
+    const f   = Comp._categoryFilters;
+    const q   = (document.getElementById('filterCategories') || {}).value || '';
+    const tbl = document.querySelector('#filterCategories')?.closest('.page')?.querySelector('table.data-table tbody');
+    if(!tbl) return;
+    let visible = 0;
+    tbl.querySelectorAll('tr:not(.no-results-row)').forEach(tr => {
+      const cells = tr.querySelectorAll('td');
+      const text  = tr.textContent.toLowerCase();
+      // cols: 0=checkbox 1=id 2=name 3=group 4=description 5=indexability 6=gsc 7=status 8=action
+      const groupCell       = cells[3] ? cells[3].textContent.trim() : '';
+      const indexabilityCell= cells[5] ? cells[5].textContent.trim() : '';
+      const gscCell         = cells[6] ? cells[6].textContent.trim() : '';
+      const statusCell      = cells[7] ? cells[7].textContent.trim() : '';
+      const ok = (!q || text.includes(q.toLowerCase())) &&
+        (!f.status       || statusCell.toLowerCase()       === f.status.toLowerCase()) &&
+        (!f.group        || groupCell                      === f.group) &&
+        (!f.indexability || indexabilityCell               === f.indexability) &&
+        (!f.gsc          || gscCell.startsWith(f.gsc));
+      tr.style.display = ok ? '' : 'none';
+      if(ok) visible++;
+    });
+    const activeCount = [f.status, f.group, f.indexability, f.gsc].filter(Boolean).length;
+    Comp._updateFilterBadge('filterCategories', activeCount);
+    const table = document.querySelector('#filterCategories')?.closest('.page')?.querySelector('table.data-table');
+    if(!table) return;
+    let empty = table.querySelector('.no-results-row');
+    if(visible === 0){ if(!empty){ const cols=table.querySelectorAll('thead th').length; empty=document.createElement('tr'); empty.className='no-results-row'; empty.innerHTML='<td colspan="'+cols+'" class="table-empty">No taxonomies match your filters.</td>'; table.querySelector('tbody').appendChild(empty); } } else if(empty){ empty.remove(); }
+  },
+
   _updateFilterBadge(filterId, count){
     const input = document.getElementById(filterId);
     if (!input) return;
@@ -6913,7 +6991,7 @@ const Comp = {
     </div>`;
   },
 
-  AiCard({id, title, fieldsHtml, titleExtra, stackAttrs, noRegen}){
+  AiCard({id, title, fieldsHtml, titleExtra, stackAttrs, noRegen, noEdit}){
     const pending = Comp._pendingApprovals[Comp.cardKey(id)];
     const approvalBadge = pending
       ? '<button type="button" class="approval-badge" onclick="Comp.openApprovalCompare(\'' + id + '\')">\u26a0 Review pending</button>'
@@ -6921,6 +6999,7 @@ const Comp = {
     const regenBtn = noRegen ? '' : (pending
       ? Comp.Button('\u21bb Review content', {size:'btn-sm', variant:'btn-primary', onclick:"Comp.openApprovalCompare('" + id + "')"})
       : Comp.Button('\u21bb Regenerate', {size:'btn-sm', onclick:'Comp.startRegen(this)'}));
+    const editBtn = noEdit ? '' : Comp.Button('Edit section', {size:'btn-sm', onclick:'Comp.editCard(this)'});
     return '<section class="card" data-card-id="' + id + '" aria-label="' + Comp._escAttr(title) + '">' +
       '<div class="section-header-row">' +
         '<p class="card-title">' + title + approvalBadge + '</p>' +
@@ -6932,7 +7011,7 @@ const Comp = {
         '<div class="lock-status-note">' + ICON.lock + ' Locked from AI edits</div>' +
         Comp.Button('Stop', {size:'btn-sm', onclick:'Comp.stopRegen(this)', extraAttrs:'style="display:none;"'}) +
         '<div class="default-actions">' +
-          Comp.Button('Edit section', {size:'btn-sm', onclick:'Comp.editCard(this)'}) +
+          editBtn +
           Comp.Button('<span class="toggle-track" aria-hidden="true"></span><span class="lock-label">Lock</span>', {variant:'btn-lock', size:'btn-sm', onclick:'Comp.toggleLock(this)', extraAttrs:'aria-pressed="false"'}) +
           regenBtn +
         '</div>' +
@@ -7844,11 +7923,11 @@ const Comp = {
             '</label>'
           ).join('');
         } else {
-          subItems = fieldEls.map(el => {
+          subItems = fieldEls.map((el, idx) => {
             const fl = el.getAttribute('data-field-label') || el.id || 'Field';
             return '<label class="opt-check" style="padding:4px 0 4px 24px;">' +
               '<input type="checkbox" class="dest-regen-subfield" data-section="' + Comp._escAttr(id) + '" value="' + Comp._escAttr(fl) + '"' + (locked ? ' disabled' : ' checked') + ' onchange="Comp._bulkRegenToggleSubfield(this)">' +
-              '<span style="font-size:var(--fs-sm);color:var(--text-secondary);">' + Comp._escHtml(fl) + '</span>' +
+              '<span style="font-size:var(--fs-sm);color:var(--text-secondary);">Item ' + (idx + 1) + '</span>' +
             '</label>';
           }).join('');
         }
@@ -7911,6 +7990,7 @@ const Comp = {
 
   countryOpenRegenScopeModal(){ Comp._openDestRegenModal(); },
   regionOpenRegenScopeModal(){ Comp._openDestRegenModal(); },
+  categoryOpenRegenScopeModal(){ Comp._openDestRegenModal(); },
 
   _destRegenToggleSection(sectionChk){
     const sectionId = sectionChk.value;
@@ -8039,7 +8119,7 @@ Comp.renderOverridesTab = function(entity, sections){
 };
 
 Comp.toggleIndexability = function(entityType, id){
-  const list = entityType === 'country' ? DATA.countries : entityType === 'region' ? DATA.regions : entityType === 'attraction' ? DATA.masterAttractions : DATA.cities;
+  const list = entityType === 'country' ? DATA.countries : entityType === 'region' ? DATA.regions : entityType === 'attraction' ? DATA.masterAttractions : entityType === 'category' ? DATA.categories : DATA.cities;
   const entity = list.find(x => x.id === id);
   if(!entity) return;
   const current = entity.indexability || 'Noindex';
@@ -11015,14 +11095,24 @@ function pageAttractionHistoryLog(params){
    ============================================================= */
 function pageCategoryListing(){
   const rows = DATA.categories.map(cat => {
+    const idxState = cat.indexability || 'Noindex';
+    const idxBadge = Comp.Badge(idxState, idxState === 'Indexable');
+    const gsc = cat.gscStatus || {status:'—', lastChecked:null};
+    const gscBadge = gsc.status === 'Indexed' ? Comp.Badge('Indexed', true)
+      : gsc.status === 'Not indexed' ? Comp.Badge('Not indexed', false)
+      : '<span class="field-hint">—</span>';
+    const gscSub = gsc.lastChecked ? '<div style="font-size:11px;color:var(--text-muted);margin-top:2px;">Checked ' + Comp._escHtml(gsc.lastChecked) + '</div>' : '';
     return `
     <tr class="row-clickable" tabindex="0" role="button" aria-label="View ${cat.name} details"
         onclick="Router.go('categoryDetails',{id:'${cat.id}'})"
         onkeydown="if(event.key==='Enter'){Router.go('categoryDetails',{id:'${cat.id}'})}">
       ${Comp.BulkCheckboxTd('category', cat.id)}
+      <td class="cell-secondary" style="font-size:var(--fs-sm);color:var(--text-secondary);white-space:nowrap;">${Comp._escHtml(cat.id)}</td>
       <td class="cell-name">${cat.name}${Comp.ListingPendingBadge('categoryDetails',{id:cat.id})}</td>
       <td class="cell-secondary">${cat.group || '—'}</td>
-      <td class="cell-secondary" style="max-width:320px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${cat.description}</td>
+      <td class="cell-secondary" style="max-width:260px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${cat.description}</td>
+      <td>${idxBadge}</td>
+      <td>${gscBadge}${gscSub}</td>
       <td>${Comp.Badge(cat.status, cat.status==='Active')}</td>
       <td>${Comp.RowMenu(cat.name, [
         {label:'Edit', handler:() => Router.go('categoryDetails',{id:cat.id})},
@@ -11032,9 +11122,9 @@ function pageCategoryListing(){
   }).join('');
   return Comp.Shell(`
     ${Comp.PageHeader({title:'Taxonomies'})}
-    ${Comp.FilterBar('Search taxonomies', 'filterCategories')}
+    ${Comp.FilterBar('Search taxonomies', 'filterCategories', 'Comp.openCategoryFilterDrawer()')}
     ${Comp.BulkActionBar('category')}
-    ${Comp.Table({columns:[{label:Comp.BulkCheckboxTh('category'),width:'40px'},{label:'Taxonomy',width:'200px'},{label:'Group',width:'110px'},{label:'Description'},{label:'Status',width:'140px'},{label:'Action',width:'70px'}], rows, emptyText:'No taxonomies found.'})}
+    ${Comp.Table({columns:[{label:Comp.BulkCheckboxTh('category'),width:'40px'},{label:'ID',width:'100px'},{label:'Taxonomy',width:'200px'},{label:'Group',width:'110px'},{label:'Description'},{label:'Indexability',width:'120px'},{label:'Google Index (GSC)',width:'150px'},{label:'Status',width:'140px'},{label:'Action',width:'70px'}], rows, emptyText:'No taxonomies found.'})}
     ${Comp.Pagination('Showing ' + DATA.categories.length + ' of ' + DATA.categories.length + ' taxonomies')}
   `);
 }
@@ -11055,18 +11145,62 @@ function pageCategoryDetails(params){
   let tabBody = '';
   if (tab === 'seo') {
     tabBody = `
-    ${Comp.Card({title:'Taxonomy identity (read-only)', hint:'Name and group are system-governed and cannot be edited here.',
-      body: Comp._infoTable([['Taxonomy name', category.name], ['Group', category.group || '—']])})}
     ${Comp.AiCard({id:'category-seo', title:'SEO data', fieldsHtml:`
       ${aiField('Meta title', category.name + ' Experiences — Browse Top Rated Tours')}
       ${aiField('Meta description', 'Discover the best ' + category.name.toLowerCase() + ' experiences with Rosotravel.', 'textarea')}
     `})}
     ${Comp.AiCard({id:'category-info', title:'Taxonomy information', fieldsHtml:`
       <div class="field">
+        <label class="field-label">Taxonomy name</label>
+        <input type="text" class="form-input" value="${category.name}" disabled readonly aria-label="Taxonomy name — read only">
+        <p class="field-hint mt-1">System-governed — cannot be edited here.</p>
+      </div>
+      <div class="field">
+        <label class="field-label">Group</label>
+        <input type="text" class="form-input" value="${category.group || '—'}" disabled readonly aria-label="Group — read only">
+        <p class="field-hint mt-1">System-governed — cannot be edited here.</p>
+      </div>
+      <div class="field">
         <label id="categoryDetailIconLbl">Taxonomy icon or image</label>
         <div class="upload-area" role="button" tabindex="0" aria-labelledby="categoryDetailIconLbl" onclick="Comp.handleUploadAreaClick(this, function(filename, altText){ Comp.showToast('Media uploaded: ' + filename + ' (Alt: ' + altText + ')', 'success'); })"><div class="up-title">Click to upload</div><div class="up-sub">or drag and drop</div><div class="up-hint">PNG, SVG or WEBP (max. 400×400px)</div></div>
       </div>
-      ${aiField('Description', category.description, 'textarea')}
+      ${aiField('Supporting Snippet', category.description, 'textarea')}
+    `})}
+    ${Comp.AiCard({id:'category-about', title:`About Rosotravel in ${category.name}`, noRegen:true, fieldsHtml:
+      Comp.EntitySpecialisationField(category.name, 'categoryAbout', category.specialisations) +
+      `<div class="field">
+        <label id="categoryAboutMediaLbl">Media upload</label>
+        <div class="upload-area" role="button" tabindex="0" aria-labelledby="categoryAboutMediaLbl" onclick="Comp.handleUploadAreaClick(this, function(filename, altText){ Comp.showToast('Media uploaded: ' + filename + ' (Alt: ' + altText + ')', 'success'); })"><div class="up-title">Click to upload</div><div class="up-sub">or drag and drop</div><div class="up-hint">PNG, JPG, WEBP or MP4 (max. 1200×400px)</div></div>
+        <p class="field-hint">You can upload multiple images</p>
+      </div>`
+    })}
+    ${Comp.AiCard({id:'category-different', title:`What makes ${category.name} different?`, noEdit:true, fieldsHtml:`
+      <div class="field">
+        <label class="field-label">Heading</label>
+        <div style="font-size:var(--fs-xl);font-weight:700;line-height:1.25;margin-bottom:var(--sp-2);">
+          What makes ${Comp._escHtml(category.name)} <em style="font-style:italic;font-weight:700;">tours different?</em>
+        </div>
+        <p class="field-hint">Heading is auto-generated from taxonomy name — not editable.</p>
+      </div>
+      <div class="field">
+        <label class="field-label">Introductory paragraph</label>
+        <textarea class="form-input" rows="3" placeholder="Write a short editorial intro for this taxonomy...">${Comp._escHtml(category.differentIntro || '')}</textarea>
+        <p class="field-hint">Shown below the heading with a "Read more" link on the front end.</p>
+      </div>
+      <div class="field">
+        <label class="field-label">Comparison table</label>
+        <div style="border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin-top:var(--sp-1);">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;">
+            <div style="padding:var(--sp-3) var(--sp-4);border-bottom:1px solid var(--border);font-weight:600;font-size:var(--fs-sm);">Experience focus</div>
+            <div style="padding:var(--sp-3) var(--sp-4);border-bottom:1px solid var(--border);border-left:1px solid var(--border);"><input type="text" class="form-input" value="${Comp._escAttr(category.differentRow1 || '')}" placeholder="e.g. Guided walks, cultural tastings &amp; local markets"></div>
+            <div style="padding:var(--sp-3) var(--sp-4);border-bottom:1px solid var(--border);font-weight:600;font-size:var(--fs-sm);">Typical format</div>
+            <div style="padding:var(--sp-3) var(--sp-4);border-bottom:1px solid var(--border);border-left:1px solid var(--border);"><input type="text" class="form-input" value="${Comp._escAttr(category.differentRow2 || '')}" placeholder="e.g. 3–4 hour guided tour with 6–10 stops"></div>
+            <div style="padding:var(--sp-3) var(--sp-4);font-weight:600;font-size:var(--fs-sm);">Best for</div>
+            <div style="padding:var(--sp-3) var(--sp-4);border-left:1px solid var(--border);"><input type="text" class="form-input" value="${Comp._escAttr(category.differentRow3 || '')}" placeholder="e.g. First-time visitors and enthusiasts"></div>
+          </div>
+        </div>
+        <p class="field-hint mt-1">Displayed as a key-value table on the taxonomy landing page.</p>
+      </div>
     `})}
     ${Comp.AiCard({id:'category-faq', title:'Frequently asked questions', stackAttrs:'data-max-items="10"', fieldsHtml:
       Comp.FaqItem(1, `What type of experiences does ${category.name} include?`, `${category.name} covers a wide range of curated travel experiences available through Rosotravel, from guided tours to self-guided itineraries.`, true) +
@@ -11106,12 +11240,12 @@ function pageCategoryDetails(params){
 
   const body = `
     ${Comp.Breadcrumb([{label:'Taxonomies', route:'categoryListing'}, {label:category.name}])}
-    ${Comp.PageHeader({title:category.name, actions:
-      Comp.Button('History log', {onclick:`Router.go('categoryHistoryLog',{id:'${category.id}'})`}) + ' ' +
-      Comp.Button(category.status==='Active' ? 'Deactivate' : 'Activate', {variant:'btn-amber', onclick:`Comp.confirmToggleCategoryStatus('${category.id}')`})
-    })}
+    ${Comp.PageHeader({title:category.name, actions:`
+        ${Comp.Button('↻ Regenerate all', {onclick:'Comp.categoryOpenRegenScopeModal()'})}
+        ${Comp.Button((category.indexability||'Noindex')==='Indexable' ? '● Indexable' : '○ Noindex', {variant:(category.indexability||'Noindex')==='Indexable' ? 'btn-primary' : '', onclick:`Comp.toggleIndexability('category','${category.id}')`})}
+        ${Comp.Button(category.status==='Active' ? 'Deactivate' : 'Activate', {variant:'btn-amber', onclick:`Comp.confirmToggleCategoryStatus('${category.id}')`})}`, level:'h2'})}
     ${Comp.pendingApprovalsBanner()}
-    ${Comp.contentLanguageBar('category')}
+    ${Comp.contentLanguageBar('category', true)}
     <div class="ops-tabs" role="tablist">
       ${tabs.map(t => '<button type="button" class="ops-tab ' + (tab===t.id?'is-active':'') + '" role="tab" aria-selected="' + (tab===t.id) + '" onclick="Router.go(\'categoryDetails\',{id:\'${category.id}\', tab:\'' + t.id + '\'})">' + t.label + '</button>').join('')}
     </div>
@@ -21544,14 +21678,13 @@ function pageCouponListing(params){
       <td>${Comp.Badge(status, COUPON_STATUS_ACTIVE[status])}</td>
       <td onclick="event.stopPropagation()">${Comp.RowMenu(c.code, [
         {label:'View / Edit', handler:() => Router.go('couponDetails',{id:c.id})},
-        {label:'Simulate on a cart', handler:() => Comp.openCouponCartSimulator(c.id)},
         {label: c.disabled ? 'Enable' : 'Disable', danger: !c.disabled, handler:() => Comp.confirmToggleCouponStatus(c.id)}
       ])}</td>
     </tr>`;
   }).join('');
 
   return Comp.Shell(`
-    ${Comp.PageHeader({title:'Promotion Management', actions:`
+    ${Comp.PageHeader({title:'Discount Coupons', actions:`
 ${Comp.Button('+ Create coupon', {variant:'btn-primary', onclick:"Router.go('couponCreate')"})}`})}
     <div class="filter-bar" role="search">
       <label for="couponSearch" class="visually-hidden">Search by code or description</label>
@@ -21568,6 +21701,16 @@ ${Comp.Button('+ Create coupon', {variant:'btn-primary', onclick:"Router.go('cou
     ${Comp.Pagination(`Showing ${list.length} of ${DATA.coupons.length} coupons`)}
   `);
 }
+Comp.openCouponEdit = function(id){
+  const c = DATA.coupons.find(x => x.id === id);
+  if (!c) return;
+  const status = Comp.getCouponStatus(c);
+  if (status === 'Expired') {
+    Comp.showToast('This coupon has expired and can no longer be edited. Duplicate it to create a new one with updated dates.', 'danger');
+    return;
+  }
+  Router.go('couponCreate', {id});
+};
 Comp.confirmToggleCouponStatus = function(id){
   const c = DATA.coupons.find(x => x.id === id);
   if (!c) return;
@@ -21740,10 +21883,24 @@ function pageCouponCreate(params){
   const supplierNames = [...new Set(DATA.products.filter(p => p.supplierName).map(p => p.supplierName))];
   const customerItems = Comp.getCustomers().map(cu => ({id:cu.email, label:`${cu.name} (${cu.email})`}));
 
+  const initSrc   = c ? (c.productSource || 'All') : 'All';
+  const initType  = c ? (c.discountType || 'percentage') : 'percentage';
+  const unit      = initType === 'fixed' ? '(€)' : '(%)';
+  const isSplit   = initSrc === 'All';
+
+  // Eligibility "Applies to" labels — driven by product source
+  const eligAllLabel      = initSrc === 'Rosotravel' ? 'All Rosotravel products'
+                          : initSrc === 'Viator'      ? 'All Viator products'
+                          : 'All products (Rosotravel + Viator)';
+  const eligSpecificLabel = initSrc === 'Rosotravel' ? 'Specific Rosotravel product(s)'
+                          : initSrc === 'Viator'      ? 'Specific Viator product(s)'
+                          : 'Specific product(s)';
+
   return Comp.Shell(`
     ${Comp.PageHeader({title:`${c ? 'Edit coupon' : 'Create coupon'}`})}
     ${Comp.Breadcrumb([{label:'Discount Coupons', route:'couponListing'}, {label: c ? 'Edit coupon' : 'Create coupon'}])}
     <form id="couponForm" data-validate>
+
       ${Comp.Card({title:'Coupon details', body:`
         <div class="field-row">
           <div class="field flex-1">
@@ -21753,23 +21910,62 @@ function pageCouponCreate(params){
               <button type="button" class="btn" style="flex-shrink:0; white-space:nowrap;" onclick="Comp.generateCouponCode()">Generate</button>
             </div>
           </div>
-          <div class="field flex-1"><label for="couponDesc">Internal description</label><input id="couponDesc" class="card-input" placeholder="What is this coupon for?" value="${Comp._escAttr(c?c.description:'')}"></div>
-        </div>
-        <div class="field-row">
           <div class="field flex-1">
-            <label for="couponType">Discount type <span class="required">*</span></label>
-            <select id="couponType" class="card-input" onchange="Comp.updateCouponValueLabel()">
-              <option value="percentage" ${c&&c.discountType==='percentage'?'selected':''}>Percentage off</option>
-              <option value="fixed" ${c&&c.discountType==='fixed'?'selected':''}>Fixed amount off (€)</option>
-            </select>
+            <label for="couponDesc">Internal description</label>
+            <input id="couponDesc" class="card-input" placeholder="What is this coupon for?" value="${Comp._escAttr(c?c.description:'')}">
           </div>
-          <div class="field flex-1"><label for="couponValue" id="couponValueLbl">Discount value ${c&&c.discountType==='fixed'?'(€)':'(%)'} <span class="required">*</span></label><input id="couponValue" type="number" min="0" step="0.01" class="card-input" value="${c?c.discountValue:''}" required></div>
         </div>
-        <div class="field"><label for="couponMinBooking">Minimum booking value (€)</label><input id="couponMinBooking" type="number" min="0" step="0.01" class="card-input" value="${c?c.minBookingValue:0}"></div>
+      `})}
+
+      ${Comp.Card({title:'Discount', body:`
+        <div class="field">
+          <label for="couponProductSource">Product source scope <span class="required">*</span></label>
+          <select id="couponProductSource" class="card-input" onchange="Comp.updateCouponDiscountFields()">
+            ${DATA.COUPON_PRODUCT_SOURCES.map(srcOpt => `<option value="${srcOpt}" ${initSrc===srcOpt ? 'selected' : ''}>${srcOpt === 'All' ? 'All — Rosotravel and Viator products' : srcOpt + ' products only'}</option>`).join('')}
+          </select>
+          <p class="field-hint">Applied per item in the cart. A mixed cart is discounted partially and the confirmation message names exactly which tours the code applied to.</p>
+        </div>
+        <div class="field">
+          <label for="couponType">Discount type <span class="required">*</span></label>
+          <select id="couponType" class="card-input" onchange="Comp.updateCouponDiscountFields()">
+            <option value="percentage" ${initType==='percentage'?'selected':''}>Percentage off (%)</option>
+            <option value="fixed" ${initType==='fixed'?'selected':''}>Fixed amount off (€)</option>
+          </select>
+        </div>
+
+        <!-- Single value — shown when source is Rosotravel-only or Viator-only -->
+        <div id="couponValueSingle" style="${isSplit ? 'display:none;' : ''}">
+          <div class="field">
+            <label for="couponValue" id="couponValueLbl">Discount value ${unit} <span class="required">*</span></label>
+            <input id="couponValue" type="number" min="0" step="0.01" class="card-input" value="${!isSplit && c ? c.discountValue : ''}" ${!isSplit ? 'required' : ''}>
+          </div>
+        </div>
+
+        <!-- Split values — shown when source is "All" -->
+        <div id="couponValueSplit" style="${isSplit ? '' : 'display:none;'}">
+          <p class="field-hint mb-2" style="margin-top:4px;">Since this coupon applies to both Rosotravel and Viator products, set a separate discount value for each source.</p>
+          <div class="field-row">
+            <div class="field flex-1">
+              <label for="couponValueRoso" id="couponValueRosoLbl">Rosotravel discount ${unit} <span class="required">*</span></label>
+              <input id="couponValueRoso" type="number" min="0" step="0.01" class="card-input" value="${isSplit && c ? (c.discountValueRoso ?? c.discountValue ?? '') : ''}" ${isSplit ? 'required' : ''}>
+            </div>
+            <div class="field flex-1">
+              <label for="couponValueViator" id="couponValueViatorLbl">Viator discount ${unit} <span class="required">*</span></label>
+              <input id="couponValueViator" type="number" min="0" step="0.01" class="card-input" value="${isSplit && c ? (c.discountValueViator ?? c.discountValue ?? '') : ''}" ${isSplit ? 'required' : ''}>
+            </div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="couponMinBooking">Minimum booking value (€)</label>
+          <input id="couponMinBooking" type="number" min="0" step="0.01" class="card-input" value="${c?c.minBookingValue:0}">
+          <p class="field-hint">Coupon applies only when the cart total meets or exceeds this value. Leave as 0 for no minimum.</p>
+        </div>
         <div class="field-row">
           <div class="field flex-1"><label for="couponFrom">Valid from <span class="required">*</span></label><input id="couponFrom" type="date" class="card-input" value="${c?c.validFrom:''}" required></div>
           <div class="field flex-1"><label for="couponUntil">Valid until <span class="required">*</span></label><input id="couponUntil" type="date" class="card-input" value="${c?c.validUntil:''}" required></div>
-        </div>`})}
+        </div>
+      `})}
 
       <div class="card">
         <p class="card-title">Eligibility</p>
@@ -21781,16 +21977,9 @@ function pageCouponCreate(params){
             <option value="user" ${(c && c.eligibilityLevel==='user') ? 'selected' : ''}>User Level</option>
           </select>
         </div>
-        <div class="field mt-4">
-          <label for="couponProductSource">Product Source scope <span class="required">*</span></label>
-          <select id="couponProductSource" class="card-input">
-            ${DATA.COUPON_PRODUCT_SOURCES.map(srcOpt => `<option value="${srcOpt}" ${(c ? c.productSource : 'All')===srcOpt ? 'selected' : ''}>${srcOpt === 'All' ? 'All — Rosotravel and Viator products' : srcOpt + ' products only'}</option>`).join('')}
-          </select>
-          <p class="field-hint">Applied per item in the cart: the code discounts only items whose product source matches. A mixed cart is discounted partially, and the confirmation message names exactly which tours the code applied to.</p>
-        </div>
         <div id="couponEligProductSection" style="${(c && c.eligibilityLevel==='user') ? 'display:none;' : ''} margin-top:16px; padding-top:14px; border-top:1px solid var(--border);">
           ${Comp.eligibilityPicker({
-            idPrefix:'couponProduct', title:'Product Level', allLabel:'All products (Rosotravel + Viator)', specificLabel:'Specific product(s)',
+            idPrefix:'couponProduct', title:'Product Level', allLabel:eligAllLabel, specificLabel:eligSpecificLabel,
             mode: c ? c.productEligibility : 'all', items: productItems, selectedIds: c ? c.productIds : [],
             maxUsersValue: c && c.maxUsersAllowed != null ? c.maxUsersAllowed : null,
             supplierItems: supplierNames, selectedSuppliers: c ? (c.supplierNames||[]) : [],
@@ -21810,7 +21999,7 @@ function pageCouponCreate(params){
             <p class="card-title text-sm" style="margin-bottom:8px;">Product scope for these users</p>
             <p class="field-hint mb-2">Optionally restrict which products these users can apply this coupon to. Leave as "All products" to apply across everything they can book.</p>
             ${Comp.eligibilityPicker({
-              idPrefix:'couponUserProduct', title:'', allLabel:'All products (Rosotravel + Viator)', specificLabel:'Specific product(s)',
+              idPrefix:'couponUserProduct', title:'', allLabel:eligAllLabel, specificLabel:eligSpecificLabel,
               mode: c ? (c.userProductEligibility || 'all') : 'all', items: productItems, selectedIds: c ? (c.userProductIds || []) : [],
               searchPlaceholder: 'Search by product name, code or city...'
             })}
@@ -21844,9 +22033,63 @@ function pageCouponCreate(params){
   `);
 }
 Comp.updateCouponValueLabel = function(){
-  const type = document.getElementById('couponType').value;
+  // legacy alias — delegates to new function
+  Comp.updateCouponDiscountFields();
+};
+Comp.updateCouponDiscountFields = function(){
+  const srcEl  = document.getElementById('couponProductSource');
+  const typeEl = document.getElementById('couponType');
+  if (!srcEl || !typeEl) return;
+
+  const isSplit = srcEl.value === 'All';
+  const unit    = typeEl.value === 'fixed' ? '(€)' : '(%)';
+
+  // Toggle single vs split containers
+  const single = document.getElementById('couponValueSingle');
+  const split  = document.getElementById('couponValueSplit');
+  if (single) single.style.display = isSplit ? 'none' : '';
+  if (split)  split.style.display  = isSplit ? '' : 'none';
+
+  // Update required attributes
+  const singleInput = document.getElementById('couponValue');
+  const rosoInput   = document.getElementById('couponValueRoso');
+  const viatorInput = document.getElementById('couponValueViator');
+  if (singleInput) { isSplit ? singleInput.removeAttribute('required') : singleInput.setAttribute('required',''); }
+  if (rosoInput)   { isSplit ? rosoInput.setAttribute('required','')   : rosoInput.removeAttribute('required'); }
+  if (viatorInput) { isSplit ? viatorInput.setAttribute('required','') : viatorInput.removeAttribute('required'); }
+
+  // Update single-value label
   const lbl = document.getElementById('couponValueLbl');
-  lbl.innerHTML = `Discount value ${type === 'fixed' ? '(€)' : '(%)'} <span class="required">*</span>`;
+  if (lbl) lbl.innerHTML = `Discount value ${unit} <span class="required">*</span>`;
+
+  // Update split-value labels
+  const rosoLbl   = document.getElementById('couponValueRosoLbl');
+  const viatorLbl = document.getElementById('couponValueViatorLbl');
+  if (rosoLbl)   rosoLbl.innerHTML   = `Rosotravel discount ${unit} <span class="required">*</span>`;
+  if (viatorLbl) viatorLbl.innerHTML = `Viator discount ${unit} <span class="required">*</span>`;
+
+  // Sync eligibility "Applies to" labels based on product source
+  const src = srcEl.value; // 'All' | 'Rosotravel' | 'Viator'
+  const allLabelText = src === 'Rosotravel' ? 'All Rosotravel products'
+                     : src === 'Viator'      ? 'All Viator products'
+                     : 'All products (Rosotravel + Viator)';
+  const specificLabelText = src === 'Rosotravel' ? 'Specific Rosotravel product(s)'
+                          : src === 'Viator'      ? 'Specific Viator product(s)'
+                          : 'Specific product(s)';
+  // Product-level picker (couponProduct-mode)
+  Comp._updateEligibilityPickerLabels('couponProduct', allLabelText, specificLabelText);
+  // User-level product scope picker (couponUserProduct-mode)
+  Comp._updateEligibilityPickerLabels('couponUserProduct', allLabelText, specificLabelText);
+};
+
+Comp._updateEligibilityPickerLabels = function(idPrefix, allLabel, specificLabel){
+  const modeEl = document.getElementById(idPrefix + '-mode');
+  if (!modeEl) return;
+  const opts = modeEl.options;
+  for (let i = 0; i < opts.length; i++){
+    if (opts[i].value === 'all')      opts[i].text = allLabel;
+    if (opts[i].value === 'specific') opts[i].text = specificLabel;
+  }
 };
 Comp.generateCouponCode = function(){
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no confusing chars (0/O, 1/I)
@@ -21861,21 +22104,36 @@ Comp.submitCouponForm = function(editId){
   const code = document.getElementById('couponCode').value.trim().toUpperCase();
   const description = document.getElementById('couponDesc').value.trim();
   const discountType = document.getElementById('couponType').value;
-  const discountValue = parseFloat(document.getElementById('couponValue').value);
   const minBookingValue = parseFloat(document.getElementById('couponMinBooking').value) || 0;
   const validFrom = document.getElementById('couponFrom').value;
   const validUntil = document.getElementById('couponUntil').value;
 
+  const productSourceEl = document.getElementById('couponProductSource');
+  const productSource = productSourceEl ? productSourceEl.value : 'All';
+  const isSplit = productSource === 'All';
+
+  // Read discount value(s) based on product source
+  let discountValue = null, discountValueRoso = null, discountValueViator = null;
+  if (isSplit) {
+    discountValueRoso   = parseFloat(document.getElementById('couponValueRoso').value);
+    discountValueViator = parseFloat(document.getElementById('couponValueViator').value);
+  } else {
+    discountValue = parseFloat(document.getElementById('couponValue').value);
+  }
+
   if (!code) { Comp.showToast('Coupon code is required.', 'danger'); return; }
-  if (!(discountValue > 0)) { Comp.showToast('Please enter a discount value greater than 0.', 'danger'); return; }
+  if (isSplit) {
+    if (!(discountValueRoso > 0))   { Comp.showToast('Please enter a Rosotravel discount value greater than 0.', 'danger'); return; }
+    if (!(discountValueViator > 0)) { Comp.showToast('Please enter a Viator discount value greater than 0.', 'danger'); return; }
+  } else {
+    if (!(discountValue > 0)) { Comp.showToast('Please enter a discount value greater than 0.', 'danger'); return; }
+  }
   if (!validFrom || !validUntil) { Comp.showToast('Please set both valid from and valid until dates.', 'danger'); return; }
   if (new Date(validUntil) < new Date(validFrom)) { Comp.showToast('"Valid until" must be after "Valid from".', 'danger'); return; }
   const dupe = DATA.coupons.find(x => x.code === code && x.id !== editId);
   if (dupe) { Comp.showToast(`Coupon code "${code}" already exists.`, 'danger'); return; }
 
   const eligibilityLevel = document.getElementById('couponEligLevel').value;
-  const productSourceEl = document.getElementById('couponProductSource');
-  const productSource = productSourceEl ? productSourceEl.value : 'All';
   let productMode = 'all', productIds = [], userMode = 'all', userEmails = [], maxUsersAllowed = null, supplierNames = [];
   if (eligibilityLevel === 'product') {
     productMode = document.getElementById('couponProduct-mode').value;
@@ -21913,7 +22171,10 @@ Comp.submitCouponForm = function(editId){
   const isNew = !c;
   if (isNew) { c = {id:'cp-'+Date.now(), usedCount:0, history:[]}; DATA.coupons.push(c); }
   Object.assign(c, {
-    code, description, discountType, discountValue,
+    code, description, discountType,
+    discountValue:        isSplit ? null : discountValue,
+    discountValueRoso:    isSplit ? discountValueRoso : null,
+    discountValueViator:  isSplit ? discountValueViator : null,
     productSource,
     eligibilityLevel,
     productEligibility: productMode, productIds,
@@ -21965,7 +22226,7 @@ function pageCouponDetails(params){
   return Comp.Shell(`
     ${Comp.Breadcrumb([{label:'Discount Coupons', route:'couponListing'}, {label:c.code}])}
     ${Comp.PageHeader({title:`${c.code}`, actions:`
-        ${Comp.Button('Edit', {onclick:`Router.go('couponCreate',{id:'${c.id}'})`})}
+        ${Comp.Button('Edit', {onclick:`Comp.openCouponEdit('${c.id}')`})}
         ${Comp.Button(c.disabled ? 'Enable' : 'Disable', {variant:'btn-amber', onclick:`Comp.confirmToggleCouponStatus('${c.id}')`})}`})}
     <div class="ops-tabs" role="tablist">
       ${tabs.map(t => `<button type="button" class="ops-tab ${tab===t.id?'is-active':''}" onclick="Router.go('couponDetails',{id:'${c.id}',tab:'${t.id}'})">${t.label}</button>`).join('')}
@@ -22207,18 +22468,15 @@ function pageCustomerDetails(params){
   } else if (tab === 'enquiries') {
     body = Comp.Card({title:'Customer Enquiries', body:enquiryRows ? Comp.Table({columns:[{label:'Subject'},{label:'Booking',width:'100px'},{label:'Resolution',width:'160px'},{label:'Status',width:'100px'},{label:'',width:'90px'}], rows:enquiryRows}) : '<p class="empty-state">No enquiries on file.</p>'});
   } else if (tab === 'history') {
-    const historyRows = historyEntries.map(e => `
-      <tr>
-        <td class="cell-secondary" style="white-space:nowrap;width:170px">${e.time}</td>
-        <td class="cell-name">${Comp._escHtml(e.label)}</td>
-        <td style="width:110px"><button type="button" class="btn-sm-link" onclick="Router.go('bookingDetails',{id:'${e.bookingId}'})">${e.bookingId}</button></td>
-        <td class="cell-secondary">${Comp._escHtml(e.tour)}</td>
-      </tr>`).join('');
+    const timelineItems = historyEntries.map(e => ({
+      label: Comp._escHtml(e.label) + ' &mdash; <button type="button" class="btn-sm-link" onclick="Router.go(\'bookingDetails\',{id:\'' + e.bookingId + '\'})">' + e.bookingId + '</button> &middot; ' + Comp._escHtml(e.tour),
+      time: e.time
+    }));
     body = Comp.Card({
       title: 'History Log',
       hint: 'All activity events across this customer\'s bookings, newest first.',
-      body: historyRows
-        ? Comp.Table({columns:[{label:'Time',width:'170px'},{label:'Event'},{label:'Booking',width:'110px'},{label:'Tour'}], rows:historyRows})
+      body: timelineItems.length
+        ? Comp.Timeline(timelineItems)
         : '<p class="empty-state">No activity recorded yet.</p>'
     });
   }
