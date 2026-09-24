@@ -6854,6 +6854,25 @@ const Comp = {
     // Product wins so a re-pointed product updates every booking with it.
     return {city: (p && p.city) || b.city || '', country: (p && p.country) || b.country || ''};
   },
+  // Returns a short timezone label for a booking, e.g. "Dubai" or "London".
+  // Derived from the booking's city → DATA.cities timezone field.
+  _bookingTzLabel(b){
+    const tzFriendly = {
+      'Asia/Dubai':'Dubai','Asia/Kolkata':'India','Europe/London':'London',
+      'Europe/Paris':'Paris','America/New_York':'New York','Asia/Tokyo':'Tokyo',
+      'Africa/Cairo':'Cairo','Europe/Berlin':'Berlin','America/Los_Angeles':'Los Angeles',
+      'America/Chicago':'Chicago','America/Denver':'Denver','Pacific/Auckland':'Auckland',
+      'Australia/Sydney':'Sydney','Asia/Singapore':'Singapore','Asia/Bangkok':'Bangkok',
+      'Asia/Seoul':'Seoul','Asia/Shanghai':'Shanghai','Asia/Hong_Kong':'Hong Kong',
+      'Europe/Rome':'Rome','Europe/Madrid':'Madrid','Europe/Amsterdam':'Amsterdam',
+      'Europe/Zurich':'Zurich','America/Toronto':'Toronto','America/Vancouver':'Vancouver'
+    };
+    const dest = Comp.bookingDestination(b);
+    const cityName = dest.city ? dest.city.toLowerCase() : '';
+    const cityRec = DATA.cities ? DATA.cities.find(c => c.name.toLowerCase() === cityName) : null;
+    const tz = cityRec && cityRec.timezone ? cityRec.timezone : '';
+    return tz ? (tzFriendly[tz] || tz.split('/').pop().replace(/_/g,' ')) : '';
+  },
   // Seed dates are "18 May 2024". Sorting and range-filtering need ISO.
   _bookingDateToISO(str){
     if (!str) return '';
@@ -9824,13 +9843,7 @@ Comp.OptimizationPanel = function(opts){
   (p) +
   '-schema" class="card-input schema-area">' +
   (schemaText) +
-  '</textarea>\n        </div>\n        <div>\n          <div style="display:flex; gap:8px; flex-wrap:wrap;">\n            ' +
-  (Comp.Button('↻ Generate schema from type', {size:'btn-sm', onclick:"Comp.optRegenSchema('" + p + "')"})) +
-  '\n            ' +
-  (Comp.Button('+ Add schema node', {size:'btn-sm', variant:'btn-ghost', onclick:"Comp.optAddSchema('" + p + "')"})) +
-  '\n          </div>\n          <div id="' +
-  (p) +
-  '-schemalist" class="mt-2h"></div>\n        </div>\n      </div>\n\n      ' +
+  '</textarea>\n        </div>\n      </div>\n\n      ' +
   ((function(){ if(!showCta) return '';
         return '<p class="opt-sub">Call-to-Action (CTA)</p><div class="field-stack">' +
           '<div class="field"><label for="' + p + '-cta">CTA Text</label><input id="' + p + '-cta" class="card-input" value="' + escAttr(opts.ctaText || 'In search for strategic sessions?') + '"></div>' +
@@ -21342,8 +21355,8 @@ function pageBookingListing(){
       <td class="cell-secondary" style="max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${b.tour}${b.productId ? `<div class="text-muted-xs-regular">${b.productId}</div>` : ''}</td>
       <td class="cell-secondary">${b.tourOption}<div class="text-muted-xs">${b.language}</div></td>
       <td>${Comp.ChannelTag(b.channel)}</td>
-      <td class="cell-secondary">${b.bookingDate}${b.bookingTime ? `<div class="text-muted-xs-regular">${b.bookingTime}</div>` : ''}</td>
-      <td class="cell-secondary">${b.travelDate}${b.timeSlot ? `<div class="text-muted-xs-regular">${b.timeSlot.split(' - ')[0]}</div>` : ''}</td>
+      <td class="cell-secondary">${b.bookingDate}${b.bookingTime ? `<div class="text-muted-xs-regular">${b.bookingTime}${Comp._bookingTzLabel(b) ? ` <span style="color:var(--text-muted);font-size:10px;">(${Comp._bookingTzLabel(b)})</span>` : ''}</div>` : ''}</td>
+      <td class="cell-secondary">${b.travelDate}${b.timeSlot ? `<div class="text-muted-xs-regular">${b.timeSlot.split(' - ')[0]}${Comp._bookingTzLabel(b) ? ` <span style="color:var(--text-muted);font-size:10px;">(${Comp._bookingTzLabel(b)})</span>` : ''}</div>` : ''}</td>
       <td class="cell-secondary">${b.guests}</td>
       <td class="cell-secondary">$${b.amount.toFixed(2)}</td>
       <td>${Comp.BookingStatusBadge(b.status)}</td>
@@ -21402,10 +21415,10 @@ function pageBookingDetails(params){
             ${Comp.MetaField('Product code', b.productId || '—')}
           </div>
           <div class="field-row">
-            ${Comp.MetaField('Travel date', b.travelDate + (b.timeSlot ? `<div class="text-muted-xs-regular">${b.timeSlot}</div>` : ''))}
+            ${Comp.MetaField('Travel date', b.travelDate + (b.timeSlot ? `<div class="text-muted-xs-regular">${b.timeSlot}${Comp._bookingTzLabel(b) ? ` <span style="color:var(--text-muted);font-size:10px;">(${Comp._bookingTzLabel(b)})</span>` : ''}</div>` : ''))}
           </div>
           <div class="field-row">
-            ${Comp.MetaField('Time slot', b.timeSlot)}
+            ${Comp.MetaField('Time slot', b.timeSlot ? b.timeSlot + (Comp._bookingTzLabel(b) ? ` <span style="color:var(--text-muted);font-size:10px;">(${Comp._bookingTzLabel(b)})</span>` : '') : '—')}
             ${Comp.MetaField('Travellers', b.guestsBreakdown)}
           </div>
           <div class="field-row">
@@ -21566,7 +21579,8 @@ function pageBookingDetails(params){
       <div class="field-row">
         ${Comp.MetaField('Booking ID', '#'+b.id)}
         ${Comp.MetaField('Booking status', Comp.BookingStatusBadge(b.status))}
-        ${Comp.MetaField('Created on', b.bookingDate + (b.bookingTime ? `<div class="text-muted-xs-regular">${b.bookingTime}</div>` : ''))}
+        ${Comp.MetaField('Booking date', b.bookingDate + (b.bookingTime ? `<div class="text-muted-xs-regular">${b.bookingTime}${Comp._bookingTzLabel(b) ? ` <span style="color:var(--text-muted);font-size:10px;">(${Comp._bookingTzLabel(b)})</span>` : ''}</div>` : ''))}
+        ${Comp.MetaField('Travel date', b.travelDate + (b.timeSlot ? `<div class="text-muted-xs-regular">${b.timeSlot}${Comp._bookingTzLabel(b) ? ` <span style="color:var(--text-muted);font-size:10px;">(${Comp._bookingTzLabel(b)})</span>` : ''}</div>` : ''))}
         ${Comp.MetaField('Supplier', Comp.ChannelTag(b.channel))}
       </div>
       <div class="field-row mt-4">
@@ -22372,7 +22386,7 @@ function pageCustomerListing(){
       <input id="filterCustomers" class="search-box" placeholder="Search by name or email address" oninput="Comp.filterTable('filterCustomers')">
       ${Comp.FilterIconButton(activeFilters, "Comp.openCustomerFilterDrawer()")}
     </div>
-    ${Comp.Table({columns:[{label:'Name'},{label:'Email',width:'200px'},{label:'Phone',width:'150px'},{label:'Account created',width:'130px'},{label:'Bookings',width:'90px'},{label:'Total spent',width:'110px'},{label:'Last booking',width:'130px'},{label:'Newsletter',width:'110px'},{label:'Status',width:'110px'},{label:'Action',width:'60px'}], rows, emptyText:'No customers found.'})}
+    ${Comp.Table({columns:[{label:'Name'},{label:'Email',width:'200px'},{label:'Phone',width:'150px'},{label:'Registered on',width:'130px'},{label:'Bookings',width:'90px'},{label:'Total spent',width:'110px'},{label:'Last booking',width:'130px'},{label:'Newsletter',width:'110px'},{label:'Status',width:'110px'},{label:'Action',width:'60px'}], rows, emptyText:'No customers found.'})}
     ${Comp.Pagination(`Showing ${customers.length} of ${customers.length} customers`)}
   `);
 }
@@ -22441,8 +22455,8 @@ function pageCustomerDetails(params){
       <td class="cell-name">${b.id}</td>
       <td class="cell-secondary">${b.tour}${b.productId ? `<div class="text-muted-xs-regular">${b.productId}</div>` : ''}</td>
       <td class="cell-secondary">${b.tourOption}<div class="text-muted-xs">${b.language}</div></td>
-      <td class="cell-secondary">${b.bookingDate}${b.bookingTime ? `<div class="text-muted-xs-regular">${b.bookingTime}</div>` : ''}</td>
-      <td class="cell-secondary">${b.travelDate}${b.timeSlot ? `<div class="text-muted-xs-regular">${b.timeSlot.split(' - ')[0]}</div>` : ''}</td>
+      <td class="cell-secondary">${b.bookingDate}${b.bookingTime ? `<div class="text-muted-xs-regular">${b.bookingTime}${Comp._bookingTzLabel(b) ? ` <span style="color:var(--text-muted);font-size:10px;">(${Comp._bookingTzLabel(b)})</span>` : ''}</div>` : ''}</td>
+      <td class="cell-secondary">${b.travelDate}${b.timeSlot ? `<div class="text-muted-xs-regular">${b.timeSlot.split(' - ')[0]}${Comp._bookingTzLabel(b) ? ` <span style="color:var(--text-muted);font-size:10px;">(${Comp._bookingTzLabel(b)})</span>` : ''}</div>` : ''}</td>
       <td class="cell-secondary">$${b.amount.toFixed(2)}</td>
       <td>${Comp.Badge(b.status, b.status==='Confirmed' || b.status==='Completed')}</td>
     </tr>`;
@@ -22511,7 +22525,7 @@ function pageCustomerDetails(params){
         ['Email', c.email || '—'],
         ['Phone', c.phone || '—'],
         ['Nationality', c.nationality || '—'],
-        ['Account created', c.signupDate || '—'],
+        ['Registered on', c.signupDate || '—'],
         ['Total bookings', String(c.bookingCount)],
         ['Total spent', `$${c.totalSpent.toFixed(2)}`],
         ['Last booking date', c.lastBookingDate],
