@@ -6698,11 +6698,12 @@ const Comp = {
     if(visible === 0){ if(!empty){ const cols=table.querySelectorAll('thead th').length; empty=document.createElement('tr'); empty.className='no-results-row'; empty.innerHTML='<td colspan="'+cols+'" class="table-empty">No cities match your filters.</td>'; table.querySelector('tbody').appendChild(empty); } } else if(empty){ empty.remove(); }
   },
   // ---- Category (Taxonomy) listing filter ----
-  _categoryFilters: {status:'', group:'', indexability:'', gsc:''},
+  _categoryFilters: {status:'', city:'', tier:'', indexability:'', gsc:''},
   openCategoryFilterDrawer(){
     const f = Comp._categoryFilters;
     const opt = (val, cur, label) => `<option value="${val}" ${cur===val?'selected':''}>${label||val||'All'}</option>`;
-    const groups = [...new Set(DATA.categories.map(c => c.group).filter(Boolean))].sort();
+    const cities = [...new Set(DATA.categories.filter(c => c.city).map(c => c.city).filter(Boolean))].sort();
+    const readSS = (id) => { const el = document.getElementById(id+'Input'); return el ? el.value.trim() : ''; };
     const html =
       '<div class="filter-drawer-group">' +
         '<label for="catf-status">Status</label>' +
@@ -6711,9 +6712,13 @@ const Comp = {
         '</select>' +
       '</div>' +
       '<div class="filter-drawer-group">' +
-        '<label for="catf-group">Group</label>' +
-        '<select id="catf-group" class="filter-select w-full">' +
-          opt('', f.group, 'All groups') + groups.map(g => opt(g, f.group)).join('') +
+        Comp.SearchSelect({id:'catfCity', label:'City', required:false, placeholder:'All cities — type to filter...', value:f.city||'',
+          options: cities.map(v=>({value:v})), addNewLabel:'', addNewHandler:()=>{}}) +
+      '</div>' +
+      '<div class="filter-drawer-group">' +
+        '<label for="catf-tier">Tier level</label>' +
+        '<select id="catf-tier" class="filter-select w-full">' +
+          opt('', f.tier, 'All tiers') + opt('City-level', f.tier) + opt('Global', f.tier) +
         '</select>' +
       '</div>' +
       '<div class="filter-drawer-group">' +
@@ -6732,14 +6737,18 @@ const Comp = {
       () => {
         Comp._categoryFilters = {
           status:       document.getElementById('catf-status').value,
-          group:        document.getElementById('catf-group').value,
+          city:         readSS('catfCity'),
+          tier:         document.getElementById('catf-tier').value,
           indexability: document.getElementById('catf-indexability').value,
           gsc:          document.getElementById('catf-gsc').value
         };
         Comp._applyCategoryFilters();
       },
       () => {
-        Comp._categoryFilters = {status:'', group:'', indexability:'', gsc:''};
+        Comp._categoryFilters = {status:'', city:'', tier:'', indexability:'', gsc:''};
+        const inp = document.getElementById('catfCityInput'); if(inp) inp.value='';
+        const panel = document.getElementById('catfCityPanel'); if(panel) panel.innerHTML='';
+        const wrap = document.getElementById('catfCity'); if(wrap) wrap.classList.remove('open');
         document.getElementById('filterCategories').value = '';
         Comp._applyCategoryFilters();
       }
@@ -6754,20 +6763,22 @@ const Comp = {
     tbl.querySelectorAll('tr:not(.no-results-row)').forEach(tr => {
       const cells = tr.querySelectorAll('td');
       const text  = tr.textContent.toLowerCase();
-      // cols: 0=checkbox 1=id 2=name 3=group 4=description 5=indexability 6=gsc 7=status 8=action
-      const groupCell       = cells[3] ? cells[3].textContent.trim() : '';
-      const indexabilityCell= cells[5] ? cells[5].textContent.trim() : '';
-      const gscCell         = cells[6] ? cells[6].textContent.trim() : '';
-      const statusCell      = cells[7] ? cells[7].textContent.trim() : '';
+      // cols: 0=checkbox 1=name 2=description 3=indexability 4=gsc 5=status 6=action
+      const indexabilityCell= cells[3] ? cells[3].textContent.trim() : '';
+      const gscCell         = cells[4] ? cells[4].textContent.trim() : '';
+      const statusCell      = cells[5] ? cells[5].textContent.trim() : '';
+      // City and tier derived from data attributes or text search
+      const cityMatch  = !f.city || text.includes(f.city.toLowerCase());
+      const tierMatch  = !f.tier || (f.tier === 'City-level' ? tr.dataset.hasCityTaxonomy === 'true' : tr.dataset.hasCityTaxonomy !== 'true');
       const ok = (!q || text.includes(q.toLowerCase())) &&
-        (!f.status       || statusCell.toLowerCase()       === f.status.toLowerCase()) &&
-        (!f.group        || groupCell                      === f.group) &&
-        (!f.indexability || indexabilityCell               === f.indexability) &&
+        (!f.status       || statusCell.toLowerCase() === f.status.toLowerCase()) &&
+        cityMatch && tierMatch &&
+        (!f.indexability || indexabilityCell         === f.indexability) &&
         (!f.gsc          || gscCell.startsWith(f.gsc));
       tr.style.display = ok ? '' : 'none';
       if(ok) visible++;
     });
-    const activeCount = [f.status, f.group, f.indexability, f.gsc].filter(Boolean).length;
+    const activeCount = [f.status, f.city, f.tier, f.indexability, f.gsc].filter(Boolean).length;
     Comp._updateFilterBadge('filterCategories', activeCount);
     const table = document.querySelector('#filterCategories')?.closest('.page')?.querySelector('table.data-table');
     if(!table) return;
@@ -11197,12 +11208,11 @@ function pageCategoryListing(){
     const gscSub = gsc.lastChecked ? '<div style="font-size:11px;color:var(--text-muted);margin-top:2px;">Checked ' + Comp._escHtml(gsc.lastChecked) + '</div>' : '';
     return `
     <tr class="row-clickable" tabindex="0" role="button" aria-label="View ${cat.city ? cat.name + ' in ' + cat.city : cat.name} details"
+        data-has-city-taxonomy="${cat.city ? 'true' : 'false'}"
         onclick="Router.go('categoryDetails',{id:'${cat.id}'})"
         onkeydown="if(event.key==='Enter'){Router.go('categoryDetails',{id:'${cat.id}'})}">
       ${Comp.BulkCheckboxTd('category', cat.id)}
-      <td class="cell-secondary" style="font-size:var(--fs-sm);color:var(--text-secondary);white-space:nowrap;">${Comp._escHtml(cat.id)}</td>
       <td class="cell-name">${cat.city ? Comp._escHtml(cat.name + ' in ' + cat.city) : Comp._escHtml(cat.name)}${Comp.ListingPendingBadge('categoryDetails',{id:cat.id})}</td>
-      <td class="cell-secondary">${cat.group || '—'}</td>
       <td class="cell-secondary" style="max-width:260px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${cat.description}</td>
       <td>${idxBadge}</td>
       <td>${gscBadge}${gscSub}</td>
@@ -11217,7 +11227,7 @@ function pageCategoryListing(){
     ${Comp.PageHeader({title:'Taxonomies'})}
     ${Comp.FilterBar('Search taxonomies', 'filterCategories', 'Comp.openCategoryFilterDrawer()')}
     ${Comp.BulkActionBar('category')}
-    ${Comp.Table({columns:[{label:Comp.BulkCheckboxTh('category'),width:'40px'},{label:'ID',width:'100px'},{label:'Taxonomy',width:'200px'},{label:'Group',width:'110px'},{label:'Description'},{label:'Indexability',width:'120px'},{label:'Google Index (GSC)',width:'150px'},{label:'Status',width:'140px'},{label:'Action',width:'70px'}], rows, emptyText:'No taxonomies found.'})}
+    ${Comp.Table({columns:[{label:Comp.BulkCheckboxTh('category'),width:'40px'},{label:'Taxonomy',width:'200px'},{label:'Description'},{label:'Indexability',width:'120px'},{label:'Google Index (GSC)',width:'150px'},{label:'Status',width:'140px'},{label:'Action',width:'70px'}], rows, emptyText:'No taxonomies found.'})}
     ${Comp.Pagination('Showing ' + DATA.categories.filter(c => !!c.city).length + ' of ' + DATA.categories.filter(c => !!c.city).length + ' taxonomies')}
   `);
 }
@@ -11247,11 +11257,6 @@ function pageCategoryDetails(params){
       <div class="field">
         <label class="field-label">Taxonomy name</label>
         <input type="text" class="form-input" value="${categoryDisplayName}" disabled readonly aria-label="Taxonomy name — read only">
-        <p class="field-hint mt-1">System-governed — cannot be edited here.</p>
-      </div>
-      <div class="field">
-        <label class="field-label">Group</label>
-        <input type="text" class="form-input" value="${category.group || '—'}" disabled readonly aria-label="Group — read only">
         <p class="field-hint mt-1">System-governed — cannot be edited here.</p>
       </div>
       <div class="field">
