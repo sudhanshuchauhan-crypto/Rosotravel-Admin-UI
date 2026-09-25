@@ -14158,59 +14158,139 @@ Comp.keywordsForEntity = function(name){
 Comp.KeywordAssignTab = function(entityName, entityLabel){
   const slug = (entityName || '').toLowerCase().trim().replace(/\s+/g, '-');
   const kws = Comp.keywordsForEntity(entityName);
-  const rows = kws.map(k => `
+
+  // Lazy-init new fields on existing records
+  kws.forEach(k => {
+    if (k.isUsed === undefined) k.isUsed = true;
+    if (!k.kwType) k.kwType = 'secondary';
+  });
+  // Ensure at most one primary
+  const primaries = kws.filter(k => k.kwType === 'primary');
+  if (primaries.length > 1) primaries.slice(1).forEach(k => { k.kwType = 'secondary'; });
+
+  const rows = kws.map(k => {
+    const usedBadge = k.isUsed
+      ? `<span class="badge badge-success" style="min-width:82px;justify-content:center;display:inline-flex;">Assigned</span>`
+      : `<span class="badge" style="background:var(--neutral-100);color:var(--text-muted);min-width:82px;justify-content:center;display:inline-flex;">Not Assigned</span>`;
+    const typeBadge = k.kwType === 'primary'
+      ? `<span class="badge" style="background:#eef2ff;color:#4338ca;min-width:72px;justify-content:center;display:inline-flex;">Primary</span>`
+      : `<span class="badge" style="background:var(--neutral-100);color:var(--text-muted);min-width:72px;justify-content:center;display:inline-flex;">Secondary</span>`;
+    const markUsedLabel    = k.isUsed ? 'Mark as not assigned' : 'Mark as assigned';
+    return `
     <tr>
       <td class="cell-name">${k.keyword}</td>
-      <td>${k.status === 'locked' ? Comp.Badge('Locked', true) : k.status === 'conflict' ? Comp.Badge('Conflict', false) : Comp.Badge(k.status, false)}</td>
-      <td onclick="event.stopPropagation()">${Comp.RowMenu(k.keyword, [
-        {label: k.status === 'locked' ? 'Unlock' : 'Lock', danger: k.status === 'locked', handler:() => Comp.confirmToggleKeywordLock(k.id)}
+      <td style="padding:10px 12px;">${typeBadge}</td>
+      <td style="padding:10px 12px;">${usedBadge}</td>
+      <td onclick="event.stopPropagation()" style="padding:10px 12px;text-align:right;">${Comp.RowMenu(k.keyword, [
+        {label: markUsedLabel,  handler:() => Comp._kwToggleUsed(k.id, entityName)},
+        {label: 'Remove',       danger: true, handler:() => Comp._kwRemove(k.id, entityName, entityLabel)}
       ])}</td>
-    </tr>`).join('');
+    </tr>`;
+  }).join('');
+
   return `<div class="card">
     <p class="card-title">Keyword Assign</p>
-    <p class="field-hint card-hint card-hint--tight">Keywords owned by this ${entityLabel} page — sourced from SEMrush. Lock/unlock ownership, or add a new keyword directly to this page.</p>
-    ${kws.length ? Comp.Table({columns:[{label:'Keyword'},{label:'Status',width:'110px'},{label:'Action',width:'70px'}], rows}) : `<p class="empty-state">No keywords currently assigned to this ${entityLabel} page.</p>`}
+    <p class="field-hint card-hint card-hint--tight">Keywords assigned to this ${entityLabel} page. Mark assignment status, set one as Primary, or add a new keyword.</p>
+    ${kws.length
+      ? Comp.Table({columns:[{label:'Keyword'},{label:'Keyword Type',width:'130px'},{label:'Status',width:'110px'},{label:'Action',width:'70px'}], rows})
+      : `<p class="empty-state">No keywords currently assigned to this ${entityLabel} page.</p>`}
     <div style="margin-top:14px; padding-top:14px; border-top:1px solid var(--border);">
-      <p class="field-hint" style="margin:0 0 8px;">Add a new keyword and lock it to this page:</p>
+      <p class="field-hint" style="margin:0 0 4px;">Add a new keyword to this page:</p>
+      <p class="field-hint" style="margin:0 0 8px;font-style:italic;">New keywords are added as <strong>Not Assigned</strong> and <strong>Secondary</strong> by default. Only one keyword per page can be Primary.</p>
       <div class="field-row items-end">
         <div class="field" style="flex:2;"><label for="kwAssignText-${slug}">Keyword</label><input id="kwAssignText-${slug}" class="card-input" placeholder="e.g. best time to visit ${entityName.toLowerCase()}"></div>
-        <div>${Comp.Button('+ Add', {size:'btn-sm', variant:'btn-primary', onclick:`Comp.addKeywordToEntity('${slug}','${entityName.replace(/'/g,"&#39;")}')`})}</div>
+        <div>${Comp.Button('+ Add', {size:'btn-sm', variant:'btn-primary', onclick:`Comp._kwAddNew('${slug}','${entityName.replace(/'/g,"&#39;")}','${entityLabel}')`})}</div>
       </div>
     </div>
   </div>`;
 };
-Comp.confirmToggleKeywordLock = function(id){
+
+Comp._kwToggleUsed = function(id, entityName){
   const k = DATA.keywordMap.find(x => x.id === id);
   if (!k) return;
-  const locking = k.status !== 'locked';
+  k.isUsed = !k.isUsed;
+  k.history = k.history || [];
+  k.history.unshift({label: k.isUsed ? 'Marked as assigned' : 'Marked as not assigned', time:new Date().toLocaleString(), actor:'Admin (you)'});
+  Comp.showToast(`"${k.keyword}" marked as ${k.isUsed ? 'assigned' : 'not assigned'}.`, 'success');
+  render();
+};
+
+Comp._kwToggleType = function(id, entityName){
+  const slug = (entityName || '').toLowerCase().trim().replace(/\s+/g, '-');
+  const kws = Comp.keywordsForEntity(entityName);
+  const k = DATA.keywordMap.find(x => x.id === id);
+  if (!k) return;
+  if (k.kwType !== 'primary') {
+    // Promoting to primary — downgrade existing primary first
+    const existing = kws.find(x => x.kwType === 'primary' && x.id !== id);
+    if (existing) {
+      existing.kwType = 'secondary';
+      existing.history = existing.history || [];
+      existing.history.unshift({label:'Set as secondary (replaced by new primary)', time:new Date().toLocaleString(), actor:'Admin (you)'});
+      Comp.showToast(`"${existing.keyword}" set as secondary.`, 'info');
+    }
+    k.kwType = 'primary';
+    k.history = k.history || [];
+    k.history.unshift({label:'Set as primary keyword', time:new Date().toLocaleString(), actor:'Admin (you)'});
+    Comp.showToast(`"${k.keyword}" set as primary keyword.`, 'success');
+  } else {
+    k.kwType = 'secondary';
+    k.history = k.history || [];
+    k.history.unshift({label:'Set as secondary keyword', time:new Date().toLocaleString(), actor:'Admin (you)'});
+    Comp.showToast(`"${k.keyword}" set as secondary.`, 'success');
+  }
+  render();
+};
+
+Comp._kwRemove = function(id, entityName, entityLabel){
+  const k = DATA.keywordMap.find(x => x.id === id);
+  if (!k) return;
   Comp.openConfirm({
-    title: locking ? 'Lock this keyword?' : 'Unlock this keyword?',
-    desc: locking
-      ? `"${k.keyword}" will be reserved for ${k.owningUrl || 'this page'} — not eligible for reassignment elsewhere until unlocked.`
-      : `"${k.keyword}" will become free for reassignment to a different page.`,
-    confirmLabel: locking ? 'Lock' : 'Unlock',
-    danger: !locking,
+    title: 'Remove keyword?',
+    desc: `"${k.keyword}" will be removed from this ${entityLabel} page and released for reassignment.`,
+    confirmLabel: 'Remove',
+    danger: true,
     onConfirm: () => {
-      k.status = locking ? 'locked' : 'free';
-      k.ownershipTimestamp = locking ? new Date().toLocaleString() : '';
+      k.status = 'free';
+      k.owningUrl = '';
+      k.isUsed = false;
+      k.kwType = 'secondary';
+      k.ownershipTimestamp = '';
       k.history = k.history || [];
-      k.history.unshift({label: locking ? 'Ownership locked' : 'Ownership unlocked', time:new Date().toLocaleString(), actor:'Admin (you)'});
-      Comp.showToast(`"${k.keyword}" ${locking ? 'locked' : 'unlocked'}.`, locking ? 'success' : 'danger');
+      k.history.unshift({label:`Removed from ${entityLabel} page`, time:new Date().toLocaleString(), actor:'Admin (you)'});
+      Comp.showToast(`"${k.keyword}" removed.`, 'danger');
       render();
     }
   });
 };
-Comp.addKeywordToEntity = function(slug, entityName){
-  const keyword = document.getElementById('kwAssignText-' + slug + '').value.trim().toLowerCase();
-  if (!keyword) { Comp.showToast('Please enter a keyword.', 'danger'); return; }
-  const dupe = DATA.keywordMap.find(k => k.keyword === keyword);
-  if (dupe) { Comp.showToast('This keyword already exists in the map.', 'danger'); return; }
-  DATA.keywordMap.push({
-    id: 'kw-'+Date.now(), keyword, intent:'Informational', volume:0, similarityBand:'C', entityMatch:true, seasonal:false,
-    status:'locked', owningUrl:`/${slug}/`, pageType:'', ownershipTimestamp:new Date().toLocaleString(),
-    history:[{label:`Keyword added and locked to ${entityName}`, time:new Date().toLocaleString(), actor:'Admin (you)'}]
-  });
-  Comp.showToast(`"${keyword}" added and locked to ${entityName}.`, 'success');
+
+Comp._kwAddNew = function(slug, entityName, entityLabel){
+  const keyword = (document.getElementById('kwAssignText-' + slug) || {}).value || '';
+  const kw = keyword.trim().toLowerCase();
+  if (!kw) { Comp.showToast('Please enter a keyword.', 'danger'); return; }
+  const dupe = DATA.keywordMap.find(k => k.keyword === kw);
+  if (dupe && dupe.owningUrl) { Comp.showToast('This keyword is already assigned to another page.', 'danger'); return; }
+  if (dupe) {
+    // Claim existing free keyword
+    dupe.status = 'locked';
+    dupe.owningUrl = '/' + slug + '/';
+    dupe.isUsed = false;
+    dupe.kwType = 'secondary';
+    dupe.ownershipTimestamp = new Date().toLocaleString();
+    dupe.history = dupe.history || [];
+    dupe.history.unshift({label:`Added to ${entityLabel} page`, time:new Date().toLocaleString(), actor:'Admin (you)'});
+  } else {
+    DATA.keywordMap.push({
+      id: 'kw-'+Date.now(), keyword: kw, intent:'Informational', volume:0, similarityBand:'C',
+      entityMatch:true, seasonal:false, status:'locked', owningUrl:'/' + slug + '/',
+      pageType:'', isUsed:false, kwType:'secondary',
+      ownershipTimestamp:new Date().toLocaleString(),
+      history:[{label:`Keyword added to ${entityLabel} page`, time:new Date().toLocaleString(), actor:'Admin (you)'}]
+    });
+  }
+  const inp = document.getElementById('kwAssignText-' + slug);
+  if (inp) inp.value = '';
+  Comp.showToast(`"${kw}" added as Not Assigned · Secondary.`, 'success');
   render();
 };
 
@@ -22386,7 +22466,7 @@ function pageCustomerListing(){
       <input id="filterCustomers" class="search-box" placeholder="Search by name or email address" oninput="Comp.filterTable('filterCustomers')">
       ${Comp.FilterIconButton(activeFilters, "Comp.openCustomerFilterDrawer()")}
     </div>
-    ${Comp.Table({columns:[{label:'Name'},{label:'Email',width:'200px'},{label:'Phone',width:'150px'},{label:'Registered on',width:'130px'},{label:'Bookings',width:'90px'},{label:'Total spent',width:'110px'},{label:'Last booking',width:'130px'},{label:'Newsletter',width:'110px'},{label:'Status',width:'110px'},{label:'Action',width:'60px'}], rows, emptyText:'No customers found.'})}
+    ${Comp.Table({columns:[{label:'Name'},{label:'Email',width:'200px'},{label:'Phone',width:'150px'},{label:'Account Created',width:'130px'},{label:'Bookings',width:'90px'},{label:'Total spent',width:'110px'},{label:'Last booking',width:'130px'},{label:'Newsletter',width:'110px'},{label:'Status',width:'110px'},{label:'Action',width:'60px'}], rows, emptyText:'No customers found.'})}
     ${Comp.Pagination(`Showing ${customers.length} of ${customers.length} customers`)}
   `);
 }
@@ -22525,7 +22605,7 @@ function pageCustomerDetails(params){
         ['Email', c.email || '—'],
         ['Phone', c.phone || '—'],
         ['Nationality', c.nationality || '—'],
-        ['Registered on', c.signupDate || '—'],
+        ['Account Created', c.signupDate || '—'],
         ['Total bookings', String(c.bookingCount)],
         ['Total spent', `$${c.totalSpent.toFixed(2)}`],
         ['Last booking date', c.lastBookingDate],
