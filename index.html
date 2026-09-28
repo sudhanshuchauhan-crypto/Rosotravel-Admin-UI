@@ -337,18 +337,6 @@
   </div>
 </div>
 
-<!-- Edit Redirect — dedicated wider modal (the generic confirm modal is too
-     narrow for two full-length URL fields side by side). -->
-<div class="overlay" id="modalEditRedirect" role="dialog" aria-modal="true" aria-labelledby="modalEditRedirectTitle">
-  <div class="modal" style="width:640px;">
-    <h3 id="modalEditRedirectTitle">Edit redirect</h3>
-    <div id="modalEditRedirectBody"></div>
-    <div class="modal-actions">
-      <button type="button" class="btn" onclick="Comp.closeModal('modalEditRedirect')">Cancel</button>
-      <button type="button" class="btn btn-primary" onclick="Comp.saveEditedRedirect()">Save this redirect!</button>
-    </div>
-  </div>
-</div>
 
 <!-- Change Password — opened from the profile dropdown (self-service). -->
 <div class="overlay" id="modalChangePassword" role="dialog" aria-modal="true" aria-labelledby="modalChangePasswordTitle">
@@ -479,7 +467,6 @@ const MODULE_SUBSECTIONS = {
   'Products':                  ['Product Catalog'],
   'Product Operations':        ['Inventory Explorer','Inventory Alerts','Algorithm Configuration'],
   'Bookings & Customers':      ['Bookings','Cancel Booking','Customers','Reviews','Discount Coupons'],
-  'Redirect & Deprecation':    ['Redirect & Deprecation'],
   'Settings & Administration': ['Users','Roles & Permissions','Prompt Management']
 };
 const MODULES = Object.keys(MODULE_SUBSECTIONS);
@@ -488,7 +475,7 @@ const MODULES = Object.keys(MODULE_SUBSECTIONS);
 // deliberately rather than by inheriting a module-wide tick.
 // Sub-sections that grant materially more than simply viewing their module.
 // Every entry here must exist in MODULE_SUBSECTIONS above.
-const SENSITIVE_SUBSECTIONS = ['Cancel Booking','Discount Coupons','Roles & Permissions','Algorithm Configuration','Redirect & Deprecation'];
+const SENSITIVE_SUBSECTIONS = ['Cancel Booking','Discount Coupons','Roles & Permissions','Algorithm Configuration'];
 
 function buildPerms(flags){
   // flags: e.g. {Bookings:'ve', Marketing:'v'} — v=view, e=edit.
@@ -2686,12 +2673,6 @@ const Comp = {
           <button type="button" class="nav-sub" ${['couponListing','couponCreate','couponDetails'].includes(Router.route) ? 'aria-current="page"' : ''} onclick="Router.go('couponListing')">Discount Coupons</button>
         </div>
 
-        <!-- Redirects sit under SEO & Growth in the client's diagram. That
-             group is not being surfaced yet, so this stays top-level rather
-             than being hidden along with it. -->
-        <button type="button" class="nav-item" ${['redirectPanel'].includes(Router.route) ? 'aria-current="page"' : ''} onclick="Router.go('redirectPanel')">
-          ${ICON.block}<span>Redirect &amp; Deprecation</span>
-        </button>
 
         <button type="button" class="nav-item" aria-expanded="${settingsAdminOpen}" onclick="NavUI.toggle('settingsAdmin')">
           ${ICON.shield}<span>Settings &amp; Administration</span>${ICON.chevDown}
@@ -20231,45 +20212,6 @@ Comp.removeFeaturedReview = function(entityType, entityId, reviewId){
   render();
 };
 
-function pageRedirectPanel(){
-  const rowActions = (r) => {
-    const actions = [];
-    if (!r.permanent) {
-      actions.push({label:'Approve', handler:() => Comp.redirectApprove(r.id)});
-      actions.push({label:'Mark permanent', handler:() => Comp.redirectMarkPermanent(r.id)});
-    }
-    actions.push({label:'Delete', danger:true, handler:() => {
-      if (r.ageDays < 540) { Comp.showToast('This redirect is under 18 months old and cannot be deleted yet.', 'danger'); return; }
-      Comp.redirectDelete(r.id);
-    }});
-    return actions;
-  };
-  const rows = DATA.redirects.map(r => `
-    <tr>
-      <td class="cell-name">${r.oldUrl}</td>
-      <td class="cell-secondary">${r.targetUrl || '—'}</td>
-      <td class="cell-secondary">${r.type}${r.permanent ? ' <span class="badge badge-active">Permanent</span>' : ''}</td>
-      <td class="cell-secondary">${r.ageDays}d</td>
-      <td class="cell-secondary">${r.trafficBefore} → ${r.trafficAfter}</td>
-      <td>${Comp.RowMenu(r.oldUrl, rowActions(r))}</td>
-    </tr>`).join('');
-  return Comp.Shell(`
-    ${Comp.PageHeader({title:'Redirect &amp; Deprecation Panel', subtitle:'Permanent winner → 301 · Temporary suppression → canonical+noindex · Removed without successor → 410. No redirect may be deleted before 18 months (540 days).'})}
-    ${Comp.Table({columns:[{label:'Old URL'},{label:'Target URL'},{label:'Type',width:'110px'},{label:'Age',width:'80px'},{label:'Traffic before/after',width:'150px'},{label:'Action',width:'70px'}], rows, emptyText:'No redirects found.'})}
-  `);
-}
-Comp.redirectApprove = function(id){
-  const r = DATA.redirects.find(x => x.id === id);
-  Comp.showToast(`${r.type} redirect approved: ${r.oldUrl} → ${r.targetUrl || '(removed)'}.`, 'success');
-};
-Comp.redirectMarkPermanent = function(id){
-  const r = DATA.redirects.find(x => x.id === id);
-  Comp.openConfirm({ title:'Mark as permanent?', desc:'This redirect will be locked as permanent.', confirmLabel:'Mark permanent', onConfirm:() => { r.permanent = true; Comp.showToast('Marked as permanent.', 'success'); render(); } });
-};
-Comp.redirectDelete = function(id){
-  const r = DATA.redirects.find(x => x.id === id);
-  Comp.openConfirm({ title:'Delete this redirect?', desc:`This redirect is ${r.ageDays} days old (18+ months) and may be deleted.`, confirmLabel:'Delete', danger:true, onConfirm:() => { DATA.redirects = DATA.redirects.filter(x=>x.id!==id); Comp.showToast('Redirect deleted.', 'danger'); render(); } });
-};
 
 // ============================================================
 // SEO Governance — Module 6: SEO Memory & Migration Panel (read-only)
@@ -23360,7 +23302,6 @@ const ROUTES = {
   mediaLibrary: pageMediaLibrary,
   reviewListing: pageReviewListing,
   reviewDetail: pageReviewDetail,
-  redirectPanel: pageRedirectPanel,
   staticPagesList: pageStaticPagesList,
   sitemapManagement: pageSitemapManagement,
   staticPageEditor: pageStaticPageEditor,
