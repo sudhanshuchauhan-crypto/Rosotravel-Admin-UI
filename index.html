@@ -425,8 +425,8 @@ const MODULE_SUBSECTIONS = {
   // Content Editor / Marketing Admin, Product Operations -> Product Ops Lead,
   // Bookings & Customers -> Bookings Ops, Settings & Administration -> Admin.
   'Dashboard':                 ['Dashboard'],
-  'Marketing & Content':       ['Countries','Regions','Cities','Attractions','Category Pages','Homepage','Blog','Static Pages','Media Library'],
-  'Products':                  ['Product Catalog','Bundles'],
+  'Marketing & Content':       ['Countries','Regions','Cities','Attractions','Category Pages','Homepage','Static Pages','Media Library'],
+  'Products':                  ['Product Catalog'],
   'Product Operations':        ['Inventory Explorer','Inventory Alerts','Algorithm Configuration'],
   'Bookings & Customers':      ['Bookings','Cancel Booking','Customers','Reviews','Discount Coupons'],
   'Redirect & Deprecation':    ['Redirect & Deprecation'],
@@ -1615,7 +1615,6 @@ DATA.staticPages.forEach(p => { if (!p.history) p.history = [{label:'Page last e
 })();
 
 DATA.sitemaps = [
-  {key:'index',        file:'sitemap.xml',              label:'Master Index',      entity:'Index (all sub-sitemaps)', urlCount:0,        status:'Success', lastGeneratedAt:'4 Sep 2026, 6:00 AM'},
   {key:'products',     file:'sitemap-products.xml',     label:'Products',          entity:'Tour & activity pages',   urlCount:1842,     status:'Success', lastGeneratedAt:'4 Sep 2026, 6:01 AM'},
   {key:'attractions',  file:'sitemap-attractions.xml',  label:'Attractions',       entity:'Attraction & POI pages',  urlCount:3210,     status:'Success', lastGeneratedAt:'4 Sep 2026, 6:02 AM'},
   {key:'destinations', file:'sitemap-destinations.xml', label:'Destinations',      entity:'Countries, regions, cities', urlCount:487,   status:'Success', lastGeneratedAt:'4 Sep 2026, 6:03 AM'},
@@ -1866,8 +1865,8 @@ const NavUI = {
   open: { marketingContent: false, products: false, productOps: false, bookingsCustomers: false, settingsAdmin: false },
   synced: { marketingContent: false, products: false, productOps: false, bookingsCustomers: false, settingsAdmin: false },
   ensureOpenForRoute(){
-    const marketingContentRoutes = ['countryListing','countryDetails','historyLog','regionListing','regionCreate','regionDetails','regionHistoryLog','cityListing','cityCreate','cityDetails','cityHistoryLog','attractionListing','attractionCreate','attractionDetails','attractionHistoryLog','dedupeReview','categoryListing','categoryDetails','categoryHistoryLog','homeManagement','blogListing','blogDetail','blogCreate','blogTopicPool','staticPagesList','staticPageEditor','mediaLibrary','mediaAssetDetails','sitemapManagement','aiSitemapPanel','apiFeedPanel'];
-    const productsRoutes = ['productListing','productDetails','bundleListing','bundleCreate','bundleDetails'];
+    const marketingContentRoutes = ['countryListing','countryDetails','historyLog','regionListing','regionCreate','regionDetails','regionHistoryLog','cityListing','cityCreate','cityDetails','cityHistoryLog','attractionListing','attractionCreate','attractionDetails','attractionHistoryLog','dedupeReview','categoryListing','categoryDetails','categoryHistoryLog','homeManagement','staticPagesList','staticPageEditor','mediaLibrary','mediaAssetDetails','sitemapManagement','aiSitemapPanel','apiFeedPanel'];
+    const productsRoutes = ['productListing','productDetails'];
     const productOpsRoutes = ['productOpsInventory','productOpsDetail','productOpsConfig','productOpsAlerts'];
     const bookingsCustomersRoutes = ['bookingListing','bookingDetails','customerListing','customerDetails','reviewListing','reviewDetail','couponListing','couponCreate','couponDetails'];
     const settingsAdminRoutes = ['usersListing','usersCreate','usersDetails','rolesListing','rolesCreate','rolesDetails','promptManagement','promptEditor'];
@@ -2605,7 +2604,7 @@ const Comp = {
           <button type="button" class="nav-sub" ${['attractionListing','attractionCreate','attractionDetails','attractionHistoryLog'].includes(Router.route) ? 'aria-current="page"' : ''} onclick="Router.go('attractionListing')">Attractions</button>
           <button type="button" class="nav-sub" ${['categoryListing','categoryDetails','categoryHistoryLog'].includes(Router.route) ? 'aria-current="page"' : ''} onclick="Router.go('categoryListing')">Category Pages</button>
           <button type="button" class="nav-sub" ${['homeManagement'].includes(Router.route) ? 'aria-current="page"' : ''} onclick="Router.go('homeManagement')">Homepage</button>
-          <button type="button" class="nav-sub" ${['blogListing','blogDetail','blogCreate','blogTopicPool'].includes(Router.route) ? 'aria-current="page"' : ''} onclick="Router.go('blogListing')">Blog</button>
+
           <button type="button" class="nav-sub" ${['staticPagesList','staticPageEditor'].includes(Router.route) ? 'aria-current="page"' : ''} onclick="Router.go('staticPagesList')">Static Pages</button>
           <button type="button" class="nav-sub" ${['mediaLibrary','mediaAssetDetails'].includes(Router.route) ? 'aria-current="page"' : ''} onclick="Router.go('mediaLibrary')">Media Library</button>
           <button type="button" class="nav-sub" ${Router.route==='sitemapManagement' ? 'aria-current="page"' : ''} onclick="Router.go('sitemapManagement')">Sitemap</button>
@@ -2616,7 +2615,6 @@ const Comp = {
         </button>
         <div class="nav-sublist" ${productsOpen ? '' : 'hidden'}>
           <button type="button" class="nav-sub" ${['productListing','productDetails'].includes(Router.route) ? 'aria-current="page"' : ''} onclick="Router.go('productListing')">Product Catalog</button>
-          <button type="button" class="nav-sub" ${['bundleListing','bundleCreate','bundleDetails'].includes(Router.route) ? 'aria-current="page"' : ''} onclick="Router.go('bundleListing')">Bundles</button>
         </div>
 
         <button type="button" class="nav-item" aria-expanded="${productOpsOpen}" onclick="NavUI.toggle('productOps')">
@@ -9524,21 +9522,165 @@ Comp._bsTabSwitch = function(btn, cardId){
   });
 };
 
-Comp._renderUrlCanonicalCard = function(idPrefix, slugFn){
+Comp._slugFnRegistry = {};
+
+Comp._renderUrlCanonicalCard = function(idPrefix, slugFn, entityType){
+  // Store slugFn so save handler can recalculate canonical after edit
+  Comp._slugFnRegistry[idPrefix] = slugFn;
+
   const LANG_CODES = Comp._urlLangCodes;
   const el = document.getElementById(idPrefix + '-lang');
   const currentLang = el ? el.value : 'English';
   const langCode = LANG_CODES[currentLang] || 'en';
   const data = slugFn(langCode, currentLang);
-  const slugHtml = '<span style="font-family:monospace;font-size:var(--fs-sm);color:var(--text-primary);">' + Comp._escHtml(data.slug) + '</span>';
-  const canonHtml = '<span style="font-family:monospace;font-size:var(--fs-sm);color:var(--text-primary);">' + Comp._escHtml(data.canonical) + '</span>';
+  const slugId = idPrefix + '-slug-input';
+  const slugViewId = idPrefix + '-slug-view';
+  const slugEditWrapId = idPrefix + '-slug-edit-wrap';
+  const redirectNoteId = idPrefix + '-slug-redirect-note';
+
+  // Both rows rendered as _infoTable rows for visual consistency
+  const canonRowHtml =
+    '<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border:1px solid var(--border-color,#e5e7eb);border-radius:8px;margin-bottom:6px;">' +
+      '<span style="font-size:var(--fs-sm);color:var(--text-secondary,#6b7280);">Canonical URL</span>' +
+      '<span id="' + idPrefix + '-canon-display" style="font-family:monospace;font-size:var(--fs-sm);color:var(--text-primary);">' + Comp._escHtml(data.canonical) + '</span>' +
+    '</div>';
+
+  const slugRowHtml = entityType
+    ? '<div style="border:1px solid var(--border-color,#e5e7eb);border-radius:8px;padding:10px 14px;">' +
+        // Label + read-only row
+        '<div id="' + slugViewId + '" style="display:flex;justify-content:space-between;align-items:center;gap:8px;">' +
+          '<span style="font-size:var(--fs-sm);color:var(--text-secondary,#6b7280);white-space:nowrap;">URL Slug</span>' +
+          '<div style="display:flex;align-items:center;gap:10px;min-width:0;">' +
+            '<span id="' + idPrefix + '-slug-display" style="font-family:monospace;font-size:var(--fs-sm);color:var(--text-primary);word-break:break-all;">' + Comp._escHtml(data.slug) + '</span>' +
+            Comp.Button('Edit', {size:'btn-sm', variant:'btn-outline', onclick:'Comp._editSlugMode(\'' + idPrefix + '\',true)'}) +
+          '</div>' +
+        '</div>' +
+        // Edit mode row (hidden by default)
+        '<div id="' + slugEditWrapId + '" style="display:none;margin-top:8px;">' +
+          '<div style="display:flex;gap:8px;align-items:center;">' +
+            '<input id="' + slugId + '" class="card-input" style="font-family:monospace;font-size:var(--fs-sm);flex:1;" value="' + Comp._escAttr(data.slug) + '" ' +
+              'oninput="this.value=this.value.toLowerCase().replace(/[^a-z0-9-]/g,\'-\');Comp._onSlugInput(this,\'' + idPrefix + '\',\'' + (entityType||'') + '\')" ' +
+              'data-original="' + Comp._escAttr(data.slug) + '">' +
+            Comp.Button('Save', {size:'btn-sm', variant:'btn-primary', onclick:'Comp._saveSlug(\'' + idPrefix + '\',\'' + (entityType||'') + '\')'}) +
+            Comp.Button('Cancel', {size:'btn-sm', variant:'btn-ghost', onclick:'Comp._editSlugMode(\'' + idPrefix + '\',false)'}) +
+          '</div>' +
+          '<div id="' + redirectNoteId + '" style="display:none;margin-top:8px;padding:8px 12px;background:var(--amber-50,#fffbeb);border:1px solid var(--amber-300,#fcd34d);border-radius:6px;font-size:var(--fs-sm);">' +
+            '⚠️ <strong>Note:</strong> Your old URL(s) will be redirected to this new URL.' +
+          '</div>' +
+          '<div id="' + idPrefix + '-slug-error" style="display:none;margin-top:6px;font-size:var(--fs-sm);color:var(--danger-600,#dc2626);"></div>' +
+        '</div>' +
+      '</div>'
+    : (data.slug
+        ? '<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border:1px solid var(--border-color,#e5e7eb);border-radius:8px;">' +
+            '<span style="font-size:var(--fs-sm);color:var(--text-secondary,#6b7280);">URL Slug</span>' +
+            '<span style="font-family:monospace;font-size:var(--fs-sm);color:var(--text-primary);">' + Comp._escHtml(data.slug) + '</span>' +
+          '</div>'
+        : '');
+
   return '<div class="card" style="margin-bottom:16px;" id="' + idPrefix + '-url-card">' +
     '<p class="card-title" style="margin-bottom:10px;">URL &amp; Canonical</p>' +
-    Comp._infoTable([
-      ['URL slug',      slugHtml],
-      ['Canonical URL', canonHtml]
-    ]) +
+    canonRowHtml +
+    slugRowHtml +
   '</div>';
+};
+
+Comp._editSlugMode = function(idPrefix, enterEdit){
+  const viewEl = document.getElementById(idPrefix + '-slug-view');
+  const editWrap = document.getElementById(idPrefix + '-slug-edit-wrap');
+  const input = document.getElementById(idPrefix + '-slug-input');
+  const errEl = document.getElementById(idPrefix + '-slug-error');
+  const redirectNote = document.getElementById(idPrefix + '-slug-redirect-note');
+  if(enterEdit){
+    if(viewEl) viewEl.style.display = 'none';
+    if(editWrap) editWrap.style.display = '';
+    if(input) input.focus();
+  } else {
+    // Cancel: restore original value
+    if(input){
+      const original = input.getAttribute('data-original');
+      input.value = original;
+    }
+    if(redirectNote) redirectNote.style.display = 'none';
+    if(errEl) errEl.style.display = 'none';
+    if(editWrap) editWrap.style.display = 'none';
+    if(viewEl) viewEl.style.display = '';
+  }
+};
+
+Comp._onSlugInput = function(input, idPrefix, entityType){
+  const redirectNote = document.getElementById(idPrefix + '-slug-redirect-note');
+  const errEl = document.getElementById(idPrefix + '-slug-error');
+  const original = input.getAttribute('data-original');
+  const val = input.value;
+  // Show redirect note if slug has changed
+  if(redirectNote) redirectNote.style.display = (val && val !== original) ? '' : 'none';
+  // Validate uniqueness within same entity type
+  if(errEl) errEl.style.display = 'none';
+  if(!val || val === original) return;
+  const arr = entityType === 'country' ? DATA.countries
+    : entityType === 'region' ? DATA.regions
+    : entityType === 'city' ? DATA.cities
+    : entityType === 'attraction' ? DATA.masterAttractions
+    : entityType === 'category' ? DATA.categories : [];
+  const slug = val.toLowerCase();
+  const isDupe = arr.some(item => {
+    const itemSlug = (item.slug || (item.name||'').toLowerCase().replace(/[^a-z0-9]+/g,'-'));
+    return itemSlug === slug && item.slug !== original;
+  });
+  if(isDupe && errEl){
+    errEl.textContent = 'This slug is already used by another ' + entityType + '. Please choose a unique slug.';
+    errEl.style.display = '';
+  }
+};
+
+Comp._saveSlug = function(idPrefix, entityType){
+  const input = document.getElementById(idPrefix + '-slug-input');
+  const errEl = document.getElementById(idPrefix + '-slug-error');
+  if(!input) return;
+  const val = input.value.trim();
+  if(!val){ Comp.showToast('URL slug cannot be empty.', 'danger'); return; }
+  // Re-check uniqueness before save
+  const arr = entityType === 'country' ? DATA.countries
+    : entityType === 'region' ? DATA.regions
+    : entityType === 'city' ? DATA.cities
+    : entityType === 'attraction' ? DATA.masterAttractions
+    : entityType === 'category' ? DATA.categories : [];
+  const original = input.getAttribute('data-original');
+  const isDupe = arr.some(item => {
+    const itemSlug = (item.slug || (item.name||'').toLowerCase().replace(/[^a-z0-9]+/g,'-'));
+    return itemSlug === val && item.slug !== original;
+  });
+  if(isDupe){
+    if(errEl){ errEl.textContent = 'This slug is already used by another ' + entityType + '. Please choose a unique slug.'; errEl.style.display = ''; }
+    Comp.showToast('Slug is already in use — please choose a unique one.', 'danger');
+    return;
+  }
+  // Save to data
+  const entity = arr.find(item => (item.slug || (item.name||'').toLowerCase().replace(/[^a-z0-9]+/g,'-')) === original);
+  if(entity){ entity.slug = val; }
+  input.setAttribute('data-original', val);
+  const redirectNote = document.getElementById(idPrefix + '-slug-redirect-note');
+  if(redirectNote) redirectNote.style.display = 'none';
+  if(errEl) errEl.style.display = 'none';
+  // Update the read-only slug display span
+  const displaySpan = document.getElementById(idPrefix + '-slug-display');
+  if(displaySpan) displaySpan.textContent = val;
+  // Recalculate and update canonical URL display using updated entity data
+  const slugFn = Comp._slugFnRegistry[idPrefix];
+  if(slugFn){
+    const LANG_CODES = Comp._urlLangCodes || {};
+    const langEl = document.getElementById(idPrefix + '-lang');
+    const currentLang = langEl ? langEl.value : 'English';
+    const langCode = LANG_CODES[currentLang] || 'en';
+    const newData = slugFn(langCode, currentLang); // entity.slug already updated above
+    const canonSpan = document.getElementById(idPrefix + '-canon-display');
+    if(canonSpan && newData && newData.canonical){
+      canonSpan.textContent = newData.canonical;
+    }
+  }
+  // Switch back to read-only view
+  Comp._editSlugMode(idPrefix, false);
+  Comp.showToast('URL slug updated successfully.', 'success');
 };
 
 Comp.contentLanguageBar = function(idPrefix, hideAudience, opts){
@@ -9840,6 +9982,7 @@ Comp.submitChangePassword = function(){
   Comp.showToast('Password changed successfully.', 'success');
 };
 Comp._escHtml = function(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); };
+Comp._escRegex = function(s){ return String(s==null?'':s).replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); };
 // The logged-in admin for this session — used by 2FA, My Profile, and Logout.
 Comp.CURRENT_USER_EMAIL = 'aditi.verma@rosotravel.com';
 Comp._loginPendingEmail = null;
@@ -10291,7 +10434,7 @@ function pageCountryDetails(params){
       const slug = (country.slug || country.name.toLowerCase().replace(/[^a-z0-9]+/g,'-'));
       const langSlug = code === 'en' ? slug : slug;
       return {slug: langSlug, canonical: `https://rosotravel.com/${code}/${langSlug}/`};
-    })}
+    }, 'country')}
     <div class="ops-tabs" role="tablist">
       ${tabs.map(t => `<button type="button" class="ops-tab ${tab===t.id?'is-active':''}" onclick="Router.go('countryDetails',{id:'${country.id}', tab:'${t.id}'})">${t.label}</button>`).join('')}
     </div>
@@ -10597,7 +10740,7 @@ function pageRegionDetails(params){
       const countrySlug = (region.country || '').toLowerCase().replace(/[^a-z0-9]+/g,'-');
       const slug = (region.slug || region.name.toLowerCase().replace(/[^a-z0-9]+/g,'-'));
       return {slug: slug, canonical: `https://rosotravel.com/${code}/${countrySlug}/${slug}/`};
-    })}
+    }, 'region')}
     <div class="ops-tabs" role="tablist">
       ${tabs.map(t => `<button type="button" class="ops-tab ${tab===t.id?'is-active':''}" onclick="Router.go('regionDetails',{id:'${region.id}', tab:'${t.id}'})">${t.label}</button>`).join('')}
     </div>
@@ -10902,7 +11045,7 @@ function pageCityDetails(params){
       const countrySlug = (city.country || '').toLowerCase().replace(/[^a-z0-9]+/g,'-');
       const slug = (city.slug || city.name.toLowerCase().replace(/[^a-z0-9]+/g,'-'));
       return {slug: slug, canonical: `https://rosotravel.com/${code}/${countrySlug}/${slug}/`};
-    })}
+    }, 'city')}
     <div class="ops-tabs" role="tablist">
       ${tabs.map(t => `<button type="button" class="ops-tab ${tab===t.id?'is-active':''}" onclick="Router.go('cityDetails',{id:'${city.id}', tab:'${t.id}'})">${t.label}</button>`).join('')}
     </div>
@@ -11262,7 +11405,7 @@ function pageAttractionDetails(params){
       const citySlug    = (attraction.city||'').toLowerCase().replace(/[^a-z0-9]+/g,'-');
       const slug        = (attraction.slug || attraction.name.toLowerCase().replace(/[^a-z0-9]+/g,'-'));
       return {slug: slug, canonical: `https://rosotravel.com/${code}/${countrySlug}/${citySlug}/${slug}/`};
-    })}
+    }, 'attraction')}
     <div class="ops-tabs" role="tablist">
       ${tabs.map(t => `<button type="button" class="ops-tab ${tab===t.id?'is-active':''}" role="tab" aria-selected="${tab===t.id}" onclick="Router.go('attractionDetails',{id:'${attraction.id}', tab:'${t.id}'})">${t.label}</button>`).join('')}
     </div>
@@ -11301,6 +11444,7 @@ function pageCategoryListing(){
         onkeydown="if(event.key==='Enter'){Router.go('categoryDetails',{id:'${cat.id}'})}">
       ${Comp.BulkCheckboxTd('category', cat.id)}
       <td class="cell-name">${cat.city ? Comp._escHtml(cat.name + ' in ' + cat.city) : Comp._escHtml(cat.name)}${Comp.ListingPendingBadge('categoryDetails',{id:cat.id})}</td>
+      <td>${cat.city ? Comp._escHtml(cat.city) : '<span class="field-hint">—</span>'}</td>
       <td class="cell-secondary" style="max-width:260px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${cat.description}</td>
       <td>${idxBadge}</td>
       <td>${gscBadge}${gscSub}</td>
@@ -11315,7 +11459,7 @@ function pageCategoryListing(){
     ${Comp.PageHeader({title:'Category Pages'})}
     ${Comp.FilterBar('Search category pages', 'filterCategories', 'Comp.openCategoryFilterDrawer()')}
     ${Comp.BulkActionBar('category')}
-    ${Comp.Table({columns:[{label:Comp.BulkCheckboxTh('category'),width:'40px'},{label:'Category Pages',width:'200px'},{label:'Description'},{label:'Indexability',width:'120px'},{label:'Google Index (GSC)',width:'150px'},{label:'Status',width:'140px'},{label:'Action',width:'70px'}], rows, emptyText:'No category pages found.'})}
+    ${Comp.Table({columns:[{label:Comp.BulkCheckboxTh('category'),width:'40px'},{label:'Category Pages',width:'200px'},{label:'Created for Destination',width:'160px'},{label:'Description'},{label:'Indexability',width:'120px'},{label:'Google Index (GSC)',width:'150px'},{label:'Status',width:'140px'},{label:'Action',width:'70px'}], rows, emptyText:'No category pages found.'})}
     ${Comp.Pagination('Showing ' + DATA.categories.filter(c => !!c.city).length + ' of ' + DATA.categories.filter(c => !!c.city).length + ' category pages')}
   `);
 }
@@ -11389,10 +11533,14 @@ function pageCategoryDetails(params){
         <p class="field-hint mt-1">Displayed as a key-value table on the category page landing page.</p>
       </div>
     `})}
+    ${Comp.AiCard({id:'category-alt-snippet', title:`Looking for a different way to experience ${categoryDisplayName} scene?`, fieldsHtml:`
+      ${aiField('H2', `Looking for a different way to experience ${categoryDisplayName} scene?`)}
+      ${aiField('Snippet', category.altSnippet || '', 'textarea')}
+    `})}
     ${Comp.AiCard({id:'category-faq', title:'Frequently asked questions', stackAttrs:'data-max-items="10"', fieldsHtml:
       Comp.FaqItem(1, `What type of experiences does ${categoryDisplayName} include?`, `${categoryDisplayName} covers a wide range of curated travel experiences available through Rosotravel, from guided tours to self-guided itineraries.`, true) +
       `<button type="button" class="add-item-btn" data-item-type="faq">+ Add Another FAQ</button>`
-    })}`;
+    })}` ;
   } else if (tab === 'optimization') {
     tabBody = Comp.OptimizationPanel({
       title:'Page Optimization', idPrefix:'catopt-'+category.id,
@@ -11433,6 +11581,11 @@ function pageCategoryDetails(params){
         ${Comp.Button(category.status==='Active' ? 'Deactivate' : 'Activate', {variant:'btn-amber', onclick:`Comp.confirmToggleCategoryStatus('${category.id}')`})}`, level:'h2'})}
     ${Comp.pendingApprovalsBanner()}
     ${Comp.contentLanguageBar('category', true)}
+    ${Comp._renderUrlCanonicalCard('category', (code) => {
+      const citySlug    = (category.city||'').toLowerCase().replace(/[^a-z0-9]+/g,'-');
+      const slug        = (category.slug || category.name.toLowerCase().replace(/[^a-z0-9]+/g,'-'));
+      return {slug: slug, canonical: `https://rosotravel.com/${code}/${citySlug}/${slug}/`};
+    }, 'category')}
     <div class="ops-tabs" role="tablist">
       ${tabs.map(t => '<button type="button" class="ops-tab ' + (tab===t.id?'is-active':'') + '" role="tab" aria-selected="' + (tab===t.id) + '" onclick="Router.go(\'categoryDetails\',{id:\'${category.id}\', tab:\'' + t.id + '\'})">' + t.label + '</button>').join('')}
     </div>
@@ -23150,9 +23303,7 @@ const ROUTES = {
   resetPassword: pageResetPassword,
   dashboard: pageDashboard,
   homeManagement: pageHomeManagement,
-  bundleListing: pageBundleListing,
-  bundleCreate: pageBundleCreate,
-  bundleDetails: pageBundleDetails,
+
   productListing: pageProductListing,
   productDetails: pageProductDetails,
   productOpsInventory: pageProductOpsInventory,
@@ -23184,10 +23335,6 @@ const ROUTES = {
   automationTriggers: pageAutomationTriggers,
   mediaLibrary: pageMediaLibrary,
   mediaAssetDetails: pageMediaAssetDetails,
-  blogListing: pageBlogListing,
-  blogCreate: pageBlogCreate,
-  blogDetail: pageBlogDetail,
-  blogTopicPool: pageBlogTopicPool,
   reviewListing: pageReviewListing,
   reviewDetail: pageReviewDetail,
   redirectPanel: pageRedirectPanel,
