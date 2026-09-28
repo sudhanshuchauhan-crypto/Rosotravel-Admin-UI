@@ -91,7 +91,41 @@
   .attractions-list{border:1px solid var(--border); border-radius:var(--radius-md); overflow:hidden;}.list-row{display:flex; align-items:center; gap:14px; padding:12px 16px; border-bottom:1px solid var(--border);}.list-row:last-child{border-bottom:none;}.list-thumb{width:44px; height:44px; border-radius:6px; background:var(--n-150); flex-shrink:0; background-size:cover; background-position:center;}.list-row__body{flex:1; min-width:0;}.list-row__title{font-size:var(--fs-base); font-weight:600; margin:0; color:var(--text-primary);}.list-row__meta{font-size:var(--fs-xs); color:var(--text-muted); margin:2px 0 0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}.attraction-actions{display:flex; gap:2px; flex-shrink:0;}.attraction-icon-btn{width:32px; height:32px; border-radius:var(--radius-sm); background:none; border:none; color:var(--text-muted); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:15px;}.attraction-icon-btn:hover{background:var(--surface-sunken); color:var(--text-secondary);}.attraction-icon-btn.danger:hover{color:var(--danger-600); background:var(--danger-50);}.empty-state{padding:24px 16px; text-align:center; color:var(--text-muted); font-size:var(--fs-sm); border:1px dashed var(--border-strong); border-radius:var(--radius-md);}.section-header-row{display:flex; align-items:center; justify-content:space-between; margin-bottom:18px;}.section-header-row .card-title{margin:0;}.repeat-item__header{display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;}.repeat-item__label{font-weight:600; margin:0; font-size:var(--fs-sm); color:var(--text-secondary);}.repeat-item__remove{display:none; background:none; border:none; color:var(--danger-600); font-size:var(--fs-sm); font-weight:600; cursor:pointer; padding:0;}.repeat-item__remove:hover{text-decoration:underline;}.card.is-editing .repeat-item__remove, .editable-scope .repeat-item__remove{display:inline;}.add-item-btn{display:none; width:100%; text-align:center; background:none; border:none; color:var(--accent-600); font-size:var(--fs-sm); font-weight:600; cursor:pointer; padding:8px 0;}.add-item-btn:hover{text-decoration:underline;}.card.is-editing .add-item-btn, .editable-scope .add-item-btn{display:block;}.self-add-btn{display:block; width:100%; text-align:center; background:none; border:none; color:var(--accent-600); font-size:var(--fs-sm); font-weight:600; cursor:pointer; padding:8px 0;}.self-add-btn:hover{text-decoration:underline;}.upload-area{
     border:1.5px dashed var(--border-strong); border-radius:var(--radius-md); min-height:140px; display:flex; flex-direction:column;
     align-items:center; justify-content:center; gap:3px; cursor:pointer; color:var(--text-muted); background:var(--surface-sunken); text-align:center; padding:16px;
-  }.upload-area:hover{border-color:var(--accent-500); background:var(--accent-50);}.upload-area .up-title{font-size:var(--fs-base); color:var(--text-primary); font-weight:600;}.upload-area .up-sub, .upload-area .up-hint{font-size:var(--fs-xs); color:var(--text-muted);}.table-wrap{overflow-x:auto; border:1px solid var(--border); border-radius:var(--radius-lg); background:var(--surface-card); box-shadow:var(--shadow-sm);}table.data-table{width:100%; border-collapse:collapse; min-width:640px;}table.data-table thead tr{background:var(--surface-sunken);}table.data-table th{
+  }.upload-area:hover{border-color:var(--accent-500); background:var(--accent-50);}.upload-area .up-title{font-size:var(--fs-base); color:var(--text-primary); font-weight:600;}.upload-area .up-sub, .upload-area .up-hint{font-size:var(--fs-xs); color:var(--text-muted);}
+  /* ── Dual Media Upload (Upload Device + Select from Library) ── */
+  .media-dual-upload-wrap{display:none;}
+  .card.is-editing .media-dual-upload-wrap,
+  .editable-scope .media-dual-upload-wrap,
+  .always-editable .media-dual-upload-wrap,
+  form .media-dual-upload-wrap,
+  .repeat-item .media-dual-upload-wrap,
+  .wizard-step .media-dual-upload-wrap{display:block;}
+  /* No media placeholder — shown in view mode when no asset selected */
+  .media-no-upload{display:block;padding:14px 16px;border:1px dashed var(--border);border-radius:var(--radius-md);background:var(--surface-sunken);color:var(--text-muted);font-size:var(--fs-sm);text-align:center;}
+  .card.is-editing .media-no-upload,
+  .editable-scope .media-no-upload,
+  .always-editable .media-no-upload,
+  form .media-no-upload,
+  .repeat-item .media-no-upload,
+  .wizard-step .media-no-upload{display:none;}
+  .media-dual-upload{display:grid;grid-template-columns:1fr auto 1fr;gap:0;border:1.5px dashed var(--border-strong);border-radius:var(--radius-md);overflow:hidden;background:var(--surface-sunken);}
+  .media-dual-option{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:20px 16px;cursor:pointer;border:none;background:none;color:var(--text-muted);text-align:center;transition:background var(--dur),color var(--dur);min-height:130px;}
+  .media-dual-option:hover{background:var(--accent-50);color:var(--accent-600);}
+  .media-dual-option:hover .mdu-icon{color:var(--accent-500);}
+  .mdu-icon{font-size:22px;margin-bottom:2px;color:var(--text-muted);transition:color var(--dur);}
+  .mdu-title{font-size:var(--fs-sm);font-weight:600;color:var(--text-primary);}
+  .mdu-sub{font-size:var(--fs-xs);color:var(--text-muted);}
+  .media-dual-divider{display:flex;align-items:center;justify-content:center;width:36px;background:var(--surface-sunken);border-left:1px solid var(--border);border-right:1px solid var(--border);}
+  .media-dual-divider span{font-size:var(--fs-xs);font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;}
+  .media-dual-selected{border:1.5px solid var(--border);border-radius:var(--radius-md);background:var(--surface-card);padding:12px 14px;display:flex;align-items:center;gap:10px;}
+  .media-dual-selected .mds-thumb{width:56px;height:40px;border-radius:4px;background:var(--n-150);flex-shrink:0;object-fit:cover;}
+  .media-dual-selected .mds-info{flex:1;min-width:0;}
+  .media-dual-selected .mds-name{font-size:var(--fs-sm);font-weight:600;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .media-dual-selected .mds-meta{font-size:var(--fs-xs);color:var(--text-muted);}
+  .media-dual-selected .mds-remove{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:16px;padding:4px;border-radius:4px;flex-shrink:0;}
+  .media-dual-selected .mds-remove:hover{color:var(--danger-600);background:var(--danger-50);}
+  @media(max-width:500px){.media-dual-upload{grid-template-columns:1fr;}.media-dual-divider{width:100%;height:32px;border-left:none;border-right:none;border-top:1px solid var(--border);border-bottom:1px solid var(--border);}.media-dual-divider span{transform:none;}}
+  .table-wrap{overflow-x:auto; border:1px solid var(--border); border-radius:var(--radius-lg); background:var(--surface-card); box-shadow:var(--shadow-sm);}table.data-table{width:100%; border-collapse:collapse; min-width:640px;}table.data-table thead tr{background:var(--surface-sunken);}table.data-table th{
     text-align:left; padding:0 20px; height:40px; font-size:var(--fs-xs); font-weight:600; letter-spacing:.03em; text-transform:uppercase;
     color:var(--text-muted); border-bottom:1px solid var(--border); white-space:nowrap;
   }table.data-table td{padding:14px 20px; font-size:var(--fs-base); border-bottom:1px solid var(--border); vertical-align:middle;}table.data-table tbody tr:last-child td{border-bottom:none;}table.data-table tbody tr:hover td{background:var(--surface-sunken);}.row-clickable{cursor:pointer;}.row-clickable:hover{background:var(--surface-sunken);}.cell-name{font-weight:600; color:var(--text-primary);}.cell-secondary{color:var(--text-secondary);}.row-menu-btn{color:var(--text-muted); cursor:pointer; background:none; border:none; padding:0; border-radius:var(--radius-sm); display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; flex-shrink:0;}.row-menu-btn:hover, .row-menu-btn[aria-expanded="true"]{background:var(--n-150); color:var(--text-secondary);}.row-menu-popover{background:var(--surface-card); border:1px solid var(--border); border-radius:var(--radius-md); box-shadow:var(--shadow-md); padding:4px; min-width:170px; z-index:60;}.row-menu-popover button{display:block; width:100%; text-align:left; padding:9px 10px; font-size:var(--fs-sm); font-weight:500; border:none; background:none; cursor:pointer; border-radius:var(--radius-sm); color:var(--text-primary);}.row-menu-popover button:hover{background:var(--surface-sunken);}.row-menu-popover button.danger{color:var(--danger-600);}.tag{background:var(--n-100); color:var(--text-secondary); font-size:var(--fs-xs); font-weight:500; padding:3px 6px 3px 8px; border-radius:5px; display:inline-flex; align-items:center; gap:4px;}.tags-box{display:flex; flex-wrap:wrap; gap:8px;}.tag-remove{display:none; background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:14px; line-height:1; padding:0 2px; border-radius:3px;}.tag-remove:hover{color:var(--danger-600); background:var(--danger-50);}.card.is-editing .tag-remove{display:inline-flex;}.region-add-select{display:none; height:26px; width:auto; border:1px dashed var(--border-strong); border-radius:5px; font-size:var(--fs-xs); padding:0 6px; background-color:var(--surface-card); background-image:none; color:var(--text-secondary); cursor:pointer;}.card.is-editing .region-add-select{display:inline-block;}.table-empty{padding:56px 20px; text-align:center; color:var(--text-muted); font-size:var(--fs-base);}.badge{display:inline-flex; align-items:center; gap:5px; padding:3px 10px; border-radius:20px; font-size:var(--fs-xs); font-weight:600; align-self:flex-start; width:fit-content;}.badge-active{background:var(--success-50); color:var(--success-700);}.badge-inactive{background:var(--n-100); color:var(--text-secondary);}.badge-danger{background:var(--danger-50); color:var(--danger-700);}.badge-warning{background:var(--warning-50); color:var(--warning-700);}.badge-dot{width:6px; height:6px; border-radius:50%; background:currentColor; flex-shrink:0;}.badge-info{background:var(--info-50); color:var(--info-600);}.badge-pending{background:var(--warning-50); color:var(--warning-700);}.badge-cancelled{background:var(--danger-50); color:var(--danger-700);}/* Product Ops — Inventory Explorer tabs and small flag chips */
@@ -99,7 +133,23 @@
   .param-table{width:100%; border-collapse:collapse;}.param-table th{text-align:left; padding:10px 14px; font-size:var(--fs-xs); font-weight:700; color:var(--text-muted); border-bottom:1px solid var(--border); background:var(--surface-sunken);}.param-table td{padding:9px 14px; font-size:var(--fs-sm); border-bottom:1px solid var(--border); vertical-align:middle;}.param-table input[type="number"]{width:100px; padding:6px 10px;}.param-table .param-bounds{color:var(--text-muted); font-size:var(--fs-xs);}.param-locked-list{list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:8px;}.param-locked-list li{padding:8px 12px; background:var(--surface-sunken); border-radius:var(--radius-sm); font-size:var(--fs-sm); color:var(--text-secondary);}/* Pipeline View — risk indicators (status pills now use the shared Badge component) */
   .pipe-risk-low{color:var(--success-700); font-weight:700;}.pipe-risk-medium{color:var(--warning-700); font-weight:700;}.pipe-risk-high{color:var(--danger-700); font-weight:700;}/* Keyword Ownership Panel — split view */
   .kw-split{display:flex; gap:20px; align-items:flex-start;}.kw-left{flex:1.4; min-width:0;}.kw-right{width:360px; flex-shrink:0; background:var(--surface-card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:20px; position:sticky; top:20px;}.kw-status-free{background:var(--success-50); color:var(--success-700);}.kw-status-locked{background:var(--n-100); color:var(--text-secondary);}.kw-status-conflict{background:var(--danger-50); color:var(--danger-700);}.kw-row-selected{background:var(--accent-50);}/* Media Library */
-  .media-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:14px;}.media-card{border:1px solid var(--border); border-radius:var(--radius-md); padding:14px; background:var(--surface-card);}.media-thumb{width:100%; height:110px; border-radius:var(--radius-sm); background:var(--surface-sunken); display:flex; align-items:center; justify-content:center; color:var(--text-muted); font-size:var(--fs-xs); margin-bottom:10px;}/* All Destinations (Entities) panel */
+  .media-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:14px;}.media-card{border:1px solid var(--border); border-radius:var(--radius-md); padding:14px; background:var(--surface-card);}.media-thumb{width:100%; height:110px; border-radius:var(--radius-sm); background:var(--surface-sunken); display:flex; align-items:center; justify-content:center; color:var(--text-muted); font-size:var(--fs-xs); margin-bottom:10px;}
+  /* Media Library — photo grid */
+  .media-photo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;}
+  .media-photo-card{border-radius:10px;overflow:hidden;background:var(--surface-card);border:1px solid var(--border-color,#e5e7eb);cursor:pointer;transition:box-shadow .15s,transform .15s;}
+  .media-photo-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.12);transform:translateY(-2px);}
+  .media-photo-thumb{position:relative;width:100%;aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;}
+  .media-ext-badge{position:absolute;top:7px;left:8px;font-size:10px;font-weight:700;color:#fff;background:rgba(0,0,0,.38);padding:2px 6px;border-radius:4px;letter-spacing:.5px;}
+  .media-used-badge{position:absolute;top:7px;right:8px;font-size:10px;font-weight:600;color:#fff;background:rgba(26,74,122,.75);padding:2px 6px;border-radius:4px;}
+  .media-photo-meta{display:flex;align-items:center;gap:6px;padding:8px 10px;border-top:1px solid var(--border-color,#e5e7eb);}
+  .media-photo-name{font-size:11px;color:var(--text-secondary,#6b7280);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;}
+  /* Tag chips */
+  .media-tag-chip{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;border:1px solid var(--border-color,#e5e7eb);background:var(--surface-card);font-size:var(--fs-sm);font-weight:500;color:var(--text-secondary,#6b7280);cursor:pointer;transition:background .12s,border-color .12s,color .12s;white-space:nowrap;}
+  .media-tag-chip:hover{background:var(--surface-hover,#f3f4f6);border-color:var(--text-muted,#9ca3af);}
+  .media-tag-chip.is-active{background:var(--brand-600,#1a4a7a);border-color:var(--brand-600,#1a4a7a);color:#fff;}
+  .media-tag-chip.is-active .media-tag-count{color:rgba(255,255,255,.75);}
+  .media-tag-count{font-size:11px;font-weight:600;color:var(--text-muted,#9ca3af);}
+/* All Destinations (Entities) panel */
   .ad-status-NotRun{background:var(--n-100); color:var(--text-secondary);}.ad-status-Queued{background:var(--info-50); color:var(--info-600);}.ad-status-Processing{background:var(--info-50); color:var(--info-600);}.ad-status-Completed{background:var(--success-50); color:var(--success-700);}.ad-status-Failed{background:var(--danger-50); color:var(--danger-700);}.block-state-AUTO{background:var(--n-100); color:var(--text-secondary);}.block-state-EDITED{background:var(--info-50); color:var(--info-600);}.block-state-LOCKED{background:var(--n-100); color:var(--text-primary); font-weight:700;}.block-state-OUTDATED{background:var(--warning-50); color:var(--warning-700);}.block-state-OUTDATED_LOCKED{background:var(--danger-50); color:var(--danger-700);}/* Reusable status banner (e.g. Model C Decision Metadata: COMPLETE / INCOMPLETE) */
   .status-banner{display:flex; align-items:flex-start; gap:10px; padding:12px 16px; border-radius:var(--radius-md); font-size:var(--fs-sm); margin-bottom:16px;}.status-banner.is-complete{background:var(--success-50); color:var(--success-700); border:1px solid var(--success-200, var(--success-50));}.status-banner.is-incomplete{background:var(--warning-50); color:var(--warning-700); border:1px solid var(--warning-600);}.status-banner.is-danger{background:var(--danger-50); color:var(--danger-700); border:1px solid var(--danger-600);}.status-banner.is-info{background:var(--info-50); color:var(--info-600); border:1px solid var(--info-600);}.status-banner strong{font-weight:700;}
   /* Static Pages — draft / live / versions (scoped; do not reuse outside this module) */
@@ -2606,7 +2656,7 @@ const Comp = {
           <button type="button" class="nav-sub" ${['homeManagement'].includes(Router.route) ? 'aria-current="page"' : ''} onclick="Router.go('homeManagement')">Homepage</button>
 
           <button type="button" class="nav-sub" ${['staticPagesList','staticPageEditor'].includes(Router.route) ? 'aria-current="page"' : ''} onclick="Router.go('staticPagesList')">Static Pages</button>
-          <button type="button" class="nav-sub" ${['mediaLibrary','mediaAssetDetails'].includes(Router.route) ? 'aria-current="page"' : ''} onclick="Router.go('mediaLibrary')">Media Library</button>
+          <button type="button" class="nav-sub" ${Router.route === 'mediaLibrary' ? 'aria-current="page"' : ''} onclick="Router.go('mediaLibrary')">Media Library</button>
           <button type="button" class="nav-sub" ${Router.route==='sitemapManagement' ? 'aria-current="page"' : ''} onclick="Router.go('sitemapManagement')">Sitemap</button>
         </div>
 
@@ -5398,7 +5448,7 @@ const Comp = {
         ${aiField('Name', name, 'input', '', true)}
         <div class="field">
           <label id="localTipIconLbl${number}">Icon / Image</label>
-          <div class="upload-area" role="button" tabindex="0" aria-labelledby="localTipIconLbl${number}" onclick="Comp.handleUploadAreaClick(this, function(filename, altText){ Comp.showToast('Media uploaded: ' + filename + ' (Alt: ' + altText + ')', 'success'); })"><div class="up-title">Click to upload</div><div class="up-sub">or drag and drop</div><div class="up-hint">PNG, JPG, SVG or WEBP (max. 400×400px)</div></div>
+          ${Comp._dualMedia({containerId:'localTipIconDual'+number, hint:'PNG, JPG, SVG or WEBP (max. 400×400px)', onSelect:function(fn,alt){ Comp.showToast('Media selected: '+fn, 'success'); }})}
         </div>
         ${aiField('Description', description, 'textarea', '', true)}
       </div>
@@ -10336,7 +10386,7 @@ function pageCountryDetails(params){
       </div>
       <div class="field">
         <label id="heroLbl">Hero image or video</label>
-        <div class="upload-area" role="button" tabindex="0" aria-labelledby="heroLbl" onclick="Comp.handleUploadAreaClick(this, function(filename, altText){ Comp.showToast('Media uploaded: ' + filename + ' (Alt: ' + altText + ')', 'success'); })"><div class="up-title">Click to upload</div><div class="up-sub">or drag and drop</div><div class="up-hint">PNG, JPG, WEBP or MP4 (max. 1200×400px)</div></div>
+        ${Comp._dualMedia({containerId:'countryDetailHeroDual', hint:'PNG, JPG, WEBP or MP4 (max. 1200×400px)', onSelect:function(fn,alt){ Comp.showToast('Media selected: '+fn+(alt?' (Alt: '+alt+')':''), 'success'); }})}
       </div>
       ${aiField('Description', `The ${country.name} offers a rich variety of destinations and experiences for every kind of traveler.`, 'textarea')}
     `})}
@@ -10380,7 +10430,7 @@ function pageCountryDetails(params){
       Comp.EntitySpecialisationField(country.name, 'countryAbout', country.specialisations) +
       `<div class="field">
         <label id="aboutMediaLbl">Media upload</label>
-        <div class="upload-area" role="button" tabindex="0" aria-labelledby="aboutMediaLbl" onclick="Comp.handleUploadAreaClick(this, function(filename, altText){ Comp.showToast('Media uploaded: ' + filename + ' (Alt: ' + altText + ')', 'success'); })"><div class="up-title">Click to upload</div><div class="up-sub">or drag and drop</div><div class="up-hint">PNG, JPG, WEBP or MP4 (max. 1200×400px)</div></div>
+        ${Comp._dualMedia({containerId:'countryAboutMediaDual', hint:'PNG, JPG, WEBP or MP4 (max. 1200×400px)', onSelect:function(fn,alt){ Comp.showToast('Media selected: '+fn, 'success'); }})}
         <p class="field-hint">You can upload multiple images</p>
       </div>`
     })}`;
@@ -10559,7 +10609,7 @@ function pageRegionCreate(){
           <div class="field"><label for="regionCreateName">Region name <span class="required">*</span></label><input id="regionCreateName" placeholder="Enter region name" required></div>
           <div class="field">
             <label id="regionCreateHeroLbl">Hero image</label>
-            <div class="upload-area" role="button" tabindex="0" aria-labelledby="regionCreateHeroLbl" onclick="Comp.handleUploadAreaClick(this, function(filename, altText){ Comp.showToast('Media uploaded: ' + filename + ' (Alt: ' + altText + ')', 'success'); })"><div class="up-title">Click to upload</div><div class="up-sub">or drag and drop</div><div class="up-hint">PNG, JPG or WEBP (max. 1200×400px)</div></div>
+            ${Comp._dualMedia({containerId:'regionCreateHeroDual', hint:'PNG, JPG or WEBP (max. 1200×400px)', onSelect:function(fn,alt){ Comp.showToast('Media selected: '+fn, 'success'); }})}
           </div>
           <div class="field"><label for="regionCreateDesc">Description</label><textarea id="regionCreateDesc" placeholder="Enter description"></textarea></div>
         </div>
@@ -10640,7 +10690,7 @@ function pageRegionDetails(params){
       ${h1VariantFields(region.name, region.h1Variants)}
       <div class="field">
         <label id="regionDetailHeroLbl">Hero image</label>
-        <div class="upload-area" role="button" tabindex="0" aria-labelledby="regionDetailHeroLbl" onclick="Comp.handleUploadAreaClick(this, function(filename, altText){ Comp.showToast('Media uploaded: ' + filename + ' (Alt: ' + altText + ')', 'success'); })"><div class="up-title">Click to upload</div><div class="up-sub">or drag and drop</div><div class="up-hint">PNG, JPG or WEBP (max. 1200×400px)</div></div>
+        ${Comp._dualMedia({containerId:'regionDetailHeroDual', hint:'PNG, JPG or WEBP (max. 1200×400px)', onSelect:function(fn,alt){ Comp.showToast('Media selected: '+fn, 'success'); }})}
       </div>
       ${aiField('Description', region.description, 'textarea')}
     `})}
@@ -10684,7 +10734,7 @@ function pageRegionDetails(params){
       Comp.EntitySpecialisationField(region.name, 'regionAbout', region.specialisations) +
       `<div class="field">
         <label id="regionAboutMediaLbl">Media upload</label>
-        <div class="upload-area" role="button" tabindex="0" aria-labelledby="regionAboutMediaLbl" onclick="Comp.handleUploadAreaClick(this, function(filename, altText){ Comp.showToast('Media uploaded: ' + filename + ' (Alt: ' + altText + ')', 'success'); })"><div class="up-title">Click to upload</div><div class="up-sub">or drag and drop</div><div class="up-hint">PNG, JPG, WEBP or MP4 (max. 1200\u00d7400px)</div></div>
+        ${Comp._dualMedia({containerId:'regionAboutMediaDual', hint:'PNG, JPG, WEBP or MP4 (max. 1200\u00d7400px)', onSelect:function(fn,alt){ Comp.showToast('Media selected: '+fn, 'success'); }})}
         <p class="field-hint">You can upload multiple images</p>
       </div>`
     })}`;
@@ -10879,7 +10929,7 @@ function pageCityCreate(){
           <div class="field"><label for="cityNameInput">City name <span class="required">*</span></label><input id="cityNameInput" placeholder="Enter city name" required></div>
           <div class="field">
             <label id="cityHeroLbl">Hero image</label>
-            <div class="upload-area" role="button" tabindex="0" aria-labelledby="cityHeroLbl" onclick="Comp.handleUploadAreaClick(this, function(filename, altText){ Comp.showToast('Media uploaded: ' + filename + ' (Alt: ' + altText + ')', 'success'); })"><div class="up-title">Click to upload</div><div class="up-sub">or drag and drop</div><div class="up-hint">PNG, JPG or WEBP (max. 1200×400px)</div></div>
+            ${Comp._dualMedia({containerId:'cityCreateHeroDual', hint:'PNG, JPG or WEBP (max. 1200×400px)', onSelect:function(fn,alt){ Comp.showToast('Media selected: '+fn, 'success'); }})}
           </div>
           <div class="field"><label for="cityDescInput">Description</label><textarea id="cityDescInput" placeholder="Enter description"></textarea></div>
         </div>
@@ -10970,7 +11020,7 @@ function pageCityDetails(params){
       ${h1VariantFields(city.name, city.h1Variants)}
       <div class="field">
         <label id="cityDetailHeroLbl">Hero image</label>
-        <div class="upload-area" role="button" tabindex="0" aria-labelledby="cityDetailHeroLbl" onclick="Comp.handleUploadAreaClick(this, function(filename, altText){ Comp.showToast('Media uploaded: ' + filename + ' (Alt: ' + altText + ')', 'success'); })"><div class="up-title">Click to upload</div><div class="up-sub">or drag and drop</div><div class="up-hint">PNG, JPG or WEBP (max. 1200×400px)</div></div>
+        ${Comp._dualMedia({containerId:'cityDetailHeroDual', hint:'PNG, JPG or WEBP (max. 1200×400px)', onSelect:function(fn,alt){ Comp.showToast('Media selected: '+fn, 'success'); }})}
       </div>
       ${aiField('Description', `${city.name}${city.country ? ', ' + city.country : ''} — a vibrant destination known for its culture, landmarks, and unique local experiences.`, 'textarea')}
     `})}
@@ -10991,7 +11041,7 @@ function pageCityDetails(params){
       Comp.EntitySpecialisationField(city.name, 'cityAbout', city.specialisations) +
       `<div class="field">
         <label id="cityAboutMediaLbl">Media upload</label>
-        <div class="upload-area" role="button" tabindex="0" aria-labelledby="cityAboutMediaLbl" onclick="Comp.handleUploadAreaClick(this, function(filename, altText){ Comp.showToast('Media uploaded: ' + filename + ' (Alt: ' + altText + ')', 'success'); })"><div class="up-title">Click to upload</div><div class="up-sub">or drag and drop</div><div class="up-hint">PNG, JPG, WEBP or MP4 (max. 1200×400px)</div></div>
+        ${Comp._dualMedia({containerId:'cityAboutMediaDual', hint:'PNG, JPG, WEBP or MP4 (max. 1200×400px)', onSelect:function(fn,alt){ Comp.showToast('Media selected: '+fn, 'success'); }})}
         <p class="field-hint">You can upload multiple images</p>
       </div>` +
       ``
@@ -11227,7 +11277,7 @@ function pageAttractionCreate(){
           </div>
           <div class="field">
             <label id="attrCreateImgLbl">Attraction image</label>
-            <div class="upload-area" role="button" tabindex="0" aria-labelledby="attrCreateImgLbl" onclick="Comp.handleUploadAreaClick(this, function(filename, altText){ Comp.showToast('Media uploaded: ' + filename + ' (Alt: ' + altText + ')', 'success'); })"><div class="up-title">Click to upload</div><div class="up-sub">or drag and drop</div><div class="up-hint">PNG, JPG or WEBP (max. 800×600px)</div></div>
+            ${Comp._dualMedia({containerId:'attrCreateImgDual', hint:'PNG, JPG or WEBP (max. 800×600px)', onSelect:function(fn,alt){ Comp.showToast('Media selected: '+fn, 'success'); }})}
           </div>
           <div class="field"><label for="attrCreateDesc">Description (optional)</label><textarea id="attrCreateDesc" placeholder="Enter description"></textarea></div>
         </div>
@@ -11321,7 +11371,7 @@ function pageAttractionDetails(params){
       ${aiField('Supporting snippet', `Plan your visit to ${attraction.name} — discover opening hours, tickets, and guided tours with Rosotravel.`, 'textarea')}
       <div class="field">
         <label id="attractionHeroLbl">Hero image</label>
-        <div class="upload-area" role="button" tabindex="0" aria-labelledby="attractionHeroLbl" onclick="Comp.handleUploadAreaClick(this, function(filename, altText){ DATA.masterAttractions.find(a=>a.id==='${attraction.id}').heroAltText=altText; Comp.showToast('Hero image uploaded. Alt: '+altText, 'success'); render(); })"><div class="up-title">Click to upload</div><div class="up-sub">or drag and drop</div><div class="up-hint">PNG, JPG or WEBP (max. 1200×630px)</div></div>
+        ${Comp._dualMedia({containerId:'attractionDetailHeroDual', hint:'PNG, JPG or WEBP (max. 1200×630px)', onSelect:function(fn,alt){ var a=DATA.masterAttractions.find(function(a){return a.id===attraction.id;}); if(a)a.heroAltText=alt; Comp.showToast('Media selected: '+fn+(alt?' (Alt: '+alt+')':''), 'success'); }})}
       </div>
       ${aiField('Overview', `${attraction.name} is a landmark destination in ${attraction.city}, drawing visitors from around the world.`, 'textarea')}
     `})}
@@ -11349,11 +11399,7 @@ function pageAttractionDetails(params){
       ${aiField('Overview', `From its history to the details that reward a closer look, ${attraction.name} offers layers of meaning that go beyond the obvious.`, 'textarea')}
       <div class="field">
         <label id="attractionWhySeeMediaLbl">Media upload</label>
-        <div class="upload-area" role="button" tabindex="0" aria-labelledby="attractionWhySeeMediaLbl" onclick="Comp.handleUploadAreaClick(this, function(filename, altText){ Comp.showToast('Media uploaded: ' + filename + ' (Alt: ' + altText + ')', 'success'); })">
-          <div class="up-title">Click to upload</div>
-          <div class="up-sub">or drag and drop</div>
-          <div class="up-hint">PNG, JPG or WEBP (max. 1200×630px)</div>
-        </div>
+        ${Comp._dualMedia({containerId:'attractionWhySeeMediaDual', hint:'PNG, JPG or WEBP (max. 1200×630px)', onSelect:function(fn,alt){ Comp.showToast('Media selected: '+fn, 'success'); }})}
       </div>
     `})}
 
@@ -11493,7 +11539,7 @@ function pageCategoryDetails(params){
       </div>
       <div class="field">
         <label id="categoryDetailIconLbl">Category Pages icon or image</label>
-        <div class="upload-area" role="button" tabindex="0" aria-labelledby="categoryDetailIconLbl" onclick="Comp.handleUploadAreaClick(this, function(filename, altText){ Comp.showToast('Media uploaded: ' + filename + ' (Alt: ' + altText + ')', 'success'); })"><div class="up-title">Click to upload</div><div class="up-sub">or drag and drop</div><div class="up-hint">PNG, SVG or WEBP (max. 400×400px)</div></div>
+        ${Comp._dualMedia({containerId:'categoryIconDual', hint:'PNG, SVG or WEBP (max. 400×400px)', onSelect:function(fn,alt){ Comp.showToast('Media selected: '+fn, 'success'); }})}
       </div>
       ${aiField('Supporting Snippet', category.description, 'textarea')}
     `})}
@@ -11501,7 +11547,7 @@ function pageCategoryDetails(params){
       Comp.EntitySpecialisationField(categoryDisplayName, 'categoryAbout', category.specialisations) +
       `<div class="field">
         <label id="categoryAboutMediaLbl">Media upload</label>
-        <div class="upload-area" role="button" tabindex="0" aria-labelledby="categoryAboutMediaLbl" onclick="Comp.handleUploadAreaClick(this, function(filename, altText){ Comp.showToast('Media uploaded: ' + filename + ' (Alt: ' + altText + ')', 'success'); })"><div class="up-title">Click to upload</div><div class="up-sub">or drag and drop</div><div class="up-hint">PNG, JPG, WEBP or MP4 (max. 1200×400px)</div></div>
+        ${Comp._dualMedia({containerId:'categoryAboutMediaDual', hint:'PNG, JPG, WEBP or MP4 (max. 1200×400px)', onSelect:function(fn,alt){ Comp.showToast('Media selected: '+fn, 'success'); }})}
         <p class="field-hint">You can upload multiple images</p>
       </div>`
     })}
@@ -12879,16 +12925,10 @@ Comp._mediaThumb = function(m, i){
     </button>`;
 };
 Comp._mediaPickerApplyFilters = function(){
-  const q = (document.getElementById('mediaPickerSearch')?.value || '').trim().toLowerCase();
-  const tag = document.getElementById('mediaPickerTagFilter')?.value || '';
-  const dest = document.getElementById('mediaPickerDestFilter')?.value || '';
-  const prod = document.getElementById('mediaPickerProdFilter')?.value || '';
+  const entity = document.getElementById('mediaPickerTagFilter')?.value || '';
   const pool = DATA.mediaAssets.filter(m => m.usageState === 'approved_processed');
   Comp._mediaPickerFiltered = pool.filter(m =>
-    (!q || m.filename.toLowerCase().includes(q) || (m.entity||'').toLowerCase().includes(q)) &&
-    (!tag || (m.tags||[]).includes(tag)) &&
-    (!dest || m.destinationCode === dest) &&
-    (!prod || m.productCode === prod)
+    (!entity || ((m.usedIn||[]).join(' ') + ' ' + (m.entity||'')).toLowerCase().includes(entity.toLowerCase()))
   );
   const grid = document.getElementById('mediaPickerGrid');
   if (grid) grid.innerHTML = Comp._mediaPickerFiltered.length
@@ -13033,6 +13073,7 @@ Comp.setMediaFilter = function(kind, val){
   else if (kind === 'state') Comp._mediaFilterState = val;
   else if (kind === 'source') Comp._mediaFilterSource = val;
   else if (kind === 'tag') Comp._mediaFilterTag = val;
+  else if (kind === 'entity') Comp._mediaFilterEntity = val;
   if (kind === 'q') {
     // Keep focus and caret while typing — a full re-render would drop both.
     const el = document.getElementById('mediaSearch');
@@ -13203,7 +13244,7 @@ Comp.openMediaImportModal = function(){
       };
       DATA.mediaAssets.unshift(asset);
       Comp.showToast('Asset imported as unprocessed — run processing, then approve.', 'success');
-      Router.go('mediaAssetDetails', {id: asset.id});
+      Router.go('mediaLibrary');
     }
   });
 };
@@ -13258,22 +13299,17 @@ Comp.openMediaLibraryPicker = function(onSelect){
   if (!pool.length) { Comp.showToast('No approved media assets available.', 'danger'); return; }
   Comp._mediaPickerCallback = onSelect;
   Comp._mediaPickerFiltered = pool;
-  const tags = [...new Set(pool.flatMap(m => m.tags||[]))].sort();
-  const dests = [...new Set(pool.map(m => m.destinationCode).filter(Boolean))].sort();
-  const prods = [...new Set(pool.map(m => m.productCode).filter(Boolean))].sort();
+  const PICKER_ENTITY_FILTERS = ['Country','Region','City','Attraction','Category','Product'];
   const filtersHtml = `
-    <input type="text" id="mediaPickerSearch" class="search-box" style="width:100%; margin-bottom:10px;" placeholder="Search filename or entity..." oninput="Comp._mediaPickerApplyFilters()">
     <div class="field-row mb-3">
-      <select id="mediaPickerTagFilter" class="card-input" onchange="Comp._mediaPickerApplyFilters()"><option value="">All tags</option>${tags.map(t => `<option value="${t}">${t}</option>`).join('')}</select>
-      <select id="mediaPickerDestFilter" class="card-input" onchange="Comp._mediaPickerApplyFilters()"><option value="">All destinations</option>${dests.map(d => `<option value="${d}">${d}</option>`).join('')}</select>
-      <select id="mediaPickerProdFilter" class="card-input" onchange="Comp._mediaPickerApplyFilters()"><option value="">All product codes</option>${prods.map(p => `<option value="${p}">${p}</option>`).join('')}</select>
+      <select id="mediaPickerTagFilter" class="card-input" onchange="Comp._mediaPickerApplyFilters()"><option value="">All entity</option>${PICKER_ENTITY_FILTERS.map(e => `<option value="${e}">${e}</option>`).join('')}</select>
     </div>
     <div id="mediaPickerGrid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(140px, 1fr)); gap:10px; max-height:360px; overflow-y:auto;">
       ${pool.map((m,i) => Comp._mediaThumb(m,i)).join('')}
     </div>`;
   Comp.openConfirm({
-    title: 'Media Library', desc: 'Click an asset to select it.',
-    warningHtml: filtersHtml, confirmLabel: 'Cancel',
+    title: 'Media Library', desc: '',
+    warningHtml: filtersHtml, confirmLabel: 'Cancel', hideCancel: true,
     onConfirm: () => { Comp._mediaPickerCallback = null; }
   });
 };
@@ -17724,120 +17760,108 @@ function pageAutomationTriggers(params){
 
 
 function pageMediaLibrary(params){
-  const q = (Comp._mediaQuery || '').toLowerCase();
-  const fState = Comp._mediaFilterState || 'all';
-  const fSource = Comp._mediaFilterSource || 'all';
-  const fTag = Comp._mediaFilterTag || 'all';
+  const fTag    = Comp._mediaFilterTag    || 'all';
+  const fEntity = Comp._mediaFilterEntity || 'all';
+  const allTags = [...new Set(DATA.mediaAssets.flatMap(m => m.tags||[]))].sort();
+
+  const ENTITY_FILTERS = ['Country','Region','City','Attraction','Category','Product'];
+
+  // entity filter: match usedIn strings or entity field
+  function matchEntity(m, type){
+    const hay = ((m.usedIn||[]).join(' ') + ' ' + (m.entity||'')).toLowerCase();
+    return hay.includes(type.toLowerCase());
+  }
 
   let list = DATA.mediaAssets.slice();
-  if (q) list = list.filter(m => `${m.filename} ${m.entity||''} ${m.author||''} ${(m.tags||[]).join(' ')}`.toLowerCase().includes(q));
-  if (fState !== 'all') list = list.filter(m => m.usageState === fState);
-  if (fSource !== 'all') list = list.filter(m => m.sourceType === fSource);
-  if (fTag !== 'all') list = list.filter(m => (m.tags||[]).includes(fTag));
+  if (fTag    !== 'all') list = list.filter(m => (m.tags||[]).includes(fTag));
+  if (fEntity !== 'all') list = list.filter(m => matchEntity(m, fEntity));
 
-  const counts = {};
-  DATA.MEDIA_USAGE_STATES.forEach(st => { counts[st] = DATA.mediaAssets.filter(m => m.usageState === st).length; });
-  // The compliance signal that matters: anything live but not approved.
-  const blocked = DATA.mediaAssets.filter(m => m.usageState !== 'approved_processed' && (m.usedIn||[]).length);
-  const allTags = [...new Set(DATA.mediaAssets.flatMap(m => m.tags||[]))].sort();
-  const selected = Comp._mediaSelected || [];
+  // Thumbnail mock — use ext to show a color swatch as placeholder
+  const extColor = {jpg:'#c9a96e', jpeg:'#c9a96e', png:'#7eb8c9', mp4:'#9b7ec9', gif:'#7ec99b', webp:'#c97e7e'};
+  const thumbBg = fn => { const ext = (fn||'').split('.').pop().toLowerCase(); return extColor[ext] || '#b0b8c1'; };
+  const extLabel = fn => (fn||'').split('.').pop().toUpperCase();
 
-  const rows = list.map(m => {
-    const done = (m.pipeline||[]).filter(x => x.status === 'done').length;
-    const total = (m.pipeline||[]).length;
+  const cards = list.map(m => {
+    const bg = thumbBg(m.filename);
+    const ext = extLabel(m.filename);
+    const usedCount = (m.usedIn||[]).length;
+    const approvedDot = m.usageState === 'approved_processed'
+      ? '<span style="width:7px;height:7px;border-radius:50%;background:var(--success-500,#22c55e);display:inline-block;flex-shrink:0;" title="Approved"></span>'
+      : '<span style="width:7px;height:7px;border-radius:50%;background:var(--border-color,#d1d5db);display:inline-block;flex-shrink:0;" title="' + m.usageState + '"></span>';
     return `
-    <tr class="row-clickable" tabindex="0" role="button" aria-label="Open ${Comp._escAttr(m.filename)}"
-        onclick="Router.go('mediaAssetDetails',{id:'${m.id}'})"
-        onkeydown="if(event.key==='Enter'){Router.go('mediaAssetDetails',{id:'${m.id}'})}">
-      <td onclick="event.stopPropagation()"><input type="checkbox" ${selected.includes(m.id)?'checked':''} onchange="Comp.mediaToggleSelect('${m.id}')" aria-label="Select ${Comp._escAttr(m.filename)}"></td>
-      <td class="cell-name">${Comp._escHtml(m.filename)}</td>
-      <td class="cell-secondary">${Comp._escHtml(m.entity || '—')}</td>
-      <td class="cell-secondary">${m.sourceType}</td>
-      <td class="cell-secondary">${Comp._escHtml(m.licenseType || '—')}<div class="text-muted-xs">${m.rightsConfirmed ? 'Rights confirmed' : 'Rights not confirmed'}</div></td>
-      <td>${Comp.mediaStateBadge(m)}</td>
-      <td class="cell-secondary">${done}/${total}</td>
-      <td class="cell-secondary">${(m.usedIn||[]).length ? `${(m.usedIn||[]).length} place${(m.usedIn||[]).length===1?'':'s'}` : '<span class="field-hint">Unused</span>'}</td>
-    </tr>`;
+    <div class="media-photo-card" role="button" tabindex="0" aria-label="Preview ${Comp._escAttr(m.filename)}"
+         onclick="Comp.openMediaPreview('${m.id}')"
+         onkeydown="if(event.key==='Enter')Comp.openMediaPreview('${m.id}')">
+      <div class="media-photo-thumb" style="background:${bg};">
+        <span class="media-ext-badge">${ext}</span>
+      </div>
+      <div class="media-photo-meta">
+        ${approvedDot}
+        <span class="media-photo-name" title="${Comp._escAttr(m.filename)}">${Comp._escHtml(m.filename)}</span>
+      </div>
+    </div>`;
   }).join('');
 
   return Comp.Shell(`
-    ${Comp.Breadcrumb([{label:'Marketing'}, {label:'Media Library & Rights'}])}
-    ${Comp.PageHeader({title:'Media Library &amp; Rights', subtitle:'Single operational surface for media governance and licensing safety. Only <strong>approved &amp; processed</strong> assets may be used on indexable pages.', subtitleClass:'field-hint', actions:`
-        ${Comp.Button('Import asset', {variant:'btn-primary', size:'btn-sm', onclick:'Comp.openMediaImportModal()'})}`})}
+    ${Comp.Breadcrumb([{label:'Media Library'}])}
+    ${Comp.PageHeader({title:'Media Library'})}
 
-    ${blocked.length ? `<div class="status-banner is-incomplete"><span>${ICON.warning}</span><span><strong>${blocked.length} asset${blocked.length===1?' is':'s are'} in use but not approved</strong> — these must not appear on indexable pages. Approve them, or deprecate with a replacement.</span></div>` : ''}
-
-    <div class="ops-tabs" role="tablist">
-      <button type="button" class="ops-tab ${fState==='all'?'is-active':''}" onclick="Comp.setMediaFilter('state','all')">All · ${DATA.mediaAssets.length}</button>
-      ${DATA.MEDIA_USAGE_STATES.map(st => `<button type="button" class="ops-tab ${fState===st?'is-active':''}" onclick="Comp.setMediaFilter('state','${st}')">${st.replace(/_/g,' ')} · ${counts[st]}</button>`).join('')}
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+      <span style="font-size:var(--fs-sm);font-weight:600;color:var(--text-secondary);white-space:nowrap;">Entity</span>
+      <button type="button" class="media-tag-chip ${fEntity==='all'?'is-active':''}" onclick="Comp.setMediaFilter('entity','all')">
+        All <span class="media-tag-count">${DATA.mediaAssets.length}</span>
+      </button>
+      ${ENTITY_FILTERS.map(e => {
+        const cnt = DATA.mediaAssets.filter(m => matchEntity(m, e)).length;
+        return `<button type="button" class="media-tag-chip ${fEntity===e?'is-active':''}" onclick="Comp.setMediaFilter('entity','${e}')">
+          ${e} <span class="media-tag-count">${cnt}</span>
+        </button>`;
+      }).join('')}
     </div>
 
-    <div class="card">
-      <div class="field-row items-end">
-        <div class="field" style="margin:0; flex:1;"><label for="mediaSearch">Search</label><input id="mediaSearch" placeholder="Filename, entity, author or tag" value="${Comp._escAttr(Comp._mediaQuery||'')}" oninput="Comp.setMediaFilter('q', this.value)"></div>
-        <div class="field" style="margin:0; max-width:200px;"><label>Source type</label><select onchange="Comp.setMediaFilter('source', this.value)"><option value="all">All sources</option>${DATA.MEDIA_SOURCE_TYPES.map(st => `<option value="${st}" ${fSource===st?'selected':''}>${st}</option>`).join('')}</select></div>
-        <div class="field" style="margin:0; max-width:180px;"><label>Tag</label><select onchange="Comp.setMediaFilter('tag', this.value)"><option value="all">All tags</option>${allTags.map(t => `<option value="${t}" ${fTag===t?'selected':''}>${t}</option>`).join('')}</select></div>
+
+    ${list.length
+      ? `<div class="media-photo-grid">${cards}</div>`
+      : `<div class="card"><p class="empty-state">No assets match these filters.</p></div>`
+    }
+
+    <div id="mediaPreviewModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.72);align-items:center;justify-content:center;" onclick="if(event.target===this)Comp.closeMediaPreview()">
+      <div style="background:var(--surface-card);border-radius:12px;width:520px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,0.4);">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px 0;">
+          <p id="mediaPreviewTitle" class="card-title" style="margin:0;"></p>
+          <button type="button" onclick="Comp.closeMediaPreview()" style="background:none;border:none;cursor:pointer;font-size:20px;color:var(--text-muted);line-height:1;" aria-label="Close">✕</button>
+        </div>
+        <div id="mediaPreviewBody" style="padding:16px 20px 20px;"></div>
       </div>
-      ${selected.length ? `<div class="status-banner mt-3"><span>${ICON.info}</span><span><strong>${selected.length} selected</strong>
-        <span style="display:inline-flex; gap:6px; margin-left:10px; flex-wrap:wrap;">
-          ${Comp.Button('Run processing', {size:'btn-sm', onclick:"Comp.mediaBulk('process')"})}
-          ${Comp.Button('Approve', {size:'btn-sm', variant:'btn-primary', onclick:"Comp.mediaBulk('approve')"})}
-          ${Comp.Button('Reject', {size:'btn-sm', variant:'btn-amber', onclick:"Comp.mediaBulk('reject')"})}
-          ${Comp.Button('Deprecate', {size:'btn-sm', onclick:"Comp.mediaBulk('deprecate')"})}
-          ${Comp.Button('Clear', {size:'btn-sm', onclick:'Comp.mediaClearSelection()'})}
-        </span></span></div>` : ''}
-      ${Comp.Table({columns:[
-        {label:'', width:'40px'},
-        {label:'Filename'},
-        {label:'Linked entity', width:'200px'},
-        {label:'Source', width:'130px'},
-        {label:'Licence', width:'170px'},
-        {label:'Usage state', width:'150px'},
-        {label:'Pipeline', width:'90px'},
-        {label:'Used in', width:'100px'}
-      ], rows, emptyText:'No assets match these filters.'})}
-    </div>`);
+    </div>
+  `);
 }
 
-function pageMediaAssetDetails(params){
-  const m = DATA.mediaAssets.find(x => x.id === (params && params.id));
-  if (!m) return Comp.Shell('<div class="card"><p>Asset not found.</p></div>');
-  const gate = Comp.mediaApprovalGate(m);
-  return Comp.Shell(`
-    ${Comp.Breadcrumb([{label:'Marketing'}, {label:'Media Library & Rights', route:'mediaLibrary'}, {label:m.filename}])}
-    ${Comp.PageHeader({title:`${Comp._escHtml(m.filename)}`, subtitle:`${Comp.mediaStateBadge(m)} · imported ${Comp._escHtml(m.uploadedAt || '—')}`, subtitleClass:'field-hint', actions:`
-        ${m.usageState !== 'approved_processed' ? Comp.Button('Approve for SEO usage', {variant:'btn-primary', size:'btn-sm', onclick:`Comp.mediaApprove('${m.id}')`}) : ''}
-        ${m.usageState !== 'rejected' ? Comp.Button('Reject', {variant:'btn-amber', size:'btn-sm', onclick:`Comp.mediaReject('${m.id}')`}) : ''}
-        ${Comp.Button('Delete', {variant:'btn-danger', size:'btn-sm', onclick:`Comp.mediaDelete('${m.id}')`})}`})}
+Comp.openMediaPreview = function(id){
+  const m = DATA.mediaAssets.find(x => x.id === id);
+  if(!m) return;
+  const modal = document.getElementById('mediaPreviewModal');
+  const title = document.getElementById('mediaPreviewTitle');
+  const body  = document.getElementById('mediaPreviewBody');
+  if(!modal || !body) return;
+  const extColor = {jpg:'#c9a96e',jpeg:'#c9a96e',png:'#7eb8c9',mp4:'#9b7ec9',gif:'#7ec99b',webp:'#c97e7e'};
+  const ext = (m.filename||'').split('.').pop().toLowerCase();
+  const bg  = extColor[ext] || '#b0b8c1';
+  title.textContent = m.filename;
+  body.innerHTML = `
+    <div style="width:100%;height:200px;border-radius:8px;background:${bg};display:flex;align-items:center;justify-content:center;margin-bottom:16px;">
+      <span style="font-size:13px;font-weight:700;color:#fff;opacity:0.8;letter-spacing:1px;">${ext.toUpperCase()}</span>
+    </div>
+    <p style="font-size:var(--fs-sm);font-weight:600;color:var(--text-primary);margin:0;">${Comp._escHtml(m.entity||'—')}</p>
+  `;
+  modal.style.display = 'flex';
+};
 
-    ${!gate.ok ? `<div class="status-banner is-incomplete"><span>${ICON.warning}</span><span><strong>Cannot be approved yet:</strong><br>${gate.reasons.map(r => Comp._escHtml(r)).join('<br>')}</span></div>` : `<div class="status-banner is-complete-pill"><span>${ICON.check || ''}</span><span>Provenance complete and processing finished — this asset can be approved for use on indexable pages.</span></div>`}
+Comp.closeMediaPreview = function(){
+  const modal = document.getElementById('mediaPreviewModal');
+  if(modal) modal.style.display = 'none';
+};
 
-    ${Comp.Card({title:'Provenance &amp; rights', hint:`Changing source, licence or author after approval revokes the approval — rights were cleared against the previous values.`, body:`
-      <div class="field-row">
-        <div class="field"><label>Source type</label><select onchange="Comp.setMediaField('${m.id}','sourceType',this.value)">${DATA.MEDIA_SOURCE_TYPES.map(st => `<option ${m.sourceType===st?'selected':''}>${st}</option>`).join('')}</select></div>
-        <div class="field"><label>Licence type</label><select onchange="Comp.setMediaField('${m.id}','licenseType',this.value)">${DATA.MEDIA_LICENSE_TYPES.map(lt => `<option ${m.licenseType===lt?'selected':''}>${lt}</option>`).join('')}</select></div>
-      </div>
-      <div class="field-row">
-        <div class="field"><label>Author / credit</label><input value="${Comp._escAttr(m.author||'')}" onchange="Comp.setMediaField('${m.id}','author',this.value)"></div>
-        <div class="field"><label>Capture date</label><input type="date" value="${m.captureDate||''}" onchange="Comp.setMediaField('${m.id}','captureDate',this.value)"></div>
-      </div>
-      <div class="field"><label>Linked entity</label><input value="${Comp._escAttr(m.entity||'')}" onchange="Comp.setMediaField('${m.id}','entity',this.value)"><p class="field-hint">City, attraction, product or article this asset belongs to.</p></div>
-      <div class="field"><label>Alt text</label><input value="${Comp._escAttr(m.altText||'')}" onchange="Comp.setMediaField('${m.id}','altText',this.value)"><p class="field-hint">Drafted by the pipeline; editable.</p></div>
-      <label class="opt-check"><input type="checkbox" ${m.rightsConfirmed?'checked':''} onchange="Comp.setMediaRightsConfirmed('${m.id}', this.checked)"> <strong>Rights confirmed</strong> — we hold the right to publish this asset</label>`})}
-
-    ${Comp.Card({title:'Processing pipeline', hint:`Every step must complete before the asset can be approved for indexable pages.`, body:`
-      ${Comp._infoTable((m.pipeline||[]).map(x => [x.step, x.status === 'done' ? '<span class="badge badge-active">Done</span>' : '<span class="badge badge-inactive">Pending</span>']))}
-      <div class="mt-3">${Comp.Button('Run processing', {size:'btn-sm', onclick:`Comp.mediaRunPipeline('${m.id}')`})}</div>`})}
-
-    ${Comp.Card({title:'Usage references', hint:`Everywhere this asset currently appears. Assets in use cannot be deleted — they are deprecated with a named replacement so live pages never lose their image.`, body:`
-      ${(m.usedIn||[]).length
-        ? Comp._infoTable((m.usedIn||[]).map(u => [Comp._escHtml(u), m.usageState === 'approved_processed' ? '<span class="badge badge-active">Approved for use</span>' : '<span class="badge badge-amber">Not approved — should not be live</span>']))
-        : '<p class="empty-state">Not used anywhere yet.</p>'}
-      ${m.replacedBy ? `<div class="status-banner mt-2h"><span>${ICON.info}</span><span>Deprecated — replaced by <strong>${Comp._escHtml(m.replacedBy)}</strong>.</span></div>` : ''}`})}
-
-    ${Comp.Card({title:'Rights &amp; approval history', body:`
-      ${(m.rightsHistory||[]).length ? Comp.Timeline(m.rightsHistory) : '<p class="empty-state">No history yet.</p>'}`})}`);
-}
 
 function pageProductOpsAlerts(params){
   const view = (params && params.view) || 'all';
@@ -21669,7 +21693,7 @@ function pageProductCreate(){
         <div class="field"><label for="gaRef">${ga.guideMode === 'Exact Guide' ? 'Guide' : 'Guide team'}</label><input id="gaRef" placeholder="Search or enter ${ga.guideMode === 'Exact Guide' ? 'guide' : 'guide team'} name" value="${ga.guideRef}" oninput="Comp._productDraft.guideAnchor.guideRef=this.value;"></div>` : ''}
         <div class="field">
           <label id="gaImgLbl">Guide anchor image (if not from guide profile)</label>
-          <div class="upload-area" role="button" tabindex="0" aria-labelledby="gaImgLbl" onclick="Comp.handleUploadAreaClick(this, function(filename, altText){ Comp.showToast('Media uploaded: ' + filename + ' (Alt: ' + altText + ')', 'success'); })"><div class="up-title">Click to upload</div><div class="up-sub">or drag and drop</div><div class="up-hint">PNG, JPG or WEBP</div></div>
+          ${Comp._dualMedia({containerId:'gaImgDual', hint:'PNG, JPG or WEBP', onSelect:function(fn,alt){ Comp.showToast('Media selected: '+fn, 'success'); }})}
         </div>
         <div class="field"><label for="gaCredential">Short credential line</label><input id="gaCredential" placeholder="e.g. 12 years guiding in Rome" maxlength="100" value="${ga.credentialLine}" oninput="Comp._productDraft.guideAnchor.credentialLine=this.value;"></div>
         <div class="field"><label for="gaQuote">Optional quote</label><textarea id="gaQuote" placeholder="A short quote from the guide" oninput="Comp._productDraft.guideAnchor.quote=this.value;">${ga.quote}</textarea></div>
@@ -21680,7 +21704,7 @@ function pageProductCreate(){
       <div class="field-stack">
         <div class="field">
           <label id="smUploadLbl">Upload photo / video</label>
-          <div class="upload-area" role="button" tabindex="0" aria-labelledby="smUploadLbl" onclick="Comp._productDraft.snapshotMedia.uploaded=true; Router.go('productCreate');" onclick="Comp.handleUploadAreaClick(this, function(filename, altText){ Comp.showToast('Media uploaded: ' + filename + ' (Alt: ' + altText + ')', 'success'); })"><div class="up-title">${sm.uploaded ? '✓ 1 file attached' : 'Click to upload'}</div><div class="up-sub">or drag and drop</div><div class="up-hint">JPG, PNG, MP4, MOV</div></div>
+          ${Comp._dualMedia({containerId:'smUploadDual', hint:'JPG, PNG, MP4, MOV', onSelect:function(fn,alt){ Comp._productDraft.snapshotMedia.uploaded=true; Comp.showToast('Media selected: '+fn, 'success'); Router.go('productCreate'); }})}
         </div>
         <div class="field"><label>Source type</label><p style="margin:0; color:var(--text-muted);">admin_snapshot <span style="font-size:var(--fs-xs);">(read-only)</span></p></div>
         <div class="field"><label>Linked product</label><p style="margin:0; color:var(--text-muted);">${d.name || '(this product, once saved)'}</p></div>
@@ -23334,7 +23358,6 @@ const ROUTES = {
   languageCoverage: pageLanguageCoverage,
   automationTriggers: pageAutomationTriggers,
   mediaLibrary: pageMediaLibrary,
-  mediaAssetDetails: pageMediaAssetDetails,
   reviewListing: pageReviewListing,
   reviewDetail: pageReviewDetail,
   redirectPanel: pageRedirectPanel,
@@ -23745,6 +23768,99 @@ Comp.handleUploadAreaClick = function(areaEl, onComplete){
     });
   });
 };
+// ── _renderDualMediaUpload ──────────────────────────────────────────────────
+// Renders a dual-option media input for edit mode:
+//   Left  — Upload from device (file picker → captureAltText)
+//   Right — Select from Media Library (openMediaLibraryPicker)
+// opts: { containerId, hint, onSelect(filename, altText, asset) }
+// After a selection the widget swaps to a "selected" preview row.
+// containerId must be unique on the page (used to re-render in place).
+Comp._renderDualMediaUpload = function(opts){
+  const id = opts.containerId;
+  const hint = opts.hint || 'PNG, JPG, WEBP or MP4';
+  const cb = opts.onSelect || function(){};
+  return `<div class="media-dual-container">` +
+    `<div class="media-no-upload">No media uploaded</div>` +
+    `<div id="${id}" class="media-dual-upload-wrap">` +
+    `<div class="media-dual-upload" role="group" aria-label="Media upload options">` +
+      `<button type="button" class="media-dual-option" ` +
+        `onclick="Comp._dualUploadFromDevice('${id}', function(fn,alt,asset){ var cb=Comp._dualCb['${id}']; if(cb)cb(fn,alt,asset); })" ` +
+        `aria-label="Upload from device">` +
+        `<span class="mdu-icon">⬆</span>` +
+        `<span class="mdu-title">Upload from device</span>` +
+        `<span class="mdu-sub">${Comp._escHtml(hint)}</span>` +
+      `</button>` +
+      `<div class="media-dual-divider" aria-hidden="true"><span>or</span></div>` +
+      `<button type="button" class="media-dual-option" ` +
+        `onclick="Comp._dualPickFromLibrary('${id}', function(fn,alt,asset){ var cb=Comp._dualCb['${id}']; if(cb)cb(fn,alt,asset); })" ` +
+        `aria-label="Select from Media Library">` +
+        `<span class="mdu-icon">🗂</span>` +
+        `<span class="mdu-title">Select from Media Library</span>` +
+      `</button>` +
+    `</div>` +
+  `</div>` +
+`</div>`;
+};
+// Store callbacks keyed by containerId so inline onclick can reach them
+Comp._dualCb = {};
+// Register a callback for a dual upload widget. Call this JS-side after rendering.
+Comp._dualRegisterCb = function(id, cb){ Comp._dualCb[id] = cb; };
+
+Comp._dualUploadFromDevice = function(id, localCb){
+  Comp.uploadFromDevice(function(asset){
+    Comp.captureAltText(asset.filename, function(altText){
+      Comp._dualShowSelected(id, asset.filename, altText, asset);
+      if(localCb) localCb(asset.filename, altText, asset);
+    });
+  });
+};
+Comp._dualPickFromLibrary = function(id, localCb){
+  Comp.openMediaLibraryPicker(function(asset){
+    Comp.captureAltText(asset.filename, function(altText){
+      Comp._dualShowSelected(id, asset.filename, altText, asset);
+      if(localCb) localCb(asset.filename, altText, asset);
+    });
+  });
+};
+Comp._dualShowSelected = function(id, filename, altText, asset){
+  var wrap = document.getElementById(id);
+  if(!wrap) return;
+  var ext = (filename||'').split('.').pop().toUpperCase();
+  var extColor = {JPG:'#c9a96e',JPEG:'#c9a96e',PNG:'#7eb8c9',MP4:'#9b7ec9',GIF:'#7ec99b',WEBP:'#c97e7e'};
+  var bg = extColor[ext] || '#b0b8c1';
+  wrap.innerHTML =
+    `<div class="media-dual-selected">` +
+      `<div class="mds-thumb" style="background:${bg};display:flex;align-items:center;justify-content:center;">` +
+        `<span style="font-size:10px;font-weight:700;color:#fff;">${ext}</span>` +
+      `</div>` +
+      `<div class="mds-info">` +
+        `<div class="mds-name">${Comp._escHtml(filename)}</div>` +
+        `<div class="mds-meta">${altText ? 'Alt: '+Comp._escHtml(altText) : 'No alt text'}</div>` +
+      `</div>` +
+      `<button type="button" class="mds-remove" title="Remove" onclick="Comp._dualResetWidget('${id}')">✕</button>` +
+    `</div>`;
+};
+Comp._dualResetWidget = function(id){
+  // Reconstruct the widget from its last-registered options cache
+  var opts = Comp._dualOptsCache[id];
+  if(!opts) return;
+  var wrap = document.getElementById(id);
+  if(!wrap) return;
+  // Re-render the dual upload widget HTML into the wrapper
+  var tmpDiv = document.createElement('div');
+  tmpDiv.innerHTML = Comp._renderDualMediaUpload(opts);
+  wrap.parentNode.replaceChild(tmpDiv.firstElementChild, wrap);
+};
+Comp._dualOptsCache = {};
+
+// Convenience: render AND register in one call. Returns HTML string.
+// Also caches opts for reset. Call site: just echo the returned HTML.
+Comp._dualMedia = function(opts){
+  Comp._dualOptsCache[opts.containerId] = opts;
+  if(opts.onSelect) Comp._dualCb[opts.containerId] = opts.onSelect;
+  return Comp._renderDualMediaUpload(opts);
+};
+
 Comp.homeUploadFromDevice = function(onSelect){
   var input = document.createElement('input');
   input.type = 'file';
