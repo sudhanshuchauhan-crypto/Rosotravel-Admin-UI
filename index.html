@@ -10851,12 +10851,7 @@ function pageCityDetails(params){
         <div class="upload-area" role="button" tabindex="0" aria-labelledby="cityAboutMediaLbl" onclick="Comp.handleUploadAreaClick(this, function(filename, altText){ Comp.showToast('Media uploaded: ' + filename + ' (Alt: ' + altText + ')', 'success'); })"><div class="up-title">Click to upload</div><div class="up-sub">or drag and drop</div><div class="up-hint">PNG, JPG, WEBP or MP4 (max. 1200×400px)</div></div>
         <p class="field-hint">You can upload multiple images</p>
       </div>` +
-      `<div class="field-stack" data-max-items="3">` +
-        Comp.FaqItem(1, '', '', true) +
-        Comp.FaqItem(2, '', '', true) +
-        Comp.FaqItem(3, '', '', true) +
-      `<button type="button" class="add-item-btn" data-item-type="faq">+ Add Another FAQ</button>
-      </div>`
+      ``
     })}`;
     } else if (tab === 'optimization') {
     tabBody = Comp.OptimizationPanel({
