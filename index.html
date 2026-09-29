@@ -1659,6 +1659,21 @@ DATA.sitemaps = [
   {key:'blog',         file:'sitemap-blog.xml',         label:'Blog',              entity:'Blog articles',           urlCount:94,       status:'Success', lastGeneratedAt:'4 Sep 2026, 6:04 AM'},
   {key:'experts',      file:'sitemap-experts.xml',      label:'Experts',           entity:'Expert profile pages',    urlCount:28,       status:'Success', lastGeneratedAt:'4 Sep 2026, 6:05 AM'}
 ];
+DATA.helpCentreTopics = [
+  {id:'hct-1', title:'Plan, search and book', description:'Everything you need to know about finding and booking tours, activities, and experiences on Rosotravel.', order:1},
+  {id:'hct-2', title:'Activity information', description:'Details about what to expect, what\'s included, difficulty levels, and accessibility for our activities.', order:2},
+  {id:'hct-3', title:'Booking confirmation, voucher and tickets', description:'How to access your booking confirmation, download vouchers, and present tickets at the venue.', order:3},
+  {id:'hct-4', title:'Meeting point and pickup', description:'Information about where to meet your guide, pickup locations, and how to find the departure point.', order:4},
+  {id:'hct-5', title:'Booking management', description:'How to view, modify, or update your existing bookings through your Rosotravel account.', order:5},
+  {id:'hct-6', title:'Cancellation', description:'Cancellation policies, how to cancel a booking, and what to expect regarding refunds and timelines.', order:6},
+  {id:'hct-7', title:'Payment and refunds', description:'Accepted payment methods, when charges are applied, and how refunds are processed.', order:7},
+  {id:'hct-8', title:'Data and privacy', description:'How Rosotravel collects, uses, and protects your personal data in line with GDPR and our privacy policy.', order:8},
+  {id:'hct-9', title:'About Rosotravel', description:'Learn more about who we are, our mission, how we vet experiences, and how to get in touch with our team.', order:9}
+];
+DATA.helpCentreContact = {
+  phone: '+1 (800) 555-ROSO',
+  email: 'support@rosotravel.com'
+};
 DATA.algorithmConfigVersions = [
   {versionId:'v1', changedParams:['Initial configuration'], author:'System', timestamp:'1 Jul 2026, 9:00 AM', estimatedUnits:'—', snapshot: JSON.parse(JSON.stringify(DATA.algorithmConfig))}
 ];
@@ -1902,7 +1917,7 @@ const NavUI = {
   open: { marketingContent: false, products: false, productOps: false, bookingsCustomers: false, settingsAdmin: false },
   synced: { marketingContent: false, products: false, productOps: false, bookingsCustomers: false, settingsAdmin: false },
   ensureOpenForRoute(){
-    const marketingContentRoutes = ['countryListing','countryDetails','historyLog','regionListing','regionCreate','regionDetails','regionHistoryLog','cityListing','cityCreate','cityDetails','cityHistoryLog','attractionListing','attractionCreate','attractionDetails','attractionHistoryLog','dedupeReview','categoryListing','categoryDetails','categoryHistoryLog','homeManagement','staticPagesList','staticPageEditor','mediaLibrary','mediaAssetDetails','sitemapManagement','aiSitemapPanel','apiFeedPanel'];
+    const marketingContentRoutes = ['countryListing','countryDetails','historyLog','regionListing','regionCreate','regionDetails','regionHistoryLog','cityListing','cityCreate','cityDetails','cityHistoryLog','attractionListing','attractionCreate','attractionDetails','attractionHistoryLog','dedupeReview','categoryListing','categoryDetails','categoryHistoryLog','homeManagement','staticPagesList','staticPageEditor','mediaLibrary','mediaAssetDetails','sitemapManagement','aiSitemapPanel','apiFeedPanel','helpCentre'];
     const productsRoutes = ['productListing','productDetails'];
     const productOpsRoutes = ['productOpsInventory','productOpsDetail','productOpsConfig','productOpsAlerts'];
     const bookingsCustomersRoutes = ['bookingListing','bookingDetails','customerListing','customerDetails','reviewListing','reviewDetail','couponListing','couponCreate','couponDetails'];
@@ -2645,6 +2660,7 @@ const Comp = {
           <button type="button" class="nav-sub" ${['staticPagesList','staticPageEditor'].includes(Router.route) ? 'aria-current="page"' : ''} onclick="Router.go('staticPagesList')">Static Pages</button>
           <button type="button" class="nav-sub" ${Router.route === 'mediaLibrary' ? 'aria-current="page"' : ''} onclick="Router.go('mediaLibrary')">Media Library</button>
           <button type="button" class="nav-sub" ${Router.route==='sitemapManagement' ? 'aria-current="page"' : ''} onclick="Router.go('sitemapManagement')">Sitemap</button>
+          <button type="button" class="nav-sub" ${Router.route==='helpCentre' ? 'aria-current="page"' : ''} onclick="Router.go('helpCentre')">Help Centre</button>
         </div>
 
         <button type="button" class="nav-item" aria-expanded="${productsOpen}" onclick="NavUI.toggle('products')">
@@ -11495,7 +11511,6 @@ function pageCategoryListing(){
       ${Comp.BulkCheckboxTd('category', cat.id)}
       <td class="cell-name">${cat.city ? Comp._escHtml(cat.name + ' in ' + cat.city) : Comp._escHtml(cat.name)}${Comp.ListingPendingBadge('categoryDetails',{id:cat.id})}</td>
       <td>${cat.city ? Comp._escHtml(cat.city) : '<span class="field-hint">—</span>'}</td>
-      <td class="cell-secondary" style="max-width:260px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${cat.description}</td>
       <td>${idxBadge}</td>
       <td>${gscBadge}${gscSub}</td>
       <td>${Comp.Badge(cat.status, cat.status==='Active')}</td>
@@ -11509,7 +11524,7 @@ function pageCategoryListing(){
     ${Comp.PageHeader({title:'Category Pages'})}
     ${Comp.FilterBar('Search category pages', 'filterCategories', 'Comp.openCategoryFilterDrawer()')}
     ${Comp.BulkActionBar('category')}
-    ${Comp.Table({columns:[{label:Comp.BulkCheckboxTh('category'),width:'40px'},{label:'Category Pages',width:'200px'},{label:'Created for Destination',width:'160px'},{label:'Description'},{label:'Indexability',width:'120px'},{label:'Google Index (GSC)',width:'150px'},{label:'Status',width:'140px'},{label:'Action',width:'70px'}], rows, emptyText:'No category pages found.'})}
+    ${Comp.Table({columns:[{label:Comp.BulkCheckboxTh('category'),width:'40px'},{label:'Category Pages',width:'200px'},{label:'Destination',width:'160px'},{label:'Indexability',width:'120px'},{label:'Google Index (GSC)',width:'150px'},{label:'Status',width:'140px'},{label:'Action',width:'70px'}], rows, emptyText:'No category pages found.'})}
     ${Comp.Pagination('Showing ' + DATA.categories.filter(c => !!c.city).length + ' of ' + DATA.categories.filter(c => !!c.city).length + ' category pages')}
   `);
 }
@@ -23308,6 +23323,166 @@ function pageRolesDetails(params){
   `);
 }
 
+// ─── Help Centre Management ──────────────────────────────────────────────────
+// _hcFormState: tracks whether Add/Edit inline form is open and which id is being edited
+Comp._hcFormState = Comp._hcFormState || { open: false, editId: null };
+
+function pageHelpCentre() {
+  const topics  = DATA.helpCentreTopics || [];
+  const contact = DATA.helpCentreContact || { phone: '', email: '' };
+  const fs      = Comp._hcFormState;
+
+  // Inline Add/Edit form (rendered below Page Header when open)
+  const inlineForm = fs.open ? (() => {
+    const editing = fs.editId ? topics.find(x => x.id === fs.editId) : null;
+    return `<div id="hcInlineForm" style="background:var(--surface-card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:20px; margin-bottom:20px;">
+      <div style="font-size:var(--fs-md); font-weight:600; margin-bottom:16px;">${editing ? 'Edit Topic' : 'Add Topic'}</div>
+      <input type="hidden" id="hcTopicId" value="${editing ? Comp._escAttr(editing.id) : ''}">
+      <div class="field" style="margin-bottom:14px;">
+        <label for="hcTopicTitle">Topic Title <span class="required">*</span></label>
+        <input id="hcTopicTitle" class="card-input" type="text" placeholder="e.g. Payment and refunds" value="${editing ? Comp._escAttr(editing.title) : ''}">
+      </div>
+      <div class="field" style="margin-bottom:16px;">
+        <label for="hcTopicDesc">Description <span class="required">*</span></label>
+        <textarea id="hcTopicDesc" class="card-input" rows="3" placeholder="Brief description shown under this topic on the Help Centre page.">${editing ? Comp._escHtml(editing.description) : ''}</textarea>
+      </div>
+      <div style="display:flex; gap:8px;">
+        ${Comp.Button(editing ? 'Save Changes' : 'Add Topic', {variant:'btn-primary', onclick:"Comp.hcSaveTopic()"})}
+        ${Comp.Button('Cancel', {onclick:"Comp.hcCancelForm()"})}
+      </div>
+    </div>`;
+  })() : '';
+
+  const topicRows = topics.map(t => `
+    <tr>
+      <td class="cell-name">${Comp._escHtml(t.title)}</td>
+      <td class="cell-secondary" style="max-width:420px; white-space:normal;">${Comp._escHtml(t.description)}</td>
+      <td onclick="event.stopPropagation()">
+        <div style="display:flex; gap:8px; justify-content:flex-end;">
+          <button type="button" class="btn btn-sm" onclick="window.hcEditTopic('${Comp._escAttr(t.id)}')">Edit</button>
+          <button type="button" class="btn btn-sm btn-danger" onclick="window.hcDeleteTopic('${Comp._escAttr(t.id)}')">Delete</button>
+        </div>
+      </td>
+    </tr>`).join('');
+
+  return Comp.Shell(
+    Comp.Breadcrumb([{label:'Help Centre'}]) +
+    Comp.PageHeader({
+      title: 'Help Centre',
+      subtitle: 'Manage FAQ topics shown on the customer Help Centre page and contact channel details.',
+      subtitleClass: 'field-hint',
+      actions: Comp.Button('+ Add Topic', {variant:'btn-primary', onclick:"Comp.hcOpenAddForm()"})
+    }) +
+
+    inlineForm +
+
+    // Contact Info card
+    Comp.Card({title:'Contact Channels', hint:'Displayed in the "Still need help?" section on the customer Help Centre page.', body:`
+      <div id="hc-contact-view">
+        <div class="booking-info-table">
+          <div class="booking-info-row"><span>Phone Support</span><span>${Comp._escHtml(contact.phone)}</span></div>
+          <div class="booking-info-row"><span>Email Address</span><span>${Comp._escHtml(contact.email)}</span></div>
+        </div>
+        <div style="margin-top:14px;">
+          ${Comp.Button('Edit', {size:'btn-sm', onclick:"Comp.hcEditContact()"})}
+        </div>
+      </div>
+      <div id="hc-contact-edit" hidden>
+        <div class="field-row" style="margin-bottom:14px;">
+          <div class="field">
+            <label for="hcPhoneInput">Phone Support</label>
+            <input id="hcPhoneInput" class="card-input" type="text" placeholder="+1 (800) 555-ROSO" value="${Comp._escAttr(contact.phone)}">
+          </div>
+          <div class="field">
+            <label for="hcEmailInput">Email Address</label>
+            <input id="hcEmailInput" class="card-input" type="email" placeholder="support@rosotravel.com" value="${Comp._escAttr(contact.email)}">
+          </div>
+        </div>
+        <div style="display:flex; gap:8px;">
+          ${Comp.Button('Save', {variant:'btn-primary', size:'btn-sm', onclick:"Comp.hcSaveContact()"})}
+          ${Comp.Button('Cancel', {size:'btn-sm', onclick:"Comp.hcCancelContact()"})}
+        </div>
+      </div>
+    `}) +
+
+    // FAQ Topics card
+    Comp.Card({title:`FAQ Topics (${topics.length})`, hint:'Topics appear as accordion items on the customer Help Centre page. Use the Add Topic button to create a new entry.', body:
+      Comp.Table({
+        columns:[
+          {label:'Topic Title'},
+          {label:'Description'},
+          {label:'', width:'140px'}
+        ],
+        rows: topicRows,
+        emptyText: 'No topics yet. Use "+ Add Topic" to create the first one.'
+      })
+    })
+  );
+}
+
+// Help Centre handlers
+Comp.hcOpenAddForm = function() {
+  Comp._hcFormState = { open: true, editId: null };
+  render();
+  const el = document.getElementById('hcInlineForm');
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  setTimeout(() => { const t = document.getElementById('hcTopicTitle'); if (t) t.focus(); }, 50);
+};
+Comp.hcCancelForm = function() {
+  Comp._hcFormState = { open: false, editId: null };
+  render();
+};
+Comp.hcEditContact = function() {
+  document.getElementById('hc-contact-view').hidden = true;
+  document.getElementById('hc-contact-edit').hidden = false;
+};
+Comp.hcCancelContact = function() {
+  document.getElementById('hc-contact-edit').hidden = true;
+  document.getElementById('hc-contact-view').hidden = false;
+};
+Comp.hcSaveContact = function() {
+  const phone = document.getElementById('hcPhoneInput').value.trim();
+  const email = document.getElementById('hcEmailInput').value.trim();
+  if (!phone || !email) { Comp.showToast('Phone and email are required.', 'danger'); return; }
+  DATA.helpCentreContact.phone = phone;
+  DATA.helpCentreContact.email = email;
+  Comp.showToast('Contact details saved.', 'success');
+  render();
+};
+Comp.hcSaveTopic = function() {
+  const id    = document.getElementById('hcTopicId').value;
+  const title = document.getElementById('hcTopicTitle').value.trim();
+  const desc  = document.getElementById('hcTopicDesc').value.trim();
+  if (!title) { Comp.showToast('Topic title is required.', 'danger'); return; }
+  if (!desc)  { Comp.showToast('Description is required.', 'danger'); return; }
+  if (id) {
+    const t = (DATA.helpCentreTopics || []).find(x => x.id === id);
+    if (t) { t.title = title; t.description = desc; }
+    Comp.showToast('Topic updated.', 'success');
+  } else {
+    const newId = 'hct-' + Date.now();
+    const order = (DATA.helpCentreTopics || []).length + 1;
+    DATA.helpCentreTopics.push({id: newId, title, description: desc, order});
+    Comp.showToast('Topic added.', 'success');
+  }
+  Comp._hcFormState = { open: false, editId: null };
+  render();
+};
+// Edit/Delete — window-scoped so onclick in template literals can reach them
+window.hcEditTopic = function(id) {
+  Comp._hcFormState = { open: true, editId: id };
+  render();
+  const el = document.getElementById('hcInlineForm');
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  setTimeout(() => { const t = document.getElementById('hcTopicTitle'); if (t) t.focus(); }, 50);
+};
+window.hcDeleteTopic = function(id) {
+  if (!confirm('Delete this topic?')) return;
+  DATA.helpCentreTopics = (DATA.helpCentreTopics || []).filter(x => x.id !== id);
+  Comp.showToast('Topic deleted.', 'success');
+  render();
+};
+
 const ROUTES = {
   login: pageLogin,
   loginOtp: pageLoginOtp,
@@ -23386,7 +23561,8 @@ const ROUTES = {
   rolesCreate: pageRolesCreate,
   rolesDetails: pageRolesDetails,
   promptManagement: pagePromptManagement,
-  promptEditor: pagePromptEditor
+  promptEditor: pagePromptEditor,
+  helpCentre: pageHelpCentre
 };
 
 function pageSitemapManagement(){
