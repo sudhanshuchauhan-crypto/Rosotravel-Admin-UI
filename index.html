@@ -1660,15 +1660,42 @@ DATA.sitemaps = [
   {key:'experts',      file:'sitemap-experts.xml',      label:'Experts',           entity:'Expert profile pages',    urlCount:28,       status:'Success', lastGeneratedAt:'4 Sep 2026, 6:05 AM'}
 ];
 DATA.helpCentreTopics = [
-  {id:'hct-1', title:'Plan, search and book', description:'Everything you need to know about finding and booking tours, activities, and experiences on Rosotravel.', order:1},
-  {id:'hct-2', title:'Activity information', description:'Details about what to expect, what\'s included, difficulty levels, and accessibility for our activities.', order:2},
-  {id:'hct-3', title:'Booking confirmation, voucher and tickets', description:'How to access your booking confirmation, download vouchers, and present tickets at the venue.', order:3},
-  {id:'hct-4', title:'Meeting point and pickup', description:'Information about where to meet your guide, pickup locations, and how to find the departure point.', order:4},
-  {id:'hct-5', title:'Booking management', description:'How to view, modify, or update your existing bookings through your Rosotravel account.', order:5},
-  {id:'hct-6', title:'Cancellation', description:'Cancellation policies, how to cancel a booking, and what to expect regarding refunds and timelines.', order:6},
-  {id:'hct-7', title:'Payment and refunds', description:'Accepted payment methods, when charges are applied, and how refunds are processed.', order:7},
-  {id:'hct-8', title:'Data and privacy', description:'How Rosotravel collects, uses, and protects your personal data in line with GDPR and our privacy policy.', order:8},
-  {id:'hct-9', title:'About Rosotravel', description:'Learn more about who we are, our mission, how we vet experiences, and how to get in touch with our team.', order:9}
+  {id:'hct-1', title:'Plan, search and book', description:'Everything you need to know about finding and booking tours, activities, and experiences on Rosotravel.', order:1, faqs:[
+    {id:'hcf-1a', question:'How do I search for tours and activities?', answer:'Use the search bar on the homepage to enter a destination, activity type, or keyword. You can filter results by date, price, category, and group size.'},
+    {id:'hcf-1b', question:'Can I book for a group?', answer:'Yes. When selecting a product, choose the number of participants before adding to cart. Group discounts may apply for bookings of 8 or more.'}
+  ]},
+  {id:'hct-2', title:'Activity information', description:"Details about what to expect, what's included, difficulty levels, and accessibility for our activities.", order:2, faqs:[
+    {id:'hcf-2a', question:"What is included in the activity price?", answer:"Inclusions vary by activity and are listed on each product page under 'What\'s included'. Common inclusions are guide fees, entrance tickets, and equipment."},
+    {id:'hcf-2b', question:'Are activities suitable for people with disabilities?', answer:'Accessibility information is listed on each product page. Look for the accessibility icon or contact our support team for specific requirements.'}
+  ]},
+  {id:'hct-3', title:'Booking confirmation, voucher and tickets', description:'How to access your booking confirmation, download vouchers, and present tickets at the venue.', order:3, faqs:[
+    {id:'hcf-3a', question:'Where is my booking confirmation?', answer:'Your confirmation is emailed to the address used at checkout within 15 minutes of booking. Check your spam folder if you do not see it.'},
+    {id:'hcf-3b', question:'Do I need to print my voucher?', answer:'Most operators accept mobile vouchers. A few require printed copies — this is noted in your confirmation email and on the product page.'}
+  ]},
+  {id:'hct-4', title:'Meeting point and pickup', description:'Information about where to meet your guide, pickup locations, and how to find the departure point.', order:4, faqs:[
+    {id:'hcf-4a', question:'Where is the meeting point?', answer:'The exact meeting point is included in your booking confirmation and on the voucher. You can also find it on the product page under "Getting there".'},
+    {id:'hcf-4b', question:'Is hotel pickup available?', answer:'Some activities offer hotel pickup. If available, this is shown as an option during checkout. Additional charges may apply.'}
+  ]},
+  {id:'hct-5', title:'Booking management', description:'How to view, modify, or update your existing bookings through your Rosotravel account.', order:5, faqs:[
+    {id:'hcf-5a', question:'How do I view my bookings?', answer:'Log in to your Rosotravel account and go to "My Bookings" in the top navigation. All upcoming and past bookings are listed there.'},
+    {id:'hcf-5b', question:"Can I change the date of my booking?", answer:"Date changes depend on the operator's policy. Contact our support team at least 48 hours before your activity to request a change."}
+  ]},
+  {id:'hct-6', title:'Cancellation', description:'Cancellation policies, how to cancel a booking, and what to expect regarding refunds and timelines.', order:6, faqs:[
+    {id:'hcf-6a', question:'How do I cancel a booking?', answer:'Go to "My Bookings", select the booking, and click "Cancel". The cancellation policy and any applicable fees are shown before you confirm.'},
+    {id:'hcf-6b', question:'What is the cancellation deadline?', answer:'Most activities offer free cancellation up to 24 hours before the start time. The specific deadline is shown on the product page and in your confirmation.'}
+  ]},
+  {id:'hct-7', title:'Payment and refunds', description:'Accepted payment methods, when charges are applied, and how refunds are processed.', order:7, faqs:[
+    {id:'hcf-7a', question:'What payment methods are accepted?', answer:'We accept Visa, Mastercard, American Express, PayPal, and Apple Pay. All transactions are secured with 256-bit SSL encryption.'},
+    {id:'hcf-7b', question:'When will I receive my refund?', answer:'Refunds are processed within 5–10 business days to your original payment method after cancellation is confirmed. Bank processing times may vary.'}
+  ]},
+  {id:'hct-8', title:'Data and privacy', description:'How Rosotravel collects, uses, and protects your personal data in line with GDPR and our privacy policy.', order:8, faqs:[
+    {id:'hcf-8a', question:'How does Rosotravel use my personal data?', answer:'We use your data to process bookings, send confirmations, and improve our services. We do not sell your data to third parties. See our Privacy Policy for full details.'},
+    {id:'hcf-8b', question:'Can I request deletion of my account and data?', answer:'Yes. Submit a data deletion request through your account settings or email privacy@rosotravel.com. Requests are processed within 30 days.'}
+  ]},
+  {id:'hct-9', title:'About Rosotravel', description:'Learn more about who we are, our mission, how we vet experiences, and how to get in touch with our team.', order:9, faqs:[
+    {id:'hcf-9a', question:'How does Rosotravel vet its operators?', answer:'All operators go through a verification process including license checks, safety reviews, and quality audits. We also monitor customer reviews continuously.'},
+    {id:'hcf-9b', question:'How can I contact Rosotravel?', answer:'You can reach us via the contact form on this page, by email at support@rosotravel.com, or by phone during business hours.'}
+  ]}
 ];
 DATA.helpCentreContact = {
   phone: '+1 (800) 555-ROSO',
@@ -23310,59 +23337,125 @@ function pageRolesDetails(params){
 }
 
 // ─── Help Centre Management ──────────────────────────────────────────────────
-// _hcFormState: tracks whether Add/Edit inline form is open and which id is being edited
-Comp._hcFormState = Comp._hcFormState || { open: false, editId: null };
+Comp._hcFormState    = Comp._hcFormState    || { open: false, editId: null, topicId: null, mode: 'topic' };
+// mode: 'topic' = Add/Edit topic | 'faq' = Add/Edit FAQ inside a topicId
+Comp._hcExpanded     = Comp._hcExpanded     || {};   // { [topicId]: true } — expanded accordion rows
 
 function pageHelpCentre() {
   const topics  = DATA.helpCentreTopics || [];
   const contact = DATA.helpCentreContact || { phone: '', email: '' };
   const fs      = Comp._hcFormState;
+  const exp     = Comp._hcExpanded;
 
-  // Inline Add/Edit form (rendered below Page Header when open)
-  const inlineForm = fs.open ? (() => {
-    const editing = fs.editId ? topics.find(x => x.id === fs.editId) : null;
-    return `<div id="hcInlineForm" style="background:var(--surface-card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:20px; margin-bottom:20px;">
-      <div style="font-size:var(--fs-md); font-weight:600; margin-bottom:16px;">${editing ? 'Edit Topic' : 'Add Topic'}</div>
-      <input type="hidden" id="hcTopicId" value="${editing ? Comp._escAttr(editing.id) : ''}">
-      <div class="field" style="margin-bottom:14px;">
-        <label for="hcTopicTitle">Topic Title <span class="required">*</span></label>
-        <input id="hcTopicTitle" class="card-input" type="text" placeholder="e.g. Payment and refunds" value="${editing ? Comp._escAttr(editing.title) : ''}">
-      </div>
-      <div class="field" style="margin-bottom:16px;">
-        <label for="hcTopicDesc">Description <span class="required">*</span></label>
-        <textarea id="hcTopicDesc" class="card-input" rows="3" placeholder="Brief description shown under this topic on the Help Centre page.">${editing ? Comp._escHtml(editing.description) : ''}</textarea>
-      </div>
-      <div style="display:flex; gap:8px;">
-        ${Comp.Button(editing ? 'Save Changes' : 'Add Topic', {variant:'btn-primary', onclick:"Comp.hcSaveTopic()"})}
-        ${Comp.Button('Cancel', {onclick:"Comp.hcCancelForm()"})}
-      </div>
-    </div>`;
-  })() : '';
+  // ── Inline form (topic or FAQ) ──────────────────────────────────────────
+  let inlineForm = '';
+  if (fs.open) {
+    if (fs.mode === 'topic') {
+      const editing = fs.editId ? topics.find(x => x.id === fs.editId) : null;
+      inlineForm = `<div id="hcInlineForm" style="background:var(--surface-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;margin-bottom:20px;">
+        <div style="font-size:var(--fs-md);font-weight:600;margin-bottom:16px;">${editing ? 'Edit Topic' : 'Add Topic'}</div>
+        <input type="hidden" id="hcFormId" value="${editing ? Comp._escAttr(editing.id) : ''}">
+        <div class="field" style="margin-bottom:14px;">
+          <label for="hcFormTitle">Topic Title <span class="required">*</span></label>
+          <input id="hcFormTitle" class="card-input" type="text" placeholder="e.g. Payment and refunds" value="${editing ? Comp._escAttr(editing.title) : ''}">
+        </div>
+        <div class="field" style="margin-bottom:16px;">
+          <label for="hcFormDesc">Description <span class="required">*</span></label>
+          <textarea id="hcFormDesc" class="card-input" rows="3" placeholder="Brief description shown under this topic on the Help Centre page.">${editing ? Comp._escHtml(editing.description) : ''}</textarea>
+        </div>
+        <div style="display:flex;gap:8px;">
+          ${Comp.Button(editing ? 'Save Changes' : 'Add Topic', {variant:'btn-primary', onclick:"Comp.hcSaveTopic()"})}
+          ${Comp.Button('Cancel', {onclick:"Comp.hcCancelForm()"})}
+        </div>
+      </div>`;
+    } else if (fs.mode === 'faq') {
+      const parentTopic = topics.find(x => x.id === fs.topicId);
+      const editingFaq  = fs.editId && parentTopic ? (parentTopic.faqs || []).find(f => f.id === fs.editId) : null;
+      inlineForm = `<div id="hcInlineForm" style="background:var(--surface-card);border:1px solid var(--accent-100);border-radius:var(--radius-lg);padding:20px;margin-bottom:20px;">
+        <div style="font-size:var(--fs-md);font-weight:600;margin-bottom:4px;">${editingFaq ? 'Edit FAQ' : 'Add FAQ'}</div>
+        <div style="font-size:var(--fs-sm);color:var(--text-muted);margin-bottom:16px;">Topic: ${parentTopic ? Comp._escHtml(parentTopic.title) : ''}</div>
+        <input type="hidden" id="hcFormId" value="${editingFaq ? Comp._escAttr(editingFaq.id) : ''}">
+        <input type="hidden" id="hcFormTopicId" value="${Comp._escAttr(fs.topicId || '')}">
+        <div class="field" style="margin-bottom:14px;">
+          <label for="hcFormQuestion">Question <span class="required">*</span></label>
+          <input id="hcFormQuestion" class="card-input" type="text" placeholder="e.g. How do I cancel a booking?" value="${editingFaq ? Comp._escAttr(editingFaq.question) : ''}">
+        </div>
+        <div class="field" style="margin-bottom:16px;">
+          <label for="hcFormAnswer">Answer <span class="required">*</span></label>
+          <textarea id="hcFormAnswer" class="card-input" rows="4" placeholder="Clear, concise answer to the question.">${editingFaq ? Comp._escHtml(editingFaq.answer) : ''}</textarea>
+        </div>
+        <div style="display:flex;gap:8px;">
+          ${Comp.Button(editingFaq ? 'Save Changes' : 'Add FAQ', {variant:'btn-primary', onclick:"Comp.hcSaveFaq()"})}
+          ${Comp.Button('Cancel', {onclick:"Comp.hcCancelForm()"})}
+        </div>
+      </div>`;
+    }
+  }
 
-  const topicRows = topics.map(t => `
-    <tr>
+  // ── Topic rows with accordion ───────────────────────────────────────────
+  const topicRows = topics.map(t => {
+    const faqs      = t.faqs || [];
+    const isOpen    = !!exp[t.id];
+    const faqCount  = faqs.length;
+
+    const faqRows = faqs.map(f => `
+      <tr style="background:var(--surface-sunken);">
+        <td style="width:32px;"></td>
+        <td style="padding-left:8px;color:var(--text-secondary);font-size:var(--fs-sm);">Q</td>
+        <td colspan="2" style="padding:10px 12px;">
+          <div style="font-weight:500;font-size:var(--fs-sm);color:var(--text-primary);margin-bottom:3px;">${Comp._escHtml(f.question)}</div>
+          <div style="font-size:var(--fs-sm);color:var(--text-secondary);">${Comp._escHtml(f.answer)}</div>
+        </td>
+        <td onclick="event.stopPropagation()" style="vertical-align:top;padding-top:10px;">
+          <div style="display:flex;gap:6px;justify-content:flex-end;">
+            <button type="button" class="btn btn-sm" onclick="window.hcEditFaq('${Comp._escAttr(t.id)}','${Comp._escAttr(f.id)}')">Edit</button>
+            <button type="button" class="btn btn-sm btn-danger" onclick="window.hcDeleteFaq('${Comp._escAttr(t.id)}','${Comp._escAttr(f.id)}')">Delete</button>
+          </div>
+        </td>
+      </tr>`).join('');
+
+    const addFaqRow = isOpen ? `
+      <tr style="background:var(--surface-sunken);border-top:1px dashed var(--border);">
+        <td colspan="5" style="padding:10px 16px;">
+          <button type="button" class="btn-sm-link" onclick="window.hcOpenAddFaq('${Comp._escAttr(t.id)}')">+ Add FAQ to this topic</button>
+        </td>
+      </tr>` : '';
+
+    return `
+    <tr class="row-clickable" tabindex="0" role="button" aria-expanded="${isOpen}"
+        onclick="window.hcToggleTopic('${Comp._escAttr(t.id)}')"
+        onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();window.hcToggleTopic('${Comp._escAttr(t.id)}')}">
+      <td style="width:32px;text-align:center;color:var(--text-muted);font-size:11px;">${isOpen ? '▼' : '▶'}</td>
       <td class="cell-name">${Comp._escHtml(t.title)}</td>
-      <td class="cell-secondary" style="max-width:420px; white-space:normal;">${Comp._escHtml(t.description)}</td>
+      <td class="cell-secondary" style="font-size:var(--fs-sm);">${faqCount} FAQ${faqCount !== 1 ? 's' : ''}</td>
+      <td class="cell-secondary" style="max-width:340px;white-space:normal;font-size:var(--fs-sm);">${Comp._escHtml(t.description)}</td>
       <td onclick="event.stopPropagation()">
-        <div style="display:flex; gap:8px; justify-content:flex-end;">
+        <div style="display:flex;gap:6px;justify-content:flex-end;">
           <button type="button" class="btn btn-sm" onclick="window.hcEditTopic('${Comp._escAttr(t.id)}')">Edit</button>
           <button type="button" class="btn btn-sm btn-danger" onclick="window.hcDeleteTopic('${Comp._escAttr(t.id)}')">Delete</button>
         </div>
       </td>
-    </tr>`).join('');
+    </tr>
+    ${isOpen ? faqRows + addFaqRow : ''}`;
+  }).join('');
 
   return Comp.Shell(
     Comp.Breadcrumb([{label:'Help Centre'}]) +
     Comp.PageHeader({
       title: 'Help Centre',
-      subtitle: 'Manage FAQ topics shown on the customer Help Centre page and contact channel details.',
+      subtitle: 'Manage FAQ topics and their questions shown on the customer Help Centre page.',
       subtitleClass: 'field-hint',
       actions: Comp.Button('+ Add Topic', {variant:'btn-primary', onclick:"Comp.hcOpenAddForm()"})
     }) +
 
     inlineForm +
 
-    // Contact Info card
+    Comp.contentLanguageBar('helpCentre', true) +
+
+    Comp._renderUrlCanonicalCard('helpCentre', (code, lang) => {
+      return { slug: 'help', canonical: `https://rosotravel.com/${code}/help/` };
+    }, 'helpCentre') +
+
     Comp.Card({title:'Contact Channels', hint:'Displayed in the "Still need help?" section on the customer Help Centre page.', body:`
       <div id="hc-contact-view">
         <div class="booking-info-table">
@@ -23384,18 +23477,19 @@ function pageHelpCentre() {
             <input id="hcEmailInput" class="card-input" type="email" placeholder="support@rosotravel.com" value="${Comp._escAttr(contact.email)}">
           </div>
         </div>
-        <div style="display:flex; gap:8px;">
+        <div style="display:flex;gap:8px;">
           ${Comp.Button('Save', {variant:'btn-primary', size:'btn-sm', onclick:"Comp.hcSaveContact()"})}
           ${Comp.Button('Cancel', {size:'btn-sm', onclick:"Comp.hcCancelContact()"})}
         </div>
       </div>
     `}) +
 
-    // FAQ Topics card
-    Comp.Card({title:`FAQ Topics (${topics.length})`, hint:'Topics appear as accordion items on the customer Help Centre page. Use the Add Topic button to create a new entry.', body:
+    Comp.Card({title:`FAQ Topics (${topics.length})`, hint:'Click a topic row to expand and manage its FAQs.', body:
       Comp.Table({
         columns:[
+          {label:'', width:'32px'},
           {label:'Topic Title'},
+          {label:'FAQs', width:'80px'},
           {label:'Description'},
           {label:'', width:'140px'}
         ],
@@ -23406,16 +23500,56 @@ function pageHelpCentre() {
   );
 }
 
-// Help Centre handlers
+// Help Centre — topic handlers
 Comp.hcOpenAddForm = function() {
-  Comp._hcFormState = { open: true, editId: null };
+  Comp._hcFormState = { open: true, editId: null, topicId: null, mode: 'topic' };
   render();
   const el = document.getElementById('hcInlineForm');
   if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  setTimeout(() => { const t = document.getElementById('hcTopicTitle'); if (t) t.focus(); }, 50);
+  setTimeout(() => { const t = document.getElementById('hcFormTitle'); if (t) t.focus(); }, 50);
 };
 Comp.hcCancelForm = function() {
-  Comp._hcFormState = { open: false, editId: null };
+  Comp._hcFormState = { open: false, editId: null, topicId: null, mode: 'topic' };
+  render();
+};
+Comp.hcSaveTopic = function() {
+  const id    = document.getElementById('hcFormId').value;
+  const title = document.getElementById('hcFormTitle').value.trim();
+  const desc  = document.getElementById('hcFormDesc').value.trim();
+  if (!title) { Comp.showToast('Topic title is required.', 'danger'); return; }
+  if (!desc)  { Comp.showToast('Description is required.', 'danger'); return; }
+  if (id) {
+    const t = (DATA.helpCentreTopics || []).find(x => x.id === id);
+    if (t) { t.title = title; t.description = desc; }
+    Comp.showToast('Topic updated.', 'success');
+  } else {
+    const newId = 'hct-' + Date.now();
+    DATA.helpCentreTopics.push({id: newId, title, description: desc, order: DATA.helpCentreTopics.length + 1, faqs: []});
+    Comp.showToast('Topic added.', 'success');
+  }
+  Comp._hcFormState = { open: false, editId: null, topicId: null, mode: 'topic' };
+  render();
+};
+Comp.hcSaveFaq = function() {
+  const id       = document.getElementById('hcFormId').value;
+  const topicId  = document.getElementById('hcFormTopicId').value;
+  const question = document.getElementById('hcFormQuestion').value.trim();
+  const answer   = document.getElementById('hcFormAnswer').value.trim();
+  if (!question) { Comp.showToast('Question is required.', 'danger'); return; }
+  if (!answer)   { Comp.showToast('Answer is required.', 'danger'); return; }
+  const topic = (DATA.helpCentreTopics || []).find(x => x.id === topicId);
+  if (!topic) { Comp.showToast('Topic not found.', 'danger'); return; }
+  if (!topic.faqs) topic.faqs = [];
+  if (id) {
+    const f = topic.faqs.find(x => x.id === id);
+    if (f) { f.question = question; f.answer = answer; }
+    Comp.showToast('FAQ updated.', 'success');
+  } else {
+    topic.faqs.push({id: 'hcf-' + Date.now(), question, answer});
+    Comp.showToast('FAQ added.', 'success');
+  }
+  Comp._hcExpanded[topicId] = true;
+  Comp._hcFormState = { open: false, editId: null, topicId: null, mode: 'topic' };
   render();
 };
 Comp.hcEditContact = function() {
@@ -23435,37 +23569,47 @@ Comp.hcSaveContact = function() {
   Comp.showToast('Contact details saved.', 'success');
   render();
 };
-Comp.hcSaveTopic = function() {
-  const id    = document.getElementById('hcTopicId').value;
-  const title = document.getElementById('hcTopicTitle').value.trim();
-  const desc  = document.getElementById('hcTopicDesc').value.trim();
-  if (!title) { Comp.showToast('Topic title is required.', 'danger'); return; }
-  if (!desc)  { Comp.showToast('Description is required.', 'danger'); return; }
-  if (id) {
-    const t = (DATA.helpCentreTopics || []).find(x => x.id === id);
-    if (t) { t.title = title; t.description = desc; }
-    Comp.showToast('Topic updated.', 'success');
-  } else {
-    const newId = 'hct-' + Date.now();
-    const order = (DATA.helpCentreTopics || []).length + 1;
-    DATA.helpCentreTopics.push({id: newId, title, description: desc, order});
-    Comp.showToast('Topic added.', 'success');
-  }
-  Comp._hcFormState = { open: false, editId: null };
+
+// Window-scoped handlers (called from onclick in template literals)
+window.hcToggleTopic = function(id) {
+  Comp._hcExpanded[id] = !Comp._hcExpanded[id];
   render();
 };
-// Edit/Delete — window-scoped so onclick in template literals can reach them
 window.hcEditTopic = function(id) {
-  Comp._hcFormState = { open: true, editId: id };
+  Comp._hcFormState = { open: true, editId: id, topicId: null, mode: 'topic' };
   render();
   const el = document.getElementById('hcInlineForm');
   if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  setTimeout(() => { const t = document.getElementById('hcTopicTitle'); if (t) t.focus(); }, 50);
+  setTimeout(() => { const t = document.getElementById('hcFormTitle'); if (t) t.focus(); }, 50);
 };
 window.hcDeleteTopic = function(id) {
-  if (!confirm('Delete this topic?')) return;
+  if (!confirm('Delete this topic and all its FAQs?')) return;
   DATA.helpCentreTopics = (DATA.helpCentreTopics || []).filter(x => x.id !== id);
+  delete Comp._hcExpanded[id];
   Comp.showToast('Topic deleted.', 'success');
+  render();
+};
+window.hcOpenAddFaq = function(topicId) {
+  Comp._hcExpanded[topicId] = true;
+  Comp._hcFormState = { open: true, editId: null, topicId, mode: 'faq' };
+  render();
+  const el = document.getElementById('hcInlineForm');
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  setTimeout(() => { const q = document.getElementById('hcFormQuestion'); if (q) q.focus(); }, 50);
+};
+window.hcEditFaq = function(topicId, faqId) {
+  Comp._hcExpanded[topicId] = true;
+  Comp._hcFormState = { open: true, editId: faqId, topicId, mode: 'faq' };
+  render();
+  const el = document.getElementById('hcInlineForm');
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  setTimeout(() => { const q = document.getElementById('hcFormQuestion'); if (q) q.focus(); }, 50);
+};
+window.hcDeleteFaq = function(topicId, faqId) {
+  if (!confirm('Delete this FAQ?')) return;
+  const topic = (DATA.helpCentreTopics || []).find(x => x.id === topicId);
+  if (topic && topic.faqs) topic.faqs = topic.faqs.filter(f => f.id !== faqId);
+  Comp.showToast('FAQ deleted.', 'success');
   render();
 };
 
