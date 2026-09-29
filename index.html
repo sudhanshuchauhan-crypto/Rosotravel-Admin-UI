@@ -819,7 +819,7 @@ const DATA = {
       specialRequirements:null,
       personalisation:{groupAge:'25–35', preferences:'Solo adventure — first time skydiving.'},
       invoice:null,
-      pricing:{baseLabel:'Base Price ($590.00 x 1 guest)', base:'$590.00', addonsLabel:'Add-ons', addons:'$0.00', subtotal:'$590.00', discount:'-$0.00', total:'$590.00', viatorRecommendedPrice:'$590.00', viatorNetPrice:'$472.00', viatorBookingFee:'$118.00', viatorPayout:'$472.00'},
+      pricing:{baseLabel:'Base Price ($590.00 x 1 guest)', base:'$590.00', addonsLabel:'Add-ons', addons:'$0.00', subtotal:'$590.00', discount:'-$0.00', total:'$590.00', viatorRecommendedPrice:'$590.00', viatorNetPrice:'$472.00', viatorBookingFee:'$118.00', viatorPayout:'$472.00', customerRefundAmt:'$590.00', viatorRefundApproved:true},
       activity:[{label:'Booking Created', time:'17 May 2024, 04:40 PM'}, {label:'Payment Received', time:'17 May 2024, 04:42 PM'}, {label:'Cancelled by Viator — fraud detected', time:'17 May 2024, 06:10 PM'}, {label:'Support team notified (bookings@rosotravel.com)', time:'17 May 2024, 06:10 PM'}],
       cancelReason:'Suspected fraud — flagged by Viator', cancelledBy:'Viator (fraud detection)',
       cancelNote:'This transaction was automatically cancelled by Viator after being flagged as suspected fraud. Refund of $590.00 processed. Further operations on this booking are blocked.'}
@@ -6221,14 +6221,32 @@ const Comp = {
     // enumerated dropdown would be unusable. `searchable:true` renders a
     // text search input + filtered option list for pick-one-from-many.
     const html = fields.map(f => {
+      // visibleWhen: only show field if its dependency has a value — skip hidden ones entirely
+      if (f.visibleWhen) {
+        const dep = fields.find(x => x.id === f.visibleWhen.id);
+        const depVal = dep ? (dep.value || '') : '';
+        if (f.visibleWhen.notEmpty && !depVal) return '';
+      }
       if (f.searchable && f.options) {
-        // Use the existing SearchSelect component (same pattern as City/Attraction in product wizard).
-        // Options exclude the "All" sentinel; value text doubles as the filter value (codes/cities match exactly).
-        const ssOpts = f.options.filter(o => o.value !== '').map(o => ({value: o.value}));
-        const curValue = f.value || '';
+        // SearchSelect with label-aware options: store value in hidden field, show label in input.
+        const ssOpts = f.options.filter(o => o.value !== '').map(o => ({value: o.label || o.value, _realValue: o.value}));
+        // Find display label for current value
+        const curOpt = f.options.find(o => o.value === (f.value || ''));
+        const curDisplay = curOpt && curOpt.value ? (curOpt.label || curOpt.value) : '';
+        const ssId = 'fd_' + f.id;
+        // Register options so _fdSearchableRender can access them
+        Comp._searchSelectData = Comp._searchSelectData || {};
+        Comp._searchSelectData[ssId] = { options: ssOpts };
+        // Store real value in hidden input, display label in text input
         return `<div class="filter-drawer-group">
-            ${Comp.SearchSelect({id:'fd_'+f.id, label:f.label, required:false, placeholder:'All — type to filter...', value:curValue,
-              options: ssOpts, addNewLabel:'', addNewHandler:()=>{}})}
+            <label for="${ssId}Input">${f.label}</label>
+            <div class="search-select" id="${ssId}">
+              <input type="text" class="search-select-input" id="${ssId}Input" placeholder="All — type to filter..." value="${Comp._escAttr(curDisplay)}" autocomplete="off"
+                onfocus="Comp._fdSearchableOpen('${ssId}')" oninput="Comp._fdSearchableFilter('${ssId}', this.value)">
+              <input type="hidden" id="${ssId}Hidden" value="${Comp._escAttr(f.value||'')}">
+              <span class="search-select-caret">▾</span>
+              <div class="search-select-panel" id="${ssId}Panel"></div>
+            </div>
           </div>`;
       }
       return `
@@ -6246,9 +6264,10 @@ const Comp = {
         const updates = {};
         fields.forEach(f => {
           if (f.searchable) {
-            // SearchSelect stores the chosen value as the visible input's text
+            // Real value stored in hidden input; text input shows display label
+            const hidden = document.getElementById('fd_' + f.id + 'Hidden');
             const inp = document.getElementById('fd_' + f.id + 'Input');
-            updates[f.id] = inp ? inp.value.trim() : '';
+            updates[f.id] = hidden ? hidden.value : (inp ? inp.value.trim() : '');
           } else {
             const el = document.getElementById('fd_' + f.id);
             updates[f.id] = el ? el.value : '';
@@ -6263,6 +6282,8 @@ const Comp = {
           if (f.searchable) {
             const inp = document.getElementById('fd_' + f.id + 'Input');
             if (inp) inp.value = '';
+            const hidden = document.getElementById('fd_' + f.id + 'Hidden');
+            if (hidden) hidden.value = '';
             const wrap = document.getElementById('fd_' + f.id);
             if (wrap) wrap.classList.remove('open');
           }
@@ -6270,6 +6291,37 @@ const Comp = {
         Router.go(route, resetParams);
       }
     );
+  },
+  // Handlers for label-aware searchable filter fields in openRouteFilterDrawer
+  _fdSearchableOpen(ssId){
+    const wrap = document.getElementById(ssId);
+    if (!wrap) return;
+    wrap.classList.add('open');
+    Comp._fdSearchableRender(ssId, document.getElementById(ssId + 'Input').value);
+  },
+  _fdSearchableFilter(ssId, query){
+    Comp._fdSearchableRender(ssId, query);
+  },
+  _fdSearchableRender(ssId, query){
+    const panel = document.getElementById(ssId + 'Panel');
+    if (!panel) return;
+    const data = Comp._searchSelectData && Comp._searchSelectData[ssId];
+    if (!data) return;
+    const q = (query || '').trim().toLowerCase();
+    const matches = data.options.filter(o => !q || o.value.toLowerCase().includes(q));
+    if (!matches.length) {
+      panel.innerHTML = `<div class="search-select-empty"><p>No results found.</p></div>`;
+    } else {
+      panel.innerHTML = matches.map(o => `<div class="search-select-option" onmousedown="event.preventDefault(); Comp._fdSearchablePick('${ssId}', '${(o._realValue||o.value).replace(/'/g,'&#39;')}', '${o.value.replace(/'/g,'&#39;')}')">${o.value}</div>`).join('');
+    }
+  },
+  _fdSearchablePick(ssId, realValue, displayLabel){
+    const inp = document.getElementById(ssId + 'Input');
+    const hidden = document.getElementById(ssId + 'Hidden');
+    const wrap = document.getElementById(ssId);
+    if (inp) inp.value = displayLabel;
+    if (hidden) hidden.value = realValue;
+    if (wrap) wrap.classList.remove('open');
   },
   // Reusable searchable filter group — text input + filtered option list.
   // id: base ID, label: display label, values: string[], current: selected value, allLabel: placeholder text, hint: optional hint.
@@ -10556,7 +10608,6 @@ function pageRegionListing(params){
 function pageRegionCreate(){
   Comp.clearCreateAiTracking();
   const continents = [...new Set(DATA.countries.map(c => c.continent).filter(Boolean))].sort();
-  const tiers = ['Tier 1','Tier 2','Tier 3','Unassigned'];
   return Comp.Shell(`
     ${Comp.PageHeader({title:'Create region', actions:Comp.Button('✨ Generate with AI', {variant:'btn-ghost', onclick:'Comp.triggerCreateAiGenerate(this)'})})}
     ${Comp.Breadcrumb([{label:'Regions', route:'regionListing'}, {label:'Create region'}])}
@@ -10564,21 +10615,12 @@ function pageRegionCreate(){
       <div class="card">
         <div class="section-header-row"><p class="card-title">Region information</p></div>
         <div class="field-stack">
-          <div class="field-row">
-            <div class="field">
-              <label for="regionCreateContinent">Continent <span class="required">*</span></label>
-              <select id="regionCreateContinent" required onchange="Comp._cascadeRegionCreate()">
-                <option value="">Select continent</option>
-                ${continents.map(c => `<option>${c}</option>`).join('')}
-              </select>
-            </div>
-            <div class="field">
-              <label for="regionCreateTier">Tier Level <span class="required">*</span></label>
-              <select id="regionCreateTier" required>
-                <option value="">Select tier</option>
-                ${tiers.map(t => `<option>${t}</option>`).join('')}
-              </select>
-            </div>
+          <div class="field">
+            <label for="regionCreateContinent">Continent <span class="required">*</span></label>
+            <select id="regionCreateContinent" required onchange="Comp._cascadeRegionCreate()">
+              <option value="">Select continent</option>
+              ${continents.map(c => `<option>${c}</option>`).join('')}
+            </select>
           </div>
           <div class="field">
             <label for="regionCreateCountry">Country <span class="required">*</span></label>
@@ -10871,7 +10913,6 @@ function pageCityListing(params){
 function pageCityCreate(){
   Comp.clearCreateAiTracking();
   const continents = [...new Set(DATA.countries.map(c => c.continent).filter(Boolean))].sort();
-  const tiers = ['Tier 1','Tier 2','Tier 3','Unassigned'];
   return Comp.Shell(`
     ${Comp.PageHeader({title:'Create city', actions:Comp.Button('✨ Generate with AI', {variant:'btn-ghost', onclick:'Comp.triggerCreateAiGenerate(this)'})})}
     ${Comp.Breadcrumb([{label:'Cities', route:'cityListing'}, {label:'Create city'}])}
@@ -10879,21 +10920,12 @@ function pageCityCreate(){
       <div class="card">
         <div class="section-header-row"><p class="card-title">City information</p></div>
         <div class="field-stack">
-          <div class="field-row">
-            <div class="field">
-              <label for="cityCreateContinent">Continent <span class="required">*</span></label>
-              <select id="cityCreateContinent" required onchange="Comp._cascadeCityCreate()">
-                <option value="">Select continent</option>
-                ${continents.map(c => `<option>${c}</option>`).join('')}
-              </select>
-            </div>
-            <div class="field">
-              <label for="cityCreateTier">Tier Level <span class="required">*</span></label>
-              <select id="cityCreateTier" required>
-                <option value="">Select tier</option>
-                ${tiers.map(t => `<option>${t}</option>`).join('')}
-              </select>
-            </div>
+          <div class="field">
+            <label for="cityCreateContinent">Continent <span class="required">*</span></label>
+            <select id="cityCreateContinent" required onchange="Comp._cascadeCityCreate()">
+              <option value="">Select continent</option>
+              ${continents.map(c => `<option>${c}</option>`).join('')}
+            </select>
           </div>
           <div class="field">
             <label for="cityCountrySelect">Country <span class="required">*</span></label>
@@ -11207,21 +11239,12 @@ function pageAttractionCreate(){
           <p class="card-title">Attraction information</p>
         </div>
         <div class="field-stack">
-          <div class="field-row">
-            <div class="field">
-              <label for="attrCreateContinent">Continent <span class="required">*</span></label>
-              <select id="attrCreateContinent" required onchange="Comp._cascadeAttrCreate()">
-                <option value="">Select continent</option>
-                ${[...new Set(DATA.countries.map(c => c.continent).filter(Boolean))].sort().map(c => `<option>${c}</option>`).join('')}
-              </select>
-            </div>
-            <div class="field">
-              <label for="attrCreateTier">Tier Level <span class="required">*</span></label>
-              <select id="attrCreateTier" required>
-                <option value="">Select tier</option>
-                ${['Tier 1','Tier 2','Tier 3','Unassigned'].map(t => `<option>${t}</option>`).join('')}
-              </select>
-            </div>
+          <div class="field">
+            <label for="attrCreateContinent">Continent <span class="required">*</span></label>
+            <select id="attrCreateContinent" required onchange="Comp._cascadeAttrCreate()">
+              <option value="">Select continent</option>
+              ${[...new Set(DATA.countries.map(c => c.continent).filter(Boolean))].sort().map(c => `<option>${c}</option>`).join('')}
+            </select>
           </div>
           <div class="field">
             <label for="attrCityCountrySelect">Country <span class="required">*</span></label>
@@ -18462,6 +18485,7 @@ function pageReviewListing(params){
   if (p.fBookingNo) list = list.filter(r => (r.bookingId || '').toLowerCase().includes(p.fBookingNo.toLowerCase()));
   if (p.fProductCode) list = list.filter(r => Comp._reviewProductCode(r) === p.fProductCode);
   if (p.fProductName) list = list.filter(r => (r.productName || '').toLowerCase().includes(p.fProductName.toLowerCase()));
+  if (p.fProductOption) list = list.filter(r => (r.productOption || '').toLowerCase().includes(p.fProductOption.toLowerCase()));
   if (p.fReviewCity) list = list.filter(r => Comp._reviewCity(r) === p.fReviewCity);
   const pendingCount = DATA.reviews.filter(r => r.moderationStatus === 'pending').length;
   // Only Rosotravel-sourced reviews' media is ever actionable by admin — media
@@ -18484,12 +18508,7 @@ function pageReviewListing(params){
       <td class="cell-secondary" style="max-width:260px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${r.reviewText}</td>
       <td class="cell-secondary">${reviewMedia.length ? `${reviewMedia.length} item${reviewMedia.length===1?'':'s'}${pendingMediaForReview ? ` ${Comp.Badge(pendingMediaForReview + ' pending', 'danger')}` : ''}` : '—'}</td>
       <td>${r.moderationStatus === 'approved' ? Comp.Badge('Approved', true) : r.moderationStatus === 'rejected' ? Comp.Badge('Rejected', 'danger') : r.moderationStatus === 'hidden' ? Comp.Badge('Hidden', 'warning') : Comp.Badge('Pending', 'danger')}</td>
-      <td onclick="event.stopPropagation()">${r.sourceType === 'Rosotravel' ? Comp.RowMenu(r.productName, [
-        {label:'View details', handler:() => Router.go('reviewDetail',{id:r.id})},
-        r.moderationStatus !== 'approved' ? {label:'Approve', handler:() => Comp.reviewModerate(r.id, 'approved')} : null,
-        r.moderationStatus !== 'rejected' ? {label:'Reject', danger:true, handler:() => Comp.reviewModerate(r.id, 'rejected')} : null,
-        r.moderationStatus !== 'hidden' ? {label:'Hide', handler:() => Comp.reviewModerate(r.id, 'hidden')} : null,
-      ].filter(Boolean)) : Comp.RowMenu(r.productName, [
+      <td onclick="event.stopPropagation()">${Comp.RowMenu(r.productName, [
         {label:'View details', handler:() => Router.go('reviewDetail',{id:r.id})},
       ])}</td>
     </tr>`;
@@ -18498,39 +18517,19 @@ function pageReviewListing(params){
   return Comp.Shell(`
     ${Comp.PageHeader({title:'Review Management'})}
     <div class="filter-bar mb-4" role="search">
-      ${Comp.FilterIconButton(Comp.activeRouteFilterCount(p, ['fStatus','fSource','fBookingNo','fProductCode','fProductName','fReviewCity']), `Comp.openRouteFilterDrawer('reviewListing', '${encodeURIComponent(JSON.stringify(p))}', '${encodeURIComponent(JSON.stringify([
-        {id:'fStatus', label:'Status', value:p.fStatus||'', options:[{value:'',label:'All statuses'},{value:'approved',label:'Approved'},{value:'rejected',label:'Rejected'},{value:'hidden',label:'Hidden'}]},
+      ${Comp.FilterIconButton(Comp.activeRouteFilterCount(p, ['fStatus','fSource','fBookingNo','fProductCode','fProductName','fProductOption','fReviewCity']), `Comp.openRouteFilterDrawer('reviewListing', '${encodeURIComponent(JSON.stringify(p))}', '${encodeURIComponent(JSON.stringify([
+        {id:'fStatus', label:'Status', value:p.fStatus||'', options:[{value:'',label:'All statuses'},{value:'pending',label:'Pending'},{value:'approved',label:'Approved'},{value:'rejected',label:'Rejected'},{value:'hidden',label:'Hidden'}]},
         {id:'fSource', label:'Source', value:p.fSource||'', options:[{value:'',label:'All sources'},{value:'Rosotravel',label:'Rosotravel'},{value:'Viator',label:'Viator'},{value:'Tripadvisor',label:'Tripadvisor'}]},
         {id:'fBookingNo', label:'Booking number', value:p.fBookingNo||'', text:true, placeholder:'e.g. BK-001'},
         {id:'fProductCode', label:'Product code', value:p.fProductCode||'', searchable:true, options:[{value:'',label:'All product codes'}].concat(Comp._reviewFacets().productCodes.map(c => ({value:c, label:c})))},
         {id:'fProductName', label:'Product name', value:p.fProductName||'', text:true, placeholder:'Search product name'},
+        {id:'fProductOption', label:'Product option', value:p.fProductOption||'', text:true, placeholder:'Search product option', visibleWhen:{id:'fProductCode', notEmpty:true}},
         {id:'fReviewCity', label:'City', value:p.fReviewCity||'', searchable:true, options:[{value:'',label:'All cities'}].concat(Comp._reviewFacets().cities.map(c => ({value:c, label:c})))}
       ]))}')`)}
     </div>
     ${Comp.Table({columns:[{label:'Product / Reviewer'},{label:'Rating',width:'110px'},{label:'Source',width:'140px'},{label:'Review'},{label:'Media',width:'140px'},{label:'Status',width:'110px'},{label:'',width:'70px'}], rows, emptyText:'No reviews match this filter.'})}
   `);
 }
-Comp.reviewModerate = function(id, newStatus){
-  const r = DATA.reviews.find(x => x.id === id);
-  if (!r) return;
-  if (r.sourceType !== 'Rosotravel') {
-    Comp.showToast(`Reviews sourced from ${Comp.REVIEW_SOURCE_LABEL[r.sourceType]} cannot be moderated by Rosotravel (API/contract restriction).`, 'danger');
-    return;
-  }
-  Comp.openConfirm({
-    title: `${newStatus.charAt(0).toUpperCase()+newStatus.slice(1)} this review?`,
-    desc: `Review from ${r.reviewerName} for "${r.productName}" will be marked ${newStatus}.`,
-    confirmLabel: newStatus.charAt(0).toUpperCase()+newStatus.slice(1),
-    danger: newStatus === 'rejected' || newStatus === 'hidden',
-    onConfirm: () => {
-      r.moderationStatus = newStatus;
-      r.history = r.history || [];
-      r.history.unshift({label:`Marked ${newStatus}`, time:new Date().toLocaleString(), actor:'Content Editor (you)'});
-      Comp.showToast(`Review ${newStatus}.`, newStatus === 'approved' ? 'success' : 'danger');
-      render();
-    }
-  });
-};
 function pageReviewDetail(params){
   const r = DATA.reviews.find(x => x.id === (params && params.id)) || DATA.reviews[0];
   const tab = (params && params.tab) || 'overview';
@@ -18545,11 +18544,7 @@ function pageReviewDetail(params){
       <div class="media-thumb" style="height:150px; font-size:32px;">${m.type === 'photo' ? '📷' : '🎥'}</div>
       <p style="font-weight:700; font-size:var(--fs-sm); margin:0 0 4px;">${m.type.charAt(0).toUpperCase()+m.type.slice(1)} preview</p>
       <p style="color:var(--text-muted); font-size:var(--fs-xs); margin:0 0 8px;">Uploaded ${m.uploadedAt}</p>
-      ${m.moderationStatus === 'approved' ? Comp.Badge('Approved', true) : (r.sourceType === 'Rosotravel' ? Comp.Badge('Pending', 'danger') : Comp.Badge('Mirrored (not actionable)', 'warning'))}
-      ${r.sourceType === 'Rosotravel' ? `<div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:10px;">
-        ${m.moderationStatus !== 'approved' ? Comp.Button('Approve', {size:'btn-sm', onclick:`Comp.reviewMediaModerate('${m.id}','approved')`}) : ''}
-        ${m.moderationStatus !== 'rejected' ? Comp.Button('Reject', {size:'btn-sm', variant:'btn-danger', onclick:`Comp.reviewMediaModerate('${m.id}','rejected')`}) : ''}
-      </div>` : `<p class="field-hint mt-2h">${ICON.lock} Sourced from ${Comp.REVIEW_SOURCE_LABEL[r.sourceType]} — media cannot be moderated by Rosotravel.</p>`}
+      ${m.moderationStatus === 'approved' ? Comp.Badge('Approved', true) : m.moderationStatus === 'rejected' ? Comp.Badge('Rejected', 'danger') : Comp.Badge('Pending', 'danger')}
     </div>`).join('');
 
   let tabBody = '';
@@ -18564,7 +18559,7 @@ function pageReviewDetail(params){
           ['Source', Comp.REVIEW_SOURCE_LABEL[r.sourceType]],
           ['Submitted', r.submittedAt]
         ])}`}) +
-      Comp.Card({title:'Attached Media', hint:'Preview and moderate photos/videos submitted with this review — customer media must be approved before it can appear in product galleries or Recent Experience snapshots.', body:`
+      Comp.Card({title:'Attached Media', hint:'Photos and videos submitted with this review. Moderation is managed in the CRM.', body:`
         ${media.length ? `<div class="media-grid">${mediaCards}</div>` : `<p class="empty-state">No media attached to this review.</p>`}`});
   } else if (tab === 'history') {
     tabBody =
@@ -18574,12 +18569,8 @@ function pageReviewDetail(params){
 
   return Comp.Shell(`
     ${Comp.Breadcrumb([{label:'Review Management', route:'reviewListing'}, {label:r.reviewerName + ' — ' + r.productName}])}
-    ${Comp.PageHeader({title:`${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)} — ${r.productName}`, actions:`
-        ${r.sourceType === 'Rosotravel' ? `
-        ${r.moderationStatus !== 'approved' ? Comp.Button('Approve', {variant:'btn-primary', onclick:`Comp.reviewModerate('${r.id}','approved')`}) : ''}
-        ${r.moderationStatus !== 'rejected' ? Comp.Button('Reject', {variant:'btn-danger', onclick:`Comp.reviewModerate('${r.id}','rejected')`}) : ''}
-        ${r.moderationStatus !== 'hidden' ? Comp.Button('Hide', {onclick:`Comp.reviewModerate('${r.id}','hidden')`}) : ''}` : ''}`, level:'h2'})}
-    ${r.sourceType !== 'Rosotravel' ? `<div class="locked-field-note">${ICON.lock} This review is sourced from ${Comp.REVIEW_SOURCE_LABEL[r.sourceType]} — per API/contract terms, it cannot be approved, rejected, or hidden by Rosotravel. It mirrors the source platform's own moderation as-is.</div>` : ''}
+    ${Comp.PageHeader({title:`${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)} — ${r.productName}`, actions:r.moderationStatus === 'approved' ? Comp.Badge('Approved', true) : r.moderationStatus === 'rejected' ? Comp.Badge('Rejected', 'danger') : r.moderationStatus === 'hidden' ? Comp.Badge('Hidden', 'warning') : Comp.Badge('Pending', 'danger'), level:'h2'})}
+    ${r.sourceType !== 'Rosotravel' ? `<div class="locked-field-note">${ICON.lock} This review is sourced from ${Comp.REVIEW_SOURCE_LABEL[r.sourceType]} — moderation is managed on the source platform and reflected here.</div>` : ''}
     ${r.flagReason ? `<div class="status-banner is-danger"><span>${ICON.warning}</span><span><strong>Flagged:</strong> ${r.flagReason}</span></div>` : ''}
     <div class="ops-tabs" role="tablist">
       ${tabs.map(t => `<button type="button" class="ops-tab ${tab===t.id?'is-active':''}" role="tab" aria-selected="${tab===t.id}" onclick="Router.go('reviewDetail',{id:'${r.id}', tab:'${t.id}'})">${t.label}</button>`).join('')}
@@ -18587,18 +18578,6 @@ function pageReviewDetail(params){
     ${tabBody}
   `);
 }
-Comp.reviewMediaModerate = function(id, newStatus){
-  const m = DATA.reviewMedia.find(x => x.id === id);
-  if (!m) return;
-  const parentReview = DATA.reviews.find(r => r.id === m.reviewId);
-  if (parentReview && parentReview.sourceType !== 'Rosotravel') {
-    Comp.showToast(`Media on reviews sourced from ${Comp.REVIEW_SOURCE_LABEL[parentReview.sourceType]} cannot be moderated by Rosotravel (API/contract restriction).`, 'danger');
-    return;
-  }
-  m.moderationStatus = newStatus;
-  Comp.showToast(`Media ${newStatus}.`, newStatus === 'approved' ? 'success' : 'danger');
-  render();
-};
 
 // ============================================================
 // Redirect & Deprecation — standalone top-level module (moved out of SEO
@@ -21880,14 +21859,70 @@ function pageBookingDetails(params){
         <div class="booking-info-row"><span>${discountLabel}</span>${discountDisplay}</div>
         <div class="booking-info-row" style="border-top:1px solid var(--border); padding-top:8px; margin-top:4px; font-size:15px;"><span style="color:var(--text-primary); font-weight:600;">Total Amount</span><span style="font-size:16px;">${b.pricing.total}</span></div>
       </div>`})}
-    ${b.channel === 'Viator' ? Comp.Card({title:'Viator Settlement', hint:'Feeds the Viator settlement export (recommended price, net price, booking fee, payout, refund adjustments).', body:
-      Comp._infoTable([
-        ['Recommended price', b.pricing.viatorRecommendedPrice || b.pricing.total],
-        ['Net price (from Viator)', b.pricing.viatorNetPrice || '—'],
-        ['Booking fee (Rosotravel margin)', b.pricing.viatorBookingFee || '—'],
-        ['Amount payable to Viator', b.pricing.viatorPayout || '—'],
-        ['Refund adjustment', b.paymentStatus === 'Refunded' ? (b.cancelNote && b.cancelNote.includes('did not agree') ? 'Full amount paid to Viator — loss absorbed by Rosotravel' : 'Settled per Viator agreement') : 'None']
-      ])}) : ''}`;
+    ${b.channel === 'Viator' ? (() => {
+      // Parse numeric values from pricing strings
+      const parseAmt = s => parseFloat((s||'0').replace(/[^0-9.\-]/g,'')) || 0;
+      const recommendedPrice = parseAmt(b.pricing.viatorRecommendedPrice || b.pricing.total);
+      const netPayable       = parseAmt(b.pricing.viatorNetPrice);
+      // Commission % — default derived from data; editable by Super Admin via override
+      const commissionPct    = b.pricing.viatorCommissionPct != null ? b.pricing.viatorCommissionPct : (recommendedPrice > 0 ? Math.round((parseAmt(b.pricing.viatorBookingFee) / recommendedPrice) * 1000) / 10 : 0);
+      const commissionAmt    = parseAmt(b.pricing.viatorCommissionAmt) || parseFloat((recommendedPrice * commissionPct / 100).toFixed(2));
+      const supplierFee      = parseAmt(b.pricing.viatorSupplierFee) || parseFloat((netPayable - commissionAmt).toFixed(2));
+      const discountAmt      = parseAmt(b.pricing.discount);
+      const rosoMargin       = parseFloat((recommendedPrice - Math.abs(discountAmt) - netPayable).toFixed(2));
+      const fmt = v => '$' + Math.abs(v).toFixed(2);
+
+      // Refund section
+      let refundSection = '';
+      if (b.paymentStatus === 'Refunded' || b.paymentStatus === 'Partially Refunded') {
+        const customerRefund    = parseAmt(b.pricing.customerRefundAmt || b.amount || '0');
+        // viatorRefundApproved field takes priority; fall back to cancelNote check
+        const viatorApproved    = b.pricing.viatorRefundApproved !== undefined
+          ? b.pricing.viatorRefundApproved
+          : !(b.cancelNote && b.cancelNote.includes('did not agree'));
+        const adjNetPayable     = viatorApproved ? parseFloat((netPayable * (1 - customerRefund / recommendedPrice)).toFixed(2)) : netPayable;
+        const marginAfterRefund = parseFloat((recommendedPrice - Math.abs(discountAmt) - customerRefund - adjNetPayable).toFixed(2));
+        refundSection = `
+          <div style="margin-top:16px; padding-top:16px; border-top:1px solid var(--border);">
+            <div style="font-size:var(--fs-sm); font-weight:600; color:var(--text-primary); margin-bottom:10px;">Refund Handling</div>
+            <div class="booking-info-table">
+              <div class="booking-info-row"><span>Refund scenario</span><span style="font-weight:500;">${viatorApproved ? 'Approved by Viator' : 'Granted by Rosotravel (no Viator approval)'}</span></div>
+              <div class="booking-info-row"><span>Customer refund</span><span>${fmt(customerRefund)}</span></div>
+              <div class="booking-info-row"><span>Adjusted amount payable to Viator</span><span>${fmt(adjNetPayable)}</span></div>
+              <div class="booking-info-row" style="border-top:1px solid var(--border); padding-top:8px; margin-top:4px;">
+                <span style="font-weight:600;">Rosotravel margin after refund</span>
+                <span style="font-weight:700; color:${marginAfterRefund < 0 ? 'var(--danger-600)' : 'var(--success-600, #16a34a)'};">${marginAfterRefund < 0 ? '-' : ''}${fmt(marginAfterRefund)}</span>
+              </div>
+            </div>
+            ${!viatorApproved ? `<p style="font-size:var(--fs-xs); color:var(--warning-700); margin-top:8px;">⚠ Viator did not approve this refund — full net amount remains payable to Viator. Rosotravel absorbs the refund cost.</p>` : ''}
+          </div>`;
+      }
+
+      return Comp.Card({title:'Viator Settlement', hint:'Settlement breakdown for this Viator booking — net payable, commission, supplier fee, and Rosotravel margin.', body:`
+        <div class="booking-info-table">
+          <div class="booking-info-row"><span>Recommended price</span><span>${fmt(recommendedPrice)}</span></div>
+          <div class="booking-info-row" style="border-top:1px solid var(--border); padding-top:8px; margin-top:4px;">
+            <span style="font-weight:600;">Net price payable to Viator</span>
+            <span style="font-weight:700;">${fmt(netPayable)}</span>
+          </div>
+          <div class="booking-info-row" style="padding-left:16px; color:var(--text-secondary);">
+            <span style="font-size:var(--fs-sm);">↳ Viator commission fee (${commissionPct}%)</span>
+            <span style="font-size:var(--fs-sm);">${fmt(commissionAmt)}</span>
+          </div>
+          <div class="booking-info-row" style="padding-left:16px; color:var(--text-secondary);">
+            <span style="font-size:var(--fs-sm);">↳ Supplier fee</span>
+            <span style="font-size:var(--fs-sm);">${fmt(supplierFee)}</span>
+          </div>
+          ${!discountIsZero ? `<div class="booking-info-row"><span>Discount${b.couponCode ? ` <span class="text-muted-xs-regular" style="margin-left:6px;">${Comp._escHtml(b.couponCode)}</span>` : ''}</span><span style="color:var(--danger-600);">${b.pricing.discount}</span></div>` : ''}
+          <div class="booking-info-row" style="border-top:1px solid var(--border); padding-top:8px; margin-top:4px;">
+            <span style="font-weight:600; color:var(--text-primary);">Rosotravel Margin</span>
+            <span style="font-weight:700; color:${rosoMargin < 0 ? 'var(--danger-600)' : 'var(--success-600, #16a34a)'};">${rosoMargin < 0 ? '-' : ''}${fmt(rosoMargin)}</span>
+          </div>
+        </div>
+        <p style="font-size:var(--fs-xs); color:var(--text-muted); margin-top:10px;">Net price payable to Viator = Viator commission fee + Supplier fee &nbsp;·&nbsp; Rosotravel Margin = Recommended price − Discount − Net payable</p>
+        ${refundSection}
+      `});
+    })() : ''}`;
   } else if (tab === 'activity') {
     tabBody = `
     ${Comp.Card({title:'Activity Log', body:`
@@ -22133,6 +22168,7 @@ function pageCouponListing(params){
     });
   }
   if (p.fProductSource) list = list.filter(c => (c.productSource || 'All') === p.fProductSource);
+  if (p.fCustomer) list = list.filter(c => (c.userEmails || []).includes(p.fCustomer));
 
   const rows = list.map(c => {
     const status = Comp.getCouponStatus(c);
@@ -22157,11 +22193,12 @@ ${Comp.Button('+ Create coupon', {variant:'btn-primary', onclick:"Router.go('cou
     <div class="filter-bar" role="search">
       <label for="couponSearch" class="visually-hidden">Search by code or description</label>
       <input id="couponSearch" class="search-box" placeholder="Search by code or description" value="${Comp._escAttr(p.q||'')}" onkeydown="if(event.key==='Enter') Router.go('couponListing',{q:this.value})">
-      ${Comp.FilterIconButton(Comp.activeRouteFilterCount(p, ['fStatus','fEligLevel','fEligMode','fProductSource']), `Comp.openRouteFilterDrawer('couponListing', '${encodeURIComponent(JSON.stringify(p))}', '${encodeURIComponent(JSON.stringify([
+      ${Comp.FilterIconButton(Comp.activeRouteFilterCount(p, ['fStatus','fEligLevel','fEligMode','fProductSource','fCustomer']), `Comp.openRouteFilterDrawer('couponListing', '${encodeURIComponent(JSON.stringify(p))}', '${encodeURIComponent(JSON.stringify([
         {id:'fStatus', label:'Status', value:p.fStatus||'', options:[{value:'',label:'All statuses'},{value:'Active',label:'Active'},{value:'Scheduled',label:'Scheduled'},{value:'Fully redeemed',label:'Fully redeemed'},{value:'Expired',label:'Expired'},{value:'Disabled',label:'Disabled'}]},
         {id:'fEligLevel', label:'Eligibility level', value:p.fEligLevel||'', options:[{value:'',label:'All levels'},{value:'product',label:'Product Level'},{value:'user',label:'User Level'}]},
         {id:'fEligMode', label:'Eligibility mode', value:p.fEligMode||'', options:[{value:'',label:'All modes'},{value:'all',label:'All (product/users)'},{value:'specific',label:'Specific product(s)/user(s)'},{value:'firstTime',label:'First-time users only'}]},
-        {id:'fProductSource', label:'Product source scope', value:p.fProductSource||'', options:[{value:'',label:'All sources'},{value:'All',label:'All (Rosotravel + Viator)'},{value:'Rosotravel',label:'Rosotravel only'},{value:'Viator',label:'Viator only'}]}
+        {id:'fProductSource', label:'Product source scope', value:p.fProductSource||'', options:[{value:'',label:'All sources'},{value:'All',label:'All (Rosotravel + Viator)'},{value:'Rosotravel',label:'Rosotravel only'},{value:'Viator',label:'Viator only'}]},
+        {id:'fCustomer', label:'Customer', value:p.fCustomer||'', searchable:true, options:[{value:'',label:'All customers'}].concat(Comp._activeCouponCustomers().map(cu => ({value:cu.email, label:cu.name + ' (' + cu.email + ')'})))}
       ]))}')`)}
     </div>
     ${Comp.BulkActionBar('coupon')}
@@ -22169,6 +22206,17 @@ ${Comp.Button('+ Create coupon', {variant:'btn-primary', onclick:"Router.go('cou
     ${Comp.Pagination(`Showing ${list.length} of ${DATA.coupons.length} coupons`)}
   `);
 }
+// Returns unique customers who have active coupon assignments (userEmails in any non-expired, non-disabled coupon)
+Comp._activeCouponCustomers = function(){
+  const activeEmails = new Set();
+  DATA.coupons.forEach(c => {
+    if (c.disabled) return;
+    const status = Comp.getCouponStatus(c);
+    if (status === 'Expired' || status === 'Disabled') return;
+    (c.userEmails || []).forEach(e => activeEmails.add(e));
+  });
+  return Comp.getCustomers().filter(cu => activeEmails.has(cu.email));
+};
 Comp.openCouponEdit = function(id){
   const c = DATA.coupons.find(x => x.id === id);
   if (!c) return;
@@ -22329,8 +22377,7 @@ function pageCouponCreate(params){
   // Include both Rosotravel (Internal) and Viator (External) active products
   const productItems = DATA.products.filter(p => p.status === 'Active').map(p => ({
     id: p.id,
-    label: `${p.name} — ${p.city}`,
-    // For data-label: include product code so users can search by code
+    label: `${p.productCode ? '[' + p.productCode + '] ' : ''}${p.name} — ${p.city}`,
     searchLabel: `${p.name} ${p.productCode || ''} ${p.city} ${p.sourceType === 'External' ? 'Viator' : 'Rosotravel'}`
   }));
   const supplierNames = [...new Set(DATA.products.filter(p => p.supplierName).map(p => p.supplierName))];
