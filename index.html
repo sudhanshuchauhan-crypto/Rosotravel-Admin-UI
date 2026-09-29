@@ -10708,14 +10708,7 @@ function pageRegionDetails(params){
             ${[...new Set(DATA.countries.map(c=>c.continent).filter(Boolean))].sort().map(c => `<option ${parentCountry && parentCountry.continent === c ? 'selected' : ''}>${c}</option>`).join('')}
           </select>
         </div>
-        <div class="field">
-          <label>Tier Level</label>
-          <div style="display:flex;align-items:center;gap:8px;margin-top:6px;">
-            ${Comp._tierBadge(region.tierLevel, region._tierManual)}
-            <button type="button" class="btn btn-sm btn-ghost" style="font-size:var(--fs-xs);padding:3px 10px;" onclick="Comp.openTierOverrideModal('region','${region.id}')">✏ Override</button>
-          </div>
-          <p class="field-hint" style="margin-top:4px;">${region._tierManual && !region._tierAutoAllow ? '⚠ Auto-recalculation disabled' : 'Aggregated from cities'}</p>
-        </div>
+
       </div>
       <div class="field">
         <label for="regionDetailCountry">Country</label>
@@ -10818,7 +10811,7 @@ function pageRegionDetails(params){
 
   const body = `
     ${Comp.Breadcrumb([{label:'Regions', route:'regionListing'}, {label:region.name}])}
-    ${Comp.PageHeader({title:`${region.name}`, actions:`
+    ${Comp.PageHeader({title:`${region.name} ${Comp._tierBadge(region.tierLevel, region._tierManual)} <button type="button" class="btn btn-sm btn-ghost" style="font-size:var(--fs-xs);padding:3px 10px;vertical-align:middle;" onclick="Comp.openTierOverrideModal('region','${region.id}')">✏ Override</button>`, actions:`
         ${Comp.Button('\u21bb Regenerate all', {onclick:'Comp.regionOpenRegenScopeModal()'})}
         ${Comp.Button((region.indexability||'Noindex')==='Indexable' ? '● Indexable' : '○ Noindex', {variant:(region.indexability||'Noindex')==='Indexable' ? 'btn-primary' : '', onclick:`Comp.toggleIndexability('region','${region.id}')`})}
         ${Comp.Button(region.status==='Active' ? 'Deactivate' : 'Activate', {variant:'btn-amber', onclick:`Comp.confirmToggleRegionStatus('${region.id}')`})}`, level:'h2'})}
@@ -11020,14 +11013,7 @@ function pageCityDetails(params){
             ${[...new Set(DATA.countries.map(c=>c.continent).filter(Boolean))].sort().map(c => { const co=DATA.countries.find(x=>x.name===city.country); return `<option ${co&&co.continent===c?'selected':''}>${c}</option>`; }).join('')}
           </select>
         </div>
-        <div class="field">
-          <label>Tier Level</label>
-          <div style="display:flex;align-items:center;gap:8px;margin-top:6px;">
-            ${Comp._tierBadge(city.tierLevel, city._tierManual)}
-            <button type="button" class="btn btn-sm btn-ghost" style="font-size:var(--fs-xs);padding:3px 10px;" onclick="Comp.openTierOverrideModal('city','${city.id}')">✏ Override</button>
-          </div>
-          <p class="field-hint" style="margin-top:4px;">${city._tierManual && !city._tierAutoAllow ? '⚠ Auto-recalculation disabled' : 'Assigned by system'}</p>
-        </div>
+
       </div>
       <div class="field-row">
         <div class="field">
@@ -11113,7 +11099,7 @@ function pageCityDetails(params){
 
   const body = `
     ${Comp.Breadcrumb([{label:'Cities', route:'cityListing'}, {label:city.name}])}
-    ${Comp.PageHeader({title:`${city.name}`, actions:`
+    ${Comp.PageHeader({title:`${city.name} ${Comp._tierBadge(city.tierLevel, city._tierManual)} <button type="button" class="btn btn-sm btn-ghost" style="font-size:var(--fs-xs);padding:3px 10px;vertical-align:middle;" onclick="Comp.openTierOverrideModal('city','${city.id}')">✏ Override</button>`, actions:`
         ${Comp.Button('\u21bb Regenerate all', {onclick:'Comp._openDestRegenModal()'})}
         ${Comp.Button((city.indexability||'Noindex')==='Indexable' ? '● Indexable' : '○ Noindex', {variant:(city.indexability||'Noindex')==='Indexable' ? 'btn-primary' : '', onclick:`Comp.toggleIndexability('city','${city.id}')`})}
         ${Comp.Button(city.status==='Active' ? 'Deactivate' : 'Activate', {variant:'btn-amber', onclick:`Comp.confirmToggleCityStatus('${city.id}')`})}`, level:'h2'})}
