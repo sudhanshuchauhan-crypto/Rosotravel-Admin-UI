@@ -87,7 +87,10 @@
   }.field textarea{border:1px solid var(--border); border-radius:var(--radius-md); padding:10px 12px; font-size:var(--fs-base); min-height:80px; resize:vertical; width:100%;}.field input[readonly], .field textarea[readonly]{background:var(--surface-sunken); color:var(--text-secondary); cursor:default;}.card-input-derived{
     height:40px; border:1px solid var(--border); border-radius:var(--radius-md); padding:0 12px; font-size:var(--fs-base); width:100%;
     background:var(--surface-sunken); color:var(--text-secondary); cursor:not-allowed;
-  }.field-hint{font-size:var(--fs-xs); color:var(--text-muted); display:flex; align-items:center; gap:5px;}.char-counter{font-size:var(--fs-xs); color:var(--text-muted); text-align:right; margin:2px 0 0;}.meta-label{font-size:12px; color:var(--text-muted); font-weight:600; display:block; margin-bottom:4px;}.tag-box{min-height:40px; border:1px solid var(--border); border-radius:var(--radius-md); padding:6px 10px; display:flex; flex-wrap:wrap; gap:6px; align-items:center; background:var(--surface-card);}.repeat-item{border:1px solid var(--border); border-radius:var(--radius-md); padding:18px; background:var(--n-50);}/* Attractions — compact row list + modal (per reference) */
+  }.derived-display{
+    display:flex; align-items:center; min-height:40px; border:1px solid var(--border); border-radius:var(--radius-md); padding:0 12px;
+    font-size:var(--fs-base); width:100%; background:var(--surface-sunken); color:var(--text-secondary);
+  }.field-hint-tight{margin-top:-10px;}.field-hint{font-size:var(--fs-xs); color:var(--text-muted); display:flex; align-items:center; gap:5px;}.char-counter{font-size:var(--fs-xs); color:var(--text-muted); text-align:right; margin:2px 0 0;}.meta-label{font-size:12px; color:var(--text-muted); font-weight:600; display:block; margin-bottom:4px;}.tag-box{min-height:40px; border:1px solid var(--border); border-radius:var(--radius-md); padding:6px 10px; display:flex; flex-wrap:wrap; gap:6px; align-items:center; background:var(--surface-card);}.repeat-item{border:1px solid var(--border); border-radius:var(--radius-md); padding:18px; background:var(--n-50);}/* Attractions — compact row list + modal (per reference) */
   .attractions-list{border:1px solid var(--border); border-radius:var(--radius-md); overflow:hidden;}.list-row{display:flex; align-items:center; gap:14px; padding:12px 16px; border-bottom:1px solid var(--border);}.list-row:last-child{border-bottom:none;}.list-thumb{width:44px; height:44px; border-radius:6px; background:var(--n-150); flex-shrink:0; background-size:cover; background-position:center;}.list-row__body{flex:1; min-width:0;}.list-row__title{font-size:var(--fs-base); font-weight:600; margin:0; color:var(--text-primary);}.list-row__meta{font-size:var(--fs-xs); color:var(--text-muted); margin:2px 0 0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}.attraction-actions{display:flex; gap:2px; flex-shrink:0;}.attraction-icon-btn{width:32px; height:32px; border-radius:var(--radius-sm); background:none; border:none; color:var(--text-muted); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:15px;}.attraction-icon-btn:hover{background:var(--surface-sunken); color:var(--text-secondary);}.attraction-icon-btn.danger:hover{color:var(--danger-600); background:var(--danger-50);}.empty-state{padding:24px 16px; text-align:center; color:var(--text-muted); font-size:var(--fs-sm); border:1px dashed var(--border-strong); border-radius:var(--radius-md);}.section-header-row{display:flex; align-items:center; justify-content:space-between; margin-bottom:18px;}.section-header-row .card-title{margin:0;}.repeat-item__header{display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;}.repeat-item__label{font-weight:600; margin:0; font-size:var(--fs-sm); color:var(--text-secondary);}.repeat-item__remove{display:none; background:none; border:none; color:var(--danger-600); font-size:var(--fs-sm); font-weight:600; cursor:pointer; padding:0;}.repeat-item__remove:hover{text-decoration:underline;}.card.is-editing .repeat-item__remove, .editable-scope .repeat-item__remove{display:inline;}.add-item-btn{display:none; width:100%; text-align:center; background:none; border:none; color:var(--accent-600); font-size:var(--fs-sm); font-weight:600; cursor:pointer; padding:8px 0;}.add-item-btn:hover{text-decoration:underline;}.card.is-editing .add-item-btn, .editable-scope .add-item-btn{display:block;}.self-add-btn{display:block; width:100%; text-align:center; background:none; border:none; color:var(--accent-600); font-size:var(--fs-sm); font-weight:600; cursor:pointer; padding:8px 0;}.self-add-btn:hover{text-decoration:underline;}.upload-area{
     border:1.5px dashed var(--border-strong); border-radius:var(--radius-md); min-height:140px; display:flex; flex-direction:column;
     align-items:center; justify-content:center; gap:3px; cursor:pointer; color:var(--text-muted); background:var(--surface-sunken); text-align:center; padding:16px;
@@ -122,6 +125,10 @@
   .media-dual-selected .mds-info{flex:1;min-width:0;}
   .media-dual-selected .mds-name{font-size:var(--fs-sm);font-weight:600;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .media-dual-selected .mds-meta{font-size:var(--fs-xs);color:var(--text-muted);}
+  .media-dual-selected .mds-alt-row{display:flex;align-items:center;gap:6px;margin-top:2px;}
+  .media-dual-selected .mds-regen-btn{font-size:11px;font-weight:500;color:var(--primary-600);background:none;border:1px solid var(--primary-200);border-radius:4px;padding:1px 7px;cursor:pointer;white-space:nowrap;flex-shrink:0;line-height:1.6;}
+  .media-dual-selected .mds-regen-btn:hover{background:var(--primary-50);}
+  .media-dual-selected .mds-regen-btn:disabled{opacity:0.5;cursor:not-allowed;}
   .media-dual-selected .mds-remove{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:16px;padding:4px;border-radius:4px;flex-shrink:0;}
   .media-dual-selected .mds-remove:hover{color:var(--danger-600);background:var(--danger-50);}
   @media(max-width:500px){.media-dual-upload{grid-template-columns:1fr;}.media-dual-divider{width:100%;height:32px;border-left:none;border-right:none;border-top:1px solid var(--border);border-bottom:1px solid var(--border);}.media-dual-divider span{transform:none;}}
@@ -187,7 +194,7 @@
   .sp-preview-label{font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--text-muted);margin:0 0 4px;}
   .sp-preview-value{font-size:var(--fs-sm);color:var(--text-primary);line-height:var(--lh-normal);white-space:pre-wrap;word-break:break-word;}
   /* Reusable vertical timeline (e.g. Booking Activity Log) */
-  .timeline{position:relative; padding-left:22px;}.timeline-item{position:relative; padding-bottom:20px;}.timeline-item:last-child{padding-bottom:0;}.timeline-item::before{content:''; position:absolute; left:-22px; top:4px; width:9px; height:9px; border-radius:50%; background:var(--accent-500); border:2px solid var(--accent-100);}.timeline-item::after{content:''; position:absolute; left:-18px; top:15px; bottom:-4px; width:1.5px; background:var(--border);}.timeline-item:last-child::after{display:none;}.timeline-label{font-size:var(--fs-base); font-weight:600; margin:0; color:var(--text-primary);}.timeline-actor{font-weight:600; color:var(--text-secondary);}.timeline-time{font-size:var(--fs-xs); color:var(--text-muted); margin:2px 0 0;}/* Booking-specific helpers */
+  .timeline{position:relative; padding-left:22px;}.timeline-item{position:relative; padding-bottom:20px;}.timeline-item:last-child{padding-bottom:0;}.timeline-item::before{content:''; position:absolute; left:-22px; top:4px; width:9px; height:9px; border-radius:50%; background:var(--accent-500); border:2px solid var(--accent-100);}.timeline-item::after{content:''; position:absolute; left:-18px; top:15px; bottom:-4px; width:1.5px; background:var(--border);}.timeline-item:last-child::after{display:none;}.timeline-label{font-size:var(--fs-base); font-weight:600; margin:0; color:var(--text-primary);}.timeline-actor{font-weight:600; color:var(--text-secondary);}.timeline-time{font-size:var(--fs-xs); color:var(--text-muted); margin:2px 0 0;}.timeline-meta{font-size:var(--fs-xs); color:var(--text-secondary); margin:4px 0 0; line-height:1.5; background:var(--surface-sunken); border-radius:var(--radius-sm); padding:5px 8px; display:inline-block;}.tl-meta-key{color:var(--text-muted); font-weight:600; text-transform:uppercase; letter-spacing:.03em; font-size:10px;}.badge-info{background:var(--accent-50);color:var(--accent-700);border:1px solid var(--accent-200);padding:2px 7px;border-radius:20px;font-weight:700;}.badge-purple{background:#F3E8FF;color:#7C3AED;border:1px solid #DDD6FE;padding:2px 7px;border-radius:20px;font-weight:700;}.badge-light{background:var(--surface-sunken);color:var(--text-muted);border:1px solid var(--border);padding:2px 7px;border-radius:20px;font-weight:700;}/* Booking-specific helpers */
   .booking-info-table{display:flex; flex-direction:column; gap:2px;}.booking-info-row{display:flex; justify-content:space-between; padding:5px 0; font-size:var(--fs-sm);}.booking-info-row span:first-child{color:var(--text-muted);}.booking-info-row span:last-child{font-weight:600; color:var(--text-primary);}.cancelled-banner{display:flex; align-items:flex-start; gap:10px; background:var(--danger-50); border:1px solid var(--danger-600); border-radius:var(--radius-md); padding:14px 16px; font-size:var(--fs-sm); color:var(--danger-700); margin-bottom:20px;}.fraud-banner{display:flex; align-items:flex-start; gap:10px; background:var(--n-900); border:1px solid var(--n-900); border-radius:var(--radius-md); padding:14px 16px; font-size:var(--fs-sm); color:var(--text-on-accent); margin-bottom:20px;}.fraud-banner strong{color:var(--text-on-accent);}.channel-tag{display:inline-flex; align-items:center; gap:5px; padding:3px 10px; border-radius:20px; font-size:var(--fs-xs); font-weight:600; align-self:flex-start;}.channel-tag.channel-rosotravel{background:var(--accent-50); color:var(--accent-700);}.channel-tag.channel-viator{background:var(--warning-50); color:var(--warning-700);}.confirmation-type-row{display:flex; align-items:center; gap:8px; font-size:var(--fs-sm);}.confirmation-type-row .ct-icon{font-size:16px;}.locked-field-note{display:flex; align-items:center; gap:6px; font-size:var(--fs-xs); color:var(--warning-700); margin-top:4px;}/* AI regeneration approval workflow */
   .approval-badge{display:inline-flex; align-items:center; gap:5px; padding:3px 10px; border-radius:20px; font-size:var(--fs-xs); font-weight:700; background:var(--warning-50); color:var(--warning-700); border:1px solid var(--warning-600); cursor:pointer; margin-left:10px;}.approval-badge:hover{background:var(--warning-50);}.listing-pending-badge{display:inline-flex; align-items:center; gap:4px; padding:2px 8px; border-radius:20px; font-size:11px; font-weight:700; background:var(--warning-50); color:var(--warning-700); border:1px solid var(--warning-600); margin-left:8px; vertical-align:middle;}/* Generate-with-AI (Add/Create forms only — no approval badge/workflow shown here) */
   .compare-grid{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:16px 0;}.compare-col{border:1px solid var(--border); border-radius:var(--radius-md); padding:14px; background:var(--surface-sunken);}.compare-col.ai-col{background:var(--accent-50); border-color:var(--accent-500);}.compare-col-header{display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;}.compare-col-title{font-size:11px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--text-muted);}.ai-col .compare-col-title{color:var(--accent-700);}.compare-field-label{font-size:12px; font-weight:600; color:var(--text-secondary); margin:12px 0 4px;}.compare-field-check{display:flex; align-items:center; gap:7px; cursor:pointer; margin:12px 0 4px;}.compare-field-check:first-of-type{margin-top:0;}.compare-field-check input[type="checkbox"]{width:14px; height:14px; flex-shrink:0; accent-color:var(--accent-500); cursor:pointer; margin:0;}.compare-field-label:first-child{margin-top:0;}.compare-value{font-size:var(--fs-sm); color:var(--text-primary); line-height:var(--lh-normal); white-space:pre-wrap;}.diff-added{background:#DCFCE7; color:var(--success-700); border-radius:3px; padding:0 2px;}.diff-removed{background:#FEE2E2; color:var(--danger-700); text-decoration:line-through; border-radius:3px; padding:0 2px;}.compare-generated-date{font-size:11px; color:var(--text-muted); margin-top:2px;}@media (max-width:640px){.compare-grid{grid-template-columns:1fr;} }/* Add Product wizard */
@@ -201,6 +208,8 @@
     width:260px; color:var(--text-primary);
   }.search-box:focus-visible{outline:none; border-color:var(--accent-500); box-shadow:var(--shadow-focus);}.reset-link{color:var(--accent-600); font-size:var(--fs-sm); font-weight:600; cursor:pointer; margin-left:auto; background:none; border:none;}.reset-link:hover{text-decoration:underline;}.pagination{display:flex; align-items:center; justify-content:space-between; margin-top:16px; font-size:var(--fs-sm); color:var(--text-secondary); flex-wrap:wrap; gap:12px;}.page-buttons{display:flex; gap:4px;}.page-btn{width:32px; height:32px; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--surface-card); display:flex; align-items:center; justify-content:center; font-size:var(--fs-sm); font-weight:600; cursor:pointer; color:var(--text-primary);}.page-btn:hover{background:var(--surface-sunken);}.page-btn[aria-current="page"]{background:var(--accent-500); border-color:var(--accent-500); color:#fff;}.overlay{position:fixed; inset:0; background:rgba(17,24,39,.55); display:none; align-items:center; justify-content:center; z-index:100; padding:20px;}.overlay.show{display:flex;}.modal{background:var(--surface-card); border-radius:var(--radius-lg); width:460px; max-width:100%; padding:28px; box-shadow:var(--shadow-lg); max-height:calc(100vh - 40px); max-height:calc(100dvh - 40px); display:flex; flex-direction:column;}.modal h3, .modal p.desc, .modal-actions{flex-shrink:0;}#modalConfirmWarning{overflow-y:auto; min-height:0; flex:1 1 auto; overscroll-behavior:contain; padding-right:2px;}.modal h3{font-size:var(--fs-xl); font-weight:700; margin:0 0 8px;}.modal p.desc{font-size:var(--fs-base); color:var(--text-secondary); margin:0 0 18px; line-height:var(--lh-normal);}.modal-actions{display:flex; justify-content:flex-end; gap:10px; margin-top:20px;}/* Right drawer — same overlay/show mechanism as .modal, panel slides in from the right */
   .overlay.drawer-overlay{align-items:stretch; justify-content:flex-end; padding:0; background:rgba(17,24,39,.35);}.drawer-panel{background:var(--surface-card); width:560px; max-width:100%; height:100%; box-shadow:var(--shadow-lg); display:flex; flex-direction:column; transform:translateX(100%); transition:transform .22s ease;}.drawer-panel.drawer-in{transform:translateX(0);}.drawer-header{padding:20px 24px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; flex-shrink:0;}.drawer-header h3{font-size:var(--fs-xl); font-weight:700; margin:0;}.drawer-close-btn{background:none; border:none; font-size:20px; line-height:1; color:var(--text-muted); cursor:pointer; padding:4px 8px; border-radius:var(--radius-sm);}.drawer-close-btn:hover{background:var(--surface-sunken); color:var(--text-primary);}.drawer-body{flex:1; overflow-y:auto; padding:20px 24px;}.drawer-footer{padding:16px 24px; border-top:1px solid var(--border); display:flex; justify-content:flex-end; gap:10px; flex-shrink:0;}/* Tour Option full-page flow — "Back to product" + vertical section nav (reuses stepper concept, just laid out vertically per the reference design) */
+  /* Bokun CRM Option Search & Cards */
+  .bokun-search-row{display:flex; gap:10px; align-items:center; margin-bottom:18px;}.bokun-search-row input{flex:1; border:1.5px solid var(--border); border-radius:var(--radius-md); padding:9px 14px; font-size:var(--fs-base); background:var(--surface-card); color:var(--text-primary);}.bokun-search-row input:focus{outline:none; border-color:var(--accent-500);}.bokun-crm-badge{display:inline-flex; align-items:center; gap:5px; background:#e8f4fd; color:#1565c0; border:1px solid #90caf9; border-radius:20px; padding:3px 10px; font-size:var(--fs-xs); font-weight:700; letter-spacing:.02em;}.bokun-crm-badge::before{content:'⚡'; font-size:10px;}.bokun-option-card{border:1.5px solid var(--border); border-radius:var(--radius-lg); background:var(--surface-card); margin-bottom:12px; overflow:hidden; transition:box-shadow .18s;}.bokun-option-card:hover{box-shadow:0 2px 12px rgba(0,0,0,.08);}.bokun-option-card-header{display:flex; align-items:center; gap:12px; padding:14px 18px; cursor:pointer; user-select:none;}.bokun-option-card-header:hover{background:var(--surface-sunken);}.bokun-option-code{font-size:var(--fs-xs); font-weight:700; font-family:monospace; background:var(--surface-sunken); border:1px solid var(--border); border-radius:6px; padding:3px 8px; color:var(--accent-700); white-space:nowrap;}.bokun-option-name{flex:1; font-weight:600; font-size:var(--fs-base); color:var(--text-primary); min-width:0;}.bokun-option-expand-btn{border:none; background:none; cursor:pointer; color:var(--text-muted); font-size:16px; padding:4px 6px; border-radius:var(--radius-sm); transition:transform .2s;}.bokun-option-expand-btn.is-open{transform:rotate(90deg);}.bokun-option-body{display:none; padding:0 18px 18px; border-top:1px solid var(--border);}.bokun-option-body.is-open{display:block;}.bokun-option-section{margin-top:16px;}.bokun-option-section-title{font-size:var(--fs-sm); font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.05em; margin:0 0 8px;}.bokun-option-text{font-size:var(--fs-sm); color:var(--text-primary); line-height:1.6; margin:0;}.bokun-photos-row{display:flex; gap:8px; flex-wrap:wrap; margin-top:6px;}.bokun-photo-thumb{width:72px; height:54px; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-md); display:flex; align-items:center; justify-content:center; color:var(--text-muted); font-size:var(--fs-xs); flex-shrink:0;}.bokun-pricing-table{width:100%; border-collapse:collapse; font-size:var(--fs-sm); margin-top:6px;}.bokun-pricing-table th{background:var(--surface-sunken); font-weight:700; padding:7px 10px; text-align:left; border:1px solid var(--border); color:var(--text-secondary);}.bokun-pricing-table td{padding:7px 10px; border:1px solid var(--border); color:var(--text-primary);}.bokun-pricing-table tbody tr:nth-child(even){background:var(--surface-sunken);}.bokun-avail-row{display:flex; gap:10px; flex-wrap:wrap; margin-top:6px;}.bokun-avail-chip{background:var(--surface-sunken); border:1px solid var(--border); border-radius:20px; padding:3px 12px; font-size:var(--fs-xs); font-weight:600; color:var(--text-secondary);}.bokun-search-result{border:1.5px solid var(--accent-300); border-radius:var(--radius-lg); background:var(--accent-50); padding:14px 18px; margin-bottom:14px;}.bokun-search-result-header{display:flex; align-items:center; gap:10px; margin-bottom:8px;}.bokun-search-result-title{font-weight:700; font-size:var(--fs-base); flex:1;}.bokun-no-result{text-align:center; padding:24px; color:var(--text-muted); font-size:var(--fs-sm);}.bokun-searching{display:flex; align-items:center; gap:8px; color:var(--text-muted); font-size:var(--fs-sm); padding:16px 0;}
   .option-back-btn{display:inline-flex; align-items:center; gap:8px; padding:10px 18px; border:1.5px solid var(--accent-500); border-radius:var(--radius-md); background:#fff; color:var(--accent-600); font-weight:700; font-size:var(--fs-base); cursor:pointer; margin-bottom:20px;}.option-back-btn:hover{background:var(--accent-50);}.option-page-layout{display:flex; gap:32px; align-items:flex-start;}.option-section-nav{display:flex; flex-direction:column; width:220px; flex-shrink:0;}.option-section-nav-item{padding:14px 18px; border:none; border-left:3px solid transparent; background:none; text-align:left; font-size:var(--fs-base); font-weight:600; color:var(--text-secondary); cursor:pointer; border-radius:0;}.option-section-nav-item:hover{color:var(--text-primary);}.option-section-nav-item.is-active{border-left-color:var(--accent-500); color:var(--text-primary);}.option-page-content{flex:1; min-width:0;}.pricing-tier-row{display:grid; grid-template-columns:1fr 1fr 1fr 40px; gap:12px; align-items:end; padding:14px; border:1px solid var(--border); border-radius:var(--radius-md); margin-bottom:12px; background:var(--surface-sunken);}.panel-row{padding:14px; border:1px solid var(--border); border-radius:var(--radius-md); margin-bottom:12px; background:var(--surface-sunken);}.panel-row .field-row{margin-top:10px;}.radio-option{display:flex; gap:12px; padding:14px 0; border-bottom:1px solid var(--border); cursor:pointer;}.radio-option:last-child{border-bottom:none;}.radio-circle{width:18px; height:18px; border-radius:50%; border:2px solid var(--border-strong); flex-shrink:0; margin-top:2px; position:relative;}.radio-option.selected .radio-circle{border-color:var(--accent-500);}.radio-option.selected .radio-circle::after{content:''; width:8px; height:8px; border-radius:50%; background:var(--accent-500); position:absolute; top:3px; left:3px;}.radio-option .rtitle{font-size:var(--fs-base); font-weight:600; margin:0 0 3px;}.radio-option .rsub{font-size:var(--fs-sm); color:var(--text-secondary); margin:0;}.reason-row{display:flex; align-items:center; gap:10px; padding:7px 0; cursor:pointer;}.reason-row input{width:16px; height:16px; accent-color:var(--accent-500);}.modal textarea{width:100%; border:1px solid var(--border); border-radius:var(--radius-md); padding:10px 12px; font-size:var(--fs-base); min-height:70px; resize:vertical;}.modal label.field-label{font-size:var(--fs-sm); font-weight:600; margin:0 0 8px; display:block;}.sec-actions{display:flex; justify-content:flex-end; align-items:center; gap:8px; padding-top:16px; border-top:1px solid var(--border); flex-wrap:wrap;}.toggle-track{width:28px; height:16px; border-radius:20px; background:var(--n-300); position:relative; display:inline-block; transition:background var(--dur);}.toggle-track::after{content:''; width:12px; height:12px; border-radius:50%; background:var(--n-0); position:absolute; top:2px; left:2px; transition:left var(--dur);}.btn-lock.is-on .toggle-track{background:var(--warning-600);}.btn-lock.is-on .toggle-track::after{left:14px;}.default-actions{display:flex; gap:8px;}.edit-actions{display:none; gap:8px;}.card.is-editing .default-actions, .is-editing .default-actions{display:none;}.card.is-editing .edit-actions, .is-editing .edit-actions{display:flex;}.regen-status{display:none; align-items:center; gap:8px; font-size:var(--fs-sm); color:var(--accent-600); margin-right:auto; font-weight:600;}.card.is-regenerating .regen-status{display:flex;}.card.is-regenerating .default-actions{display:none;}.spinner{width:14px; height:14px; border:2px solid var(--accent-100); border-top-color:var(--accent-500); border-radius:50%; animation:spin .8s linear infinite;}@keyframes spin{to{transform:rotate(360deg);}}.lock-status-note{display:flex; align-items:center; gap:6px; font-size:var(--fs-xs); font-weight:600; color:var(--warning-700); margin-right:auto;}.card:not(.is-locked) .lock-status-note{display:none;}.card.is-locked:not(.is-editing) .default-actions{display:flex;}.auth-page{min-height:100vh; display:flex; align-items:center; justify-content:center; background:
     radial-gradient(circle at 20% 20%, var(--accent-50), transparent 45%), var(--surface-page); padding:20px;}.auth-card{background:var(--surface-card); border:1px solid var(--border); border-radius:var(--radius-lg); box-shadow:var(--shadow-lg); width:420px; max-width:100%; padding:36px; display:flex; flex-direction:column; align-items:center; gap:22px;}.auth-logo{display:flex; align-items:center; gap:10px;}.visually-hidden{position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;}/* Toast */
   #toastRegion{position:fixed; bottom:24px; right:24px; display:flex; flex-direction:column; gap:8px; z-index:200; max-width:340px;}.toast{background:var(--n-900); color:#fff; padding:12px 16px; border-radius:var(--radius-md); font-size:var(--fs-sm); font-weight:500; box-shadow:var(--shadow-lg); opacity:1; transform:translateY(0); transition:opacity .2s, transform .2s;}.toast-success{background:var(--success-700);}.toast-danger{background:var(--danger-700);}.toast-out{opacity:0; transform:translateY(8px);}/* Confirm-modal warning box */
@@ -511,15 +520,114 @@ function buildPerms(flags){
 
 const DATA = {
   countries: [
-    {id:'us', name:'United States', continent:'North America', currency:'USD', status:'Active', languages:['English'], taxonomy:['City Tours','Adventure & Outdoor'], history:[]},
-    {id:'uk', name:'United Kingdom', continent:'Europe', currency:'GBP', status:'Active', languages:['English'], taxonomy:['Culture & Heritage'], history:[]},
-    {id:'fr', name:'France', continent:'Europe', currency:'EUR', status:'Active', languages:['French','English'], taxonomy:['Culture & Heritage','Food & Drink'], history:[]},
-    {id:'de', name:'Germany', continent:'Europe', currency:'EUR', status:'Active', languages:['German','English'], taxonomy:['City Tours'], history:[]},
-    {id:'jp', name:'Japan', continent:'Asia', currency:'JPY', status:'Active', languages:['Japanese'], taxonomy:['Culture & Heritage'], history:[]},
-    {id:'eg', name:'Egypt', continent:'Africa', currency:'EGP', status:'Inactive', languages:['Arabic','English'], taxonomy:['Culture & Heritage','Adventure & Outdoor'], history:[]},
-    {id:'in', name:'India', continent:'Asia', currency:'INR', status:'Active', languages:['Hindi','English'], taxonomy:['Culture & Heritage','Food & Drink'], history:[]},
-    {id:'ae', name:'United Arab Emirates', continent:'Middle East', currency:'AED', status:'Active', languages:['Arabic','English'], taxonomy:['City Tours'], history:[]},
-    {id:'it', name:'Italy', continent:'Europe', currency:'EUR', status:'Active', languages:['Italian','English'], taxonomy:['Culture & Heritage','Food & Drink'], history:[]}
+    {id:'us', name:'United States', continent:'North America', currency:'USD', status:'Active', languages:['English'], taxonomy:['City Tours','Adventure & Outdoor'], history:[
+        {type:'seo-run',     label:'SEO pipeline run — all language variants refreshed',          section:'SEO',    time:'20 Oct 2026, 08:00 AM', actor:'System (Scheduled)',      reason:'Weekly scheduled SEO refresh'},
+        {type:'lock',        label:'Section manually locked — overrides active',                  section:'SEO',    language:'EN', time:'18 Oct 2026, 11:10 AM', actor:'Anna K. — SEO Manager',  reason:'Final approved meta — do not overwrite'},
+        {type:'manual-edit', label:'SEO title updated — country page headline revised',           section:'SEO',    language:'EN', time:'17 Oct 2026, 03:15 PM', actor:'Anna K. — SEO Manager'},
+        {type:'ai-gen',      label:'AI content generated — country overview description',         section:'SEO',    language:'DE', time:'15 Oct 2026, 10:22 AM', actor:'System (AI Pipeline)',    reason:'New city onboarded under this country — overview refresh triggered'},
+        {type:'status',      label:'SEO status transition: OUTDATED → RUN',                      section:'SEO',    language:'DE', time:'15 Oct 2026, 10:23 AM', actor:'System (AI Pipeline)'},
+        {type:'unlock',      label:'Section unlocked — AI may now regenerate this content',      section:'SEO',    language:'FR', time:'14 Oct 2026, 02:00 PM', actor:'Marc D. — Content Lead',  reason:'French translation approved; unlocking for next pipeline run'},
+        {type:'status',      label:'SEO status transition: NOT RUN → RUN',                       section:'SEO',    language:'FR', time:'13 Oct 2026, 09:00 AM', actor:'System (AI Pipeline)'},
+        {type:'version',     label:'Country record version snapshot saved',                                        time:'10 Oct 2026, 06:00 PM', actor:'System'},
+        {type:'pipeline',    label:'Pipeline-triggered update — taxonomy classification revised',                   time:'08 Oct 2026, 09:30 AM', actor:'System (Pipeline)',       reason:'Category schema update — taxonomy blocks regenerated'},
+        {type:'system',      label:'Country record initialized',                                                   time:'01 Oct 2026, 09:00 AM', actor:'System'}
+      ]},
+    {id:'uk', name:'United Kingdom', continent:'Europe', currency:'GBP', status:'Active', languages:['English'], taxonomy:['Culture & Heritage'], history:[
+        {type:'seo-run',     label:'SEO pipeline run — all language variants refreshed',          section:'SEO',    time:'20 Oct 2026, 08:00 AM', actor:'System (Scheduled)',      reason:'Weekly scheduled SEO refresh'},
+        {type:'lock',        label:'Section manually locked — overrides active',                  section:'SEO',    language:'EN', time:'18 Oct 2026, 11:10 AM', actor:'Anna K. — SEO Manager',  reason:'Final approved meta — do not overwrite'},
+        {type:'manual-edit', label:'SEO title updated — country page headline revised',           section:'SEO',    language:'EN', time:'17 Oct 2026, 03:15 PM', actor:'Anna K. — SEO Manager'},
+        {type:'ai-gen',      label:'AI content generated — country overview description',         section:'SEO',    language:'DE', time:'15 Oct 2026, 10:22 AM', actor:'System (AI Pipeline)',    reason:'New city onboarded under this country — overview refresh triggered'},
+        {type:'status',      label:'SEO status transition: OUTDATED → RUN',                      section:'SEO',    language:'DE', time:'15 Oct 2026, 10:23 AM', actor:'System (AI Pipeline)'},
+        {type:'unlock',      label:'Section unlocked — AI may now regenerate this content',      section:'SEO',    language:'FR', time:'14 Oct 2026, 02:00 PM', actor:'Marc D. — Content Lead',  reason:'French translation approved; unlocking for next pipeline run'},
+        {type:'status',      label:'SEO status transition: NOT RUN → RUN',                       section:'SEO',    language:'FR', time:'13 Oct 2026, 09:00 AM', actor:'System (AI Pipeline)'},
+        {type:'version',     label:'Country record version snapshot saved',                                        time:'10 Oct 2026, 06:00 PM', actor:'System'},
+        {type:'pipeline',    label:'Pipeline-triggered update — taxonomy classification revised',                   time:'08 Oct 2026, 09:30 AM', actor:'System (Pipeline)',       reason:'Category schema update — taxonomy blocks regenerated'},
+        {type:'system',      label:'Country record initialized',                                                   time:'01 Oct 2026, 09:00 AM', actor:'System'}
+      ]},
+    {id:'fr', name:'France', continent:'Europe', currency:'EUR', status:'Active', languages:['French','English'], taxonomy:['Culture & Heritage','Food & Drink'], history:[
+        {type:'seo-run',     label:'SEO pipeline run — all language variants refreshed',          section:'SEO',    time:'20 Oct 2026, 08:00 AM', actor:'System (Scheduled)',      reason:'Weekly scheduled SEO refresh'},
+        {type:'lock',        label:'Section manually locked — overrides active',                  section:'SEO',    language:'EN', time:'18 Oct 2026, 11:10 AM', actor:'Anna K. — SEO Manager',  reason:'Final approved meta — do not overwrite'},
+        {type:'manual-edit', label:'SEO title updated — country page headline revised',           section:'SEO',    language:'EN', time:'17 Oct 2026, 03:15 PM', actor:'Anna K. — SEO Manager'},
+        {type:'ai-gen',      label:'AI content generated — country overview description',         section:'SEO',    language:'DE', time:'15 Oct 2026, 10:22 AM', actor:'System (AI Pipeline)',    reason:'New city onboarded under this country — overview refresh triggered'},
+        {type:'status',      label:'SEO status transition: OUTDATED → RUN',                      section:'SEO',    language:'DE', time:'15 Oct 2026, 10:23 AM', actor:'System (AI Pipeline)'},
+        {type:'unlock',      label:'Section unlocked — AI may now regenerate this content',      section:'SEO',    language:'FR', time:'14 Oct 2026, 02:00 PM', actor:'Marc D. — Content Lead',  reason:'French translation approved; unlocking for next pipeline run'},
+        {type:'status',      label:'SEO status transition: NOT RUN → RUN',                       section:'SEO',    language:'FR', time:'13 Oct 2026, 09:00 AM', actor:'System (AI Pipeline)'},
+        {type:'version',     label:'Country record version snapshot saved',                                        time:'10 Oct 2026, 06:00 PM', actor:'System'},
+        {type:'pipeline',    label:'Pipeline-triggered update — taxonomy classification revised',                   time:'08 Oct 2026, 09:30 AM', actor:'System (Pipeline)',       reason:'Category schema update — taxonomy blocks regenerated'},
+        {type:'system',      label:'Country record initialized',                                                   time:'01 Oct 2026, 09:00 AM', actor:'System'}
+      ]},
+    {id:'de', name:'Germany', continent:'Europe', currency:'EUR', status:'Active', languages:['German','English'], taxonomy:['City Tours'], history:[
+        {type:'seo-run',     label:'SEO pipeline run — all language variants refreshed',          section:'SEO',    time:'20 Oct 2026, 08:00 AM', actor:'System (Scheduled)',      reason:'Weekly scheduled SEO refresh'},
+        {type:'lock',        label:'Section manually locked — overrides active',                  section:'SEO',    language:'EN', time:'18 Oct 2026, 11:10 AM', actor:'Anna K. — SEO Manager',  reason:'Final approved meta — do not overwrite'},
+        {type:'manual-edit', label:'SEO title updated — country page headline revised',           section:'SEO',    language:'EN', time:'17 Oct 2026, 03:15 PM', actor:'Anna K. — SEO Manager'},
+        {type:'ai-gen',      label:'AI content generated — country overview description',         section:'SEO',    language:'DE', time:'15 Oct 2026, 10:22 AM', actor:'System (AI Pipeline)',    reason:'New city onboarded under this country — overview refresh triggered'},
+        {type:'status',      label:'SEO status transition: OUTDATED → RUN',                      section:'SEO',    language:'DE', time:'15 Oct 2026, 10:23 AM', actor:'System (AI Pipeline)'},
+        {type:'unlock',      label:'Section unlocked — AI may now regenerate this content',      section:'SEO',    language:'FR', time:'14 Oct 2026, 02:00 PM', actor:'Marc D. — Content Lead',  reason:'French translation approved; unlocking for next pipeline run'},
+        {type:'status',      label:'SEO status transition: NOT RUN → RUN',                       section:'SEO',    language:'FR', time:'13 Oct 2026, 09:00 AM', actor:'System (AI Pipeline)'},
+        {type:'version',     label:'Country record version snapshot saved',                                        time:'10 Oct 2026, 06:00 PM', actor:'System'},
+        {type:'pipeline',    label:'Pipeline-triggered update — taxonomy classification revised',                   time:'08 Oct 2026, 09:30 AM', actor:'System (Pipeline)',       reason:'Category schema update — taxonomy blocks regenerated'},
+        {type:'system',      label:'Country record initialized',                                                   time:'01 Oct 2026, 09:00 AM', actor:'System'}
+      ]},
+    {id:'jp', name:'Japan', continent:'Asia', currency:'JPY', status:'Active', languages:['Japanese'], taxonomy:['Culture & Heritage'], history:[
+        {type:'seo-run',     label:'SEO pipeline run — all language variants refreshed',          section:'SEO',    time:'20 Oct 2026, 08:00 AM', actor:'System (Scheduled)',      reason:'Weekly scheduled SEO refresh'},
+        {type:'lock',        label:'Section manually locked — overrides active',                  section:'SEO',    language:'EN', time:'18 Oct 2026, 11:10 AM', actor:'Anna K. — SEO Manager',  reason:'Final approved meta — do not overwrite'},
+        {type:'manual-edit', label:'SEO title updated — country page headline revised',           section:'SEO',    language:'EN', time:'17 Oct 2026, 03:15 PM', actor:'Anna K. — SEO Manager'},
+        {type:'ai-gen',      label:'AI content generated — country overview description',         section:'SEO',    language:'DE', time:'15 Oct 2026, 10:22 AM', actor:'System (AI Pipeline)',    reason:'New city onboarded under this country — overview refresh triggered'},
+        {type:'status',      label:'SEO status transition: OUTDATED → RUN',                      section:'SEO',    language:'DE', time:'15 Oct 2026, 10:23 AM', actor:'System (AI Pipeline)'},
+        {type:'unlock',      label:'Section unlocked — AI may now regenerate this content',      section:'SEO',    language:'FR', time:'14 Oct 2026, 02:00 PM', actor:'Marc D. — Content Lead',  reason:'French translation approved; unlocking for next pipeline run'},
+        {type:'status',      label:'SEO status transition: NOT RUN → RUN',                       section:'SEO',    language:'FR', time:'13 Oct 2026, 09:00 AM', actor:'System (AI Pipeline)'},
+        {type:'version',     label:'Country record version snapshot saved',                                        time:'10 Oct 2026, 06:00 PM', actor:'System'},
+        {type:'pipeline',    label:'Pipeline-triggered update — taxonomy classification revised',                   time:'08 Oct 2026, 09:30 AM', actor:'System (Pipeline)',       reason:'Category schema update — taxonomy blocks regenerated'},
+        {type:'system',      label:'Country record initialized',                                                   time:'01 Oct 2026, 09:00 AM', actor:'System'}
+      ]},
+    {id:'eg', name:'Egypt', continent:'Africa', currency:'EGP', status:'Inactive', languages:['Arabic','English'], taxonomy:['Culture & Heritage','Adventure & Outdoor'], history:[
+        {type:'seo-run',     label:'SEO pipeline run — all language variants refreshed',          section:'SEO',    time:'20 Oct 2026, 08:00 AM', actor:'System (Scheduled)',      reason:'Weekly scheduled SEO refresh'},
+        {type:'lock',        label:'Section manually locked — overrides active',                  section:'SEO',    language:'EN', time:'18 Oct 2026, 11:10 AM', actor:'Anna K. — SEO Manager',  reason:'Final approved meta — do not overwrite'},
+        {type:'manual-edit', label:'SEO title updated — country page headline revised',           section:'SEO',    language:'EN', time:'17 Oct 2026, 03:15 PM', actor:'Anna K. — SEO Manager'},
+        {type:'ai-gen',      label:'AI content generated — country overview description',         section:'SEO',    language:'DE', time:'15 Oct 2026, 10:22 AM', actor:'System (AI Pipeline)',    reason:'New city onboarded under this country — overview refresh triggered'},
+        {type:'status',      label:'SEO status transition: OUTDATED → RUN',                      section:'SEO',    language:'DE', time:'15 Oct 2026, 10:23 AM', actor:'System (AI Pipeline)'},
+        {type:'unlock',      label:'Section unlocked — AI may now regenerate this content',      section:'SEO',    language:'FR', time:'14 Oct 2026, 02:00 PM', actor:'Marc D. — Content Lead',  reason:'French translation approved; unlocking for next pipeline run'},
+        {type:'status',      label:'SEO status transition: NOT RUN → RUN',                       section:'SEO',    language:'FR', time:'13 Oct 2026, 09:00 AM', actor:'System (AI Pipeline)'},
+        {type:'version',     label:'Country record version snapshot saved',                                        time:'10 Oct 2026, 06:00 PM', actor:'System'},
+        {type:'pipeline',    label:'Pipeline-triggered update — taxonomy classification revised',                   time:'08 Oct 2026, 09:30 AM', actor:'System (Pipeline)',       reason:'Category schema update — taxonomy blocks regenerated'},
+        {type:'system',      label:'Country record initialized',                                                   time:'01 Oct 2026, 09:00 AM', actor:'System'}
+      ]},
+    {id:'in', name:'India', continent:'Asia', currency:'INR', status:'Active', languages:['Hindi','English'], taxonomy:['Culture & Heritage','Food & Drink'], history:[
+        {type:'seo-run',     label:'SEO pipeline run — all language variants refreshed',          section:'SEO',    time:'20 Oct 2026, 08:00 AM', actor:'System (Scheduled)',      reason:'Weekly scheduled SEO refresh'},
+        {type:'lock',        label:'Section manually locked — overrides active',                  section:'SEO',    language:'EN', time:'18 Oct 2026, 11:10 AM', actor:'Anna K. — SEO Manager',  reason:'Final approved meta — do not overwrite'},
+        {type:'manual-edit', label:'SEO title updated — country page headline revised',           section:'SEO',    language:'EN', time:'17 Oct 2026, 03:15 PM', actor:'Anna K. — SEO Manager'},
+        {type:'ai-gen',      label:'AI content generated — country overview description',         section:'SEO',    language:'DE', time:'15 Oct 2026, 10:22 AM', actor:'System (AI Pipeline)',    reason:'New city onboarded under this country — overview refresh triggered'},
+        {type:'status',      label:'SEO status transition: OUTDATED → RUN',                      section:'SEO',    language:'DE', time:'15 Oct 2026, 10:23 AM', actor:'System (AI Pipeline)'},
+        {type:'unlock',      label:'Section unlocked — AI may now regenerate this content',      section:'SEO',    language:'FR', time:'14 Oct 2026, 02:00 PM', actor:'Marc D. — Content Lead',  reason:'French translation approved; unlocking for next pipeline run'},
+        {type:'status',      label:'SEO status transition: NOT RUN → RUN',                       section:'SEO',    language:'FR', time:'13 Oct 2026, 09:00 AM', actor:'System (AI Pipeline)'},
+        {type:'version',     label:'Country record version snapshot saved',                                        time:'10 Oct 2026, 06:00 PM', actor:'System'},
+        {type:'pipeline',    label:'Pipeline-triggered update — taxonomy classification revised',                   time:'08 Oct 2026, 09:30 AM', actor:'System (Pipeline)',       reason:'Category schema update — taxonomy blocks regenerated'},
+        {type:'system',      label:'Country record initialized',                                                   time:'01 Oct 2026, 09:00 AM', actor:'System'}
+      ]},
+    {id:'ae', name:'United Arab Emirates', continent:'Middle East', currency:'AED', status:'Active', languages:['Arabic','English'], taxonomy:['City Tours'], history:[
+        {type:'seo-run',     label:'SEO pipeline run — all language variants refreshed',          section:'SEO',    time:'20 Oct 2026, 08:00 AM', actor:'System (Scheduled)',      reason:'Weekly scheduled SEO refresh'},
+        {type:'lock',        label:'Section manually locked — overrides active',                  section:'SEO',    language:'EN', time:'18 Oct 2026, 11:10 AM', actor:'Anna K. — SEO Manager',  reason:'Final approved meta — do not overwrite'},
+        {type:'manual-edit', label:'SEO title updated — country page headline revised',           section:'SEO',    language:'EN', time:'17 Oct 2026, 03:15 PM', actor:'Anna K. — SEO Manager'},
+        {type:'ai-gen',      label:'AI content generated — country overview description',         section:'SEO',    language:'DE', time:'15 Oct 2026, 10:22 AM', actor:'System (AI Pipeline)',    reason:'New city onboarded under this country — overview refresh triggered'},
+        {type:'status',      label:'SEO status transition: OUTDATED → RUN',                      section:'SEO',    language:'DE', time:'15 Oct 2026, 10:23 AM', actor:'System (AI Pipeline)'},
+        {type:'unlock',      label:'Section unlocked — AI may now regenerate this content',      section:'SEO',    language:'FR', time:'14 Oct 2026, 02:00 PM', actor:'Marc D. — Content Lead',  reason:'French translation approved; unlocking for next pipeline run'},
+        {type:'status',      label:'SEO status transition: NOT RUN → RUN',                       section:'SEO',    language:'FR', time:'13 Oct 2026, 09:00 AM', actor:'System (AI Pipeline)'},
+        {type:'version',     label:'Country record version snapshot saved',                                        time:'10 Oct 2026, 06:00 PM', actor:'System'},
+        {type:'pipeline',    label:'Pipeline-triggered update — taxonomy classification revised',                   time:'08 Oct 2026, 09:30 AM', actor:'System (Pipeline)',       reason:'Category schema update — taxonomy blocks regenerated'},
+        {type:'system',      label:'Country record initialized',                                                   time:'01 Oct 2026, 09:00 AM', actor:'System'}
+      ]},
+    {id:'it', name:'Italy', continent:'Europe', currency:'EUR', status:'Active', languages:['Italian','English'], taxonomy:['Culture & Heritage','Food & Drink'], history:[
+        {type:'seo-run',     label:'SEO pipeline run — all language variants refreshed',          section:'SEO',    time:'20 Oct 2026, 08:00 AM', actor:'System (Scheduled)',      reason:'Weekly scheduled SEO refresh'},
+        {type:'lock',        label:'Section manually locked — overrides active',                  section:'SEO',    language:'EN', time:'18 Oct 2026, 11:10 AM', actor:'Anna K. — SEO Manager',  reason:'Final approved meta — do not overwrite'},
+        {type:'manual-edit', label:'SEO title updated — country page headline revised',           section:'SEO',    language:'EN', time:'17 Oct 2026, 03:15 PM', actor:'Anna K. — SEO Manager'},
+        {type:'ai-gen',      label:'AI content generated — country overview description',         section:'SEO',    language:'DE', time:'15 Oct 2026, 10:22 AM', actor:'System (AI Pipeline)',    reason:'New city onboarded under this country — overview refresh triggered'},
+        {type:'status',      label:'SEO status transition: OUTDATED → RUN',                      section:'SEO',    language:'DE', time:'15 Oct 2026, 10:23 AM', actor:'System (AI Pipeline)'},
+        {type:'unlock',      label:'Section unlocked — AI may now regenerate this content',      section:'SEO',    language:'FR', time:'14 Oct 2026, 02:00 PM', actor:'Marc D. — Content Lead',  reason:'French translation approved; unlocking for next pipeline run'},
+        {type:'status',      label:'SEO status transition: NOT RUN → RUN',                       section:'SEO',    language:'FR', time:'13 Oct 2026, 09:00 AM', actor:'System (AI Pipeline)'},
+        {type:'version',     label:'Country record version snapshot saved',                                        time:'10 Oct 2026, 06:00 PM', actor:'System'},
+        {type:'pipeline',    label:'Pipeline-triggered update — taxonomy classification revised',                   time:'08 Oct 2026, 09:30 AM', actor:'System (Pipeline)',       reason:'Category schema update — taxonomy blocks regenerated'},
+        {type:'system',      label:'Country record initialized',                                                   time:'01 Oct 2026, 09:00 AM', actor:'System'}
+      ]}
   ],
   users: [
     {name:'Aditi Verma', email:'aditi.verma@rosotravel.com', mobile:'+91 98100 22334', role:'Admin (Full System Owner)', status:'Active', lastLogin:'Today, 9:42 AM',
@@ -540,39 +648,266 @@ const DATA = {
     {name:'Editor', desc:'Edit products and bookings', status:'Inactive', linkedUsers:0, permissions: buildPerms({Bookings:'ve',Products:'ve'})}
   ],
   cities: [
-    {id:'ny', name:'New York', country:'United States', region:'New York State', status:'Active', attractionIds:['attr-sol','attr-cp','attr-ts'], history:[], googlePlaceId:'ChIJOwg_06VPwokRYv534QaPC8g', viatorDestinationId:'687', timezone:'America/New_York'},
-    {id:'ny-dup', name:'New York City', country:'United States', region:'New York State', status:'Active', attractionIds:[], history:[], googlePlaceId:'ChIJOwg_06VPwokRYv534QaPC8g', viatorDestinationId:'687-ALT', timezone:'America/New_York'},
-    {id:'lon', name:'London', country:'United Kingdom', region:'Greater London', status:'Active', attractionIds:['attr-eb'], history:[], timezone:'Europe/London'},
-    {id:'par', name:'Paris', country:'France', region:'Île-de-France', status:'Active', attractionIds:['attr-et'], history:[], timezone:'Europe/Paris'},
-    {id:'dxb', name:'Dubai', country:'United Arab Emirates', region:'Dubai Emirate', status:'Active', attractionIds:['attr-bj'], history:[], timezone:'Asia/Dubai'},
-    {id:'tyo', name:'Tokyo', country:'Japan', region:'Kantō', status:'Active', attractionIds:[], history:[], timezone:'Asia/Tokyo'},
-    {id:'cai', name:'Cairo', country:'Egypt', region:'Cairo Governorate', status:'Inactive', attractionIds:['attr-gp'], history:[], timezone:'Africa/Cairo'},
-    {id:'mum', name:'Mumbai', country:'India', region:'Maharashtra', status:'Active', attractionIds:[], history:[], timezone:'Asia/Kolkata'},
-    {id:'ber', name:'Berlin', country:'Germany', region:'Berlin', status:'Active', attractionIds:[], history:[], timezone:'Europe/Berlin'}
+    {id:'ny', name:'New York', country:'United States', region:'New York State', status:'Active', attractionIds:['attr-sol','attr-cp','attr-ts'], history:[
+        {type:'lock',        label:'Section manually locked — overrides active',                  section:'SEO',      language:'EN', time:'21 Oct 2026, 09:14 AM', actor:'Anna K. — SEO Manager',   reason:'Final approved city meta — do not overwrite'},
+        {type:'seo-run',     label:'SEO pipeline run completed — city metadata refreshed',        section:'SEO',                    time:'20 Oct 2026, 08:00 AM', actor:'System (Scheduled)',       reason:'Weekly scheduled SEO refresh — all languages'},
+        {type:'regen',       label:'AI regeneration triggered — Local Tips section',              section:'Local Tips',             time:'19 Oct 2026, 02:17 PM', actor:'System (AI Pipeline)',     reason:'Linked product data updated — regeneration required'},
+        {type:'lock',        label:'Section manually locked — overrides active',                  section:'About',    language:'DE', time:'18 Oct 2026, 11:00 AM', actor:'Marc D. — Content Lead',  reason:'Translated copy approved — freeze until next review'},
+        {type:'manual-edit', label:'City FAQ updated — visiting hours corrected',                 section:'FAQ',      language:'EN', time:'16 Oct 2026, 04:30 PM', actor:'Anna K. — SEO Manager'},
+        {type:'ai-gen',      label:'AI content generated — city SEO description',                section:'SEO',      language:'IT', time:'14 Oct 2026, 11:22 AM', actor:'System (AI Pipeline)',     reason:'Italian market launch — first-time content generation'},
+        {type:'status',      label:'SEO status transition: NOT RUN → RUN',                       section:'SEO',      language:'IT', time:'14 Oct 2026, 11:23 AM', actor:'System (AI Pipeline)'},
+        {type:'unlock',      label:'Section unlocked — AI may now regenerate this content',      section:'SEO',      language:'ES', time:'12 Oct 2026, 05:45 PM', actor:'Carlos M. — SEO Manager', reason:'Spanish copy review complete; unlocking for next pipeline run'},
+        {type:'status',      label:'SEO status transition: RUN → OUTDATED',                      section:'SEO',      language:'NL', time:'10 Oct 2026, 10:15 AM', actor:'System (AI Pipeline)',     reason:'Source product data changed — regeneration required'},
+        {type:'pipeline',    label:'Pipeline-triggered update — top attractions list refreshed',                      time:'08 Oct 2026, 09:30 AM', actor:'System (Pipeline)',        reason:'New attraction onboarded — city block refreshed automatically'},
+        {type:'version',     label:'City record version snapshot saved',                                              time:'05 Oct 2026, 06:00 PM', actor:'System'},
+        {type:'system',      label:'City record initialized',                                                         time:'01 Oct 2026, 09:00 AM', actor:'System'}
+      ], googlePlaceId:'ChIJOwg_06VPwokRYv534QaPC8g', viatorDestinationId:'687', timezone:'America/New_York'},
+    {id:'ny-dup', name:'New York City', country:'United States', region:'New York State', status:'Active', attractionIds:[], history:[
+        {type:'lock',        label:'Section manually locked — overrides active',                  section:'SEO',      language:'EN', time:'21 Oct 2026, 09:14 AM', actor:'Anna K. — SEO Manager',   reason:'Final approved city meta — do not overwrite'},
+        {type:'seo-run',     label:'SEO pipeline run completed — city metadata refreshed',        section:'SEO',                    time:'20 Oct 2026, 08:00 AM', actor:'System (Scheduled)',       reason:'Weekly scheduled SEO refresh — all languages'},
+        {type:'regen',       label:'AI regeneration triggered — Local Tips section',              section:'Local Tips',             time:'19 Oct 2026, 02:17 PM', actor:'System (AI Pipeline)',     reason:'Linked product data updated — regeneration required'},
+        {type:'lock',        label:'Section manually locked — overrides active',                  section:'About',    language:'DE', time:'18 Oct 2026, 11:00 AM', actor:'Marc D. — Content Lead',  reason:'Translated copy approved — freeze until next review'},
+        {type:'manual-edit', label:'City FAQ updated — visiting hours corrected',                 section:'FAQ',      language:'EN', time:'16 Oct 2026, 04:30 PM', actor:'Anna K. — SEO Manager'},
+        {type:'ai-gen',      label:'AI content generated — city SEO description',                section:'SEO',      language:'IT', time:'14 Oct 2026, 11:22 AM', actor:'System (AI Pipeline)',     reason:'Italian market launch — first-time content generation'},
+        {type:'status',      label:'SEO status transition: NOT RUN → RUN',                       section:'SEO',      language:'IT', time:'14 Oct 2026, 11:23 AM', actor:'System (AI Pipeline)'},
+        {type:'unlock',      label:'Section unlocked — AI may now regenerate this content',      section:'SEO',      language:'ES', time:'12 Oct 2026, 05:45 PM', actor:'Carlos M. — SEO Manager', reason:'Spanish copy review complete; unlocking for next pipeline run'},
+        {type:'status',      label:'SEO status transition: RUN → OUTDATED',                      section:'SEO',      language:'NL', time:'10 Oct 2026, 10:15 AM', actor:'System (AI Pipeline)',     reason:'Source product data changed — regeneration required'},
+        {type:'pipeline',    label:'Pipeline-triggered update — top attractions list refreshed',                      time:'08 Oct 2026, 09:30 AM', actor:'System (Pipeline)',        reason:'New attraction onboarded — city block refreshed automatically'},
+        {type:'version',     label:'City record version snapshot saved',                                              time:'05 Oct 2026, 06:00 PM', actor:'System'},
+        {type:'system',      label:'City record initialized',                                                         time:'01 Oct 2026, 09:00 AM', actor:'System'}
+      ], googlePlaceId:'ChIJOwg_06VPwokRYv534QaPC8g', viatorDestinationId:'687-ALT', timezone:'America/New_York'},
+    {id:'lon', name:'London', country:'United Kingdom', region:'Greater London', status:'Active', attractionIds:['attr-eb'], history:[
+        {type:'lock',        label:'Section manually locked — overrides active',                  section:'SEO',      language:'EN', time:'21 Oct 2026, 09:14 AM', actor:'Anna K. — SEO Manager',   reason:'Final approved city meta — do not overwrite'},
+        {type:'seo-run',     label:'SEO pipeline run completed — city metadata refreshed',        section:'SEO',                    time:'20 Oct 2026, 08:00 AM', actor:'System (Scheduled)',       reason:'Weekly scheduled SEO refresh — all languages'},
+        {type:'regen',       label:'AI regeneration triggered — Local Tips section',              section:'Local Tips',             time:'19 Oct 2026, 02:17 PM', actor:'System (AI Pipeline)',     reason:'Linked product data updated — regeneration required'},
+        {type:'lock',        label:'Section manually locked — overrides active',                  section:'About',    language:'DE', time:'18 Oct 2026, 11:00 AM', actor:'Marc D. — Content Lead',  reason:'Translated copy approved — freeze until next review'},
+        {type:'manual-edit', label:'City FAQ updated — visiting hours corrected',                 section:'FAQ',      language:'EN', time:'16 Oct 2026, 04:30 PM', actor:'Anna K. — SEO Manager'},
+        {type:'ai-gen',      label:'AI content generated — city SEO description',                section:'SEO',      language:'IT', time:'14 Oct 2026, 11:22 AM', actor:'System (AI Pipeline)',     reason:'Italian market launch — first-time content generation'},
+        {type:'status',      label:'SEO status transition: NOT RUN → RUN',                       section:'SEO',      language:'IT', time:'14 Oct 2026, 11:23 AM', actor:'System (AI Pipeline)'},
+        {type:'unlock',      label:'Section unlocked — AI may now regenerate this content',      section:'SEO',      language:'ES', time:'12 Oct 2026, 05:45 PM', actor:'Carlos M. — SEO Manager', reason:'Spanish copy review complete; unlocking for next pipeline run'},
+        {type:'status',      label:'SEO status transition: RUN → OUTDATED',                      section:'SEO',      language:'NL', time:'10 Oct 2026, 10:15 AM', actor:'System (AI Pipeline)',     reason:'Source product data changed — regeneration required'},
+        {type:'pipeline',    label:'Pipeline-triggered update — top attractions list refreshed',                      time:'08 Oct 2026, 09:30 AM', actor:'System (Pipeline)',        reason:'New attraction onboarded — city block refreshed automatically'},
+        {type:'version',     label:'City record version snapshot saved',                                              time:'05 Oct 2026, 06:00 PM', actor:'System'},
+        {type:'system',      label:'City record initialized',                                                         time:'01 Oct 2026, 09:00 AM', actor:'System'}
+      ], timezone:'Europe/London'},
+    {id:'par', name:'Paris', country:'France', region:'Île-de-France', status:'Active', attractionIds:['attr-et'], history:[
+        {type:'lock',        label:'Section manually locked — overrides active',                  section:'SEO',      language:'EN', time:'21 Oct 2026, 09:14 AM', actor:'Anna K. — SEO Manager',   reason:'Final approved city meta — do not overwrite'},
+        {type:'seo-run',     label:'SEO pipeline run completed — city metadata refreshed',        section:'SEO',                    time:'20 Oct 2026, 08:00 AM', actor:'System (Scheduled)',       reason:'Weekly scheduled SEO refresh — all languages'},
+        {type:'regen',       label:'AI regeneration triggered — Local Tips section',              section:'Local Tips',             time:'19 Oct 2026, 02:17 PM', actor:'System (AI Pipeline)',     reason:'Linked product data updated — regeneration required'},
+        {type:'lock',        label:'Section manually locked — overrides active',                  section:'About',    language:'DE', time:'18 Oct 2026, 11:00 AM', actor:'Marc D. — Content Lead',  reason:'Translated copy approved — freeze until next review'},
+        {type:'manual-edit', label:'City FAQ updated — visiting hours corrected',                 section:'FAQ',      language:'EN', time:'16 Oct 2026, 04:30 PM', actor:'Anna K. — SEO Manager'},
+        {type:'ai-gen',      label:'AI content generated — city SEO description',                section:'SEO',      language:'IT', time:'14 Oct 2026, 11:22 AM', actor:'System (AI Pipeline)',     reason:'Italian market launch — first-time content generation'},
+        {type:'status',      label:'SEO status transition: NOT RUN → RUN',                       section:'SEO',      language:'IT', time:'14 Oct 2026, 11:23 AM', actor:'System (AI Pipeline)'},
+        {type:'unlock',      label:'Section unlocked — AI may now regenerate this content',      section:'SEO',      language:'ES', time:'12 Oct 2026, 05:45 PM', actor:'Carlos M. — SEO Manager', reason:'Spanish copy review complete; unlocking for next pipeline run'},
+        {type:'status',      label:'SEO status transition: RUN → OUTDATED',                      section:'SEO',      language:'NL', time:'10 Oct 2026, 10:15 AM', actor:'System (AI Pipeline)',     reason:'Source product data changed — regeneration required'},
+        {type:'pipeline',    label:'Pipeline-triggered update — top attractions list refreshed',                      time:'08 Oct 2026, 09:30 AM', actor:'System (Pipeline)',        reason:'New attraction onboarded — city block refreshed automatically'},
+        {type:'version',     label:'City record version snapshot saved',                                              time:'05 Oct 2026, 06:00 PM', actor:'System'},
+        {type:'system',      label:'City record initialized',                                                         time:'01 Oct 2026, 09:00 AM', actor:'System'}
+      ], timezone:'Europe/Paris'},
+    {id:'dxb', name:'Dubai', country:'United Arab Emirates', region:'Dubai Emirate', status:'Active', attractionIds:['attr-bj'], history:[
+        {type:'lock',        label:'Section manually locked — overrides active',                  section:'SEO',      language:'EN', time:'21 Oct 2026, 09:14 AM', actor:'Anna K. — SEO Manager',   reason:'Final approved city meta — do not overwrite'},
+        {type:'seo-run',     label:'SEO pipeline run completed — city metadata refreshed',        section:'SEO',                    time:'20 Oct 2026, 08:00 AM', actor:'System (Scheduled)',       reason:'Weekly scheduled SEO refresh — all languages'},
+        {type:'regen',       label:'AI regeneration triggered — Local Tips section',              section:'Local Tips',             time:'19 Oct 2026, 02:17 PM', actor:'System (AI Pipeline)',     reason:'Linked product data updated — regeneration required'},
+        {type:'lock',        label:'Section manually locked — overrides active',                  section:'About',    language:'DE', time:'18 Oct 2026, 11:00 AM', actor:'Marc D. — Content Lead',  reason:'Translated copy approved — freeze until next review'},
+        {type:'manual-edit', label:'City FAQ updated — visiting hours corrected',                 section:'FAQ',      language:'EN', time:'16 Oct 2026, 04:30 PM', actor:'Anna K. — SEO Manager'},
+        {type:'ai-gen',      label:'AI content generated — city SEO description',                section:'SEO',      language:'IT', time:'14 Oct 2026, 11:22 AM', actor:'System (AI Pipeline)',     reason:'Italian market launch — first-time content generation'},
+        {type:'status',      label:'SEO status transition: NOT RUN → RUN',                       section:'SEO',      language:'IT', time:'14 Oct 2026, 11:23 AM', actor:'System (AI Pipeline)'},
+        {type:'unlock',      label:'Section unlocked — AI may now regenerate this content',      section:'SEO',      language:'ES', time:'12 Oct 2026, 05:45 PM', actor:'Carlos M. — SEO Manager', reason:'Spanish copy review complete; unlocking for next pipeline run'},
+        {type:'status',      label:'SEO status transition: RUN → OUTDATED',                      section:'SEO',      language:'NL', time:'10 Oct 2026, 10:15 AM', actor:'System (AI Pipeline)',     reason:'Source product data changed — regeneration required'},
+        {type:'pipeline',    label:'Pipeline-triggered update — top attractions list refreshed',                      time:'08 Oct 2026, 09:30 AM', actor:'System (Pipeline)',        reason:'New attraction onboarded — city block refreshed automatically'},
+        {type:'version',     label:'City record version snapshot saved',                                              time:'05 Oct 2026, 06:00 PM', actor:'System'},
+        {type:'system',      label:'City record initialized',                                                         time:'01 Oct 2026, 09:00 AM', actor:'System'}
+      ], timezone:'Asia/Dubai'},
+    {id:'tyo', name:'Tokyo', country:'Japan', region:'Kantō', status:'Active', attractionIds:[], history:[
+        {type:'lock',        label:'Section manually locked — overrides active',                  section:'SEO',      language:'EN', time:'21 Oct 2026, 09:14 AM', actor:'Anna K. — SEO Manager',   reason:'Final approved city meta — do not overwrite'},
+        {type:'seo-run',     label:'SEO pipeline run completed — city metadata refreshed',        section:'SEO',                    time:'20 Oct 2026, 08:00 AM', actor:'System (Scheduled)',       reason:'Weekly scheduled SEO refresh — all languages'},
+        {type:'regen',       label:'AI regeneration triggered — Local Tips section',              section:'Local Tips',             time:'19 Oct 2026, 02:17 PM', actor:'System (AI Pipeline)',     reason:'Linked product data updated — regeneration required'},
+        {type:'lock',        label:'Section manually locked — overrides active',                  section:'About',    language:'DE', time:'18 Oct 2026, 11:00 AM', actor:'Marc D. — Content Lead',  reason:'Translated copy approved — freeze until next review'},
+        {type:'manual-edit', label:'City FAQ updated — visiting hours corrected',                 section:'FAQ',      language:'EN', time:'16 Oct 2026, 04:30 PM', actor:'Anna K. — SEO Manager'},
+        {type:'ai-gen',      label:'AI content generated — city SEO description',                section:'SEO',      language:'IT', time:'14 Oct 2026, 11:22 AM', actor:'System (AI Pipeline)',     reason:'Italian market launch — first-time content generation'},
+        {type:'status',      label:'SEO status transition: NOT RUN → RUN',                       section:'SEO',      language:'IT', time:'14 Oct 2026, 11:23 AM', actor:'System (AI Pipeline)'},
+        {type:'unlock',      label:'Section unlocked — AI may now regenerate this content',      section:'SEO',      language:'ES', time:'12 Oct 2026, 05:45 PM', actor:'Carlos M. — SEO Manager', reason:'Spanish copy review complete; unlocking for next pipeline run'},
+        {type:'status',      label:'SEO status transition: RUN → OUTDATED',                      section:'SEO',      language:'NL', time:'10 Oct 2026, 10:15 AM', actor:'System (AI Pipeline)',     reason:'Source product data changed — regeneration required'},
+        {type:'pipeline',    label:'Pipeline-triggered update — top attractions list refreshed',                      time:'08 Oct 2026, 09:30 AM', actor:'System (Pipeline)',        reason:'New attraction onboarded — city block refreshed automatically'},
+        {type:'version',     label:'City record version snapshot saved',                                              time:'05 Oct 2026, 06:00 PM', actor:'System'},
+        {type:'system',      label:'City record initialized',                                                         time:'01 Oct 2026, 09:00 AM', actor:'System'}
+      ], timezone:'Asia/Tokyo'},
+    {id:'cai', name:'Cairo', country:'Egypt', region:'Cairo Governorate', status:'Inactive', attractionIds:['attr-gp'], history:[
+        {type:'lock',        label:'Section manually locked — overrides active',                  section:'SEO',      language:'EN', time:'21 Oct 2026, 09:14 AM', actor:'Anna K. — SEO Manager',   reason:'Final approved city meta — do not overwrite'},
+        {type:'seo-run',     label:'SEO pipeline run completed — city metadata refreshed',        section:'SEO',                    time:'20 Oct 2026, 08:00 AM', actor:'System (Scheduled)',       reason:'Weekly scheduled SEO refresh — all languages'},
+        {type:'regen',       label:'AI regeneration triggered — Local Tips section',              section:'Local Tips',             time:'19 Oct 2026, 02:17 PM', actor:'System (AI Pipeline)',     reason:'Linked product data updated — regeneration required'},
+        {type:'lock',        label:'Section manually locked — overrides active',                  section:'About',    language:'DE', time:'18 Oct 2026, 11:00 AM', actor:'Marc D. — Content Lead',  reason:'Translated copy approved — freeze until next review'},
+        {type:'manual-edit', label:'City FAQ updated — visiting hours corrected',                 section:'FAQ',      language:'EN', time:'16 Oct 2026, 04:30 PM', actor:'Anna K. — SEO Manager'},
+        {type:'ai-gen',      label:'AI content generated — city SEO description',                section:'SEO',      language:'IT', time:'14 Oct 2026, 11:22 AM', actor:'System (AI Pipeline)',     reason:'Italian market launch — first-time content generation'},
+        {type:'status',      label:'SEO status transition: NOT RUN → RUN',                       section:'SEO',      language:'IT', time:'14 Oct 2026, 11:23 AM', actor:'System (AI Pipeline)'},
+        {type:'unlock',      label:'Section unlocked — AI may now regenerate this content',      section:'SEO',      language:'ES', time:'12 Oct 2026, 05:45 PM', actor:'Carlos M. — SEO Manager', reason:'Spanish copy review complete; unlocking for next pipeline run'},
+        {type:'status',      label:'SEO status transition: RUN → OUTDATED',                      section:'SEO',      language:'NL', time:'10 Oct 2026, 10:15 AM', actor:'System (AI Pipeline)',     reason:'Source product data changed — regeneration required'},
+        {type:'pipeline',    label:'Pipeline-triggered update — top attractions list refreshed',                      time:'08 Oct 2026, 09:30 AM', actor:'System (Pipeline)',        reason:'New attraction onboarded — city block refreshed automatically'},
+        {type:'version',     label:'City record version snapshot saved',                                              time:'05 Oct 2026, 06:00 PM', actor:'System'},
+        {type:'system',      label:'City record initialized',                                                         time:'01 Oct 2026, 09:00 AM', actor:'System'}
+      ], timezone:'Africa/Cairo'},
+    {id:'mum', name:'Mumbai', country:'India', region:'Maharashtra', status:'Active', attractionIds:[], history:[
+        {type:'lock',        label:'Section manually locked — overrides active',                  section:'SEO',      language:'EN', time:'21 Oct 2026, 09:14 AM', actor:'Anna K. — SEO Manager',   reason:'Final approved city meta — do not overwrite'},
+        {type:'seo-run',     label:'SEO pipeline run completed — city metadata refreshed',        section:'SEO',                    time:'20 Oct 2026, 08:00 AM', actor:'System (Scheduled)',       reason:'Weekly scheduled SEO refresh — all languages'},
+        {type:'regen',       label:'AI regeneration triggered — Local Tips section',              section:'Local Tips',             time:'19 Oct 2026, 02:17 PM', actor:'System (AI Pipeline)',     reason:'Linked product data updated — regeneration required'},
+        {type:'lock',        label:'Section manually locked — overrides active',                  section:'About',    language:'DE', time:'18 Oct 2026, 11:00 AM', actor:'Marc D. — Content Lead',  reason:'Translated copy approved — freeze until next review'},
+        {type:'manual-edit', label:'City FAQ updated — visiting hours corrected',                 section:'FAQ',      language:'EN', time:'16 Oct 2026, 04:30 PM', actor:'Anna K. — SEO Manager'},
+        {type:'ai-gen',      label:'AI content generated — city SEO description',                section:'SEO',      language:'IT', time:'14 Oct 2026, 11:22 AM', actor:'System (AI Pipeline)',     reason:'Italian market launch — first-time content generation'},
+        {type:'status',      label:'SEO status transition: NOT RUN → RUN',                       section:'SEO',      language:'IT', time:'14 Oct 2026, 11:23 AM', actor:'System (AI Pipeline)'},
+        {type:'unlock',      label:'Section unlocked — AI may now regenerate this content',      section:'SEO',      language:'ES', time:'12 Oct 2026, 05:45 PM', actor:'Carlos M. — SEO Manager', reason:'Spanish copy review complete; unlocking for next pipeline run'},
+        {type:'status',      label:'SEO status transition: RUN → OUTDATED',                      section:'SEO',      language:'NL', time:'10 Oct 2026, 10:15 AM', actor:'System (AI Pipeline)',     reason:'Source product data changed — regeneration required'},
+        {type:'pipeline',    label:'Pipeline-triggered update — top attractions list refreshed',                      time:'08 Oct 2026, 09:30 AM', actor:'System (Pipeline)',        reason:'New attraction onboarded — city block refreshed automatically'},
+        {type:'version',     label:'City record version snapshot saved',                                              time:'05 Oct 2026, 06:00 PM', actor:'System'},
+        {type:'system',      label:'City record initialized',                                                         time:'01 Oct 2026, 09:00 AM', actor:'System'}
+      ], timezone:'Asia/Kolkata'},
+    {id:'ber', name:'Berlin', country:'Germany', region:'Berlin', status:'Active', attractionIds:[], history:[
+        {type:'lock',        label:'Section manually locked — overrides active',                  section:'SEO',      language:'EN', time:'21 Oct 2026, 09:14 AM', actor:'Anna K. — SEO Manager',   reason:'Final approved city meta — do not overwrite'},
+        {type:'seo-run',     label:'SEO pipeline run completed — city metadata refreshed',        section:'SEO',                    time:'20 Oct 2026, 08:00 AM', actor:'System (Scheduled)',       reason:'Weekly scheduled SEO refresh — all languages'},
+        {type:'regen',       label:'AI regeneration triggered — Local Tips section',              section:'Local Tips',             time:'19 Oct 2026, 02:17 PM', actor:'System (AI Pipeline)',     reason:'Linked product data updated — regeneration required'},
+        {type:'lock',        label:'Section manually locked — overrides active',                  section:'About',    language:'DE', time:'18 Oct 2026, 11:00 AM', actor:'Marc D. — Content Lead',  reason:'Translated copy approved — freeze until next review'},
+        {type:'manual-edit', label:'City FAQ updated — visiting hours corrected',                 section:'FAQ',      language:'EN', time:'16 Oct 2026, 04:30 PM', actor:'Anna K. — SEO Manager'},
+        {type:'ai-gen',      label:'AI content generated — city SEO description',                section:'SEO',      language:'IT', time:'14 Oct 2026, 11:22 AM', actor:'System (AI Pipeline)',     reason:'Italian market launch — first-time content generation'},
+        {type:'status',      label:'SEO status transition: NOT RUN → RUN',                       section:'SEO',      language:'IT', time:'14 Oct 2026, 11:23 AM', actor:'System (AI Pipeline)'},
+        {type:'unlock',      label:'Section unlocked — AI may now regenerate this content',      section:'SEO',      language:'ES', time:'12 Oct 2026, 05:45 PM', actor:'Carlos M. — SEO Manager', reason:'Spanish copy review complete; unlocking for next pipeline run'},
+        {type:'status',      label:'SEO status transition: RUN → OUTDATED',                      section:'SEO',      language:'NL', time:'10 Oct 2026, 10:15 AM', actor:'System (AI Pipeline)',     reason:'Source product data changed — regeneration required'},
+        {type:'pipeline',    label:'Pipeline-triggered update — top attractions list refreshed',                      time:'08 Oct 2026, 09:30 AM', actor:'System (Pipeline)',        reason:'New attraction onboarded — city block refreshed automatically'},
+        {type:'version',     label:'City record version snapshot saved',                                              time:'05 Oct 2026, 06:00 PM', actor:'System'},
+        {type:'system',      label:'City record initialized',                                                         time:'01 Oct 2026, 09:00 AM', actor:'System'}
+      ], timezone:'Europe/Berlin'}
   ],
   masterAttractions: [
     {id:'attr-sol', name:'Statue of Liberty', city:'New York', country:'United States', url:'www.rosotravel.com/en/united-states/new-york/statue-of-liberty/', description:'A colossal neoclassical sculpture on Liberty Island in New York Harbor.', status:'Active',
-      faqs:[{q:'What are the visiting hours?', a:'The attraction is open daily from 9 AM to 6 PM. Last entry is at 5 PM.', history:[]}, {q:'Is parking available?', a:'Yes, free parking is available on-site for all visitors.'}]},
-    {id:'attr-cp', name:'Central Park', city:'New York', country:'United States', url:'www.rosotravel.com/en/united-states/new-york/central-park/', description:'An 843-acre urban park in the heart of Manhattan.', status:'Active', faqs:[], history:[]},
-    {id:'attr-ts', name:'Times Square', city:'New York', country:'United States', url:'www.rosotravel.com/en/united-states/new-york/times-square/', description:'A major commercial intersection, tourist destination, and entertainment hub.', status:'Active', faqs:[], history:[]},
-    {id:'attr-eb', name:'Big Ben', city:'London', country:'United Kingdom', url:'www.rosotravel.com/en/united-kingdom/london/big-ben/', description:'The nickname for the Great Bell of the striking clock at the north end of the Palace of Westminster.', status:'Active', faqs:[], history:[]},
-    {id:'attr-et', name:'Eiffel Tower', city:'Paris', country:'France', url:'www.rosotravel.com/en/france/paris/eiffel-tower/', description:'A wrought-iron lattice tower on the Champ de Mars, one of the most recognizable structures in the world.', status:'Active', faqs:[], history:[], googlePlaceId:'ChIJDzKQmpBv5kcRMFbUW9UBfDU', viatorAttractionId:'12345'},
-    {id:'attr-et-dup', name:'Eiffel Tower Paris', city:'Paris', country:'France', url:'', description:'Iron tower landmark in Paris.', status:'Active', faqs:[], history:[], googlePlaceId:'ChIJDzKQmpBv5kcRMFbUW9UBfDU', viatorAttractionId:'99999'},
-    {id:'attr-bj', name:'Burj Khalifa', city:'Dubai', country:'United Arab Emirates', url:'www.rosotravel.com/en/uae/dubai/burj-khalifa/', description:'The tallest structure and building in the world, standing at 828 metres.', status:'Active', faqs:[], history:[]},
-    {id:'attr-gp', name:'Giza Pyramids', city:'Cairo', country:'Egypt', url:'', description:'', status:'Inactive', faqs:[], history:[]}
+      faqs:[{q:'What are the visiting hours?', a:'The attraction is open daily from 9 AM to 6 PM. Last entry is at 5 PM.', history:[{type:"system", label:"FAQ record initialized", time:"01 Oct 2026, 09:00 AM", actor:"System"}]}, {q:'Is parking available?', a:'Yes, free parking is available on-site for all visitors.'}]},
+    {id:'attr-cp', name:'Central Park', city:'New York', country:'United States', url:'www.rosotravel.com/en/united-states/new-york/central-park/', description:'An 843-acre urban park in the heart of Manhattan.', status:'Active', faqs:[], history:[{type:"system", label:"FAQ record initialized", time:"01 Oct 2026, 09:00 AM", actor:"System"}]},
+    {id:'attr-ts', name:'Times Square', city:'New York', country:'United States', url:'www.rosotravel.com/en/united-states/new-york/times-square/', description:'A major commercial intersection, tourist destination, and entertainment hub.', status:'Active', faqs:[], history:[{type:"system", label:"FAQ record initialized", time:"01 Oct 2026, 09:00 AM", actor:"System"}]},
+    {id:'attr-eb', name:'Big Ben', city:'London', country:'United Kingdom', url:'www.rosotravel.com/en/united-kingdom/london/big-ben/', description:'The nickname for the Great Bell of the striking clock at the north end of the Palace of Westminster.', status:'Active', faqs:[], history:[{type:"system", label:"FAQ record initialized", time:"01 Oct 2026, 09:00 AM", actor:"System"}]},
+    {id:'attr-et', name:'Eiffel Tower', city:'Paris', country:'France', url:'www.rosotravel.com/en/france/paris/eiffel-tower/', description:'A wrought-iron lattice tower on the Champ de Mars, one of the most recognizable structures in the world.', status:'Active', faqs:[], history:[{type:"system", label:"FAQ record initialized", time:"01 Oct 2026, 09:00 AM", actor:"System"}], googlePlaceId:'ChIJDzKQmpBv5kcRMFbUW9UBfDU', viatorAttractionId:'12345'},
+    {id:'attr-et-dup', name:'Eiffel Tower Paris', city:'Paris', country:'France', url:'', description:'Iron tower landmark in Paris.', status:'Active', faqs:[], history:[{type:"system", label:"FAQ record initialized", time:"01 Oct 2026, 09:00 AM", actor:"System"}], googlePlaceId:'ChIJDzKQmpBv5kcRMFbUW9UBfDU', viatorAttractionId:'99999'},
+    {id:'attr-bj', name:'Burj Khalifa', city:'Dubai', country:'United Arab Emirates', url:'www.rosotravel.com/en/uae/dubai/burj-khalifa/', description:'The tallest structure and building in the world, standing at 828 metres.', status:'Active', faqs:[], history:[{type:"system", label:"FAQ record initialized", time:"01 Oct 2026, 09:00 AM", actor:"System"}]},
+    {id:'attr-gp', name:'Giza Pyramids', city:'Cairo', country:'Egypt', url:'', description:'', status:'Inactive', faqs:[], history:[{type:"system", label:"FAQ record initialized", time:"01 Oct 2026, 09:00 AM", actor:"System"}]}
   ],
   regions: [
-    {id:'reg-nys', name:'New York State', country:'United States', description:'Home to New York City and the Hudson Valley — a mix of dense urban culture and scenic countryside.', status:'Active', history:[]},
-    {id:'reg-cal', name:'California', country:'United States', description:'From Pacific coastlines to national parks — one of the most visited regions in the United States.', status:'Active', history:[]},
-    {id:'reg-glo', name:'Greater London', country:'United Kingdom', description:'The London metropolitan area — historic landmarks, world-class museums, and the River Thames.', status:'Active', history:[]},
-    {id:'reg-idf', name:'Île-de-France', country:'France', description:'The Paris metropolitan region — home to the Eiffel Tower, the Louvre, and Versailles.', status:'Active', history:[]},
-    {id:'reg-tus', name:'Tuscany', country:'Italy', description:'Rolling vineyards, Renaissance art, and hilltop towns in central Italy.', status:'Active', history:[]},
-    {id:'reg-bav', name:'Bavaria', country:'Germany', description:'Southern Germany\'s largest state — alpine scenery, castles, and Munich.', status:'Active', history:[]},
-    {id:'reg-ber', name:'Berlin', country:'Germany', description:'Germany\'s capital and a city-state in its own right — history, culture, and nightlife.', status:'Active', history:[]},
-    {id:'reg-kan', name:'Kantō', country:'Japan', description:'The Tokyo metropolitan region — Japan\'s most populous and economically significant area.', status:'Active', history:[]},
-    {id:'reg-cai', name:'Cairo Governorate', country:'Egypt', description:'Home to Cairo and the Giza pyramid complex.', status:'Inactive', history:[]},
-    {id:'reg-mah', name:'Maharashtra', country:'India', description:'Home to Mumbai — India\'s financial capital and a major gateway city.', status:'Active', history:[]},
-    {id:'reg-dub', name:'Dubai Emirate', country:'United Arab Emirates', description:'One of the seven emirates of the UAE — home to Dubai\'s skyline and desert landscapes.', status:'Active', history:[]}
+    {id:'reg-nys', name:'New York State', country:'United States', description:'Home to New York City and the Hudson Valley — a mix of dense urban culture and scenic countryside.', status:'Active', history:[
+        {type:'seo-run',     label:'SEO pipeline run — region metadata refreshed',               section:'SEO',     time:'20 Oct 2026, 08:05 AM', actor:'System (Scheduled)',       reason:'Weekly scheduled SEO refresh'},
+        {type:'lock',        label:'Section manually locked — overrides active',                  section:'SEO',     language:'EN', time:'18 Oct 2026, 10:30 AM', actor:'Anna K. — SEO Manager',   reason:'Approved copy for region landing page — do not overwrite'},
+        {type:'manual-edit', label:'Region description updated — highlights section revised',     section:'About',   language:'EN', time:'16 Oct 2026, 03:00 PM', actor:'Anna K. — SEO Manager'},
+        {type:'ai-gen',      label:'AI content generated — region SEO description',              section:'SEO',     language:'DE', time:'14 Oct 2026, 10:00 AM', actor:'System (AI Pipeline)',     reason:'German market expansion — first-time content generation'},
+        {type:'status',      label:'SEO status transition: NOT RUN → RUN',                       section:'SEO',     language:'DE', time:'14 Oct 2026, 10:01 AM', actor:'System (AI Pipeline)'},
+        {type:'unlock',      label:'Section unlocked — AI may now regenerate this content',      section:'SEO',     language:'FR', time:'12 Oct 2026, 02:00 PM', actor:'Marc D. — Content Lead',  reason:'French translation reviewed and approved'},
+        {type:'pipeline',    label:'Pipeline-triggered update — region city list refreshed',                          time:'08 Oct 2026, 09:30 AM', actor:'System (Pipeline)',        reason:'New city added under this region'},
+        {type:'version',     label:'Region record version snapshot saved',                                            time:'05 Oct 2026, 06:00 PM', actor:'System'},
+        {type:'system',      label:'Region record initialized',                                                       time:'01 Oct 2026, 09:00 AM', actor:'System'}
+      ]},
+    {id:'reg-cal', name:'California', country:'United States', description:'From Pacific coastlines to national parks — one of the most visited regions in the United States.', status:'Active', history:[
+        {type:'seo-run',     label:'SEO pipeline run — region metadata refreshed',               section:'SEO',     time:'20 Oct 2026, 08:05 AM', actor:'System (Scheduled)',       reason:'Weekly scheduled SEO refresh'},
+        {type:'lock',        label:'Section manually locked — overrides active',                  section:'SEO',     language:'EN', time:'18 Oct 2026, 10:30 AM', actor:'Anna K. — SEO Manager',   reason:'Approved copy for region landing page — do not overwrite'},
+        {type:'manual-edit', label:'Region description updated — highlights section revised',     section:'About',   language:'EN', time:'16 Oct 2026, 03:00 PM', actor:'Anna K. — SEO Manager'},
+        {type:'ai-gen',      label:'AI content generated — region SEO description',              section:'SEO',     language:'DE', time:'14 Oct 2026, 10:00 AM', actor:'System (AI Pipeline)',     reason:'German market expansion — first-time content generation'},
+        {type:'status',      label:'SEO status transition: NOT RUN → RUN',                       section:'SEO',     language:'DE', time:'14 Oct 2026, 10:01 AM', actor:'System (AI Pipeline)'},
+        {type:'unlock',      label:'Section unlocked — AI may now regenerate this content',      section:'SEO',     language:'FR', time:'12 Oct 2026, 02:00 PM', actor:'Marc D. — Content Lead',  reason:'French translation reviewed and approved'},
+        {type:'pipeline',    label:'Pipeline-triggered update — region city list refreshed',                          time:'08 Oct 2026, 09:30 AM', actor:'System (Pipeline)',        reason:'New city added under this region'},
+        {type:'version',     label:'Region record version snapshot saved',                                            time:'05 Oct 2026, 06:00 PM', actor:'System'},
+        {type:'system',      label:'Region record initialized',                                                       time:'01 Oct 2026, 09:00 AM', actor:'System'}
+      ]},
+    {id:'reg-glo', name:'Greater London', country:'United Kingdom', description:'The London metropolitan area — historic landmarks, world-class museums, and the River Thames.', status:'Active', history:[
+        {type:'seo-run',     label:'SEO pipeline run — region metadata refreshed',               section:'SEO',     time:'20 Oct 2026, 08:05 AM', actor:'System (Scheduled)',       reason:'Weekly scheduled SEO refresh'},
+        {type:'lock',        label:'Section manually locked — overrides active',                  section:'SEO',     language:'EN', time:'18 Oct 2026, 10:30 AM', actor:'Anna K. — SEO Manager',   reason:'Approved copy for region landing page — do not overwrite'},
+        {type:'manual-edit', label:'Region description updated — highlights section revised',     section:'About',   language:'EN', time:'16 Oct 2026, 03:00 PM', actor:'Anna K. — SEO Manager'},
+        {type:'ai-gen',      label:'AI content generated — region SEO description',              section:'SEO',     language:'DE', time:'14 Oct 2026, 10:00 AM', actor:'System (AI Pipeline)',     reason:'German market expansion — first-time content generation'},
+        {type:'status',      label:'SEO status transition: NOT RUN → RUN',                       section:'SEO',     language:'DE', time:'14 Oct 2026, 10:01 AM', actor:'System (AI Pipeline)'},
+        {type:'unlock',      label:'Section unlocked — AI may now regenerate this content',      section:'SEO',     language:'FR', time:'12 Oct 2026, 02:00 PM', actor:'Marc D. — Content Lead',  reason:'French translation reviewed and approved'},
+        {type:'pipeline',    label:'Pipeline-triggered update — region city list refreshed',                          time:'08 Oct 2026, 09:30 AM', actor:'System (Pipeline)',        reason:'New city added under this region'},
+        {type:'version',     label:'Region record version snapshot saved',                                            time:'05 Oct 2026, 06:00 PM', actor:'System'},
+        {type:'system',      label:'Region record initialized',                                                       time:'01 Oct 2026, 09:00 AM', actor:'System'}
+      ]},
+    {id:'reg-idf', name:'Île-de-France', country:'France', description:'The Paris metropolitan region — home to the Eiffel Tower, the Louvre, and Versailles.', status:'Active', history:[
+        {type:'seo-run',     label:'SEO pipeline run — region metadata refreshed',               section:'SEO',     time:'20 Oct 2026, 08:05 AM', actor:'System (Scheduled)',       reason:'Weekly scheduled SEO refresh'},
+        {type:'lock',        label:'Section manually locked — overrides active',                  section:'SEO',     language:'EN', time:'18 Oct 2026, 10:30 AM', actor:'Anna K. — SEO Manager',   reason:'Approved copy for region landing page — do not overwrite'},
+        {type:'manual-edit', label:'Region description updated — highlights section revised',     section:'About',   language:'EN', time:'16 Oct 2026, 03:00 PM', actor:'Anna K. — SEO Manager'},
+        {type:'ai-gen',      label:'AI content generated — region SEO description',              section:'SEO',     language:'DE', time:'14 Oct 2026, 10:00 AM', actor:'System (AI Pipeline)',     reason:'German market expansion — first-time content generation'},
+        {type:'status',      label:'SEO status transition: NOT RUN → RUN',                       section:'SEO',     language:'DE', time:'14 Oct 2026, 10:01 AM', actor:'System (AI Pipeline)'},
+        {type:'unlock',      label:'Section unlocked — AI may now regenerate this content',      section:'SEO',     language:'FR', time:'12 Oct 2026, 02:00 PM', actor:'Marc D. — Content Lead',  reason:'French translation reviewed and approved'},
+        {type:'pipeline',    label:'Pipeline-triggered update — region city list refreshed',                          time:'08 Oct 2026, 09:30 AM', actor:'System (Pipeline)',        reason:'New city added under this region'},
+        {type:'version',     label:'Region record version snapshot saved',                                            time:'05 Oct 2026, 06:00 PM', actor:'System'},
+        {type:'system',      label:'Region record initialized',                                                       time:'01 Oct 2026, 09:00 AM', actor:'System'}
+      ]},
+    {id:'reg-tus', name:'Tuscany', country:'Italy', description:'Rolling vineyards, Renaissance art, and hilltop towns in central Italy.', status:'Active', history:[
+        {type:'seo-run',     label:'SEO pipeline run — region metadata refreshed',               section:'SEO',     time:'20 Oct 2026, 08:05 AM', actor:'System (Scheduled)',       reason:'Weekly scheduled SEO refresh'},
+        {type:'lock',        label:'Section manually locked — overrides active',                  section:'SEO',     language:'EN', time:'18 Oct 2026, 10:30 AM', actor:'Anna K. — SEO Manager',   reason:'Approved copy for region landing page — do not overwrite'},
+        {type:'manual-edit', label:'Region description updated — highlights section revised',     section:'About',   language:'EN', time:'16 Oct 2026, 03:00 PM', actor:'Anna K. — SEO Manager'},
+        {type:'ai-gen',      label:'AI content generated — region SEO description',              section:'SEO',     language:'DE', time:'14 Oct 2026, 10:00 AM', actor:'System (AI Pipeline)',     reason:'German market expansion — first-time content generation'},
+        {type:'status',      label:'SEO status transition: NOT RUN → RUN',                       section:'SEO',     language:'DE', time:'14 Oct 2026, 10:01 AM', actor:'System (AI Pipeline)'},
+        {type:'unlock',      label:'Section unlocked — AI may now regenerate this content',      section:'SEO',     language:'FR', time:'12 Oct 2026, 02:00 PM', actor:'Marc D. — Content Lead',  reason:'French translation reviewed and approved'},
+        {type:'pipeline',    label:'Pipeline-triggered update — region city list refreshed',                          time:'08 Oct 2026, 09:30 AM', actor:'System (Pipeline)',        reason:'New city added under this region'},
+        {type:'version',     label:'Region record version snapshot saved',                                            time:'05 Oct 2026, 06:00 PM', actor:'System'},
+        {type:'system',      label:'Region record initialized',                                                       time:'01 Oct 2026, 09:00 AM', actor:'System'}
+      ]},
+    {id:'reg-bav', name:'Bavaria', country:'Germany', description:'Southern Germany\'s largest state — alpine scenery, castles, and Munich.', status:'Active', history:[
+        {type:'seo-run',     label:'SEO pipeline run — region metadata refreshed',               section:'SEO',     time:'20 Oct 2026, 08:05 AM', actor:'System (Scheduled)',       reason:'Weekly scheduled SEO refresh'},
+        {type:'lock',        label:'Section manually locked — overrides active',                  section:'SEO',     language:'EN', time:'18 Oct 2026, 10:30 AM', actor:'Anna K. — SEO Manager',   reason:'Approved copy for region landing page — do not overwrite'},
+        {type:'manual-edit', label:'Region description updated — highlights section revised',     section:'About',   language:'EN', time:'16 Oct 2026, 03:00 PM', actor:'Anna K. — SEO Manager'},
+        {type:'ai-gen',      label:'AI content generated — region SEO description',              section:'SEO',     language:'DE', time:'14 Oct 2026, 10:00 AM', actor:'System (AI Pipeline)',     reason:'German market expansion — first-time content generation'},
+        {type:'status',      label:'SEO status transition: NOT RUN → RUN',                       section:'SEO',     language:'DE', time:'14 Oct 2026, 10:01 AM', actor:'System (AI Pipeline)'},
+        {type:'unlock',      label:'Section unlocked — AI may now regenerate this content',      section:'SEO',     language:'FR', time:'12 Oct 2026, 02:00 PM', actor:'Marc D. — Content Lead',  reason:'French translation reviewed and approved'},
+        {type:'pipeline',    label:'Pipeline-triggered update — region city list refreshed',                          time:'08 Oct 2026, 09:30 AM', actor:'System (Pipeline)',        reason:'New city added under this region'},
+        {type:'version',     label:'Region record version snapshot saved',                                            time:'05 Oct 2026, 06:00 PM', actor:'System'},
+        {type:'system',      label:'Region record initialized',                                                       time:'01 Oct 2026, 09:00 AM', actor:'System'}
+      ]},
+    {id:'reg-ber', name:'Berlin', country:'Germany', description:'Germany\'s capital and a city-state in its own right — history, culture, and nightlife.', status:'Active', history:[
+        {type:'seo-run',     label:'SEO pipeline run — region metadata refreshed',               section:'SEO',     time:'20 Oct 2026, 08:05 AM', actor:'System (Scheduled)',       reason:'Weekly scheduled SEO refresh'},
+        {type:'lock',        label:'Section manually locked — overrides active',                  section:'SEO',     language:'EN', time:'18 Oct 2026, 10:30 AM', actor:'Anna K. — SEO Manager',   reason:'Approved copy for region landing page — do not overwrite'},
+        {type:'manual-edit', label:'Region description updated — highlights section revised',     section:'About',   language:'EN', time:'16 Oct 2026, 03:00 PM', actor:'Anna K. — SEO Manager'},
+        {type:'ai-gen',      label:'AI content generated — region SEO description',              section:'SEO',     language:'DE', time:'14 Oct 2026, 10:00 AM', actor:'System (AI Pipeline)',     reason:'German market expansion — first-time content generation'},
+        {type:'status',      label:'SEO status transition: NOT RUN → RUN',                       section:'SEO',     language:'DE', time:'14 Oct 2026, 10:01 AM', actor:'System (AI Pipeline)'},
+        {type:'unlock',      label:'Section unlocked — AI may now regenerate this content',      section:'SEO',     language:'FR', time:'12 Oct 2026, 02:00 PM', actor:'Marc D. — Content Lead',  reason:'French translation reviewed and approved'},
+        {type:'pipeline',    label:'Pipeline-triggered update — region city list refreshed',                          time:'08 Oct 2026, 09:30 AM', actor:'System (Pipeline)',        reason:'New city added under this region'},
+        {type:'version',     label:'Region record version snapshot saved',                                            time:'05 Oct 2026, 06:00 PM', actor:'System'},
+        {type:'system',      label:'Region record initialized',                                                       time:'01 Oct 2026, 09:00 AM', actor:'System'}
+      ]},
+    {id:'reg-kan', name:'Kantō', country:'Japan', description:'The Tokyo metropolitan region — Japan\'s most populous and economically significant area.', status:'Active', history:[
+        {type:'seo-run',     label:'SEO pipeline run — region metadata refreshed',               section:'SEO',     time:'20 Oct 2026, 08:05 AM', actor:'System (Scheduled)',       reason:'Weekly scheduled SEO refresh'},
+        {type:'lock',        label:'Section manually locked — overrides active',                  section:'SEO',     language:'EN', time:'18 Oct 2026, 10:30 AM', actor:'Anna K. — SEO Manager',   reason:'Approved copy for region landing page — do not overwrite'},
+        {type:'manual-edit', label:'Region description updated — highlights section revised',     section:'About',   language:'EN', time:'16 Oct 2026, 03:00 PM', actor:'Anna K. — SEO Manager'},
+        {type:'ai-gen',      label:'AI content generated — region SEO description',              section:'SEO',     language:'DE', time:'14 Oct 2026, 10:00 AM', actor:'System (AI Pipeline)',     reason:'German market expansion — first-time content generation'},
+        {type:'status',      label:'SEO status transition: NOT RUN → RUN',                       section:'SEO',     language:'DE', time:'14 Oct 2026, 10:01 AM', actor:'System (AI Pipeline)'},
+        {type:'unlock',      label:'Section unlocked — AI may now regenerate this content',      section:'SEO',     language:'FR', time:'12 Oct 2026, 02:00 PM', actor:'Marc D. — Content Lead',  reason:'French translation reviewed and approved'},
+        {type:'pipeline',    label:'Pipeline-triggered update — region city list refreshed',                          time:'08 Oct 2026, 09:30 AM', actor:'System (Pipeline)',        reason:'New city added under this region'},
+        {type:'version',     label:'Region record version snapshot saved',                                            time:'05 Oct 2026, 06:00 PM', actor:'System'},
+        {type:'system',      label:'Region record initialized',                                                       time:'01 Oct 2026, 09:00 AM', actor:'System'}
+      ]},
+    {id:'reg-cai', name:'Cairo Governorate', country:'Egypt', description:'Home to Cairo and the Giza pyramid complex.', status:'Inactive', history:[
+        {type:'seo-run',     label:'SEO pipeline run — region metadata refreshed',               section:'SEO',     time:'20 Oct 2026, 08:05 AM', actor:'System (Scheduled)',       reason:'Weekly scheduled SEO refresh'},
+        {type:'lock',        label:'Section manually locked — overrides active',                  section:'SEO',     language:'EN', time:'18 Oct 2026, 10:30 AM', actor:'Anna K. — SEO Manager',   reason:'Approved copy for region landing page — do not overwrite'},
+        {type:'manual-edit', label:'Region description updated — highlights section revised',     section:'About',   language:'EN', time:'16 Oct 2026, 03:00 PM', actor:'Anna K. — SEO Manager'},
+        {type:'ai-gen',      label:'AI content generated — region SEO description',              section:'SEO',     language:'DE', time:'14 Oct 2026, 10:00 AM', actor:'System (AI Pipeline)',     reason:'German market expansion — first-time content generation'},
+        {type:'status',      label:'SEO status transition: NOT RUN → RUN',                       section:'SEO',     language:'DE', time:'14 Oct 2026, 10:01 AM', actor:'System (AI Pipeline)'},
+        {type:'unlock',      label:'Section unlocked — AI may now regenerate this content',      section:'SEO',     language:'FR', time:'12 Oct 2026, 02:00 PM', actor:'Marc D. — Content Lead',  reason:'French translation reviewed and approved'},
+        {type:'pipeline',    label:'Pipeline-triggered update — region city list refreshed',                          time:'08 Oct 2026, 09:30 AM', actor:'System (Pipeline)',        reason:'New city added under this region'},
+        {type:'version',     label:'Region record version snapshot saved',                                            time:'05 Oct 2026, 06:00 PM', actor:'System'},
+        {type:'system',      label:'Region record initialized',                                                       time:'01 Oct 2026, 09:00 AM', actor:'System'}
+      ]},
+    {id:'reg-mah', name:'Maharashtra', country:'India', description:'Home to Mumbai — India\'s financial capital and a major gateway city.', status:'Active', history:[
+        {type:'seo-run',     label:'SEO pipeline run — region metadata refreshed',               section:'SEO',     time:'20 Oct 2026, 08:05 AM', actor:'System (Scheduled)',       reason:'Weekly scheduled SEO refresh'},
+        {type:'lock',        label:'Section manually locked — overrides active',                  section:'SEO',     language:'EN', time:'18 Oct 2026, 10:30 AM', actor:'Anna K. — SEO Manager',   reason:'Approved copy for region landing page — do not overwrite'},
+        {type:'manual-edit', label:'Region description updated — highlights section revised',     section:'About',   language:'EN', time:'16 Oct 2026, 03:00 PM', actor:'Anna K. — SEO Manager'},
+        {type:'ai-gen',      label:'AI content generated — region SEO description',              section:'SEO',     language:'DE', time:'14 Oct 2026, 10:00 AM', actor:'System (AI Pipeline)',     reason:'German market expansion — first-time content generation'},
+        {type:'status',      label:'SEO status transition: NOT RUN → RUN',                       section:'SEO',     language:'DE', time:'14 Oct 2026, 10:01 AM', actor:'System (AI Pipeline)'},
+        {type:'unlock',      label:'Section unlocked — AI may now regenerate this content',      section:'SEO',     language:'FR', time:'12 Oct 2026, 02:00 PM', actor:'Marc D. — Content Lead',  reason:'French translation reviewed and approved'},
+        {type:'pipeline',    label:'Pipeline-triggered update — region city list refreshed',                          time:'08 Oct 2026, 09:30 AM', actor:'System (Pipeline)',        reason:'New city added under this region'},
+        {type:'version',     label:'Region record version snapshot saved',                                            time:'05 Oct 2026, 06:00 PM', actor:'System'},
+        {type:'system',      label:'Region record initialized',                                                       time:'01 Oct 2026, 09:00 AM', actor:'System'}
+      ]},
+    {id:'reg-dub', name:'Dubai Emirate', country:'United Arab Emirates', description:'One of the seven emirates of the UAE — home to Dubai\'s skyline and desert landscapes.', status:'Active', history:[
+        {type:'seo-run',     label:'SEO pipeline run — region metadata refreshed',               section:'SEO',     time:'20 Oct 2026, 08:05 AM', actor:'System (Scheduled)',       reason:'Weekly scheduled SEO refresh'},
+        {type:'lock',        label:'Section manually locked — overrides active',                  section:'SEO',     language:'EN', time:'18 Oct 2026, 10:30 AM', actor:'Anna K. — SEO Manager',   reason:'Approved copy for region landing page — do not overwrite'},
+        {type:'manual-edit', label:'Region description updated — highlights section revised',     section:'About',   language:'EN', time:'16 Oct 2026, 03:00 PM', actor:'Anna K. — SEO Manager'},
+        {type:'ai-gen',      label:'AI content generated — region SEO description',              section:'SEO',     language:'DE', time:'14 Oct 2026, 10:00 AM', actor:'System (AI Pipeline)',     reason:'German market expansion — first-time content generation'},
+        {type:'status',      label:'SEO status transition: NOT RUN → RUN',                       section:'SEO',     language:'DE', time:'14 Oct 2026, 10:01 AM', actor:'System (AI Pipeline)'},
+        {type:'unlock',      label:'Section unlocked — AI may now regenerate this content',      section:'SEO',     language:'FR', time:'12 Oct 2026, 02:00 PM', actor:'Marc D. — Content Lead',  reason:'French translation reviewed and approved'},
+        {type:'pipeline',    label:'Pipeline-triggered update — region city list refreshed',                          time:'08 Oct 2026, 09:30 AM', actor:'System (Pipeline)',        reason:'New city added under this region'},
+        {type:'version',     label:'Region record version snapshot saved',                                            time:'05 Oct 2026, 06:00 PM', actor:'System'},
+        {type:'system',      label:'Region record initialized',                                                       time:'01 Oct 2026, 09:00 AM', actor:'System'}
+      ]}
   ],
   products: [
     {id:'prod-1', name:'Statue of Liberty Ferry Ticket + Audio Tour', city:'New York', country:'United States', region:'New York State', attraction:'Statue of Liberty', category:'Culture & Heritage', price:45.00, status:'Active',
@@ -599,18 +934,126 @@ const DATA = {
       sourceType:'Internal', classification:'TOUR', group:'01', band:'B', rating:4.9, reviews:56, poolMember:true, setMember:false, blocked:false, pinned:false, flags:['review_required'], opsHistory:[{label:'Added to Pool (auto — eligibility met)', time:'18 Jun 2026, 9:05 AM', actor:'System'}]}
   ],
   categories: [
-    {id:'cat-adv', name:'Adventure & Outdoor', description:'Hiking, biking, water sports, and other active, outdoor-focused experiences.', status:'Active', history:[]},
-    {id:'cat-cul', name:'Culture & Heritage', description:'Museums, landmarks, historical sites, and experiences rooted in local heritage.', status:'Active', history:[]},
-    {id:'cat-food', name:'Food & Drink', description:'Culinary tours, tastings, dining experiences, and beverage-focused activities.', status:'Active', history:[]},
-    {id:'cat-nat', name:'Nature & Wildlife', description:'Wildlife encounters, national parks, and nature-focused excursions.', status:'Active', history:[]},
-    {id:'cat-water', name:'Water Activities', description:'Cruises, snorkeling, diving, and other water-based experiences.', status:'Active', history:[]},
-    {id:'cat-city', name:'City Tours', description:'Guided city walks, hop-on-hop-off buses, and urban sightseeing passes.', status:'Active', history:[]},
-    {id:'cat-fam', name:'Family Friendly', description:'Experiences suitable for travelers of all ages, including children.', status:'Inactive', history:[]},
-    {id:'cat-adv-dxb', name:'Adventure & Outdoor', city:'Dubai', description:'Desert safaris, dune bashing, and adrenaline-fuelled outdoor experiences in and around Dubai.', status:'Active', history:[]},
-    {id:'cat-food-par', name:'Food & Drink', city:'Paris', description:'Parisian culinary tours, wine tastings, patisserie walks, and gourmet dining experiences.', status:'Active', history:[]},
-    {id:'cat-cul-rom', name:'Culture & Heritage', city:'Rome', description:'Vatican tours, Colosseum visits, and deep-dives into Rome\'s ancient and Renaissance heritage.', status:'Active', history:[]},
-    {id:'cat-city-nyc', name:'City Tours', city:'New York', description:'Manhattan walking tours, hop-on-hop-off buses, and iconic NYC sightseeing routes.', status:'Active', history:[]},
-    {id:'cat-water-bkk', name:'Water Activities', city:'Bangkok', description:'Chao Phraya river cruises, floating market tours, and canal boat experiences in Bangkok.', status:'Active', history:[]}
+    {id:'cat-adv', name:'Adventure & Outdoor', description:'Hiking, biking, water sports, and other active, outdoor-focused experiences.', status:'Active', history:[
+        {type:'seo-run',     label:'SEO pipeline run — category page metadata refreshed',        section:'SEO',     time:'20 Oct 2026, 08:03 AM', actor:'System (Scheduled)',       reason:'Weekly scheduled SEO refresh'},
+        {type:'lock',        label:'Section manually locked — overrides active',                  section:'SEO',     language:'EN', time:'18 Oct 2026, 10:00 AM', actor:'Anna K. — SEO Manager',   reason:'Category landing page copy approved — do not overwrite'},
+        {type:'manual-edit', label:'Category description updated — scope clarified',             section:'SEO',     language:'EN', time:'16 Oct 2026, 02:30 PM', actor:'Anna K. — SEO Manager'},
+        {type:'ai-gen',      label:'AI content generated — category SEO description',           section:'SEO',     language:'DE', time:'14 Oct 2026, 09:30 AM', actor:'System (AI Pipeline)',     reason:'German market onboarding — category first generation'},
+        {type:'status',      label:'SEO status transition: NOT RUN → RUN',                      section:'SEO',     language:'DE', time:'14 Oct 2026, 09:31 AM', actor:'System (AI Pipeline)'},
+        {type:'pipeline',    label:'Pipeline-triggered update — category product count updated',                     time:'08 Oct 2026, 09:30 AM', actor:'System (Pipeline)',        reason:'New products added to this category'},
+        {type:'version',     label:'Category record version snapshot saved',                                         time:'05 Oct 2026, 06:00 PM', actor:'System'},
+        {type:'system',      label:'Category record initialized',                                                    time:'01 Oct 2026, 09:00 AM', actor:'System'}
+      ]},
+    {id:'cat-cul', name:'Culture & Heritage', description:'Museums, landmarks, historical sites, and experiences rooted in local heritage.', status:'Active', history:[
+        {type:'seo-run',     label:'SEO pipeline run — category page metadata refreshed',        section:'SEO',     time:'20 Oct 2026, 08:03 AM', actor:'System (Scheduled)',       reason:'Weekly scheduled SEO refresh'},
+        {type:'lock',        label:'Section manually locked — overrides active',                  section:'SEO',     language:'EN', time:'18 Oct 2026, 10:00 AM', actor:'Anna K. — SEO Manager',   reason:'Category landing page copy approved — do not overwrite'},
+        {type:'manual-edit', label:'Category description updated — scope clarified',             section:'SEO',     language:'EN', time:'16 Oct 2026, 02:30 PM', actor:'Anna K. — SEO Manager'},
+        {type:'ai-gen',      label:'AI content generated — category SEO description',           section:'SEO',     language:'DE', time:'14 Oct 2026, 09:30 AM', actor:'System (AI Pipeline)',     reason:'German market onboarding — category first generation'},
+        {type:'status',      label:'SEO status transition: NOT RUN → RUN',                      section:'SEO',     language:'DE', time:'14 Oct 2026, 09:31 AM', actor:'System (AI Pipeline)'},
+        {type:'pipeline',    label:'Pipeline-triggered update — category product count updated',                     time:'08 Oct 2026, 09:30 AM', actor:'System (Pipeline)',        reason:'New products added to this category'},
+        {type:'version',     label:'Category record version snapshot saved',                                         time:'05 Oct 2026, 06:00 PM', actor:'System'},
+        {type:'system',      label:'Category record initialized',                                                    time:'01 Oct 2026, 09:00 AM', actor:'System'}
+      ]},
+    {id:'cat-food', name:'Food & Drink', description:'Culinary tours, tastings, dining experiences, and beverage-focused activities.', status:'Active', history:[
+        {type:'seo-run',     label:'SEO pipeline run — category page metadata refreshed',        section:'SEO',     time:'20 Oct 2026, 08:03 AM', actor:'System (Scheduled)',       reason:'Weekly scheduled SEO refresh'},
+        {type:'lock',        label:'Section manually locked — overrides active',                  section:'SEO',     language:'EN', time:'18 Oct 2026, 10:00 AM', actor:'Anna K. — SEO Manager',   reason:'Category landing page copy approved — do not overwrite'},
+        {type:'manual-edit', label:'Category description updated — scope clarified',             section:'SEO',     language:'EN', time:'16 Oct 2026, 02:30 PM', actor:'Anna K. — SEO Manager'},
+        {type:'ai-gen',      label:'AI content generated — category SEO description',           section:'SEO',     language:'DE', time:'14 Oct 2026, 09:30 AM', actor:'System (AI Pipeline)',     reason:'German market onboarding — category first generation'},
+        {type:'status',      label:'SEO status transition: NOT RUN → RUN',                      section:'SEO',     language:'DE', time:'14 Oct 2026, 09:31 AM', actor:'System (AI Pipeline)'},
+        {type:'pipeline',    label:'Pipeline-triggered update — category product count updated',                     time:'08 Oct 2026, 09:30 AM', actor:'System (Pipeline)',        reason:'New products added to this category'},
+        {type:'version',     label:'Category record version snapshot saved',                                         time:'05 Oct 2026, 06:00 PM', actor:'System'},
+        {type:'system',      label:'Category record initialized',                                                    time:'01 Oct 2026, 09:00 AM', actor:'System'}
+      ]},
+    {id:'cat-nat', name:'Nature & Wildlife', description:'Wildlife encounters, national parks, and nature-focused excursions.', status:'Active', history:[
+        {type:'seo-run',     label:'SEO pipeline run — category page metadata refreshed',        section:'SEO',     time:'20 Oct 2026, 08:03 AM', actor:'System (Scheduled)',       reason:'Weekly scheduled SEO refresh'},
+        {type:'lock',        label:'Section manually locked — overrides active',                  section:'SEO',     language:'EN', time:'18 Oct 2026, 10:00 AM', actor:'Anna K. — SEO Manager',   reason:'Category landing page copy approved — do not overwrite'},
+        {type:'manual-edit', label:'Category description updated — scope clarified',             section:'SEO',     language:'EN', time:'16 Oct 2026, 02:30 PM', actor:'Anna K. — SEO Manager'},
+        {type:'ai-gen',      label:'AI content generated — category SEO description',           section:'SEO',     language:'DE', time:'14 Oct 2026, 09:30 AM', actor:'System (AI Pipeline)',     reason:'German market onboarding — category first generation'},
+        {type:'status',      label:'SEO status transition: NOT RUN → RUN',                      section:'SEO',     language:'DE', time:'14 Oct 2026, 09:31 AM', actor:'System (AI Pipeline)'},
+        {type:'pipeline',    label:'Pipeline-triggered update — category product count updated',                     time:'08 Oct 2026, 09:30 AM', actor:'System (Pipeline)',        reason:'New products added to this category'},
+        {type:'version',     label:'Category record version snapshot saved',                                         time:'05 Oct 2026, 06:00 PM', actor:'System'},
+        {type:'system',      label:'Category record initialized',                                                    time:'01 Oct 2026, 09:00 AM', actor:'System'}
+      ]},
+    {id:'cat-water', name:'Water Activities', description:'Cruises, snorkeling, diving, and other water-based experiences.', status:'Active', history:[
+        {type:'seo-run',     label:'SEO pipeline run — category page metadata refreshed',        section:'SEO',     time:'20 Oct 2026, 08:03 AM', actor:'System (Scheduled)',       reason:'Weekly scheduled SEO refresh'},
+        {type:'lock',        label:'Section manually locked — overrides active',                  section:'SEO',     language:'EN', time:'18 Oct 2026, 10:00 AM', actor:'Anna K. — SEO Manager',   reason:'Category landing page copy approved — do not overwrite'},
+        {type:'manual-edit', label:'Category description updated — scope clarified',             section:'SEO',     language:'EN', time:'16 Oct 2026, 02:30 PM', actor:'Anna K. — SEO Manager'},
+        {type:'ai-gen',      label:'AI content generated — category SEO description',           section:'SEO',     language:'DE', time:'14 Oct 2026, 09:30 AM', actor:'System (AI Pipeline)',     reason:'German market onboarding — category first generation'},
+        {type:'status',      label:'SEO status transition: NOT RUN → RUN',                      section:'SEO',     language:'DE', time:'14 Oct 2026, 09:31 AM', actor:'System (AI Pipeline)'},
+        {type:'pipeline',    label:'Pipeline-triggered update — category product count updated',                     time:'08 Oct 2026, 09:30 AM', actor:'System (Pipeline)',        reason:'New products added to this category'},
+        {type:'version',     label:'Category record version snapshot saved',                                         time:'05 Oct 2026, 06:00 PM', actor:'System'},
+        {type:'system',      label:'Category record initialized',                                                    time:'01 Oct 2026, 09:00 AM', actor:'System'}
+      ]},
+    {id:'cat-city', name:'City Tours', description:'Guided city walks, hop-on-hop-off buses, and urban sightseeing passes.', status:'Active', history:[
+        {type:'seo-run',     label:'SEO pipeline run — category page metadata refreshed',        section:'SEO',     time:'20 Oct 2026, 08:03 AM', actor:'System (Scheduled)',       reason:'Weekly scheduled SEO refresh'},
+        {type:'lock',        label:'Section manually locked — overrides active',                  section:'SEO',     language:'EN', time:'18 Oct 2026, 10:00 AM', actor:'Anna K. — SEO Manager',   reason:'Category landing page copy approved — do not overwrite'},
+        {type:'manual-edit', label:'Category description updated — scope clarified',             section:'SEO',     language:'EN', time:'16 Oct 2026, 02:30 PM', actor:'Anna K. — SEO Manager'},
+        {type:'ai-gen',      label:'AI content generated — category SEO description',           section:'SEO',     language:'DE', time:'14 Oct 2026, 09:30 AM', actor:'System (AI Pipeline)',     reason:'German market onboarding — category first generation'},
+        {type:'status',      label:'SEO status transition: NOT RUN → RUN',                      section:'SEO',     language:'DE', time:'14 Oct 2026, 09:31 AM', actor:'System (AI Pipeline)'},
+        {type:'pipeline',    label:'Pipeline-triggered update — category product count updated',                     time:'08 Oct 2026, 09:30 AM', actor:'System (Pipeline)',        reason:'New products added to this category'},
+        {type:'version',     label:'Category record version snapshot saved',                                         time:'05 Oct 2026, 06:00 PM', actor:'System'},
+        {type:'system',      label:'Category record initialized',                                                    time:'01 Oct 2026, 09:00 AM', actor:'System'}
+      ]},
+    {id:'cat-fam', name:'Family Friendly', description:'Experiences suitable for travelers of all ages, including children.', status:'Inactive', history:[
+        {type:'seo-run',     label:'SEO pipeline run — category page metadata refreshed',        section:'SEO',     time:'20 Oct 2026, 08:03 AM', actor:'System (Scheduled)',       reason:'Weekly scheduled SEO refresh'},
+        {type:'lock',        label:'Section manually locked — overrides active',                  section:'SEO',     language:'EN', time:'18 Oct 2026, 10:00 AM', actor:'Anna K. — SEO Manager',   reason:'Category landing page copy approved — do not overwrite'},
+        {type:'manual-edit', label:'Category description updated — scope clarified',             section:'SEO',     language:'EN', time:'16 Oct 2026, 02:30 PM', actor:'Anna K. — SEO Manager'},
+        {type:'ai-gen',      label:'AI content generated — category SEO description',           section:'SEO',     language:'DE', time:'14 Oct 2026, 09:30 AM', actor:'System (AI Pipeline)',     reason:'German market onboarding — category first generation'},
+        {type:'status',      label:'SEO status transition: NOT RUN → RUN',                      section:'SEO',     language:'DE', time:'14 Oct 2026, 09:31 AM', actor:'System (AI Pipeline)'},
+        {type:'pipeline',    label:'Pipeline-triggered update — category product count updated',                     time:'08 Oct 2026, 09:30 AM', actor:'System (Pipeline)',        reason:'New products added to this category'},
+        {type:'version',     label:'Category record version snapshot saved',                                         time:'05 Oct 2026, 06:00 PM', actor:'System'},
+        {type:'system',      label:'Category record initialized',                                                    time:'01 Oct 2026, 09:00 AM', actor:'System'}
+      ]},
+    {id:'cat-adv-dxb', name:'Adventure & Outdoor', city:'Dubai', description:'Desert safaris, dune bashing, and adrenaline-fuelled outdoor experiences in and around Dubai.', status:'Active', history:[
+        {type:'seo-run',     label:'SEO pipeline run — category page metadata refreshed',        section:'SEO',     time:'20 Oct 2026, 08:03 AM', actor:'System (Scheduled)',       reason:'Weekly scheduled SEO refresh'},
+        {type:'lock',        label:'Section manually locked — overrides active',                  section:'SEO',     language:'EN', time:'18 Oct 2026, 10:00 AM', actor:'Anna K. — SEO Manager',   reason:'Category landing page copy approved — do not overwrite'},
+        {type:'manual-edit', label:'Category description updated — scope clarified',             section:'SEO',     language:'EN', time:'16 Oct 2026, 02:30 PM', actor:'Anna K. — SEO Manager'},
+        {type:'ai-gen',      label:'AI content generated — category SEO description',           section:'SEO',     language:'DE', time:'14 Oct 2026, 09:30 AM', actor:'System (AI Pipeline)',     reason:'German market onboarding — category first generation'},
+        {type:'status',      label:'SEO status transition: NOT RUN → RUN',                      section:'SEO',     language:'DE', time:'14 Oct 2026, 09:31 AM', actor:'System (AI Pipeline)'},
+        {type:'pipeline',    label:'Pipeline-triggered update — category product count updated',                     time:'08 Oct 2026, 09:30 AM', actor:'System (Pipeline)',        reason:'New products added to this category'},
+        {type:'version',     label:'Category record version snapshot saved',                                         time:'05 Oct 2026, 06:00 PM', actor:'System'},
+        {type:'system',      label:'Category record initialized',                                                    time:'01 Oct 2026, 09:00 AM', actor:'System'}
+      ]},
+    {id:'cat-food-par', name:'Food & Drink', city:'Paris', description:'Parisian culinary tours, wine tastings, patisserie walks, and gourmet dining experiences.', status:'Active', history:[
+        {type:'seo-run',     label:'SEO pipeline run — category page metadata refreshed',        section:'SEO',     time:'20 Oct 2026, 08:03 AM', actor:'System (Scheduled)',       reason:'Weekly scheduled SEO refresh'},
+        {type:'lock',        label:'Section manually locked — overrides active',                  section:'SEO',     language:'EN', time:'18 Oct 2026, 10:00 AM', actor:'Anna K. — SEO Manager',   reason:'Category landing page copy approved — do not overwrite'},
+        {type:'manual-edit', label:'Category description updated — scope clarified',             section:'SEO',     language:'EN', time:'16 Oct 2026, 02:30 PM', actor:'Anna K. — SEO Manager'},
+        {type:'ai-gen',      label:'AI content generated — category SEO description',           section:'SEO',     language:'DE', time:'14 Oct 2026, 09:30 AM', actor:'System (AI Pipeline)',     reason:'German market onboarding — category first generation'},
+        {type:'status',      label:'SEO status transition: NOT RUN → RUN',                      section:'SEO',     language:'DE', time:'14 Oct 2026, 09:31 AM', actor:'System (AI Pipeline)'},
+        {type:'pipeline',    label:'Pipeline-triggered update — category product count updated',                     time:'08 Oct 2026, 09:30 AM', actor:'System (Pipeline)',        reason:'New products added to this category'},
+        {type:'version',     label:'Category record version snapshot saved',                                         time:'05 Oct 2026, 06:00 PM', actor:'System'},
+        {type:'system',      label:'Category record initialized',                                                    time:'01 Oct 2026, 09:00 AM', actor:'System'}
+      ]},
+    {id:'cat-cul-rom', name:'Culture & Heritage', city:'Rome', description:'Vatican tours, Colosseum visits, and deep-dives into Rome\'s ancient and Renaissance heritage.', status:'Active', history:[
+        {type:'seo-run',     label:'SEO pipeline run — category page metadata refreshed',        section:'SEO',     time:'20 Oct 2026, 08:03 AM', actor:'System (Scheduled)',       reason:'Weekly scheduled SEO refresh'},
+        {type:'lock',        label:'Section manually locked — overrides active',                  section:'SEO',     language:'EN', time:'18 Oct 2026, 10:00 AM', actor:'Anna K. — SEO Manager',   reason:'Category landing page copy approved — do not overwrite'},
+        {type:'manual-edit', label:'Category description updated — scope clarified',             section:'SEO',     language:'EN', time:'16 Oct 2026, 02:30 PM', actor:'Anna K. — SEO Manager'},
+        {type:'ai-gen',      label:'AI content generated — category SEO description',           section:'SEO',     language:'DE', time:'14 Oct 2026, 09:30 AM', actor:'System (AI Pipeline)',     reason:'German market onboarding — category first generation'},
+        {type:'status',      label:'SEO status transition: NOT RUN → RUN',                      section:'SEO',     language:'DE', time:'14 Oct 2026, 09:31 AM', actor:'System (AI Pipeline)'},
+        {type:'pipeline',    label:'Pipeline-triggered update — category product count updated',                     time:'08 Oct 2026, 09:30 AM', actor:'System (Pipeline)',        reason:'New products added to this category'},
+        {type:'version',     label:'Category record version snapshot saved',                                         time:'05 Oct 2026, 06:00 PM', actor:'System'},
+        {type:'system',      label:'Category record initialized',                                                    time:'01 Oct 2026, 09:00 AM', actor:'System'}
+      ]},
+    {id:'cat-city-nyc', name:'City Tours', city:'New York', description:'Manhattan walking tours, hop-on-hop-off buses, and iconic NYC sightseeing routes.', status:'Active', history:[
+        {type:'seo-run',     label:'SEO pipeline run — category page metadata refreshed',        section:'SEO',     time:'20 Oct 2026, 08:03 AM', actor:'System (Scheduled)',       reason:'Weekly scheduled SEO refresh'},
+        {type:'lock',        label:'Section manually locked — overrides active',                  section:'SEO',     language:'EN', time:'18 Oct 2026, 10:00 AM', actor:'Anna K. — SEO Manager',   reason:'Category landing page copy approved — do not overwrite'},
+        {type:'manual-edit', label:'Category description updated — scope clarified',             section:'SEO',     language:'EN', time:'16 Oct 2026, 02:30 PM', actor:'Anna K. — SEO Manager'},
+        {type:'ai-gen',      label:'AI content generated — category SEO description',           section:'SEO',     language:'DE', time:'14 Oct 2026, 09:30 AM', actor:'System (AI Pipeline)',     reason:'German market onboarding — category first generation'},
+        {type:'status',      label:'SEO status transition: NOT RUN → RUN',                      section:'SEO',     language:'DE', time:'14 Oct 2026, 09:31 AM', actor:'System (AI Pipeline)'},
+        {type:'pipeline',    label:'Pipeline-triggered update — category product count updated',                     time:'08 Oct 2026, 09:30 AM', actor:'System (Pipeline)',        reason:'New products added to this category'},
+        {type:'version',     label:'Category record version snapshot saved',                                         time:'05 Oct 2026, 06:00 PM', actor:'System'},
+        {type:'system',      label:'Category record initialized',                                                    time:'01 Oct 2026, 09:00 AM', actor:'System'}
+      ]},
+    {id:'cat-water-bkk', name:'Water Activities', city:'Bangkok', description:'Chao Phraya river cruises, floating market tours, and canal boat experiences in Bangkok.', status:'Active', history:[
+        {type:'seo-run',     label:'SEO pipeline run — category page metadata refreshed',        section:'SEO',     time:'20 Oct 2026, 08:03 AM', actor:'System (Scheduled)',       reason:'Weekly scheduled SEO refresh'},
+        {type:'lock',        label:'Section manually locked — overrides active',                  section:'SEO',     language:'EN', time:'18 Oct 2026, 10:00 AM', actor:'Anna K. — SEO Manager',   reason:'Category landing page copy approved — do not overwrite'},
+        {type:'manual-edit', label:'Category description updated — scope clarified',             section:'SEO',     language:'EN', time:'16 Oct 2026, 02:30 PM', actor:'Anna K. — SEO Manager'},
+        {type:'ai-gen',      label:'AI content generated — category SEO description',           section:'SEO',     language:'DE', time:'14 Oct 2026, 09:30 AM', actor:'System (AI Pipeline)',     reason:'German market onboarding — category first generation'},
+        {type:'status',      label:'SEO status transition: NOT RUN → RUN',                      section:'SEO',     language:'DE', time:'14 Oct 2026, 09:31 AM', actor:'System (AI Pipeline)'},
+        {type:'pipeline',    label:'Pipeline-triggered update — category product count updated',                     time:'08 Oct 2026, 09:30 AM', actor:'System (Pipeline)',        reason:'New products added to this category'},
+        {type:'version',     label:'Category record version snapshot saved',                                         time:'05 Oct 2026, 06:00 PM', actor:'System'},
+        {type:'system',      label:'Category record initialized',                                                    time:'01 Oct 2026, 09:00 AM', actor:'System'}
+      ]}
   ],
   bookings: [
     {id:'BK-001', customer:'Alex Harrison', tour:'Premium Desert Safari Dubai (Dune Bashing & Dinner)', productId:'prod-9', tourOption:'Premium with Dinner', language:'English', bookingDate:'12 May 2024', bookingTime:'10:24 AM', travelDate:'18 May 2024', guests:4, amount:380.00, status:'Completed', channel:'Rosotravel', confirmationType:'Instant', couponCode:'SPRING24', discountAmount:10,
@@ -1207,14 +1650,34 @@ DATA.products.forEach((p, i) => {
 DATA.keywordMap = [
   {id:'kw-1', keyword:'things to do in new york', intent:'Informational', volume:22000, similarityBand:'A', entityMatch:true, seasonal:false, status:'locked', owningUrl:'/en/united-states/new-york/', pageType:'City', ownershipTimestamp:'12 Jun 2026, 9:00 AM', history:[{label:'Ownership locked', time:'12 Jun 2026, 9:00 AM', actor:'SEO Lead'}]},
   {id:'kw-2', keyword:'statue of liberty tickets', intent:'Transactional', volume:14500, similarityBand:'A', entityMatch:true, seasonal:false, status:'locked', owningUrl:'/en/united-states/new-york/statue-of-liberty/', pageType:'Attraction', ownershipTimestamp:'10 Jun 2026, 3:00 PM', history:[{label:'Ownership locked', time:'10 Jun 2026, 3:00 PM', actor:'SEO Lead'}]},
-  {id:'kw-3', keyword:'best time to visit paris', intent:'Informational', volume:9800, similarityBand:'B', entityMatch:true, seasonal:true, status:'free', owningUrl:'', pageType:'', ownershipTimestamp:'', history:[]},
+  {id:'kw-3', keyword:'best time to visit paris', intent:'Informational', volume:9800, similarityBand:'B', entityMatch:true, seasonal:true, status:'free', owningUrl:'', pageType:'', ownershipTimestamp:'', history:[
+        {type:'seo-run',     label:'Keyword ranking data refreshed via SEO pipeline',             section:'SEO',     time:'20 Oct 2026, 08:10 AM', actor:'System (Scheduled)',       reason:'Weekly keyword performance sync'},
+        {type:'manual-edit', label:'Keyword ownership assigned to city landing page',             section:'SEO',                    time:'15 Oct 2026, 02:00 PM', actor:'Anna K. — SEO Manager'},
+        {type:'status',      label:'Keyword status transition: free → owned',                    section:'SEO',                    time:'15 Oct 2026, 02:01 PM', actor:'System'},
+        {type:'system',      label:'Keyword record initialized',                                                    time:'01 Oct 2026, 09:00 AM', actor:'System'}
+      ]},
   {id:'kw-4', keyword:'eiffel tower skip the line', intent:'Transactional', volume:11200, similarityBand:'A', entityMatch:true, seasonal:false, status:'conflict', owningUrl:'https://rosotravel.com/en/france/paris/prod-8', pageType:'Attraction', ownershipTimestamp:'2 Jul 2026, 11:00 AM', history:[{label:'Ownership assigned', time:'2 Jul 2026, 11:00 AM', actor:'System'}, {label:'Conflict detected — cannibalizing near-page found', time:'18 Jul 2026, 8:00 AM', actor:'System'}]},
   {id:'kw-5', keyword:'dubai desert safari', intent:'Transactional', volume:18700, similarityBand:'A', entityMatch:true, seasonal:false, status:'locked', owningUrl:'/en/uae/dubai/things-to-do/', pageType:'Things-to-do', ownershipTimestamp:'5 Jun 2026, 10:00 AM', history:[{label:'Ownership locked', time:'5 Jun 2026, 10:00 AM', actor:'Admin'}]},
-  {id:'kw-6', keyword:'london christmas markets', intent:'Informational', volume:6400, similarityBand:'B', entityMatch:true, seasonal:true, status:'free', owningUrl:'', pageType:'', ownershipTimestamp:'', history:[]},
+  {id:'kw-6', keyword:'london christmas markets', intent:'Informational', volume:6400, similarityBand:'B', entityMatch:true, seasonal:true, status:'free', owningUrl:'', pageType:'', ownershipTimestamp:'', history:[
+        {type:'seo-run',     label:'Keyword ranking data refreshed via SEO pipeline',             section:'SEO',     time:'20 Oct 2026, 08:10 AM', actor:'System (Scheduled)',       reason:'Weekly keyword performance sync'},
+        {type:'manual-edit', label:'Keyword ownership assigned to city landing page',             section:'SEO',                    time:'15 Oct 2026, 02:00 PM', actor:'Anna K. — SEO Manager'},
+        {type:'status',      label:'Keyword status transition: free → owned',                    section:'SEO',                    time:'15 Oct 2026, 02:01 PM', actor:'System'},
+        {type:'system',      label:'Keyword record initialized',                                                    time:'01 Oct 2026, 09:00 AM', actor:'System'}
+      ]},
   {id:'kw-7', keyword:'burj khalifa observation deck', intent:'Transactional', volume:13100, similarityBand:'A', entityMatch:true, seasonal:false, status:'locked', owningUrl:'/en/uae/dubai/burj-khalifa/', pageType:'Attraction', ownershipTimestamp:'8 Jun 2026, 1:00 PM', history:[{label:'Ownership locked', time:'8 Jun 2026, 1:00 PM', actor:'SEO Lead'}]},
   {id:'kw-8', keyword:'egypt pyramids tour mix cairo', intent:'Mixed (Informational + Transactional)', volume:7300, similarityBand:'C', entityMatch:false, seasonal:false, status:'conflict', owningUrl:'/en/egypt/cairo/giza-pyramids/', pageType:'Attraction', ownershipTimestamp:'20 Jul 2026, 6:00 AM', history:[{label:'Ownership assigned', time:'20 Jul 2026, 6:00 AM', actor:'System'}, {label:'Conflict detected — mixed intent not in allowlist for this page type', time:'21 Jul 2026, 7:00 AM', actor:'System'}]},
-  {id:'kw-9', keyword:'tokyo food tour tsukiji', intent:'Transactional', volume:5200, similarityBand:'B', entityMatch:true, seasonal:false, status:'free', owningUrl:'', pageType:'', ownershipTimestamp:'', history:[]},
-  {id:'kw-10', keyword:'mumbai one day itinerary', intent:'Informational', volume:3100, similarityBand:'C', entityMatch:true, seasonal:false, status:'free', owningUrl:'', pageType:'', ownershipTimestamp:'', history:[]},
+  {id:'kw-9', keyword:'tokyo food tour tsukiji', intent:'Transactional', volume:5200, similarityBand:'B', entityMatch:true, seasonal:false, status:'free', owningUrl:'', pageType:'', ownershipTimestamp:'', history:[
+        {type:'seo-run',     label:'Keyword ranking data refreshed via SEO pipeline',             section:'SEO',     time:'20 Oct 2026, 08:10 AM', actor:'System (Scheduled)',       reason:'Weekly keyword performance sync'},
+        {type:'manual-edit', label:'Keyword ownership assigned to city landing page',             section:'SEO',                    time:'15 Oct 2026, 02:00 PM', actor:'Anna K. — SEO Manager'},
+        {type:'status',      label:'Keyword status transition: free → owned',                    section:'SEO',                    time:'15 Oct 2026, 02:01 PM', actor:'System'},
+        {type:'system',      label:'Keyword record initialized',                                                    time:'01 Oct 2026, 09:00 AM', actor:'System'}
+      ]},
+  {id:'kw-10', keyword:'mumbai one day itinerary', intent:'Informational', volume:3100, similarityBand:'C', entityMatch:true, seasonal:false, status:'free', owningUrl:'', pageType:'', ownershipTimestamp:'', history:[
+        {type:'seo-run',     label:'Keyword ranking data refreshed via SEO pipeline',             section:'SEO',     time:'20 Oct 2026, 08:10 AM', actor:'System (Scheduled)',       reason:'Weekly keyword performance sync'},
+        {type:'manual-edit', label:'Keyword ownership assigned to city landing page',             section:'SEO',                    time:'15 Oct 2026, 02:00 PM', actor:'Anna K. — SEO Manager'},
+        {type:'status',      label:'Keyword status transition: free → owned',                    section:'SEO',                    time:'15 Oct 2026, 02:01 PM', actor:'System'},
+        {type:'system',      label:'Keyword record initialized',                                                    time:'01 Oct 2026, 09:00 AM', actor:'System'}
+      ]},
   {id:'kw-11', keyword:'best dubai desert safari guide for first timers', intent:'Informational', volume:2400, similarityBand:'B', entityMatch:true, seasonal:false, status:'locked', owningUrl:'/blog/dubai-desert-safari-guide/', pageType:'Blog', ownershipTimestamp:'1 Jun 2026, 8:00 AM', history:[{label:'Blog keyword target declared at article creation', time:'1 Jun 2026, 8:00 AM', actor:'Gooru Guide (Blog editor)'}]},
   {id:'kw-12', keyword:'usa vacation packages', intent:'Transactional', volume:16800, similarityBand:'A', entityMatch:true, seasonal:false, status:'locked', owningUrl:'/en/united-states/', pageType:'Country', ownershipTimestamp:'3 Jun 2026, 10:00 AM', history:[{label:'Ownership locked', time:'3 Jun 2026, 10:00 AM', actor:'SEO Lead'}]},
   {id:'kw-13', keyword:'north america travel guide', intent:'Informational', volume:8900, similarityBand:'A', entityMatch:true, seasonal:false, status:'locked', owningUrl:'/en/north-america/', pageType:'Region', ownershipTimestamp:'4 Jun 2026, 11:00 AM', history:[{label:'Ownership locked', time:'4 Jun 2026, 11:00 AM', actor:'SEO Lead'}]}
@@ -1868,7 +2331,25 @@ DATA.homepage = {
     offerCopy: 'Get curated picks and planning shortcuts — join the Rosotravel circle.',
     consentRequired: true, showDestinationPicker: true, frequency: 'Once per session until submitted'
   },
-  history: [{label:'Homepage configuration initialized', time:new Date().toLocaleString(), actor:'System'}]
+  history: [
+    // Most recent first
+    {type:'unlock',       label:'Section unlocked — AI may now regenerate this content',    section:'Hero',             language:'DE', time:'22 Oct 2026, 11:42 AM', actor:'Anna K. — SEO Manager',   reason:'Approved updated copy from translation team; AI regen permitted'},
+    {type:'lock',         label:'Section manually locked — overrides active',                section:'Hero',             language:'EN', time:'22 Oct 2026, 09:14 AM', actor:'Anna K. — SEO Manager',   reason:'Final approved copy for H1 variant — do not overwrite'},
+    {type:'manual-edit',  label:'Hero H1 variant updated for "Family Trip" audience',        section:'Hero',             language:'EN', time:'21 Oct 2026, 04:30 PM', actor:'Anna K. — SEO Manager'},
+    {type:'regen',        label:'AI regeneration triggered — Why Choose Us section',         section:'Why Choose Us',                   time:'21 Oct 2026, 02:17 PM', actor:'System (AI Pipeline)',    reason:'Content flagged OUTDATED after competitor pricing change'},
+    {type:'lock',         label:'Section manually locked — overrides active',                section:'Why Choose Us',    language:'FR', time:'21 Oct 2026, 01:55 PM', actor:'Marc D. — Content Lead',  reason:'Translated copy approved by legal — freeze until next review cycle'},
+    {type:'seo-run',      label:'SEO pipeline run completed — homepage metadata refreshed',  section:'SEO',                             time:'20 Oct 2026, 08:00 AM', actor:'System (Scheduled)',      reason:'Weekly scheduled SEO refresh — all languages'},
+    {type:'status',       label:'SEO status transition: OUTDATED → RUN',                     section:'SEO',              language:'PL', time:'20 Oct 2026, 08:01 AM', actor:'System (AI Pipeline)'},
+    {type:'ai-gen',       label:'AI content generated — SEO meta description',               section:'SEO',              language:'NL', time:'19 Oct 2026, 03:22 PM', actor:'System (AI Pipeline)',    reason:'Triggered after product catalog update in Amsterdam cluster'},
+    {type:'status',       label:'SEO status transition: NOT RUN → RUN',                      section:'SEO',              language:'NL', time:'19 Oct 2026, 03:23 PM', actor:'System (AI Pipeline)'},
+    {type:'lock',         label:'Section manually locked — overrides active',                section:'SEO',              language:'IT', time:'18 Oct 2026, 11:10 AM', actor:'Sofia R. — Italy Market', reason:'Custom meta title for Italian market — must not be AI-overwritten'},
+    {type:'unlock',       label:'Section unlocked — AI may now regenerate this content',    section:'SEO',              language:'ES', time:'17 Oct 2026, 05:45 PM', actor:'Carlos M. — SEO Manager', reason:'Spanish market SEO copy review complete; unlocking for next pipeline run'},
+    {type:'pipeline',     label:'Pipeline-triggered update — Homepage top destinations',                                               time:'16 Oct 2026, 09:30 AM', actor:'System (Pipeline)',       reason:'New city onboarded: Lisbon — top destinations block refreshed automatically'},
+    {type:'version',      label:'Homepage version snapshot saved',                                                                    time:'15 Oct 2026, 06:00 PM', actor:'System'},
+    {type:'manual-edit',  label:'Why Choose Us bullets revised — tone adjusted',             section:'Why Choose Us',    language:'EN', time:'14 Oct 2026, 02:00 PM', actor:'Anna K. — SEO Manager'},
+    {type:'status',       label:'SEO status transition: RUN → OUTDATED',                     section:'SEO',              language:'DE', time:'13 Oct 2026, 10:15 AM', actor:'System (AI Pipeline)',    reason:'Source product data changed — regeneration required'},
+    {type:'system',       label:'Homepage configuration initialized',                                                                  time:'01 Oct 2026, 09:00 AM', actor:'System'}
+  ]
 };
 
 // ============================================================
@@ -3633,8 +4114,8 @@ const Comp = {
   // FAQs, Facilities) are next phase — stepper shows them as
   // upcoming but they are not yet clickable.
   // ============================================================
-  PRODUCT_STEPS: ['Basic Info', 'Description & Highlight', 'Tag & Included/Excluded', 'Gallery', 'Tour Options', 'FAQs', 'Facilities', 'Model C Classification', 'Meeting Point & Pickup', 'Cancellation Policy', 'Guide & Snapshot Media'],
-  PRODUCT_BUILT_STEPS: 11,
+  PRODUCT_STEPS: ['Basic Info', 'Description & Highlight', 'Tag & Included/Excluded', 'Gallery', 'Tour Options', 'FAQs', 'Facilities', 'Model C Classification', 'Meeting Point & Pickup', 'Cancellation Policy'],
+  PRODUCT_BUILT_STEPS: 10,
 
   // Model C Classification (Internal Product) — per scope_part_2.pdf 3.3X.
   MODELC_CLASSES: ['TOUR','ACTIVITY','TICKET','CITY_PASS_CITY_CARD','WORKSHOP','TRANSFER'],
@@ -5631,12 +6112,37 @@ const Comp = {
   // HOME-03 — audit entries have always carried an `actor`, but the Timeline
   // never rendered it, so no history view in the panel showed WHO made a
   // change. Fixed here rather than per-page, since every module uses this.
+  // HOME-04 — Enhanced to support section, language, reason, type fields
+  // per client feedback: "Demonstrate lock and unlock records identifying
+  // the section, language, actor, time and reason."
   Timeline(items){
-    return `<div class="timeline">${items.map(it => `
+    const TYPE_BADGE = {
+      'lock':       {label:'Locked',        cls:'badge-danger'},
+      'unlock':     {label:'Unlocked',      cls:'badge-success'},
+      'seo-run':    {label:'SEO Run',       cls:'badge-info'},
+      'regen':      {label:'Regenerated',   cls:'badge-warning'},
+      'manual-edit':{label:'Manual Edit',   cls:'badge-secondary'},
+      'status':     {label:'Status Change', cls:'badge-info'},
+      'ai-gen':     {label:'AI Generated',  cls:'badge-purple'},
+      'pipeline':   {label:'Pipeline',      cls:'badge-secondary'},
+      'version':    {label:'Version',       cls:'badge-secondary'},
+      'system':     {label:'System',        cls:'badge-light'}
+    };
+    return `<div class="timeline">${items.map(it => {
+      const badge = it.type && TYPE_BADGE[it.type]
+        ? `<span class="badge ${TYPE_BADGE[it.type].cls}" style="margin-left:8px;font-size:10px;vertical-align:middle;">${TYPE_BADGE[it.type].label}</span>`
+        : '';
+      const meta = [];
+      if (it.section)  meta.push(`<span class="tl-meta-key">Section:</span> <strong>${Comp._escHtml(it.section)}</strong>`);
+      if (it.language) meta.push(`<span class="tl-meta-key">Language:</span> <strong>${Comp._escHtml(it.language)}</strong>`);
+      if (it.reason)   meta.push(`<span class="tl-meta-key">Reason:</span> <em>${Comp._escHtml(it.reason)}</em>`);
+      return `
       <div class="timeline-item">
-        <p class="timeline-label">${it.label}</p>
+        <p class="timeline-label">${it.label}${badge}</p>
         <p class="timeline-time">${it.time}${it.actor ? ` &middot; <span class="timeline-actor">${Comp._escHtml(it.actor)}</span>` : ''}</p>
-      </div>`).join('')}</div>`;
+        ${meta.length ? `<p class="timeline-meta">${meta.join(' &nbsp;|&nbsp; ')}</p>` : ''}
+      </div>`;
+    }).join('')}</div>`;
   },
   CANCEL_REASONS: ['Change of plans', 'Found a better price elsewhere', 'Weather concerns', 'Health / family emergency', 'Duplicate booking', 'Other'],
   processManualTimeout(id){
@@ -8392,7 +8898,8 @@ Comp.renderOverridesTab = function(entity, sections){
     'region-highlights':'Highlights','region-facts':'Facts & Curiosities',
     'region-about':'About Rosotravel','region-whyvisit':'What makes this place special',
     'city-seo':'SEO Data','city-info':'City Information','city-faq':'FAQ',
-    'city-localtips':'Local Tips','city-about':'About Rosotravel'
+    'city-localtips':'Local Tips','city-about':'About Rosotravel',
+    'hero':'Hero','whyChooseUs':'Why Travelers Choose Rosotravel'
   };
 
   const headerRow = '<thead><tr>' +
@@ -11938,37 +12445,18 @@ function pageProductDetails(params){
   } else if (tab === 'touroptions') {
     const options = p.tourOptions || [];
     const viatorLocked = Comp.isViatorLocked(p);
-    const optionRowsHtml = options.map((o, i) => {
-      const tiers = o.pricingTiers || [];
-      const range = Comp._tourOptionPriceRange(tiers);
-      const priceLabel = range.label;
-      const availCount = (o.availabilitySlots || []).length;
-      const duration = o.duration || (o.hours||o.minutes ? `${o.hours||0}h ${o.minutes||0}m` : 'No duration set');
-      const rowClick = viatorLocked ? `Comp.viewTourOptionDetails('${p.id}', ${i})` : `Comp.openTourOptionPage(${i}, {mode:'product', productId:'${p.id}'})`;
-      return `
-      <div class="list-row row-clickable" tabindex="0" role="button" onclick="${rowClick}">
-        <div class="list-thumb" aria-hidden="true"></div>
-        <div class="list-row__body">
-          <p class="list-row__title">${o.title || 'Untitled option'}</p>
-          <p class="list-row__meta">${o.ticketType ? o.ticketType + ' \u00b7 ' : ''}${duration} \u00b7 ${(o.languages||[]).join('/') || 'No language set'} \u00b7 ${tiers.length} pricing tier${tiers.length===1?'':'s'} (${priceLabel}) \u00b7 ${availCount} availability slot${availCount===1?'':'s'}${o.capacity ? ` \u00b7 Capacity: ${o.capacity}` : ''}</p>
-        </div>
-        <div class="attraction-actions">
-          ${viatorLocked
-            ? `<button type="button" class="btn btn-sm" onclick="event.stopPropagation(); Comp.viewTourOptionDetails('${p.id}', ${i})">View details</button>`
-            : `<button type="button" class="btn btn-sm" onclick="event.stopPropagation(); Comp.openTourOptionPage(${i}, {mode:'product', productId:'${p.id}'})">Edit</button>
-               <button type="button" class="btn btn-sm" onclick="event.stopPropagation(); Comp.cloneTourOption('${p.id}', ${i})">Clone</button>
-               <button type="button" class="btn btn-sm btn-danger" onclick="event.stopPropagation(); Comp.productRemoveTourOption('${p.id}', ${i})">Delete</button>`}
-        </div>
-      </div>`;
-    }).join('');
     tabBody = `
     ${Comp.Card({body:`
-      <div class="section-header-row">
-        <p class="card-title">Tour Options &amp; Pricing</p>
-        ${viatorLocked ? '' : Comp.Button('+ Add tour option', {size:'btn-sm', variant:'btn-primary', onclick:`Comp.openTourOptionPage(null, {mode:'product', productId:'${p.id}'})`})}
+      <div class="section-header-row" style="margin-bottom:16px;">
+        <p class="card-title" style="margin:0;">Tour Options &amp; Pricing <span class="bokun-crm-badge" style="margin-left:8px; vertical-align:middle;">Bokun CRM</span></p>
       </div>
-      <p class="field-hint card-hint card-hint--loose">${viatorLocked ? Comp.viatorLockNote('tour options, pricing and availability are synced directly from Viator in real time') : 'At least one tour option is required for a bookable product. Click an option to edit its languages, group size, pricing tiers, and availability.'}</p>
-      ${options.length ? `<div class="attractions-list">${optionRowsHtml}</div>` : `<p class="empty-state">No tour options yet. Click "+ Add tour option" to add one.</p>`}`})}
+      ${viatorLocked
+        ? `<p class="field-hint card-hint card-hint--loose">${Comp.viatorLockNote('tour options, pricing and availability are synced directly from Viator in real time')}</p>
+           ${options.length
+             ? options.map((o, i) => Comp._bokunOptionCardHtml(o, i, p.id)).join('')
+             : '<p class="empty-state">No tour options synced from Viator yet.</p>'}`
+        : Comp._bokunOptionsUiHtml(options, p.id)
+      }`})}
     ${Comp.Card({title:'Product-wide Block-outs', hint:`Dates when this entire product (all tour options) is unavailable for booking — regardless of individual availability slots. The product stays Active/published; only bookings on these dates are blocked.`, body:`
       ${(p.blockOutDates||[]).map((b,i) => `
         <div class="field-row items-end">
@@ -12233,7 +12721,7 @@ function pageProductDetails(params){
   }
 
   return Comp.Shell(`
-    ${Comp.Breadcrumb([{label:'Master Data'}, {label:'Products', route:'productListing'}, {label:p.name}])}
+    ${Comp.Breadcrumb([{label:'Products', route:'productListing'}, {label:p.name}])}
     ${Comp.PageHeader({title:`${p.name}`, actions:`
         ${Comp.Button('Duplicate', {size:'btn-sm', onclick:`Comp.duplicateProduct('${p.id}')`})}
         ${Comp.Button(p.status==='Active'?'Deactivate':'Activate', {variant: p.status==='Active' ? 'btn-danger' : '', onclick:`Comp.toggleProductStatus('${p.id}')`})}`})}
@@ -12646,8 +13134,8 @@ Comp.productDestinationCard = function(p){
       })}
     </div>
     <div class="field-row">
-      <div class="field"><label>Country</label><input value="${Comp._escHtml(d.country)}" readonly style="background:var(--surface-2);"><p class="field-hint">Auto-filled from City.</p></div>
-      <div class="field"><label>Region</label><input value="${Comp._escHtml(d.region)}" readonly style="background:var(--surface-2);"><p class="field-hint">Auto-filled from City.</p></div>
+      <div class="field"><label>Country</label><input class="card-input-derived" value="${Comp._escHtml(d.country)}" readonly><p class="field-hint">${ICON.lock} Auto-filled from City — not manually editable.</p></div>
+      <div class="field"><label>Region</label><input class="card-input-derived" value="${Comp._escHtml(d.region)}" readonly><p class="field-hint">${ICON.lock} Auto-filled from City — not manually editable.</p></div>
       <div class="field">
         <label for="pdTz-${p.id}">Timezone <span class="required">*</span></label>
         <select id="pdTz-${p.id}" onchange="Comp.productSetDestTimezone('${p.id}', this.value)">
@@ -13410,6 +13898,301 @@ Comp.productRemoveTourOption = function(productId, index){
   p.tourOptions.splice(index, 1);
   render();
 };
+// ─── Bokun CRM Option Search & Cards ───────────────────────────────────────
+Comp.BOKUN_MOCK_OPTIONS = [
+  {
+    optionCode: 'OPT-BKN-001',
+    name: 'Standard Guided Tour – Morning',
+    shortDescription: 'A 3-hour morning guided tour covering all major highlights with a certified local guide.',
+    longDescription: 'Join us on this comprehensive 3-hour morning excursion. Our certified local guide will take you through the most iconic sites while sharing fascinating historical and cultural insights. Perfect for first-time visitors and those seeking a deep dive into the destination\'s heritage.',
+    includes: ['Professional English-speaking guide', 'Entry tickets to all sites', 'Bottled water', 'Hotel pickup in city center'],
+    excludes: ['Gratuities (optional)', 'Personal expenses', 'Lunch'],
+    photos: ['tour-morning-1.jpg', 'tour-morning-2.jpg', 'tour-morning-3.jpg'],
+    knowBeforeYouGo: 'Wear comfortable walking shoes. The tour involves approximately 2 km of walking. Not suitable for guests with severe mobility issues. Arrive at meeting point 10 minutes early.',
+    meetingPoint: 'Main entrance of City Central Park, Gate A. Look for the guide holding a blue Rosotravel flag.',
+    pricing: [
+      { type: 'Adult', pax1: 49, pax2: 44, pax3: 39, pax4: 34, pax5: 29 },
+      { type: 'Child (5–12)', pax1: 25, pax2: 22, pax3: 19, pax4: 17, pax5: 15 },
+      { type: 'Infant (0–4)', pax1: 0, pax2: 0, pax3: 0, pax4: 0, pax5: 0 }
+    ],
+    availability: [
+      { dateRange: '01 Jan 2025 – 31 Dec 2025', days: 'Mon, Wed, Fri, Sat', timeSlots: ['08:00', '09:00', '10:00'] }
+    ]
+  },
+  {
+    optionCode: 'OPT-BKN-002',
+    name: 'Premium Private Tour – Full Day',
+    shortDescription: 'Exclusive full-day private tour with a dedicated expert guide for your group only.',
+    longDescription: 'Experience ultimate flexibility with our fully private full-day tour. Your dedicated expert guide tailors the itinerary to your interests. Enjoy a relaxed pace with no crowds, personal attention, and insider access to hidden gems not covered on group tours.',
+    includes: ['Dedicated private expert guide (8 hrs)', 'All entry tickets', 'Gourmet lunch at local restaurant', 'Private air-conditioned vehicle', 'Hotel pickup & drop-off city-wide'],
+    excludes: ['Gratuities (optional)', 'Alcoholic beverages', 'Personal shopping'],
+    photos: ['tour-private-1.jpg', 'tour-private-2.jpg'],
+    knowBeforeYouGo: 'Itinerary can be customized upon request at booking. Please mention any dietary restrictions or mobility needs during booking so we can arrange accordingly.',
+    meetingPoint: 'Hotel lobby pickup – driver will meet you at your accommodation.',
+    pricing: [
+      { type: 'Adult', pax1: 180, pax2: 140, pax3: 110, pax4: 95, pax5: 85 },
+      { type: 'Child (5–12)', pax1: 90, pax2: 70, pax3: 55, pax4: 48, pax5: 42 },
+      { type: 'Infant (0–4)', pax1: 0, pax2: 0, pax3: 0, pax4: 0, pax5: 0 }
+    ],
+    availability: [
+      { dateRange: '01 Jan 2025 – 31 Dec 2025', days: 'Daily', timeSlots: ['08:00', '09:00'] }
+    ]
+  },
+  {
+    optionCode: 'OPT-BKN-003',
+    name: 'Sunset Boat Experience',
+    shortDescription: '2-hour scenic sunset boat cruise with refreshments and panoramic views.',
+    longDescription: 'Sail into a breathtaking sunset aboard our comfortable boat. The 2-hour cruise offers stunning panoramic views of the coastline. Enjoy complimentary refreshments as our knowledgeable crew shares stories about the local waterways. An unforgettable romantic and family-friendly experience.',
+    includes: ['2-hour boat cruise', 'Welcome drink (alcoholic & non-alcoholic options)', 'Light snacks', 'Life jackets provided', 'Onboard commentary'],
+    excludes: ['Hotel transfers', 'Additional drinks', 'Photography package (available on board)'],
+    photos: ['boat-sunset-1.jpg', 'boat-sunset-2.jpg', 'boat-sunset-3.jpg', 'boat-sunset-4.jpg'],
+    knowBeforeYouGo: 'Not recommended for guests with severe seasickness. Boarding closes 10 minutes before departure. Children under 3 must wear life jackets at all times. Dress code: smart casual.',
+    meetingPoint: 'Marina Pier 7, Berth B. Parking available at Marina Square (paid).',
+    pricing: [
+      { type: 'Adult', pax1: 65, pax2: 58, pax3: 52, pax4: 47, pax5: 43 },
+      { type: 'Child (3–11)', pax1: 35, pax2: 30, pax3: 27, pax4: 25, pax5: 23 },
+      { type: 'Infant (0–2)', pax1: 0, pax2: 0, pax3: 0, pax4: 0, pax5: 0 }
+    ],
+    availability: [
+      { dateRange: '01 Mar 2025 – 30 Nov 2025', days: 'Tue, Thu, Sat, Sun', timeSlots: ['17:30', '18:00', '18:30'] }
+    ]
+  },
+  {
+    optionCode: 'OPT-BKN-004',
+    name: 'Cultural Cooking Class',
+    shortDescription: 'Hands-on cooking class learning authentic local recipes with a professional chef.',
+    longDescription: 'Immerse yourself in the local culinary tradition with this immersive 3-hour cooking class. A professional chef guides you through selecting fresh ingredients at the market (optional add-on) and preparing three traditional dishes from scratch. Take home the recipes and your newfound skills.',
+    includes: ['3-hour cooking class', 'All ingredients and equipment', 'Printed recipe booklet', 'Full meal of dishes prepared', 'Cooking apron to keep'],
+    excludes: ['Market visit add-on (book separately)', 'Alcoholic beverages', 'Hotel transfers'],
+    photos: ['cooking-class-1.jpg', 'cooking-class-2.jpg'],
+    knowBeforeYouGo: 'Please notify us of any food allergies or dietary restrictions at booking. Wear closed-toe shoes in the kitchen. Classes are kept small – max 12 participants.',
+    meetingPoint: 'Culinary Studio, 14 Old Market Street. Ring the doorbell on arrival.',
+    pricing: [
+      { type: 'Adult', pax1: 75, pax2: 68, pax3: 62, pax4: 58, pax5: 55 },
+      { type: 'Child (8–14)', pax1: 55, pax2: 50, pax3: 46, pax4: 43, pax5: 40 }
+    ],
+    availability: [
+      { dateRange: '01 Jan 2025 – 31 Dec 2025', days: 'Mon, Tue, Wed, Thu, Fri', timeSlots: ['10:00', '14:00', '18:00'] }
+    ]
+  }
+];
+
+// State: bokun search per-context
+Comp._bokunSearchState = {};
+
+Comp._bokunCtxKey = function(contextId){
+  // contextId = 'wizard' or productId
+  return contextId || 'wizard';
+};
+
+Comp.bokunOptionSearch = function(contextId){
+  const key = Comp._bokunCtxKey(contextId);
+  const inputEl = document.getElementById('bokun-search-input-' + key);
+  if (!inputEl) return;
+  const code = (inputEl.value || '').trim().toUpperCase();
+  if (!code) { Comp.showToast('Please enter an option code.', 'warning'); return; }
+
+  const resultEl = document.getElementById('bokun-search-result-' + key);
+  if (!resultEl) return;
+
+  resultEl.innerHTML = '<div class="bokun-searching"><div class="spinner"></div> Searching Bokun CRM…</div>';
+
+  setTimeout(function(){
+    const found = Comp.BOKUN_MOCK_OPTIONS.find(o => o.optionCode.toUpperCase() === code);
+    if (!found) {
+      resultEl.innerHTML = '<div class="bokun-no-result">No option found with code <strong>' + Comp._escHtml(code) + '</strong>. Please check the code and try again.</div>';
+      return;
+    }
+
+    // Check if already added
+    let opts;
+    if (contextId && contextId !== 'wizard') {
+      const p = DATA.products.find(x => x.id === contextId);
+      opts = p ? (p.tourOptions || []) : [];
+    } else {
+      opts = Comp._productDraft ? (Comp._productDraft.tourOptions || []) : [];
+    }
+    const alreadyAdded = opts.some(o => o.optionCode === found.optionCode);
+
+    resultEl.innerHTML = '<div class="bokun-search-result">' +
+      '<div class="bokun-search-result-header">' +
+        '<span class="bokun-option-code">' + Comp._escHtml(found.optionCode) + '</span>' +
+        '<span class="bokun-option-name">' + Comp._escHtml(found.name) + '</span>' +
+        '<span class="bokun-crm-badge">Bokun CRM</span>' +
+      '</div>' +
+      '<p style="font-size:var(--fs-sm); color:var(--text-secondary); margin:0 0 12px;">' + Comp._escHtml(found.shortDescription) + '</p>' +
+      (alreadyAdded
+        ? '<p style="font-size:var(--fs-sm); color:var(--warning-700); font-weight:600;">⚠ This option has already been added to this product.</p>'
+        : '<button type="button" class="btn btn-sm btn-primary" onclick="Comp.bokunAddOption(\'' + Comp._escAttr(found.optionCode) + '\', \'' + Comp._escAttr(contextId || 'wizard') + '\')">+ Add this Option</button>') +
+    '</div>';
+  }, 700);
+};
+
+Comp.bokunAddOption = function(optionCode, contextId){
+  const found = Comp.BOKUN_MOCK_OPTIONS.find(o => o.optionCode === optionCode);
+  if (!found) return;
+
+  const optObj = {
+    optionCode: found.optionCode,
+    name: found.name,
+    shortDescription: found.shortDescription,
+    longDescription: found.longDescription,
+    includes: found.includes,
+    excludes: found.excludes,
+    photos: found.photos,
+    knowBeforeYouGo: found.knowBeforeYouGo,
+    meetingPoint: found.meetingPoint,
+    pricing: found.pricing,
+    availability: found.availability,
+    _bokunSynced: true,
+    _expanded: false
+  };
+
+  if (contextId && contextId !== 'wizard') {
+    const p = DATA.products.find(x => x.id === contextId);
+    if (!p) return;
+    p.tourOptions = p.tourOptions || [];
+    p.tourOptions.push(optObj);
+    p.contentHistory = p.contentHistory || [];
+    p.contentHistory.unshift({ label: 'Tour option added from Bokun CRM — "' + found.name + '"', time: new Date().toLocaleString(), actor: 'Admin (you)' });
+  } else {
+    Comp._productDraft = Comp._productDraft || {};
+    Comp._productDraft.tourOptions = Comp._productDraft.tourOptions || [];
+    Comp._productDraft.tourOptions.push(optObj);
+  }
+
+  // Clear search
+  const inputEl = document.getElementById('bokun-search-input-' + contextId);
+  if (inputEl) inputEl.value = '';
+  const resultEl = document.getElementById('bokun-search-result-' + contextId);
+  if (resultEl) resultEl.innerHTML = '';
+
+  Comp.showToast('Option "' + found.name + '" added from Bokun CRM.', 'success');
+  render();
+};
+
+Comp.bokunRemoveOption = function(index, contextId){
+  let opts;
+  if (contextId && contextId !== 'wizard') {
+    const p = DATA.products.find(x => x.id === contextId);
+    if (!p) return;
+    opts = p.tourOptions || [];
+    const name = opts[index] ? opts[index].name : 'this option';
+    Comp.openConfirm({
+      title: 'Remove tour option?',
+      desc: 'Remove "' + name + '" from this product? It can be re-added by searching the option code again.',
+      confirmLabel: 'Remove', danger: true,
+      onConfirm: () => {
+        opts.splice(index, 1);
+        const prod = DATA.products.find(x => x.id === contextId);
+        if (prod) { prod.contentHistory = prod.contentHistory || []; prod.contentHistory.unshift({label:'Tour option removed — "' + name + '"', time:new Date().toLocaleString(), actor:'Admin (you)'}); }
+        render();
+      }
+    });
+  } else {
+    const d = Comp._productDraft;
+    if (!d) return;
+    opts = d.tourOptions || [];
+    const name = opts[index] ? opts[index].name : 'this option';
+    Comp.openConfirm({
+      title: 'Remove tour option?',
+      desc: 'Remove "' + name + '" from this product?',
+      confirmLabel: 'Remove', danger: true,
+      onConfirm: () => { opts.splice(index, 1); render(); }
+    });
+  }
+};
+
+Comp.bokunToggleExpand = function(index, contextId){
+  let opts;
+  if (contextId && contextId !== 'wizard') {
+    const p = DATA.products.find(x => x.id === contextId);
+    if (!p) return;
+    opts = p.tourOptions || [];
+  } else {
+    opts = (Comp._productDraft || {}).tourOptions || [];
+  }
+  if (!opts[index]) return;
+  opts[index]._expanded = !opts[index]._expanded;
+  render();
+};
+
+Comp._bokunOptionCardHtml = function(opt, index, contextId){
+  const isExpanded = !!opt._expanded;
+  const pricing = opt.pricing || [];
+  const paxCols = pricing.length > 0 ? Object.keys(pricing[0]).filter(k => k !== 'type') : [];
+
+  // Build pricing table header
+  let pricingTableHtml = '';
+  if (pricing.length > 0) {
+    const headerCells = paxCols.map(p => {
+      const n = parseInt(p.replace('pax', ''), 10);
+      return '<th>' + n + (n === 1 ? ' pax' : ' pax') + '</th>';
+    }).join('');
+    const rows = pricing.map(row => {
+      const cells = paxCols.map(pk => '<td>€' + (row[pk] || 0) + '</td>').join('');
+      return '<tr><td><strong>' + Comp._escHtml(row.type) + '</strong></td>' + cells + '</tr>';
+    }).join('');
+    pricingTableHtml = '<table class="bokun-pricing-table">' +
+      '<thead><tr><th>Type</th>' + headerCells + '</tr></thead>' +
+      '<tbody>' + rows + '</tbody>' +
+      '</table>';
+  }
+
+  // Availability chips
+  const availHtml = (opt.availability || []).map(a =>
+    '<div class="bokun-avail-chip">📅 ' + Comp._escHtml(a.dateRange) + ' · ' + Comp._escHtml(a.days) + ' · ' + (a.timeSlots||[]).join(', ') + '</div>'
+  ).join('');
+
+  // Photos
+  const photoHtml = (opt.photos || []).map((ph, pi) =>
+    '<div class="bokun-photo-thumb">📷 Photo ' + (pi+1) + '</div>'
+  ).join('');
+
+  return '<div class="bokun-option-card" id="bokun-opt-card-' + contextId + '-' + index + '">' +
+    '<div class="bokun-option-card-header" onclick="Comp.bokunToggleExpand(' + index + ', \'' + Comp._escAttr(contextId) + '\')">' +
+      '<span class="bokun-option-code">' + Comp._escHtml(opt.optionCode || ('OPT-' + index)) + '</span>' +
+      '<span class="bokun-option-name">' + Comp._escHtml(opt.name || opt.title || 'Untitled Option') + '</span>' +
+      (opt._bokunSynced ? '<span class="bokun-crm-badge">Bokun CRM</span>' : '') +
+      '<button type="button" class="bokun-option-expand-btn' + (isExpanded ? ' is-open' : '') + '" onclick="event.stopPropagation(); Comp.bokunToggleExpand(' + index + ', \'' + Comp._escAttr(contextId) + '\')">▶</button>' +
+      '<button type="button" class="btn btn-sm btn-danger" style="margin-left:8px;" onclick="event.stopPropagation(); Comp.bokunRemoveOption(' + index + ', \'' + Comp._escAttr(contextId) + '\')">Remove</button>' +
+    '</div>' +
+    '<div class="bokun-option-body' + (isExpanded ? ' is-open' : '') + '">' +
+      // Short description
+      '<div class="bokun-option-section"><p class="bokun-option-section-title">Short Description</p><p class="bokun-option-text">' + Comp._escHtml(opt.shortDescription || '—') + '</p></div>' +
+      // Long description
+      '<div class="bokun-option-section"><p class="bokun-option-section-title">Full Description</p><p class="bokun-option-text">' + Comp._escHtml(opt.longDescription || '—') + '</p></div>' +
+      // Includes
+      '<div class="bokun-option-section"><p class="bokun-option-section-title">Includes</p><ul style="margin:0; padding-left:18px; font-size:var(--fs-sm); color:var(--text-primary);">' + (opt.includes||[]).map(i => '<li>' + Comp._escHtml(i) + '</li>').join('') + '</ul></div>' +
+      // Excludes
+      '<div class="bokun-option-section"><p class="bokun-option-section-title">Excludes</p><ul style="margin:0; padding-left:18px; font-size:var(--fs-sm); color:var(--text-primary);">' + (opt.excludes||[]).map(e => '<li>' + Comp._escHtml(e) + '</li>').join('') + '</ul></div>' +
+      // Photos
+      (photoHtml ? '<div class="bokun-option-section"><p class="bokun-option-section-title">Photos</p><div class="bokun-photos-row">' + photoHtml + '</div></div>' : '') +
+      // Know Before You Go
+      '<div class="bokun-option-section"><p class="bokun-option-section-title">Know Before You Go</p><p class="bokun-option-text">' + Comp._escHtml(opt.knowBeforeYouGo || '—') + '</p></div>' +
+      // Meeting Point
+      '<div class="bokun-option-section"><p class="bokun-option-section-title">Meeting Point</p><p class="bokun-option-text">📍 ' + Comp._escHtml(opt.meetingPoint || '—') + '</p></div>' +
+      // Pricing
+      '<div class="bokun-option-section"><p class="bokun-option-section-title">Pricing (per traveler type × pax count)</p>' + (pricingTableHtml || '<p class="bokun-option-text">No pricing data.</p>') + '</div>' +
+      // Availability
+      '<div class="bokun-option-section"><p class="bokun-option-section-title">Availability</p><div class="bokun-avail-row">' + (availHtml || '<span class="bokun-option-text">No availability data.</span>') + '</div></div>' +
+    '</div>' +
+  '</div>';
+};
+
+Comp._bokunOptionsUiHtml = function(opts, contextId){
+  const cardsHtml = opts.map((opt, i) => Comp._bokunOptionCardHtml(opt, i, contextId)).join('');
+  return '<div class="bokun-search-row">' +
+    '<input id="bokun-search-input-' + contextId + '" type="text" placeholder="Enter Bokun Option Code (e.g. OPT-BKN-001)" style="flex:1;" />' +
+    '<button type="button" class="btn btn-sm btn-primary" onclick="Comp.bokunOptionSearch(\'' + Comp._escAttr(contextId) + '\')">Search Bokun</button>' +
+  '</div>' +
+  '<p class="field-hint" style="margin-top:-10px; margin-bottom:14px;">Options are sourced from <strong>Bokun CRM</strong>. Search by option code to find and add options to this product.</p>' +
+  '<div id="bokun-search-result-' + contextId + '"></div>' +
+  (opts.length
+    ? '<p style="font-size:var(--fs-sm); font-weight:700; color:var(--text-secondary); margin:0 0 10px;">' + opts.length + ' option' + (opts.length === 1 ? '' : 's') + ' added</p>' + cardsHtml
+    : '<p class="empty-state" style="margin-top:0;">No tour options added yet. Search a Bokun option code above to add one.</p>');
+};
+
 Comp.addProductBlockOut = function(productId){
   const p = DATA.products.find(x => x.id === productId);
   if (!p) return;
@@ -16855,6 +17638,7 @@ function pageHomeManagement(params){
   const tabs = [
     {id:'seo', label:'SEO Content'},
     {id:'keywords', label:'Keyword Assign'},
+    {id:'overrides', label:'Manual Overrides'},
     {id:'history', label:'History / Audit'}
   ];
 
@@ -16888,7 +17672,7 @@ function pageHomeManagement(params){
           ${h.hero.mediaId
             ? `<div class="list-row items-center">
                 <div class="list-thumb" aria-hidden="true"></div>
-                <div class="list-row__body flex-1"><p class="list-row__title">${Comp._escHtml(h.hero.mediaId)}</p><p class="list-row__meta">Alt text: ${h.hero.altText ? Comp._escHtml(h.hero.altText) : '<span style="color:var(--danger-600);">Missing</span>'}</p></div>
+                <div class="list-row__body flex-1"><p class="list-row__title">${Comp._escHtml(h.hero.mediaId)}</p><p class="list-row__meta" style="display:flex;align-items:center;gap:6px;">Alt: <span id="homeHeroAltDisplay">${h.hero.altText ? Comp._escHtml(h.hero.altText) : '<span style="color:var(--danger-600);">Missing</span>'}</span>${(!h.sectionLocks.hero) ? `<button type="button" class="mds-regen-btn" onclick="Comp._homeRegenAlt('hero','homeHeroAltDisplay',${JSON.stringify(h.hero.mediaId)})">↺ Regenerate</button>` : ''}</p></div>
                 ${(!h.sectionLocks.hero) ? `<div class="edit-actions" style="display:none;">${Comp.Button('Replace', {size:'btn-sm', variant:'btn-ghost', onclick:'Comp.homeSetHeroMedia()'})}</div>` : ''}
               </div>`
             : '<p class="empty-state">No hero media selected.</p>'}
@@ -16916,7 +17700,7 @@ function pageHomeManagement(params){
           ${h.whyChooseUs.mediaId
             ? `<div class="list-row items-center">
                 <div class="list-thumb" aria-hidden="true"></div>
-                <div class="list-row__body flex-1"><p class="list-row__title">${Comp._escHtml(h.whyChooseUs.mediaId)}</p><p class="list-row__meta">Alt text: ${h.whyChooseUs.altText ? Comp._escHtml(h.whyChooseUs.altText) : '<span style="color:var(--danger-600);">Missing</span>'}</p></div>
+                <div class="list-row__body flex-1"><p class="list-row__title">${Comp._escHtml(h.whyChooseUs.mediaId)}</p><p class="list-row__meta" style="display:flex;align-items:center;gap:6px;">Alt: <span id="homeWhyAltDisplay">${h.whyChooseUs.altText ? Comp._escHtml(h.whyChooseUs.altText) : '<span style="color:var(--danger-600);">Missing</span>'}</span>${(!h.sectionLocks.whyChooseUs) ? `<button type="button" class="mds-regen-btn" onclick="Comp._homeRegenAlt('whyChooseUs','homeWhyAltDisplay',${JSON.stringify(h.whyChooseUs.mediaId)})">↺ Regenerate</button>` : ''}</p></div>
                 ${h.sectionLocks.whyChooseUs ? '' : `<div class="edit-actions" style="display:none;">${Comp.Button('Replace', {size:'btn-sm', variant:'btn-ghost', onclick:'Comp.homeSetWhyMedia()'})}</div>`}
               </div>`
             : '<p class="empty-state">No media selected.</p>'}
@@ -16943,6 +17727,8 @@ function pageHomeManagement(params){
     });
   } else if (tab === 'keywords') {
     tabBody = Comp.KeywordAssignTab('homepage', 'Homepage');
+  } else if (tab === 'overrides') {
+    tabBody = Comp.renderOverridesTab(h, ['seo','hero','whyChooseUs']);
   } else if (tab === 'history') {
     tabBody = Comp.Card({title:'History / Audit', body:`
       ${h.history.length ? Comp.Timeline(h.history) : '<p class="empty-state">No history yet.</p>'}`});
@@ -17436,6 +18222,21 @@ Comp.homeRemoveWhyGuide = function(id){
   Comp.showToast('Guide removed.', 'danger');
   render();
 };
+// Regenerate alt text for an existing homepage media item
+Comp._homeRegenAlt = function(section, displayId, filename){
+  var btn = event && event.target;
+  if(btn){ btn.textContent = '…'; btn.disabled = true; }
+  setTimeout(function(){
+    Comp._aiGenerateAltText(filename, function(newAlt){
+      DATA.homepage[section].altText = newAlt;
+      var el = document.getElementById(displayId);
+      if(el) el.textContent = newAlt;
+      if(btn){ btn.textContent = '↺ Regenerate'; btn.disabled = false; }
+      Comp.showToast('Alt text regenerated.', 'success');
+    });
+  }, 600);
+};
+
 Comp.homeSetWhyMedia = function(){
   Comp.openMediaLibraryPicker((asset) => {
     Comp.homeCaptureAltText(asset.filename, (altText) => {
@@ -18683,12 +19484,12 @@ function pageProductCreate(){
         <div class="field"><label for="pName">Product Name <span class="required">*</span></label><input id="pName" placeholder="Enter product name" maxlength="80" value="${d.name}" oninput="Comp.updateCharCounter(this); Comp.autoSuggestSlug();"><p class="char-counter" data-max="80">${d.name.length}/80</p></div>
         <div class="field">
           <label for="pProductCode">Product Code <span class="required">*</span></label>
-          <input id="pProductCode" placeholder="e.g. NYC-SOL-001" value="${d.productCode||''}">
+          <input id="pProductCode" class="card-input" placeholder="e.g. NYC-SOL-001" value="${d.productCode||''}">
           <p class="field-hint">ⓘ A human-readable code you assign — separate from the system ID and the supplier/Viator code. Used for internal reference (complaints, reconciliation).</p>
         </div>
         <div class="field">
           <label for="pUrlSlug">URL Slug <span class="required">*</span></label>
-          <input id="pUrlSlug" placeholder="auto-generated-from-name" value="${d.urlSlug}">
+          <input id="pUrlSlug" class="card-input" placeholder="auto-generated-from-name" value="${d.urlSlug}">
           <p class="field-hint">ⓘ Auto-suggested from the product name — edit if needed. Used in the product's canonical URL.</p>
         </div>
         <div class="field-row">
@@ -18792,9 +19593,9 @@ function pageProductCreate(){
       <p class="card-title">Description &amp; Highlight</p>
       <div class="field-stack">
         ${aiFieldWithCounter('Short Description', d.shortDesc, 'textarea', 300, 'pShortDesc', true)}
-        <p class="field-hint" style="margin-top:-10px;">50–300 characters recommended</p>
+        <p class="field-hint field-hint-tight">50–300 characters recommended</p>
         ${aiFieldWithCounter('Product Description', d.fullDesc, 'textarea', 2400, 'pFullDesc', true)}
-        <p class="field-hint" style="margin-top:-10px;">1,600–2,400 characters recommended (200 minimum required)</p>
+        <p class="field-hint field-hint-tight">1,600–2,400 characters recommended (200 minimum required)</p>
         <div>
           <p class="card-title" style="margin-bottom:2px;">Product Highlights</p>
           <p class="field-hint mb-3">Min 3 • Max 7 — each highlight should start with a verb</p>
@@ -18831,9 +19632,9 @@ function pageProductCreate(){
           </div>
         </div>
         ${aiFieldWithCounter('Included Description', d.includedDesc, 'textarea', 1000, 'pIncludedDesc', true)}
-        <p class="field-hint" style="margin-top:-10px;">Min. 500 characters</p>
+        <p class="field-hint field-hint-tight">Min. 500 characters</p>
         ${aiFieldWithCounter('Excluded Description', d.excludedDesc, 'textarea', 1000, 'pExcludedDesc', true)}
-        <p class="field-hint" style="margin-top:-10px;">Min. 500 characters</p>
+        <p class="field-hint field-hint-tight">Min. 500 characters</p>
       </div>`;
   } else if (step === 4) {
     stepBody = `
@@ -18853,30 +19654,12 @@ function pageProductCreate(){
         <div class="field"><label for="pVideoUrl">Video URL</label><input id="pVideoUrl" placeholder="Paste a video URL (YouTube, Vimeo...)" value="${d.videoUrl}"></div>
       </div>`;
   } else if (step === 5) {
-    const optionRows = d.tourOptions.map((opt, i) => {
-      const prices = opt.pricingTiers || [];
-      const range = Comp._tourOptionPriceRange(prices);
-      const priceLabel = range.label;
-      const availCount = (opt.availabilitySlots || []).length;
-      return `
-      <div class="list-row">
-        <div class="list-thumb" aria-hidden="true"></div>
-        <div class="list-row__body">
-          <p class="list-row__title">${opt.title} <span style="margin-left:6px; display:inline-block;">${Comp.Badge('Active', true)}</span></p>
-          <p class="list-row__meta">${opt.ticketType ? opt.ticketType + ' · ' : ''}${opt.duration} · ${opt.groupSize} people · ${(opt.languages||[]).join('/') || 'No language set'} · ${prices.length} pricing tier${prices.length===1?'':'s'} (${priceLabel}) · ${availCount} availability slot${availCount===1?'':'s'}${opt.capacity ? ` · Capacity: ${opt.capacity}` : ''}${opt.meetingPoint ? ` · 📍 Own meeting point: ${opt.meetingPoint}` : ''}</p>
-        </div>
-        <div class="attraction-actions">
-          <button type="button" class="btn btn-sm" onclick="Comp.openTourOptionPage(${i})">Edit</button>
-          <button type="button" class="btn btn-sm btn-amber" onclick="Comp.removeTourOption(${i})">Delete</button>
-        </div>
-      </div>`;
-    }).join('');
+    const wizardOpts = d.tourOptions || [];
     stepBody = `
-      <div class="section-header-row">
-        <p class="card-title">Tour Options</p>
-        <button type="button" class="btn btn-sm btn-primary" onclick="Comp.openTourOptionPage(null)">+ Add Option</button>
+      <div class="section-header-row" style="margin-bottom:16px;">
+        <p class="card-title" style="margin:0;">Tour Options <span class="bokun-crm-badge" style="margin-left:8px; vertical-align:middle;">Bokun CRM</span></p>
       </div>
-      ${d.tourOptions.length ? `<div class="attractions-list">${optionRows}</div>` : `<p class="empty-state">No tour options added yet. Click "+ Add Option" to add one.</p>`}
+      ${Comp._bokunOptionsUiHtml(wizardOpts, 'wizard')}
     `;
   } else if (step === 6) {
     const faqList = d.faqs.length ? d.faqs : [{q:'', a:''}];
@@ -18896,8 +19679,8 @@ function pageProductCreate(){
       <p class="card-title">Facilities</p>
       <div class="field-stack">
         <div class="field-row">
-          <div class="field"><label>Price from</label><div class="booking-info-row" style="border:1px solid var(--border); border-radius:var(--radius-md); padding:10px 12px;"><span>${avgPrice ? '$'+avgPrice+' (from Tour Options)' : 'Add a Tour Option to auto-calculate'}</span></div></div>
-          <div class="field"><label>Duration</label><div class="booking-info-row" style="border:1px solid var(--border); border-radius:var(--radius-md); padding:10px 12px;"><span>${totalDuration || 'Add a Tour Option to auto-calculate'}</span></div></div>
+          <div class="field"><label>Price from</label><div class="derived-display">${avgPrice ? '$'+avgPrice+' (from Tour Options)' : 'Add a Tour Option to auto-calculate'}</div></div>
+          <div class="field"><label>Duration</label><div class="derived-display">${totalDuration || 'Add a Tour Option to auto-calculate'}</div></div>
         </div>
 
         <div class="field">
@@ -18911,7 +19694,7 @@ function pageProductCreate(){
           <div class="product-tags-wrap mt-1h">
             ${['Live Guide','Audio Guide','Booklet'].map(t => `<button type="button" class="product-tag-chip ${fc.guideType===t?'tag-selected':''}" onclick="Comp._productDraft.facilities.guideType='${t}'; Router.go('productCreate');"><span class="chip-check"></span>${t}</button>`).join('')}
           </div>
-          <p class="field-hint">ⓘ This is the format of guiding (live/audio/booklet). Who the guide is (a specific person, team, or Rosotravel) is set separately in the "Guide &amp; Snapshot Media" step.</p>
+          <p class="field-hint">ⓘ This is the format of guiding (live/audio/booklet).</p>
         </div>
         <div class="field">
           <label>Tour Vehicle</label>
@@ -18927,7 +19710,7 @@ function pageProductCreate(){
         </div>
         <div class="field">
           <label class="action-row"><input type="checkbox" ${fc.instantOrganize?'checked':''} onchange="Comp._productDraft.facilities.instantOrganize=this.checked;"> ⚡ Just buy and we instantly organize</label>
-          <label style="display:flex; align-items:center; gap:8px; font-weight:500; margin-top:6px;"><input type="checkbox" ${fc.skipLine?'checked':''} onchange="Comp._productDraft.facilities.skipLine=this.checked;"> Skip the Line Tickets for Priority Access</label>
+          <label class="action-row" style="margin-top:6px;"><input type="checkbox" ${fc.skipLine?'checked':''} onchange="Comp._productDraft.facilities.skipLine=this.checked;"> Skip the Line Tickets for Priority Access</label>
         </div>
       </div>`;
   } else if (step === 8) {
@@ -19036,7 +19819,7 @@ function pageProductCreate(){
           <label class="action-row"><input type="checkbox" ${mp.hasEndPoint?'checked':''} onchange="Comp._productDraft.meetingPickup.hasEndPoint=this.checked; Router.go('productCreate');"> This tour has a different end point</label>
         </div>
         ${mp.hasEndPoint ? `
-        <div class="field"><label for="mpEndLoc">End point location</label><input id="mpEndLoc" placeholder="Search or enter end point location" value="${mp.endPointName}" oninput="Comp._productDraft.meetingPickup.endPointName=this.value;"></div>
+        <div class="field"><label for="mpEndLoc">End point location</label><input id="mpEndLoc" class="card-input" placeholder="Search or enter end point location" value="${mp.endPointName}" oninput="Comp._productDraft.meetingPickup.endPointName=this.value;"></div>
         <div class="field">
           <label>End point location type</label>
           <div class="product-tags-wrap mt-1h">${locTypeChips('endPointType')}</div>
@@ -19070,52 +19853,10 @@ function pageProductCreate(){
         ${(cp.policyMode||'STANDARD') === 'CUSTOM' ? Comp._cancellationTiersEditor(cp) : ''}` : ''}
         <div class="field"><label>Preview</label><p id="cpPreviewText" style="margin:0; color:var(--text-muted);">${Comp._productCancellationSummary(d)}</p></div>
       </div>`;
-  } else if (step === 11) {
-    const ga = d.guideAnchor;
-    const sm = d.snapshotMedia;
-    stepBody = `
-      <p class="card-title">Guide / Host Anchor</p>
-      <div class="field-stack">
-        <div class="field">
-          <label>Guide mode</label>
-          <div class="product-tags-wrap mt-1h">
-            ${['Exact Guide','Guide Team','Curated by Rosotravel'].map(t => `<button type="button" class="product-tag-chip ${ga.guideMode===t?'tag-selected':''}" onclick="Comp.setDraftNestedField('guideAnchor','guideMode','${t}')"><span class="chip-check"></span>${t}</button>`).join('')}
-          </div>
-        </div>
-        ${ga.guideMode === 'Exact Guide' || ga.guideMode === 'Guide Team' ? `
-        <div class="field"><label for="gaRef">${ga.guideMode === 'Exact Guide' ? 'Guide' : 'Guide team'}</label><input id="gaRef" placeholder="Search or enter ${ga.guideMode === 'Exact Guide' ? 'guide' : 'guide team'} name" value="${ga.guideRef}" oninput="Comp._productDraft.guideAnchor.guideRef=this.value;"></div>` : ''}
-        <div class="field">
-          <label id="gaImgLbl">Guide anchor image (if not from guide profile)</label>
-          ${Comp._dualMedia({containerId:'gaImgDual', hint:'PNG, JPG or WEBP', onSelect:function(fn,alt){ Comp.showToast('Media selected: '+fn, 'success'); }})}
-        </div>
-        <div class="field"><label for="gaCredential">Short credential line</label><input id="gaCredential" placeholder="e.g. 12 years guiding in Rome" maxlength="100" value="${ga.credentialLine}" oninput="Comp._productDraft.guideAnchor.credentialLine=this.value;"></div>
-        <div class="field"><label for="gaQuote">Optional quote</label><textarea id="gaQuote" placeholder="A short quote from the guide" oninput="Comp._productDraft.guideAnchor.quote=this.value;">${ga.quote}</textarea></div>
-        <p class="field-hint">ⓘ Preview of product-page placement is available once the product is published.</p>
-      </div>
-
-      <p class="card-title mt-6">Snapshot Media &amp; Recent Proof</p>
-      <div class="field-stack">
-        <div class="field">
-          <label id="smUploadLbl">Upload photo / video</label>
-          ${Comp._dualMedia({containerId:'smUploadDual', hint:'JPG, PNG, MP4, MOV', onSelect:function(fn,alt){ Comp._productDraft.snapshotMedia.uploaded=true; Comp.showToast('Media selected: '+fn, 'success'); Router.go('productCreate'); }})}
-        </div>
-        <div class="field"><label>Source type</label><p style="margin:0; color:var(--text-muted);">admin_snapshot <span style="font-size:var(--fs-xs);">(read-only)</span></p></div>
-        <div class="field"><label>Linked product</label><p style="margin:0; color:var(--text-muted);">${d.name || '(this product, once saved)'}</p></div>
-        <div class="field-row">
-          <div class="field"><label for="smDate">Snapshot date (optional)</label><input id="smDate" type="date" value="${sm.snapshotDate}" oninput="Comp._productDraft.snapshotMedia.snapshotDate=this.value;"></div>
-          <div class="field">
-            <label>Moderation status</label>
-            <div class="product-tags-wrap mt-1h">
-              ${['Pending','Approved','Rejected'].map(s => `<button type="button" class="product-tag-chip ${sm.moderationStatus===s?'tag-selected':''}" onclick="Comp.setDraftNestedField('snapshotMedia','moderationStatus','${s}')"><span class="chip-check"></span>${s}</button>`).join('')}
-            </div>
-          </div>
-        </div>
-        <div class="field"><label for="smCaption">Caption / note (optional)</label><input id="smCaption" placeholder="e.g. Group photo at the summit, June 2026" value="${sm.caption}" oninput="Comp._productDraft.snapshotMedia.caption=this.value;"></div>
-      </div>`;
   }
 
   return Comp.Shell(`
-    ${Comp.Breadcrumb([{label:'Master Data'}, {label:'Products', route:'productListing'}, {label: Comp._productEditId ? 'Edit Product' : 'Create Product'}])}
+    ${Comp.Breadcrumb([{label:'Products', route:'productListing'}, {label: Comp._productEditId ? 'Edit Product' : 'Create Product'}])}
     ${Comp.Card({body:`
       ${Comp.ProductStepper(step)}
       ${stepBody}
@@ -20135,7 +20876,20 @@ Comp.submitCouponForm = function(editId){
 
   let c = editId ? DATA.coupons.find(x => x.id === editId) : null;
   const isNew = !c;
-  if (isNew) { c = {id:'cp-'+Date.now(), usedCount:0, history:[]}; DATA.coupons.push(c); }
+  if (isNew) { c = {id:'cp-'+Date.now(), usedCount:0, history:[
+        {type:'lock',        label:'Section manually locked — overrides active',                  section:'SEO',      language:'EN', time:'21 Oct 2026, 09:14 AM', actor:'Anna K. — SEO Manager',   reason:'Final approved city meta — do not overwrite'},
+        {type:'seo-run',     label:'SEO pipeline run completed — city metadata refreshed',        section:'SEO',                    time:'20 Oct 2026, 08:00 AM', actor:'System (Scheduled)',       reason:'Weekly scheduled SEO refresh — all languages'},
+        {type:'regen',       label:'AI regeneration triggered — Local Tips section',              section:'Local Tips',             time:'19 Oct 2026, 02:17 PM', actor:'System (AI Pipeline)',     reason:'Linked product data updated — regeneration required'},
+        {type:'lock',        label:'Section manually locked — overrides active',                  section:'About',    language:'DE', time:'18 Oct 2026, 11:00 AM', actor:'Marc D. — Content Lead',  reason:'Translated copy approved — freeze until next review'},
+        {type:'manual-edit', label:'City FAQ updated — visiting hours corrected',                 section:'FAQ',      language:'EN', time:'16 Oct 2026, 04:30 PM', actor:'Anna K. — SEO Manager'},
+        {type:'ai-gen',      label:'AI content generated — city SEO description',                section:'SEO',      language:'IT', time:'14 Oct 2026, 11:22 AM', actor:'System (AI Pipeline)',     reason:'Italian market launch — first-time content generation'},
+        {type:'status',      label:'SEO status transition: NOT RUN → RUN',                       section:'SEO',      language:'IT', time:'14 Oct 2026, 11:23 AM', actor:'System (AI Pipeline)'},
+        {type:'unlock',      label:'Section unlocked — AI may now regenerate this content',      section:'SEO',      language:'ES', time:'12 Oct 2026, 05:45 PM', actor:'Carlos M. — SEO Manager', reason:'Spanish copy review complete; unlocking for next pipeline run'},
+        {type:'status',      label:'SEO status transition: RUN → OUTDATED',                      section:'SEO',      language:'NL', time:'10 Oct 2026, 10:15 AM', actor:'System (AI Pipeline)',     reason:'Source product data changed — regeneration required'},
+        {type:'pipeline',    label:'Pipeline-triggered update — top attractions list refreshed',                      time:'08 Oct 2026, 09:30 AM', actor:'System (Pipeline)',        reason:'New attraction onboarded — city block refreshed automatically'},
+        {type:'version',     label:'City record version snapshot saved',                                              time:'05 Oct 2026, 06:00 PM', actor:'System'},
+        {type:'system',      label:'City record initialized',                                                         time:'01 Oct 2026, 09:00 AM', actor:'System'}
+      ]}; DATA.coupons.push(c); }
   Object.assign(c, {
     code, description, discountType,
     discountValue:        isSplit ? null : discountValue,
@@ -21533,45 +22287,22 @@ Comp._spIssueBanner=function(p){
 // mandatory and becomes locked (non-editable) once confirmed; the
 // only way to change it afterwards is to Replace the media, which
 // re-triggers this same prompt.
-Comp.homeCaptureAltText = function(filename, onDone){
-  var html = '<div class="field" style="margin-top:8px;">' +
-    '<label for="homeAltTextInput">Alt text <span class="required">*</span></label>' +
-    '<input id="homeAltTextInput" class="card-input" placeholder="Describe the image for screen readers and SEO">' +
-    '<p class="field-hint mt-1">Required for indexation. Cannot be edited after saving — only changed by replacing the media.</p>' +
-    '</div>';
-  Comp.openConfirm({
-    title: 'Add alt text',
-    desc: '"' + filename + '" — describe what this image/video shows.',
-    warningHtml: html,
-    confirmLabel: 'Save',
-    onConfirm: function(){
-      var el = document.getElementById('homeAltTextInput');
-      var val = el ? el.value.trim() : '';
-      if (!val) { Comp.showToast('Alt text is required.', 'danger'); return; }
-      onDone(val);
-    }
-  });
+// ── AI Alt Text Generation ────────────────────────────────────────────────────
+// Generates alt text from filename using AI (simulated). No manual input required.
+// onDone(altText) is called with the AI-generated value.
+Comp._aiGenerateAltText = function(filename, onDone){
+  // Derive a context-aware alt text from filename (AI simulation)
+  var base = (filename || 'image').replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ').replace(/\s+/g, ' ').trim();
+  // Capitalise first letter
+  base = base.charAt(0).toUpperCase() + base.slice(1);
+  var generated = base + ' — Rosotravel';
+  onDone(generated);
 };
-// Generic ALT text capture — reused across all upload areas in the platform.
-// Call after any media select or upload. onDone(altText) is called with the confirmed value.
+
+// Generic ALT text capture — AI-generated, no manual input.
+// Call after any media select or upload. onDone(altText) is called with the AI-generated value.
 Comp.captureAltText = function(filename, onDone){
-  var html = '<div class="field" style="margin-top:8px;">' +
-    '<label for="globalAltTextInput">Alt text <span class="required">*</span></label>' +
-    '<input id="globalAltTextInput" class="card-input" placeholder="Describe the image for screen readers and SEO">' +
-    '<p class="field-hint mt-1">Required for indexation. Cannot be edited after saving — only changed by replacing the media.</p>' +
-    '</div>';
-  Comp.openConfirm({
-    title: 'Add alt text',
-    desc: '"' + filename + '" — describe what this image/video shows.',
-    warningHtml: html,
-    confirmLabel: 'Save',
-    onConfirm: function(){
-      var el = document.getElementById('globalAltTextInput');
-      var val = el ? el.value.trim() : '';
-      if (!val) { Comp.showToast('Alt text is required.', 'danger'); return; }
-      onDone(val);
-    }
-  });
+  Comp._aiGenerateAltText(filename, onDone);
 };
 
 // Keep homeCaptureAltText as alias for backward compatibility
@@ -21667,6 +22398,10 @@ Comp._dualShowSelected = function(id, filename, altText, asset){
   var ext = (filename||'').split('.').pop().toUpperCase();
   var extColor = {JPG:'#c9a96e',JPEG:'#c9a96e',PNG:'#7eb8c9',MP4:'#9b7ec9',GIF:'#7ec99b',WEBP:'#c97e7e'};
   var bg = extColor[ext] || '#b0b8c1';
+  // Store current alt text on the wrapper for regeneration
+  wrap._currentAltText = altText;
+  wrap._currentFilename = filename;
+  wrap._currentAsset = asset;
   wrap.innerHTML =
     `<div class="media-dual-selected">` +
       `<div class="mds-thumb" style="background:${bg};display:flex;align-items:center;justify-content:center;">` +
@@ -21674,10 +22409,35 @@ Comp._dualShowSelected = function(id, filename, altText, asset){
       `</div>` +
       `<div class="mds-info">` +
         `<div class="mds-name">${Comp._escHtml(filename)}</div>` +
-        `<div class="mds-meta">${altText ? 'Alt: '+Comp._escHtml(altText) : 'No alt text'}</div>` +
+        `<div class="mds-alt-row" id="${id}-alt-row">` +
+          `<span class="mds-meta"><span style="color:var(--text-muted);margin-right:3px;">Alt:</span><span id="${id}-alt-text">${altText ? Comp._escHtml(altText) : '<span style="color:var(--danger-600);">Generating...</span>'}</span></span>` +
+          `<button type="button" class="mds-regen-btn" title="Regenerate alt text with AI" onclick="Comp._dualRegenerateAlt('${id}')">↺ Regenerate</button>` +
+        `</div>` +
       `</div>` +
       `<button type="button" class="mds-remove" title="Remove" onclick="Comp._dualResetWidget('${id}')">✕</button>` +
     `</div>`;
+};
+
+// Regenerate alt text via AI for an already-selected media item
+Comp._dualRegenerateAlt = function(id){
+  var wrap = document.getElementById(id);
+  if(!wrap) return;
+  var filename = wrap._currentFilename || '';
+  var regenBtn = wrap.querySelector('.mds-regen-btn');
+  if(regenBtn){ regenBtn.textContent = '…'; regenBtn.disabled = true; }
+  // Simulate brief AI generation delay
+  setTimeout(function(){
+    Comp._aiGenerateAltText(filename, function(newAlt){
+      wrap._currentAltText = newAlt;
+      var altEl = document.getElementById(id + '-alt-text');
+      if(altEl) altEl.textContent = newAlt;
+      if(regenBtn){ regenBtn.textContent = '↺ Regenerate'; regenBtn.disabled = false; }
+      // Fire the registered callback so parent state updates too
+      var cb = Comp._dualCb[id];
+      if(cb && wrap._currentAsset) cb(filename, newAlt, wrap._currentAsset);
+      Comp.showToast('Alt text regenerated.', 'success');
+    });
+  }, 600);
 };
 Comp._dualResetWidget = function(id){
   // Reconstruct the widget from its last-registered options cache
