@@ -3239,6 +3239,7 @@ const Comp = {
           <button type="button" class="nav-sub" ${['rolesListing','rolesCreate','rolesDetails'].includes(Router.route) ? 'aria-current="page"' : ''} onclick="Router.go('rolesListing')">Roles &amp; Permissions</button>
           <button type="button" class="nav-sub" ${['semrushConfiguration','semrushRules'].includes(Router.route) ? 'aria-current="page"' : ''} onclick="Router.go('semrushConfiguration')">SEMrush Configuration</button>
           <button type="button" class="nav-sub" ${['promptManagement','promptEditor'].includes(Router.route) ? 'aria-current="page"' : ''} onclick="Router.go('promptManagement')">Prompt Management</button>
+          <button type="button" class="nav-sub" ${['generalConfiguration'].includes(Router.route) ? 'aria-current="page"' : ''} onclick="Router.go('generalConfiguration')">General Configuration</button>
         </div>
       </nav>`;
   },
@@ -21978,6 +21979,198 @@ Comp.nearbyToggleStatus = function(id) {
   render();
 };
 
+/* =============================================================
+   PAGES — SETTINGS / GENERAL CONFIGURATION
+   ============================================================= */
+function pageGeneralConfiguration(params) {
+  const tab = (params && params.tab) || 'destination';
+  const gc  = DATA.generalConfiguration;
+
+  const tabs = [
+    {id:'destination', label:'Destination Tier Threshold'},
+    {id:'attraction',  label:'Attraction Tier Threshold'},
+    {id:'history',     label:'History / Audit'}
+  ];
+
+  function gcViewRows(sectionKey) {
+    return gc[sectionKey].map(function(t) {
+      return '<tr>' +
+        '<td class="cell-name">Tier ' + t.tier + '</td>' +
+        '<td>' + t.min.toLocaleString() + '</td>' +
+        '<td>' + t.max.toLocaleString() + '</td>' +
+        '</tr>';
+    }).join('');
+  }
+
+  function gcEditRows(prefix, sectionKey) {
+    return gc[sectionKey].map(function(t, i) {
+      return '<tr>' +
+        '<td><strong>Tier ' + t.tier + '</strong></td>' +
+        '<td><input type="number" id="gc-' + prefix + '-min-' + i + '" class="card-input" style="width:130px;" value="' + t.min + '" min="0" step="1"></td>' +
+        '<td><input type="number" id="gc-' + prefix + '-max-' + i + '" class="card-input" style="width:130px;" value="' + t.max + '" min="0" step="1"></td>' +
+        '</tr>';
+    }).join('');
+  }
+
+  const destCols = [
+    {label:'Tier',      width:'140px'},
+    {label:'Min Score', width:'180px'},
+    {label:'Max Score', width:'180px'}
+  ];
+  const attrCols = [
+    {label:'Tier',        width:'140px'},
+    {label:'Min Reviews', width:'180px'},
+    {label:'Max Reviews', width:'180px'}
+  ];
+
+  let tabBody = '';
+
+  if (tab === 'destination') {
+    tabBody = `
+    <div class="card">
+      <div class="action-row action-row--between" style="margin-bottom:14px;">
+        <div>
+          <p class="card-title" style="margin:0 0 2px;">Destination Tier Threshold</p>
+          <p class="field-hint" style="margin:0;">Score ranges used to classify destinations into tiers. Tier 1 = highest scores.</p>
+        </div>
+        <div id="gc-dest-head-view">
+          ${Comp.Button('Edit', {size:'btn-sm', onclick:"Comp.gcEnterEdit('dest')"})}
+        </div>
+        <div id="gc-dest-head-edit" style="display:none;gap:8px;">
+          ${Comp.Button('Cancel', {size:'btn-sm', onclick:'Comp.gcCancelEdit()'})}
+          ${Comp.Button('Save', {variant:'btn-primary', size:'btn-sm', onclick:"Comp.gcSave('dest','destinationTier')"})}
+        </div>
+      </div>
+      <div id="gc-dest-view">
+        ${Comp.Table({columns:destCols, rows:gcViewRows('destinationTier')})}
+      </div>
+      <div id="gc-dest-edit" style="display:none;">
+        ${Comp.Table({columns:destCols, rows:gcEditRows('dest','destinationTier')})}
+        <p class="field-hint" style="margin-top:10px;">${ICON.warning} Ranges must not overlap. Tier 1 must carry the highest scores.</p>
+      </div>
+    </div>`;
+
+  } else if (tab === 'attraction') {
+    tabBody = `
+    <div class="card">
+      <div class="action-row action-row--between" style="margin-bottom:14px;">
+        <div>
+          <p class="card-title" style="margin:0 0 2px;">Attraction Tier Threshold</p>
+          <p class="field-hint" style="margin:0;">Review count ranges used to classify attractions into tiers. Tier 1 = highest review counts.</p>
+        </div>
+        <div id="gc-attr-head-view">
+          ${Comp.Button('Edit', {size:'btn-sm', onclick:"Comp.gcEnterEdit('attr')"})}
+        </div>
+        <div id="gc-attr-head-edit" style="display:none;gap:8px;">
+          ${Comp.Button('Cancel', {size:'btn-sm', onclick:'Comp.gcCancelEdit()'})}
+          ${Comp.Button('Save', {variant:'btn-primary', size:'btn-sm', onclick:"Comp.gcSave('attr','attractionTier')"})}
+        </div>
+      </div>
+      <div id="gc-attr-view">
+        ${Comp.Table({columns:attrCols, rows:gcViewRows('attractionTier')})}
+      </div>
+      <div id="gc-attr-edit" style="display:none;">
+        ${Comp.Table({columns:attrCols, rows:gcEditRows('attr','attractionTier')})}
+        <p class="field-hint" style="margin-top:10px;">${ICON.warning} Ranges must not overlap. Tier 1 must carry the highest review counts.</p>
+      </div>
+    </div>`;
+
+  } else if (tab === 'history') {
+    tabBody = Comp.Card({title:'History / Audit', body:
+      (gc.history && gc.history.length)
+        ? Comp.Timeline(gc.history)
+        : '<p class="empty-state">No configuration changes recorded yet.</p>'
+    });
+  }
+
+  return Comp.Shell(`
+    ${Comp.Breadcrumb([{label:'General Configuration'}])}
+    ${Comp.PageHeader({
+      title:         'General Configuration',
+      subtitle:      'Manage system-wide tier classification thresholds for destinations and attractions.',
+      subtitleClass: 'field-hint',
+      level:         'h2'
+    })}
+    <div class="ops-tabs" role="tablist">
+      ${tabs.map(t => `<button type="button" class="ops-tab ${tab===t.id?'is-active':''}" onclick="Router.go('generalConfiguration',{tab:'${t.id}'})">${t.label}</button>`).join('')}
+    </div>
+    ${tabBody}
+  `);
+}
+
+Comp.gcEnterEdit = function(prefix) {
+  document.getElementById('gc-' + prefix + '-view').style.display      = 'none';
+  document.getElementById('gc-' + prefix + '-edit').style.display      = 'block';
+  document.getElementById('gc-' + prefix + '-head-view').style.display = 'none';
+  document.getElementById('gc-' + prefix + '-head-edit').style.display = 'flex';
+};
+
+Comp.gcCancelEdit = function() {
+  render();
+};
+
+Comp.gcSave = function(prefix, sectionKey) {
+  var tiers  = DATA.generalConfiguration[sectionKey];
+  var n      = tiers.length;
+  var values = [];
+
+  for (var i = 0; i < n; i++) {
+    var minRaw = (document.getElementById('gc-' + prefix + '-min-' + i) || {}).value || '';
+    var maxRaw = (document.getElementById('gc-' + prefix + '-max-' + i) || {}).value || '';
+    if (!/^-?\d+$/.test(minRaw.trim()) || !/^-?\d+$/.test(maxRaw.trim())) {
+      Comp.showToast('Tier ' + (i + 1) + ': Only integer values are allowed.', 'danger');
+      return;
+    }
+    var minV = parseInt(minRaw, 10);
+    var maxV = parseInt(maxRaw, 10);
+    if (minV < 0 || maxV < 0) {
+      Comp.showToast('Values cannot be negative.', 'danger');
+      return;
+    }
+    if (minV >= maxV) {
+      Comp.showToast('Tier ' + (i + 1) + ': Min must be less than Max.', 'danger');
+      return;
+    }
+    values.push({tier: i + 1, min: minV, max: maxV});
+  }
+
+  // No-overlap check: Tier i min must be ≥ Tier i+1 max (Tier 1 = highest range)
+  for (var j = 0; j < n - 1; j++) {
+    if (values[j].min < values[j + 1].max) {
+      Comp.showToast(
+        'Tier ' + values[j].tier + ' and Tier ' + values[j + 1].tier + ' overlap. ' +
+        'Tier ' + values[j].tier + ' min (' + values[j].min + ') must be ≥ Tier ' + values[j + 1].tier + ' max (' + values[j + 1].max + ').',
+        'danger'
+      );
+      return;
+    }
+  }
+
+  // Build change summary for audit log
+  var changes = tiers.map(function(old, i) {
+    var nv = values[i];
+    return (old.min !== nv.min || old.max !== nv.max)
+      ? 'Tier ' + nv.tier + ': ' + old.min + '–' + old.max + ' → ' + nv.min + '–' + nv.max
+      : null;
+  }).filter(Boolean);
+
+  // Apply new values
+  values.forEach(function(v, i) { tiers[i].min = v.min; tiers[i].max = v.max; });
+
+  // Push to history
+  var sectionLabel = sectionKey === 'destinationTier' ? 'Destination Tier Threshold' : 'Attraction Tier Threshold';
+  var gc = DATA.generalConfiguration;
+  gc.history = gc.history || [];
+  gc.history.unshift({
+    label: sectionLabel + ' updated' + (changes.length ? ': ' + changes.join(' · ') : ' (no changes)'),
+    time:  new Date().toLocaleString(),
+    actor: Comp.CURRENT_USER_EMAIL || 'Admin (you)'
+  });
+
+  Comp.showToast(sectionLabel + ' saved successfully.', 'success');
+  render();
+};
+
 const ROUTES = {
   login: pageLogin,
   loginOtp: pageLoginOtp,
@@ -22035,6 +22228,7 @@ const ROUTES = {
   promptManagement: pagePromptManagement,
   promptEditor: pagePromptEditor,
   helpCentre: pageHelpCentre,
+  generalConfiguration: pageGeneralConfiguration,
   nearbyListing: pageNearbyListing,
   nearbyDetails: pageNearbyDetails
 };
@@ -22140,6 +22334,23 @@ DATA.products.forEach(p => {
   Comp.initModelCProfile(p.modelC, p);
   if (!p.modelC.assignmentRunAt) Comp.runModelCAssignment(p.modelC, p, {});
 });
+
+// General Configuration default data
+DATA.generalConfiguration = DATA.generalConfiguration || {
+  destinationTier: [
+    {tier:1, min:750, max:1000},
+    {tier:2, min:500, max:749},
+    {tier:3, min:250, max:499},
+    {tier:4, min:0,   max:249}
+  ],
+  attractionTier: [
+    {tier:1, min:501, max:1000},
+    {tier:2, min:201, max:500},
+    {tier:3, min:51,  max:200},
+    {tier:4, min:0,   max:50}
+  ],
+  history: []
+};
 
 render();
 
@@ -22918,7 +23129,7 @@ function pagePromptManagement(params){
   const total      = sections.length;
 
   return Comp.Shell(`
-    ${Comp.Breadcrumb([{label:'Settings & Administration'}, {label:'Prompt Management'}])}
+    ${Comp.Breadcrumb([{label:'Prompt Management'}])}
     ${Comp.PageHeader({
       title:'Prompt Management',
       subtitle:'Configure AI prompts for each section of every page type.',
