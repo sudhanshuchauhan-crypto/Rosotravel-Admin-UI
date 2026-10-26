@@ -1091,7 +1091,7 @@ const DATA = {
       invoice:{requested:true, companyName:'Laurent Consulting SARL', street:'14 Rue de Rivoli', city:'Paris', state:'Île-de-France', zip:'75001', country:'France'},
       pricing:{baseLabel:'Base Price ($60.00 x 2 guests)', base:'$120.00', addonsLabel:'Add-ons', addons:'$0.00', subtotal:'$120.00', discount:'-$0.00', total:'$120.00', viatorRecommendedPrice:'$120.00', viatorNetPrice:'$96.00', viatorBookingFee:'$24.00', viatorPayout:'$96.00'},
       activity:[{label:'Booking Created', time:'13 May 2024, 09:00 AM'}, {label:'Payment Received', time:'13 May 2024, 09:05 AM'}, {label:'Tour Completed', time:'15 May 2024, 01:15 PM'}]},
-    {id:'BK-003', customer:'Carlos Ruiz', tour:'Hatta Mountain Trek & Adventure Day Out', productId:'prod-11', tourOption:'Small Group Adventure', language:'Spanish', bookingDate:'14 May 2024', bookingTime:'11:05 AM', travelDate:'20 May 2024', guests:1, amount:150.00, status:'Pending', channel:'Rosotravel', confirmationType:'Manual', hoursSincePending:20,
+    {id:'BK-003', customer:'Carlos Ruiz', tour:'Hatta Mountain Trek & Adventure Day Out', productId:'prod-11', tourOption:'Small Group Adventure', language:'Spanish', bookingDate:'14 May 2024', bookingTime:'11:05 AM', travelDate:'20 May 2024', guests:1, amount:150.00, status:'Pending Confirmation', channel:'Rosotravel', confirmationType:'Manual', hoursSincePending:20,
       email:'carlos.ruiz@email.com', phone:'+971 55 323 4567', nationality:'Spanish',
       product:'Hatta Mountain Trek & Adventure Day Out', timeSlot:'6:00 AM - 4:00 PM', guestsBreakdown:'1 Adult, 0 Children',
       pickupMode:'now', pickupLocation:'Downtown Dubai (Burj Khalifa Metro Station, Gate 4)', pickup:'Downtown Dubai',
@@ -1148,7 +1148,7 @@ const DATA = {
       invoice:null,
       pricing:{guestPricing:[{type:'Adult',count:2,unitPrice:90}], addonsLabel:'Add-ons', addons:'$0.00', subtotal:'$180.00', discount:'-$0.00', total:'$180.00'},
       activity:[{label:'Booking Created', time:'02 Jun 2024, 10:15 AM'}, {label:'Payment Received', time:'02 Jun 2024, 10:18 AM'}, {label:'Confirmation Sent', time:'02 Jun 2024, 10:20 AM'}]},
-    {id:'BK-012', customer:'Sarah Jenkins', tour:'Big Ben Exterior Walking Tour & Westminster', productId:'prod-6', tourOption:'Standard Walking Tour', language:'English', bookingDate:'15 Jun 2024', bookingTime:'2:30 PM', travelDate:'22 Jun 2024', guests:3, amount:135.00, status:'Pending', channel:'Rosotravel', confirmationType:'Manual',
+    {id:'BK-012', customer:'Sarah Jenkins', tour:'Big Ben Exterior Walking Tour & Westminster', productId:'prod-6', tourOption:'Standard Walking Tour', language:'English', bookingDate:'15 Jun 2024', bookingTime:'2:30 PM', travelDate:'22 Jun 2024', guests:3, amount:135.00, status:'Pending Confirmation', channel:'Rosotravel', confirmationType:'Manual',
       email:'sarah.jenkins@email.com', phone:'+971 55 423 4567', nationality:'American',
       product:'Big Ben Exterior Walking Tour & Westminster', timeSlot:'10:00 AM - 12:30 PM', guestsBreakdown:'2 Adults, 1 Child',
       pickupMode:'meeting_point', pickupLocation:null, pickup:'Westminster Bridge, London',
@@ -1237,7 +1237,7 @@ const DATA = {
       invoice:{requested:true, companyName:'Al-Mansoori Trading LLC', street:'Office 1204, Al Moosa Tower 1', city:'Dubai', state:'Dubai', zip:'00000', country:'UAE'},
       pricing:{baseLabel:'Base Price ($130.00 x 5 guests)', base:'$650.00', addonsLabel:'Add-ons', addons:'$0.00', subtotal:'$650.00', discount:'-$0.00', total:'$650.00', viatorRecommendedPrice:'$650.00', viatorNetPrice:'$520.00', viatorBookingFee:'$130.00', viatorPayout:'$520.00'},
       activity:[{label:'Booking Created', time:'15 May 2024, 01:00 PM'}, {label:'Payment Received', time:'15 May 2024, 04:00 PM'}]},
-    {id:'BK-007', customer:'Elena Rostova', tour:'Dune Buggy Guided Adventure (Self-Drive Tour)', productId:'prod-11', tourOption:'Self-Drive 2-Seater Buggy', language:'Russian', bookingDate:'16 May 2024', bookingTime:'4:15 PM', travelDate:'22 May 2024', guests:2, amount:320.00, status:'Pending', channel:'Rosotravel', confirmationType:'Manual', hoursSincePending:80,
+    {id:'BK-007', customer:'Elena Rostova', tour:'Dune Buggy Guided Adventure (Self-Drive Tour)', productId:'prod-11', tourOption:'Self-Drive 2-Seater Buggy', language:'Russian', bookingDate:'16 May 2024', bookingTime:'4:15 PM', travelDate:'22 May 2024', guests:2, amount:320.00, status:'Pending Confirmation', channel:'Rosotravel', confirmationType:'Manual', hoursSincePending:80,
       email:'elena.rostova@email.com', phone:'+971 55 723 4567', nationality:'Russian',
       product:'Dune Buggy Guided Adventure', timeSlot:'2:00 PM - 6:00 PM', guestsBreakdown:'2 Adults, 0 Children',
       pickupMode:'now', pickupLocation:'Al Qudra Road (Big Red Dune area)', pickup:'Al Qudra Road',
@@ -6093,7 +6093,7 @@ const Comp = {
 
   // ---------- Booking Management ----------
   BookingStatusBadge(status){
-    const map = {Confirmed:'badge-active', Completed:'badge-info', Pending:'badge-pending', Cancelled:'badge-cancelled', 'Cancelled (Fraud – Viator)':'badge-cancelled', Modified:'badge-info', Paid:'badge-active', Refunded:'badge-cancelled'};
+    const map = {'Pending Confirmation':'badge-pending', Confirmed:'badge-active', Completed:'badge-info', Rejected:'badge-danger', 'Modification Requested':'badge-info', 'Cancellation Requested':'badge-amber', Cancelled:'badge-cancelled', 'Cancelled (Fraud – Viator)':'badge-cancelled', Paid:'badge-active', Refunded:'badge-cancelled'};
     return `<span class="badge ${map[status] || 'badge-inactive'}"><span class="badge-dot" aria-hidden="true"></span>${status}</span>`;
   },
   ChannelTag(channel){
@@ -6343,7 +6343,7 @@ const Comp = {
     const b = DATA.bookings.find(x => x.id === id);
     if (!b) return;
     const siblings = Comp.getOrderSiblings(b);
-    const items = [b, ...siblings].filter(item => ['Confirmed','Pending'].includes(item.status));
+    const items = [b, ...siblings].filter(item => ['Confirmed','Pending Confirmation','Modification Requested'].includes(item.status));
     if (items.length < 2) return;
     const itemsHtml = Comp._infoTable(
       items.map(it => [`#${it.id} — ${it.tour} (${it.channel})`, '$'+it.amount.toFixed(2)]),
@@ -7614,10 +7614,13 @@ const Comp = {
         <label for="fdBookingStatus">Status</label>
         <select id="fdBookingStatus" class="filter-select w-full">
           <option value="" ${!s.status?'selected':''}>All Status</option>
+          <option value="Pending Confirmation" ${s.status==='Pending Confirmation'?'selected':''}>Pending Confirmation</option>
           <option value="Confirmed" ${s.status==='Confirmed'?'selected':''}>Confirmed</option>
+          <option value="Modification Requested" ${s.status==='Modification Requested'?'selected':''}>Modification Requested</option>
+          <option value="Cancellation Requested" ${s.status==='Cancellation Requested'?'selected':''}>Cancellation Requested</option>
           <option value="Completed" ${s.status==='Completed'?'selected':''}>Completed</option>
-          <option value="Pending" ${s.status==='Pending'?'selected':''}>Pending</option>
           <option value="Cancelled" ${s.status==='Cancelled'?'selected':''}>Cancelled</option>
+          <option value="Rejected" ${s.status==='Rejected'?'selected':''}>Rejected</option>
         </select>
       </div>
       <div class="filter-drawer-group">
@@ -7773,7 +7776,7 @@ const Comp = {
   bookingCancellationCard(b){
     const cancelled = Comp._isCancelledStatus(b.status);
     if (!cancelled) {
-      const cancellable = ['Confirmed','Pending'].includes(b.status);
+      const cancellable = ['Confirmed','Pending Confirmation','Modification Requested'].includes(b.status);
       return `<div class="card">
         <p class="card-title">Cancellation state</p>
         ${Comp._infoTable([
@@ -13987,6 +13990,9 @@ Comp._bokunCtxKey = function(contextId){
 
 Comp.bokunOptionSearch = function(contextId){
   const key = Comp._bokunCtxKey(contextId);
+  const regionEl = document.getElementById('bokun-region-select-' + key);
+  const region = regionEl ? regionEl.value : '';
+  if (!region) { Comp.showToast('Please select a Bokun region first.', 'warning'); return; }
   const inputEl = document.getElementById('bokun-search-input-' + key);
   if (!inputEl) return;
   const code = (inputEl.value || '').trim().toUpperCase();
@@ -13995,7 +14001,7 @@ Comp.bokunOptionSearch = function(contextId){
   const resultEl = document.getElementById('bokun-search-result-' + key);
   if (!resultEl) return;
 
-  resultEl.innerHTML = '<div class="bokun-searching"><div class="spinner"></div> Searching Bokun CRM…</div>';
+  resultEl.innerHTML = '<div class="bokun-searching"><div class="spinner"></div> Searching Bokun CRM in <strong>' + Comp._escHtml(region) + '</strong>…</div>';
 
   setTimeout(function(){
     const found = Comp.BOKUN_MOCK_OPTIONS.find(o => o.optionCode.toUpperCase() === code);
@@ -14180,17 +14186,53 @@ Comp._bokunOptionCardHtml = function(opt, index, contextId){
   '</div>';
 };
 
+Comp.BOKUN_REGIONS = [
+  'Europe', 'Asia Pacific', 'North America', 'Middle East',
+  'Latin America', 'Africa', 'South Asia', 'Southeast Asia',
+  'Caribbean', 'Oceania', 'Central America', 'East Africa'
+];
+
+Comp._bokunRegionOnChange = function(contextId){
+  const key = Comp._bokunCtxKey(contextId);
+  const regionEl = document.getElementById('bokun-region-select-' + key);
+  const inputEl  = document.getElementById('bokun-search-input-' + key);
+  const searchBtn = document.getElementById('bokun-search-btn-' + key);
+  const hintEl   = document.getElementById('bokun-search-hint-' + key);
+  if (!regionEl || !inputEl || !searchBtn) return;
+  const selected = regionEl.value;
+  if (selected) {
+    inputEl.disabled  = false;
+    searchBtn.disabled = false;
+    inputEl.placeholder = 'Enter Bokun Option Code (e.g. OPT-BKN-001)';
+    if (hintEl) hintEl.innerHTML = 'Searching within <strong>' + Comp._escHtml(selected) + '</strong> region. Options are sourced from <strong>Bokun CRM</strong>.';
+  } else {
+    inputEl.disabled  = true;
+    searchBtn.disabled = true;
+    inputEl.placeholder = 'Select a region first…';
+    if (hintEl) hintEl.innerHTML = 'Select a Bokun region above, then search by option code.';
+  }
+};
+
 Comp._bokunOptionsUiHtml = function(opts, contextId){
+  const key = Comp._bokunCtxKey(contextId);
   const cardsHtml = opts.map((opt, i) => Comp._bokunOptionCardHtml(opt, i, contextId)).join('');
-  return '<div class="bokun-search-row">' +
-    '<input id="bokun-search-input-' + contextId + '" type="text" placeholder="Enter Bokun Option Code (e.g. OPT-BKN-001)" style="flex:1;" />' +
-    '<button type="button" class="btn btn-sm btn-primary" onclick="Comp.bokunOptionSearch(\'' + Comp._escAttr(contextId) + '\')">Search Bokun</button>' +
+  const regionOptions = '<option value="">— Select Bokun Region —</option>' +
+    Comp.BOKUN_REGIONS.map(r => '<option value="' + Comp._escAttr(r) + '">' + Comp._escHtml(r) + '</option>').join('');
+  return '<div style="margin-bottom:10px;">' +
+    '<label style="font-size:var(--fs-sm); font-weight:600; display:block; margin-bottom:6px; color:var(--text-secondary);">Bokun Region</label>' +
+    '<select id="bokun-region-select-' + key + '" class="card-input" style="max-width:320px;" onchange="Comp._bokunRegionOnChange(\'' + Comp._escAttr(contextId) + '\')">' +
+      regionOptions +
+    '</select>' +
   '</div>' +
-  '<p class="field-hint" style="margin-top:-10px; margin-bottom:14px;">Options are sourced from <strong>Bokun CRM</strong>. Search by option code to find and add options to this product.</p>' +
-  '<div id="bokun-search-result-' + contextId + '"></div>' +
+  '<div class="bokun-search-row">' +
+    '<input id="bokun-search-input-' + key + '" type="text" placeholder="Select a region first…" style="flex:1;" disabled />' +
+    '<button id="bokun-search-btn-' + key + '" type="button" class="btn btn-sm btn-primary" onclick="Comp.bokunOptionSearch(\'' + Comp._escAttr(contextId) + '\')" disabled>Search Bokun</button>' +
+  '</div>' +
+  '<p id="bokun-search-hint-' + key + '" class="field-hint" style="margin-top:-10px; margin-bottom:14px;">Select a Bokun region above, then search by option code.</p>' +
+  '<div id="bokun-search-result-' + key + '"></div>' +
   (opts.length
     ? '<p style="font-size:var(--fs-sm); font-weight:700; color:var(--text-secondary); margin:0 0 10px;">' + opts.length + ' option' + (opts.length === 1 ? '' : 's') + ' added</p>' + cardsHtml
-    : '<p class="empty-state" style="margin-top:0;">No tour options added yet. Search a Bokun option code above to add one.</p>');
+    : '<p class="empty-state" style="margin-top:0;">No tour options added yet. Select a region and search a Bokun option code above to add one.</p>');
 };
 
 Comp.addProductBlockOut = function(productId){
@@ -19908,9 +19950,9 @@ function pageBookingListing(){
 function pageBookingDetails(params){
   const b = DATA.bookings.find(x => x.id === params.id) || DATA.bookings[0];
   const tab = (params && params.tab) || 'overview';
-  const cancellable = ['Confirmed','Pending'].includes(b.status);
+  const cancellable = ['Confirmed','Pending Confirmation','Modification Requested'].includes(b.status);
   const orderSiblings = Comp.getOrderSiblings(b);
-  const cancellableOrderItems = [b, ...orderSiblings].filter(item => ['Confirmed','Pending'].includes(item.status));
+  const cancellableOrderItems = [b, ...orderSiblings].filter(item => ['Confirmed','Pending Confirmation','Modification Requested'].includes(item.status));
   const tabs = [
     {id:'overview', label:'Overview'},
     {id:'travellers', label:`Travellers · ${b.guestList.length}`},
@@ -20153,7 +20195,7 @@ function pageBookingDetails(params){
     ${b.status === 'Cancelled (Fraud – Viator)' && b.cancelNote ? `<div class="fraud-banner">${ICON.block} <div><strong>Cancelled — fraud detected by Viator.</strong> ${b.cancelNote} Support team notified at bookings@rosotravel.com. This booking is locked from further operations.</div></div>` : ''}
     ${b.status === 'Cancelled' && b.cancelNote ? `<div class="cancelled-banner">${ICON.warning} ${b.cancelNote}</div>` : ''}
     ${b.status === 'Completed' && b.paymentStatus === 'Refunded' && b.cancelNote ? `<div class="cancelled-banner">${ICON.checkCircle} ${b.cancelNote}</div>` : ''}
-    ${b.status === 'Pending' && b.confirmationType === 'Manual' ? (
+    ${b.status === 'Pending Confirmation' && b.confirmationType === 'Manual' ? (
       (b.hoursSincePending || 0) >= 72
         ? `<div class="status-banner is-danger"><span>${ICON.clock}</span><span><strong>72-hour supplier timeout exceeded</strong> (${b.hoursSincePending}h since request) — no action taken by supplier. ${Comp.Button('Process timeout (cancel)', {size:'btn-sm', variant:'btn-danger', onclick:`Comp.processManualTimeout('${b.id}')`})}</span></div>`
         : `<div class="status-banner is-info"><span>${ICON.clock}</span><span>Awaiting supplier confirmation — ${b.hoursSincePending || 0}h of 72h elapsed. Customer will only be charged once confirmed.</span></div>`
@@ -21173,10 +21215,13 @@ function pageCustomerDetails(params){
         <select class="filter-select" style="width:140px"
           onchange="Router.go('customerDetails',{email:'${_bEnc}',tab:'bookings',bDateBasis:'${bDateBasis}',bDateFrom:'${bDateFrom}',bDateTo:'${bDateTo}',bStatus:this.value})">
           <option value="" ${!bStatus?'selected':''}>All statuses</option>
+          <option value="Pending Confirmation" ${bStatus==='Pending Confirmation'?'selected':''}>Pending Confirmation</option>
           <option value="Confirmed"  ${bStatus==='Confirmed'  ?'selected':''}>Confirmed</option>
+          <option value="Modification Requested" ${bStatus==='Modification Requested'?'selected':''}>Modification Requested</option>
+          <option value="Cancellation Requested" ${bStatus==='Cancellation Requested'?'selected':''}>Cancellation Requested</option>
           <option value="Completed"  ${bStatus==='Completed'  ?'selected':''}>Completed</option>
-          <option value="Pending"    ${bStatus==='Pending'    ?'selected':''}>Pending</option>
           <option value="Cancelled"  ${bStatus==='Cancelled'  ?'selected':''}>Cancelled</option>
+          <option value="Rejected"   ${bStatus==='Rejected'   ?'selected':''}>Rejected</option>
           <option value="Refunded"   ${bStatus==='Refunded'   ?'selected':''}>Refunded</option>
         </select>
         ${(bDateFrom || bDateTo || bStatus) ? `<button type="button" class="btn-ghost btn-sm" onclick="Router.go('customerDetails',{email:'${_bEnc}',tab:'bookings'})">Clear</button>` : ''}
