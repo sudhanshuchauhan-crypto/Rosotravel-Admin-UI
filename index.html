@@ -20549,7 +20549,11 @@ Comp.getMultiSelectValues = function(idPrefix){
   return [...document.querySelectorAll('.' + idPrefix + '-cb:checked')].map(cb => cb.value);
 };
 Comp.eligibilityPicker = function(opts){
-  const { idPrefix, allLabel, specificLabel, mode, items, selectedIds, lockNote, maxUsersValue, supplierItems, selectedSuppliers, firstTimeOption } = opts;
+  const { idPrefix, allLabel, specificLabel, mode, items, selectedIds, lockNote, maxUsersValue, supplierItems, selectedSuppliers, firstTimeOption, csvRecipients, initMethod } = opts;
+  // initMethod: 'search' (default) or 'csv' — only relevant when firstTimeOption is true
+  const _initMethod = (firstTimeOption && initMethod) ? initMethod : 'search';
+  const _showSearch = mode === 'specific' && _initMethod === 'search';
+  const _showCsv    = mode === 'specific' && _initMethod === 'csv';
   const itemsHtml = items.map(it => `
     <label class="eligibility-item" data-label="${Comp._escAttr((it.searchLabel || it.label).toLowerCase())}" style="display:flex; align-items:center; gap:8px; padding:6px 4px; cursor:pointer;">
       <input type="checkbox" value="${it.id}" ${selectedIds.includes(it.id)?'checked':''} onchange="Comp.updateEligibilityCount('${idPrefix}')">
@@ -20560,6 +20564,31 @@ Comp.eligibilityPicker = function(opts){
       <input type="checkbox" value="${Comp._escAttr(s)}" ${(selectedSuppliers||[]).includes(s)?'checked':''} onchange="Comp.updateEligibilityCount('${idPrefix}-sup')">
       <span>${s}</span>
     </label>`).join('');
+  // CSV recipients table HTML (for pre-populate on edit — with Matched/Pending status)
+  const _csvList = csvRecipients || [];
+  const _knownEmails = new Set(Comp.getCustomers().map(c => c.email.toLowerCase()));
+  const _csvMatchedCount = _csvList.filter(r => _knownEmails.has(r.email.toLowerCase())).length;
+  const _csvPendingCount = _csvList.length - _csvMatchedCount;
+  const _csvTableHtml = _csvList.length ? `
+    <div style="display:flex; align-items:center; gap:12px; margin:8px 0 6px; flex-wrap:wrap;">
+      <span class="field-hint" style="margin:0;">${_csvList.length} recipient${_csvList.length!==1?'s':''}</span>
+      <span style="font-size:12px; font-weight:600; background:var(--success-100,#dcfce7); color:var(--success-700,#15803d); padding:2px 8px; border-radius:20px;">${_csvMatchedCount} Matched</span>
+      <span style="font-size:12px; font-weight:600; background:var(--warning-100,#fef9c3); color:var(--warning-700,#a16207); padding:2px 8px; border-radius:20px;">${_csvPendingCount} Pending</span>
+    </div>
+    <div style="border:1px solid var(--border); border-radius:var(--radius-md); max-height:220px; overflow-y:auto;">
+      <table class="data-table" style="width:100%;"><thead><tr><th>Email</th><th style="width:100px;">Status</th><th style="width:80px;"></th></tr></thead>
+      <tbody>${_csvList.map(r=>{
+        const _m = _knownEmails.has(r.email.toLowerCase());
+        const _b = _m
+          ? `<span style="display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;background:var(--success-100,#dcfce7);color:var(--success-700,#15803d);">Matched</span>`
+          : `<span style="display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;background:var(--warning-100,#fef9c3);color:var(--warning-700,#a16207);">Pending</span>`;
+        return `<tr>
+          <td style="font-size:13px;">${Comp._esc(r.email)}</td>
+          <td>${_b}</td>
+          <td style="text-align:right;"><button type="button" class="btn" style="padding:2px 8px;font-size:12px;color:var(--danger-600);" onclick="Comp._removeCsvRow('${idPrefix}','${Comp._escAttr(r.email)}')">Remove</button></td>
+        </tr>`;
+      }).join('')}</tbody></table>
+    </div>` : '';
   return `
     <p class="card-title text-sm">${opts.title}</p>
     ${lockNote ? `<p class="meta-box-hint" style="display:flex; align-items:center; gap:6px; margin-bottom:10px;">${ICON.lock} ${lockNote}</p>` : ''}
@@ -20572,14 +20601,37 @@ Comp.eligibilityPicker = function(opts){
       </select>
     </div>
     ${firstTimeOption ? `<div id="${idPrefix}-firsttimenote" class="field-hint" style="${mode==='firstTime'?'':'display:none;'} margin-top:-4px;">Valid only for a customer's first completed booking — returning customers cannot apply this code.</div>` : ''}
-    <div id="${idPrefix}-searchwrap" style="${mode==='specific'?'':'display:none;'} margin-top:10px;">
+    ${firstTimeOption ? `
+    <div id="${idPrefix}-methodwrap" style="${mode==='specific'?'':'display:none;'} margin-top:12px; margin-bottom:8px;">
+      <label style="font-size:12px; font-weight:600; color:var(--text-secondary); display:block; margin-bottom:8px; text-transform:uppercase; letter-spacing:.04em;">Add recipients via</label>
+      <div style="display:flex; gap:24px;">
+        <label style="display:flex; align-items:center; gap:7px; cursor:pointer; font-size:14px; font-weight:500;">
+          <input type="radio" name="${idPrefix}-method" value="search" ${_initMethod==='search'?'checked':''} onchange="Comp.toggleRecipientMethod('${idPrefix}','search')">
+          Search &amp; Select
+        </label>
+        <label style="display:flex; align-items:center; gap:7px; cursor:pointer; font-size:14px; font-weight:500;">
+          <input type="radio" name="${idPrefix}-method" value="csv" ${_initMethod==='csv'?'checked':''} onchange="Comp.toggleRecipientMethod('${idPrefix}','csv')">
+          Upload CSV
+        </label>
+      </div>
+    </div>` : ''}
+    <div id="${idPrefix}-searchwrap" style="${_showSearch?'':'display:none;'} margin-top:10px;">
       <input type="text" id="${idPrefix}-search" class="search-box w-full" placeholder="${opts.searchPlaceholder || 'Search...'}" oninput="Comp.filterEligibilityItems('${idPrefix}', this.value)">
     </div>
-    <div id="${idPrefix}-picker" style="${mode==='specific'?'':'display:none;'} border:1px solid var(--border); border-radius:var(--radius-md); max-height:220px; overflow-y:auto; padding:6px 10px; margin:8px 0 0;">
+    <div id="${idPrefix}-picker" style="${_showSearch?'':'display:none;'} border:1px solid var(--border); border-radius:var(--radius-md); max-height:220px; overflow-y:auto; padding:6px 10px; margin:8px 0 0;">
       ${items.length ? itemsHtml : '<p class="empty-state" style="margin:8px 0;">Nothing available to select.</p>'}
       <p id="${idPrefix}-noresults" class="empty-state" style="margin:8px 0; display:none;">No matches found.</p>
     </div>
-    <p id="${idPrefix}-count" class="field-hint" style="margin:8px 0 0; ${mode==='specific'?'':'display:none;'}">${selectedIds.length} selected</p>
+    <p id="${idPrefix}-count" class="field-hint" style="margin:8px 0 0; ${_showSearch?'':'display:none;'}">${selectedIds.length} selected</p>
+    ${firstTimeOption ? `
+    <div id="${idPrefix}-csvsection" style="${_showCsv?'':'display:none;'} margin-top:10px;">
+      <div class="field">
+        <input type="file" id="${idPrefix}-csvfile" accept=".csv" class="card-input" onchange="Comp.parseCouponCsv('${idPrefix}')" style="padding:6px;">
+        <p class="field-hint" style="margin-top:4px;">UTF-8, comma or semicolon separator. Column <strong>email</strong> auto-detected. Max 50,000 rows / 5 MB.</p>
+      </div>
+      <div id="${idPrefix}-csvfeedback" style="display:none; font-size:13px; margin:4px 0 8px;"></div>
+      <div id="${idPrefix}-csvtable">${_csvTableHtml}</div>
+    </div>` : ''}
   `;
 };
 Comp.filterEligibilityItems = function(idPrefix, query){
@@ -20612,16 +20664,128 @@ Comp.toggleEligibilityMode = function(idPrefix){
   document.getElementById(idPrefix+'-picker').style.display = mode === 'specific' ? '' : 'none';
   document.getElementById(idPrefix+'-count').style.display = mode === 'specific' ? '' : 'none';
   document.getElementById(idPrefix+'-searchwrap').style.display = mode === 'specific' ? '' : 'none';
-  document.getElementById(idPrefix+'-maxusers').style.display = mode === 'all' ? '' : 'none';
+  const _maxUsersEl = document.getElementById(idPrefix+'-maxusers');
+  if (_maxUsersEl) _maxUsersEl.style.display = mode === 'all' ? '' : 'none';
   const supWrap = document.getElementById(idPrefix+'-supwrap');
   if (supWrap) supWrap.style.display = mode === 'all' ? '' : 'none';
   const firstTimeNote = document.getElementById(idPrefix+'-firsttimenote');
   if (firstTimeNote) firstTimeNote.style.display = mode === 'firstTime' ? '' : 'none';
+  // Show/hide the "Add recipients via" radio row (user pickers only)
+  const _mw = document.getElementById(idPrefix+'-methodwrap');
+  if (_mw) {
+    _mw.style.display = mode === 'specific' ? '' : 'none';
+    if (mode === 'specific') {
+      // Reset to Search & Select when switching back to specific
+      const _sr = document.querySelector('input[name="' + idPrefix + '-method"][value="search"]');
+      if (_sr) { _sr.checked = true; Comp.toggleRecipientMethod(idPrefix, 'search'); }
+    } else {
+      // Hide CSV section when switching away from specific
+      const _csv = document.getElementById(idPrefix+'-csvsection');
+      if (_csv) _csv.style.display = 'none';
+    }
+  }
 };
 Comp.updateEligibilityCount = function(idPrefix){
   const checked = document.querySelectorAll('#' + idPrefix + '-picker input[type="checkbox"]:checked').length;
   const countEl = document.getElementById(idPrefix+'-count');
   if (countEl) countEl.textContent = `${checked} selected`;
+};
+Comp.toggleRecipientMethod = function(idPrefix, method) {
+  const isSearch = method === 'search';
+  const sw = document.getElementById(idPrefix+'-searchwrap');
+  const pk = document.getElementById(idPrefix+'-picker');
+  const ct = document.getElementById(idPrefix+'-count');
+  const cs = document.getElementById(idPrefix+'-csvsection');
+  if (sw) sw.style.display = isSearch ? '' : 'none';
+  if (pk) pk.style.display = isSearch ? '' : 'none';
+  if (ct) ct.style.display = isSearch ? '' : 'none';
+  if (cs) cs.style.display = isSearch ? 'none' : '';
+};
+Comp.parseCouponCsv = function(idPrefix) {
+  const fi = document.getElementById(idPrefix+'-csvfile');
+  if (!fi || !fi.files[0]) return;
+  const file = fi.files[0];
+  if (file.size > 5 * 1024 * 1024) { Comp.showToast('File exceeds 5 MB limit.', 'danger'); fi.value = ''; return; }
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const text = e.target.result;
+    const lines = text.split(/\r?\n/).filter(l => l.trim());
+    if (!lines.length) { Comp.showToast('CSV file is empty.', 'danger'); return; }
+    const sep = lines[0].includes(';') ? ';' : ',';
+    const rawHdrs = lines[0].split(sep).map(h => h.trim().toLowerCase().replace(/^"|"$/g,''));
+    const emailCol = rawHdrs.indexOf('email');
+    const hasHdr = emailCol >= 0;
+    const colIdx = hasHdr ? emailCol : 0;
+    const startRow = hasHdr ? 1 : 0;
+    if (!Comp._couponCsvRecipients) Comp._couponCsvRecipients = {};
+    if (!Comp._couponCsvRecipients[idPrefix]) Comp._couponCsvRecipients[idPrefix] = [];
+    const existing = new Set(Comp._couponCsvRecipients[idPrefix].map(r => r.email.toLowerCase()));
+    let added = 0, skipped = 0, invalid = 0;
+    for (let i = startRow; i < Math.min(lines.length, startRow + 50000); i++) {
+      const cols = lines[i].split(sep);
+      const raw = (cols[colIdx] || '').trim().replace(/^"|"$/g,'');
+      if (!raw) continue;
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(raw)) { invalid++; continue; }
+      if (existing.has(raw.toLowerCase())) { skipped++; continue; }
+      existing.add(raw.toLowerCase());
+      Comp._couponCsvRecipients[idPrefix].push({email:raw, source:'csv'});
+      added++;
+    }
+    Comp._renderCsvTable(idPrefix);
+    const fb = document.getElementById(idPrefix+'-csvfeedback');
+    if (fb) {
+      fb.innerHTML = `<span style="color:var(--success-700);">✓ ${added} email${added!==1?'s':''} added.</span>`
+        + (skipped ? ` <span style="color:var(--text-secondary);">${skipped} duplicate${skipped!==1?'s':''} skipped.</span>` : '')
+        + (invalid ? ` <span style="color:var(--danger-600);">${invalid} invalid skipped.</span>` : '');
+      fb.style.display = 'block';
+    }
+  };
+  reader.readAsText(file, 'UTF-8');
+};
+Comp._csvStatusBadge = function(email) {
+  const known = new Set(Comp.getCustomers().map(c => c.email.toLowerCase()));
+  const matched = known.has(email.toLowerCase());
+  return matched
+    ? `<span style="display:inline-block; padding:2px 8px; border-radius:20px; font-size:11px; font-weight:600; background:var(--success-100,#dcfce7); color:var(--success-700,#15803d);">Matched</span>`
+    : `<span style="display:inline-block; padding:2px 8px; border-radius:20px; font-size:11px; font-weight:600; background:var(--warning-100,#fef9c3); color:var(--warning-700,#a16207);">Pending</span>`;
+};
+Comp._renderCsvTable = function(idPrefix) {
+  const el = document.getElementById(idPrefix+'-csvtable');
+  if (!el) return;
+  const list = (Comp._couponCsvRecipients && Comp._couponCsvRecipients[idPrefix]) || [];
+  if (!list.length) { el.innerHTML = ''; return; }
+  const known = new Set(Comp.getCustomers().map(c => c.email.toLowerCase()));
+  const matchedCount  = list.filter(r => known.has(r.email.toLowerCase())).length;
+  const pendingCount  = list.length - matchedCount;
+  el.innerHTML = `
+    <div style="display:flex; align-items:center; gap:12px; margin:8px 0 6px; flex-wrap:wrap;">
+      <span class="field-hint" style="margin:0;">${list.length} recipient${list.length!==1?'s':''}</span>
+      <span style="font-size:12px; font-weight:600; background:var(--success-100,#dcfce7); color:var(--success-700,#15803d); padding:2px 8px; border-radius:20px;">${matchedCount} Matched</span>
+      <span style="font-size:12px; font-weight:600; background:var(--warning-100,#fef9c3); color:var(--warning-700,#a16207); padding:2px 8px; border-radius:20px;">${pendingCount} Pending</span>
+    </div>
+    <div style="border:1px solid var(--border); border-radius:var(--radius-md); max-height:220px; overflow-y:auto;">
+      <table class="data-table" style="width:100%;"><thead><tr><th>Email</th><th style="width:100px;">Status</th><th style="width:80px;"></th></tr></thead>
+      <tbody>${list.map(r => {
+        const isMatched = known.has(r.email.toLowerCase());
+        const badge = isMatched
+          ? `<span style="display:inline-block; padding:2px 8px; border-radius:20px; font-size:11px; font-weight:600; background:var(--success-100,#dcfce7); color:var(--success-700,#15803d);">Matched</span>`
+          : `<span style="display:inline-block; padding:2px 8px; border-radius:20px; font-size:11px; font-weight:600; background:var(--warning-100,#fef9c3); color:var(--warning-700,#a16207);">Pending</span>`;
+        return `<tr>
+          <td style="font-size:13px;">${Comp._esc(r.email)}</td>
+          <td>${badge}</td>
+          <td style="text-align:right;"><button type="button" class="btn" style="padding:2px 8px; font-size:12px; color:var(--danger-600);" onclick="Comp._removeCsvRow('${idPrefix}','${Comp._escAttr(r.email)}')">Remove</button></td>
+        </tr>`;
+      }).join('')}</tbody></table>
+    </div>`;
+};
+Comp._removeCsvRow = function(idPrefix, email) {
+  if (!Comp._couponCsvRecipients || !Comp._couponCsvRecipients[idPrefix]) return;
+  Comp._couponCsvRecipients[idPrefix] = Comp._couponCsvRecipients[idPrefix].filter(r => r.email.toLowerCase() !== email.toLowerCase());
+  Comp._renderCsvTable(idPrefix);
+  if (!Comp._couponCsvRecipients[idPrefix].length) {
+    const fb = document.getElementById(idPrefix+'-csvfeedback');
+    if (fb) fb.style.display = 'none';
+  }
 };
 Comp.getEligibilitySelection = function(idPrefix){
   return [...document.querySelectorAll('#' + idPrefix + '-picker input[type="checkbox"]:checked')].map(el => el.value);
@@ -20638,6 +20802,12 @@ function pageCouponCreate(params){
   }));
   const supplierNames = [...new Set(DATA.products.filter(p => p.supplierName).map(p => p.supplierName))];
   const customerItems = Comp.getCustomers().map(cu => ({id:cu.email, label:`${cu.name} (${cu.email})`}));
+
+  // Initialize CSV recipients temp store (for bulk-upload method)
+  const _userCsvRecipients = (c && c.csvRecipients) ? [...c.csvRecipients] : [];
+  Comp._couponCsvRecipients = Comp._couponCsvRecipients || {};
+  Comp._couponCsvRecipients['couponUser'] = _userCsvRecipients;
+  const _userInitMethod = (_userCsvRecipients.length > 0) ? 'csv' : 'search';
 
   const initSrc   = c ? (c.productSource || 'All') : 'All';
   const initType  = c ? (c.discountType || 'percentage') : 'percentage';
@@ -20749,6 +20919,8 @@ function pageCouponCreate(params){
             mode: c ? c.userEligibility : 'all', items: customerItems, selectedIds: c ? c.userEmails : [],
             maxUsersValue: c && c.maxUsersAllowed != null ? c.maxUsersAllowed : null,
             firstTimeOption: true,
+            csvRecipients: _userCsvRecipients,
+            initMethod: _userInitMethod,
             searchPlaceholder: 'Search by name or email...'
           })}
           <div style="margin-top:16px; padding-top:14px; border-top:1px solid var(--border);">
@@ -20897,8 +21069,17 @@ Comp.submitCouponForm = function(editId){
     if (productMode === 'specific' && productIds.length === 0) { Comp.showToast('Select at least one specific product, or switch back to "All products".', 'danger'); return; }
   } else {
     userMode = document.getElementById('couponUser-mode').value;
-    userEmails = userMode === 'specific' ? Comp.getEligibilitySelection('couponUser') : [];
-    if (userMode === 'specific' && userEmails.length === 0) { Comp.showToast('Select at least one specific user, or switch back to "All users".', 'danger'); return; }
+    if (userMode === 'specific') {
+      const _csvRadio = document.querySelector('input[name="couponUser-method"][value="csv"]');
+      if (_csvRadio && _csvRadio.checked) {
+        const _csvList = (Comp._couponCsvRecipients && Comp._couponCsvRecipients['couponUser']) || [];
+        if (!_csvList.length) { Comp.showToast('Please upload a CSV with at least one valid email.', 'danger'); return; }
+        userEmails = _csvList.map(r => r.email);
+      } else {
+        userEmails = Comp.getEligibilitySelection('couponUser');
+        if (!userEmails.length) { Comp.showToast('Select at least one specific user, or switch back to "All users".', 'danger'); return; }
+      }
+    }
   }
 
   // Usage limits (from the dedicated Usage Limits card)
@@ -20943,6 +21124,12 @@ Comp.submitCouponForm = function(editId){
     productEligibility: productMode, productIds,
     supplierNames,
     userEligibility: userMode, userEmails,
+    csvRecipients: (()=>{
+      const _cr = document.querySelector('input[name="couponUser-method"][value="csv"]');
+      return (eligibilityLevel==='user' && userMode==='specific' && _cr && _cr.checked)
+        ? ((Comp._couponCsvRecipients && Comp._couponCsvRecipients['couponUser']) || [])
+        : (c && c.csvRecipients ? c.csvRecipients : []);
+    })(),
     userProductEligibility: userProductMode, userProductIds,
     maxUsersAllowed,
     minBookingValue, maxTotalUses, maxUsesPerCustomer,
