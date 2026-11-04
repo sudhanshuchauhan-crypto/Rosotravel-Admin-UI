@@ -6868,6 +6868,16 @@ const Comp = {
         const depVal = dep ? (dep.value || '') : '';
         if (f.visibleWhen.notEmpty && !depVal) return '';
       }
+      if (f.dateRange) {
+        return `<div class="filter-drawer-group">
+          <label>${f.label}</label>
+          <div style="display:flex; gap:8px; align-items:center;">
+            <input type="date" id="fd_${f.id}_from" class="filter-select" style="flex:1" value="${Comp._escAttr(f.valueFrom||'')}">
+            <span style="color:var(--text-secondary); font-size:13px; flex-shrink:0;">to</span>
+            <input type="date" id="fd_${f.id}_to" class="filter-select" style="flex:1" value="${Comp._escAttr(f.valueTo||'')}">
+          </div>
+        </div>`;
+      }
       if (f.searchable && f.options) {
         // SearchSelect with label-aware options: store value in hidden field, show label in input.
         const ssOpts = f.options.filter(o => o.value !== '').map(o => ({value: o.label || o.value, _realValue: o.value}));
@@ -6893,7 +6903,9 @@ const Comp = {
       return `
         <div class="filter-drawer-group">
           <label for="fd_${f.id}">${f.label}</label>
-          ${f.text
+          ${f.date
+            ? `<input type="date" id="fd_${f.id}" class="filter-select w-full" value="${Comp._escAttr(f.value || '')}">`
+            : f.text
             ? `<input type="text" id="fd_${f.id}" class="filter-select w-full" placeholder="${Comp._escAttr(f.placeholder || '')}" value="${Comp._escAttr(f.value || '')}">`
             : `<select id="fd_${f.id}" class="filter-select w-full">
             ${f.options.map(o => `<option value="${o.value}" ${f.value===o.value?'selected':''}>${o.label}</option>`).join('')}
@@ -6904,7 +6916,12 @@ const Comp = {
       () => {
         const updates = {};
         fields.forEach(f => {
-          if (f.searchable) {
+          if (f.dateRange) {
+            const fromEl = document.getElementById('fd_' + f.id + '_from');
+            const toEl   = document.getElementById('fd_' + f.id + '_to');
+            updates[f.idFrom] = fromEl ? fromEl.value : '';
+            updates[f.idTo]   = toEl   ? toEl.value   : '';
+          } else if (f.searchable) {
             // Real value stored in hidden input; text input shows display label
             const hidden = document.getElementById('fd_' + f.id + 'Hidden');
             const inp = document.getElementById('fd_' + f.id + 'Input');
@@ -6919,6 +6936,14 @@ const Comp = {
       () => {
         const resetParams = {...params};
         fields.forEach(f => {
+          if (f.dateRange) {
+            resetParams[f.idFrom] = '';
+            resetParams[f.idTo]   = '';
+            const fromEl = document.getElementById('fd_' + f.id + '_from');
+            if (fromEl) fromEl.value = '';
+            const toEl = document.getElementById('fd_' + f.id + '_to');
+            if (toEl) toEl.value = '';
+          } else {
           resetParams[f.id] = '';
           if (f.searchable) {
             const inp = document.getElementById('fd_' + f.id + 'Input');
@@ -6927,6 +6952,7 @@ const Comp = {
             if (hidden) hidden.value = '';
             const wrap = document.getElementById('fd_' + f.id);
             if (wrap) wrap.classList.remove('open');
+          }
           }
         });
         Router.go(route, resetParams);
@@ -20474,7 +20500,22 @@ function pageCouponListing(params){
 
   // ── BULK BATCHES TAB ──────────────────────────────────────────────────────
   if (activeTab === 'batches') {
-    const batchRows = (DATA.couponBatches || []).map(b => {
+    const bq = (p.bq || '').toLowerCase();
+    const bfStatus   = p.bfStatus   || '';
+    const bfDateFrom = p.bfDateFrom || '';
+    const bfDateTo   = p.bfDateTo   || '';
+
+    let batchList = (DATA.couponBatches || []);
+    if (bq) batchList = batchList.filter(b =>
+      b.name.toLowerCase().includes(bq) || (b.prefix||'').toLowerCase().includes(bq));
+    if (bfStatus) batchList = batchList.filter(b =>
+      bfStatus === 'Active' ? !b.disabled : b.disabled);
+    if (bfDateFrom) batchList = batchList.filter(b =>
+      b.createdAt >= bfDateFrom);
+    if (bfDateTo) batchList = batchList.filter(b =>
+      b.createdAt <= bfDateTo + 'T23:59:59');
+
+    const batchRows = batchList.map(b => {
       const codesInBatch = DATA.coupons.filter(c => c.batchId === b.id);
       const totalCodes = codesInBatch.length;
       const batchDisabled = b.disabled;
@@ -20494,6 +20535,9 @@ function pageCouponListing(params){
       </tr>`;
     }).join('');
 
+    const batchFilterKeys = ['bfStatus','bfDateFrom','bfDateTo'];
+    const batchFilterCount = Comp.activeRouteFilterCount(p, batchFilterKeys);
+
     return Comp.Shell(`
       ${Comp.PageHeader({title:'Discount Coupons', actions:`
         <button type="button" class="btn" onclick="Router.go('couponCreate')">+ Create coupon</button>
@@ -20502,7 +20546,17 @@ function pageCouponListing(params){
         <button type="button" class="ops-tab" onclick="Router.go('couponListing',{tab:'individual'})">Individual Coupons</button>
         <button type="button" class="ops-tab is-active" onclick="Router.go('couponListing',{tab:'batches'})">Bulk Batches</button>
       </div>
-      ${Comp.Table({columns:[{label:'Batch Name / Prefix'},{label:'Created',width:'130px'},{label:'Total Codes',width:'110px'},{label:'Status',width:'120px'},{label:'Actions',width:'120px'}], rows:batchRows, emptyText:'No bulk batches yet. Click "⚡ Generate Bulk Coupons" to create one.'})}
+      <div class="filter-bar" role="search">
+        <label for="batchSearch" class="visually-hidden">Search by batch name or prefix</label>
+        <input id="batchSearch" class="search-box" placeholder="Search by batch name or prefix" value="${Comp._escAttr(p.bq||'')}"
+          onkeydown="if(event.key==='Enter') Router.go('couponListing',{tab:'batches',bq:this.value,bfStatus:'${Comp._escAttr(bfStatus)}',bfDateFrom:'${Comp._escAttr(bfDateFrom)}',bfDateTo:'${Comp._escAttr(bfDateTo)}'})">
+        ${Comp.FilterIconButton(batchFilterCount, `Comp.openRouteFilterDrawer('couponListing', '${encodeURIComponent(JSON.stringify({...p, tab:'batches'}))}', '${encodeURIComponent(JSON.stringify([
+          {id:'bfStatus', label:'Status', value:bfStatus, options:[{value:'',label:'All statuses'},{value:'Active',label:'Active'},{value:'Disabled',label:'Disabled'}]},
+          {id:'bfDate', label:'Created date', dateRange:true, idFrom:'bfDateFrom', idTo:'bfDateTo', valueFrom:bfDateFrom, valueTo:bfDateTo}
+        ]))}')`)}
+      </div>
+      ${Comp.Table({columns:[{label:'Batch Name / Prefix'},{label:'Created',width:'130px'},{label:'Total Codes',width:'110px'},{label:'Status',width:'120px'},{label:'Actions',width:'120px'}], rows:batchRows, emptyText:'No batches found.'})}
+      ${Comp.Pagination(`Showing ${batchList.length} of ${(DATA.couponBatches||[]).length} batches`)}
     `);
   }
 
