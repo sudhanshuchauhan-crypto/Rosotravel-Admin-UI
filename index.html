@@ -20726,6 +20726,43 @@ Comp.bulkToggleBatchCodes = function(enable){
   });
 };
 
+// ── BULK: sync eligibility picker when product source changes ──────────────
+Comp.syncBulkEligibilityToSource = function(){
+  const src = (document.getElementById('bulkProductSource') || {}).value || 'All';
+  const allProducts = DATA.products.filter(pr => pr.status === 'Active');
+  const filtered = allProducts.filter(pr => {
+    if (src === 'Rosotravel') return pr.sourceType === 'Internal';
+    if (src === 'Viator')     return pr.sourceType === 'External';
+    return true;
+  });
+  const items = filtered.map(pr => ({
+    id: pr.id,
+    label: `${pr.productCode ? '[' + pr.productCode + '] ' : ''}${pr.name} — ${pr.city}`,
+    searchLabel: `${pr.name} ${pr.productCode || ''} ${pr.city} ${pr.sourceType === 'External' ? 'Viator' : 'Rosotravel'}`
+  }));
+  const supplierItems = src === 'Rosotravel' ? [] :
+    [...new Set(filtered.filter(pr => pr.supplierName).map(pr => pr.supplierName))];
+  const allLabel = src === 'Rosotravel' ? 'All Rosotravel products'
+    : src === 'Viator' ? 'All Viator products'
+    : 'All products (Rosotravel + Viator)';
+  const specificLabel = src === 'Rosotravel' ? 'Specific Rosotravel product(s)'
+    : src === 'Viator' ? 'Specific Viator product(s)'
+    : 'Specific product(s)';
+  const lockNote = src !== 'Rosotravel'
+    ? 'When "All products" is selected, you can optionally narrow it down to specific Viator supplier(s) below.'
+    : '';
+  const wrap = document.getElementById('bulkEligibilityPickerWrap');
+  if (!wrap) return;
+  wrap.innerHTML = Comp.eligibilityPicker({
+    idPrefix: 'bulkProduct', title: '',
+    allLabel, specificLabel, mode: 'all',
+    items, selectedIds: [],
+    supplierItems, selectedSuppliers: [],
+    lockNote,
+    searchPlaceholder: 'Search by product name, code or city...'
+  });
+};
+
 // ── BULK GENERATION FORM SUBMIT ───────────────────────────────────────────
 Comp.submitBulkCouponForm = function(){
   const val = id => { const el=document.getElementById(id); return el?el.value.trim():''; };
@@ -21504,7 +21541,7 @@ function pageBulkCouponGenerate(params){
       ${Comp.Card({title:'Discount', body:`
         <div class="field">
           <label for="bulkProductSource">Product source scope <span class="required">*</span></label>
-          <select id="bulkProductSource" class="card-input">
+          <select id="bulkProductSource" class="card-input" onchange="Comp.syncBulkEligibilityToSource()">
             <option value="All">All — Rosotravel and Viator products</option>
             <option value="Rosotravel">Rosotravel products only</option>
             <option value="Viator">Viator products only</option>
@@ -21542,6 +21579,7 @@ function pageBulkCouponGenerate(params){
       <div class="card">
         <p class="card-title">Eligibility</p>
         <p class="meta-box-hint card-hint card-hint--loose">Choose which products these codes apply to.</p>
+        <div id="bulkEligibilityPickerWrap">
         ${Comp.eligibilityPicker({
           idPrefix: 'bulkProduct',
           title: '',
@@ -21555,6 +21593,7 @@ function pageBulkCouponGenerate(params){
           lockNote: 'When "All products" is selected, you can optionally narrow it down to specific Viator supplier(s) below.',
           searchPlaceholder: 'Search by product name, code or city...'
         })}
+        </div>
         <div style="margin-top:16px; padding-top:14px; border-top:1px solid var(--border);">
           <p class="card-title text-sm" style="margin-bottom:4px;">Usage limits</p>
           <p class="field-hint mb-3">Optionally cap how many times each code can be used in total, and how many times each individual customer can use it.</p>
