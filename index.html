@@ -20733,6 +20733,7 @@ Comp.submitBulkCouponForm = function(){
   const batchName = val('bulkBatchName');
   const prefix    = val('bulkPrefix').toUpperCase().replace(/[^A-Z0-9]/g,'');
   const qty       = num('bulkQty');
+  const productSource = val('bulkProductSource') || 'All';
   const discountType  = val('bulkDiscountType');
   const discountValue = num('bulkDiscountValue');
   const validFrom  = val('bulkValidFrom');
@@ -20757,9 +20758,11 @@ Comp.submitBulkCouponForm = function(){
     minBookingValue: minBooking,
     maxTotalUses: maxTotal,
     maxUsesPerCustomer: maxPerCust,
-    productEligibility:'all', productIds:[],
+    productEligibility: (function(){ const el=document.getElementById('bulkProduct-mode'); return el?el.value:'all'; })(),
+    productIds: Comp.getMultiSelectValues('bulkProduct'),
+    supplierNames: Comp.getMultiSelectValues('bulkProduct-sup'),
     userEligibility:'all', userEmails:[],
-    productSource:'All', eligibilityLevel:'product'
+    productSource: productSource, eligibilityLevel:'product'
   };
   DATA.couponBatches = DATA.couponBatches || [];
   DATA.couponBatches.unshift(batch);
@@ -20776,9 +20779,11 @@ Comp.submitBulkCouponForm = function(){
       minBookingValue: minBooking,
       maxTotalUses: maxTotal,
       maxUsesPerCustomer: maxPerCust,
-      productEligibility:'all', productIds:[],
+      productEligibility: (function(){ const el=document.getElementById('bulkProduct-mode'); return el?el.value:'all'; })(),
+      productIds: Comp.getMultiSelectValues('bulkProduct'),
+      supplierNames: Comp.getMultiSelectValues('bulkProduct-sup'),
       userEligibility:'all', userEmails:[],
-      productSource:'All', eligibilityLevel:'product',
+      productSource: productSource, eligibilityLevel:'product',
       disabled: false, usedCount: 0, maxUsersAllowed: null,
       history:[{label:'Code generated (bulk batch)', time:new Date().toLocaleString(), actor:'Admin (you)'}]
     });
@@ -21430,6 +21435,12 @@ Comp.submitCouponForm = function(editId){
 // ── PAGE: BULK COUPON GENERATE ────────────────────────────────────────────
 function pageBulkCouponGenerate(params){
   const p = params || {};
+  const productItems = DATA.products.filter(pr => pr.status === 'Active').map(pr => ({
+    id: pr.id,
+    label: `${pr.productCode ? '[' + pr.productCode + '] ' : ''}${pr.name} — ${pr.city}`,
+    searchLabel: `${pr.name} ${pr.productCode || ''} ${pr.city} ${pr.sourceType === 'External' ? 'Viator' : 'Rosotravel'}`
+  }));
+  const supplierNames = [...new Set(DATA.products.filter(pr => pr.supplierName).map(pr => pr.supplierName))];
 
   // Post-generation result view
   if (p.done && p.batchId) {
@@ -21492,6 +21503,15 @@ function pageBulkCouponGenerate(params){
 
       ${Comp.Card({title:'Discount', body:`
         <div class="field">
+          <label for="bulkProductSource">Product source scope <span class="required">*</span></label>
+          <select id="bulkProductSource" class="card-input">
+            <option value="All">All — Rosotravel and Viator products</option>
+            <option value="Rosotravel">Rosotravel products only</option>
+            <option value="Viator">Viator products only</option>
+          </select>
+          <p class="field-hint">Applied per item in the cart. A mixed cart is discounted partially and the confirmation message names exactly which tours the code applied to.</p>
+        </div>
+        <div class="field">
           <label for="bulkDiscountType">Discount type <span class="required">*</span></label>
           <select id="bulkDiscountType" class="card-input">
             <option value="percentage">Percentage off (%)</option>
@@ -21521,23 +21541,20 @@ function pageBulkCouponGenerate(params){
 
       <div class="card">
         <p class="card-title">Eligibility</p>
-        <p class="meta-box-hint card-hint card-hint--loose">Choose who can redeem these codes and which products they apply to.</p>
-        <div class="field">
-          <label for="bulkAppliesTo">Applies to <span class="required">*</span></label>
-          <select id="bulkAppliesTo" class="card-input">
-            <option value="all">All products (Rosotravel + Viator)</option>
-            <option value="rosotravel">Rosotravel products only</option>
-            <option value="viator">Viator products only</option>
-          </select>
-          <p class="field-hint">Each code is applied per item in the cart that matches this scope.</p>
-        </div>
-        <div class="field">
-          <label for="bulkUserScope">User scope</label>
-          <select id="bulkUserScope" class="card-input">
-            <option value="all">All users — anyone with a valid code can redeem it</option>
-            <option value="new">New customers only — first-time buyers</option>
-          </select>
-        </div>
+        <p class="meta-box-hint card-hint card-hint--loose">Choose which products these codes apply to.</p>
+        ${Comp.eligibilityPicker({
+          idPrefix: 'bulkProduct',
+          title: '',
+          allLabel: 'All products (Rosotravel + Viator)',
+          specificLabel: 'Specific product(s)',
+          mode: 'all',
+          items: productItems,
+          selectedIds: [],
+          supplierItems: supplierNames,
+          selectedSuppliers: [],
+          lockNote: 'When "All products" is selected, you can optionally narrow it down to specific Viator supplier(s) below.',
+          searchPlaceholder: 'Search by product name, code or city...'
+        })}
         <div style="margin-top:16px; padding-top:14px; border-top:1px solid var(--border);">
           <p class="card-title text-sm" style="margin-bottom:4px;">Usage limits</p>
           <p class="field-hint mb-3">Optionally cap how many times each code can be used in total, and how many times each individual customer can use it.</p>
