@@ -1336,6 +1336,64 @@ DATA.coupons = [
 DATA.coupons.forEach(c => { if (!c.eligibilityLevel) c.eligibilityLevel = c.userEligibility === 'specific' ? 'user' : 'product'; });
 DATA.coupons.forEach(c => { if (!('maxUsersAllowed' in c)) c.maxUsersAllowed = null; });
 
+// Bulk coupon batches — each batch shares the same rules; individual codes
+// live in DATA.coupons with a batchId field pointing back to the batch.
+DATA.couponBatches = [
+  {id:'btch-1', name:'Black Friday 2026', prefix:'BF26', quantity:50, createdAt:'2026-11-01T10:00:00',
+   disabled:false,
+   discountType:'percentage', discountValue:25,
+   validFrom:'2026-11-27', validUntil:'2026-11-30',
+   minBookingValue:0, maxTotalUses:1, maxUsesPerCustomer:1,
+   productEligibility:'all', productIds:[], userEligibility:'all', userEmails:[],
+   productSource:'All', eligibilityLevel:'product'},
+  {id:'btch-2', name:'Winter Promo Batch', prefix:'WINT', quantity:20, createdAt:'2026-10-28T09:00:00',
+   disabled:true,
+   discountType:'fixed', discountValue:15,
+   validFrom:'2026-12-01', validUntil:'2026-12-31',
+   minBookingValue:50, maxTotalUses:1, maxUsesPerCustomer:1,
+   productEligibility:'all', productIds:[], userEligibility:'all', userEmails:[],
+   productSource:'All', eligibilityLevel:'product'}
+];
+// Seed sample bulk codes into DATA.coupons for the two demo batches
+(function(){
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  function rndCode(prefix){
+    let s = '';
+    for(let i=0;i<6;i++) s += chars[Math.floor(Math.random()*chars.length)];
+    return (prefix ? prefix+'-' : '') + s;
+  }
+  const existing = new Set(DATA.coupons.map(c=>c.code));
+  DATA.couponBatches.forEach(b => {
+    for(let i=0;i<b.quantity;i++){
+      let code;
+      do { code = rndCode(b.prefix); } while(existing.has(code));
+      existing.add(code);
+      DATA.coupons.push({
+        id: b.id+'-c'+(i+1),
+        code,
+        batchId: b.id,
+        discountType: b.discountType,
+        discountValue: b.discountValue,
+        validFrom: b.validFrom,
+        validUntil: b.validUntil,
+        minBookingValue: b.minBookingValue,
+        maxTotalUses: b.maxTotalUses,
+        maxUsesPerCustomer: b.maxUsesPerCustomer,
+        productEligibility: b.productEligibility,
+        productIds: b.productIds,
+        userEligibility: b.userEligibility,
+        userEmails: b.userEmails,
+        productSource: b.productSource,
+        eligibilityLevel: b.eligibilityLevel,
+        disabled: b.disabled,
+        usedCount: (i < 3 && b.id==='btch-1') ? 1 : 0,
+        maxUsersAllowed: null,
+        history:[{label:'Code generated (bulk batch)', time:'01 Nov 2026, 10:00 AM', actor:'Admin (you)'}]
+      });
+    }
+  });
+})();
+
 // Group vs Private tour pricing (Scope 1 affiliation doc, "04.1 Group Tours"
 // vs "04.2 Private Tours"). Group tours: linear per-person diff. Private
 // tours: tier-based — price depends on which participant-count tier the
@@ -2460,7 +2518,7 @@ const NavUI = {
     const marketingContentRoutes = ['countryListing','countryDetails','historyLog','regionListing','regionCreate','regionDetails','regionHistoryLog','cityListing','cityCreate','cityDetails','cityHistoryLog','attractionListing','attractionCreate','attractionDetails','attractionHistoryLog','dedupeReview','categoryListing','categoryDetails','categoryHistoryLog','homeManagement','staticPagesList','staticPageEditor','mediaLibrary','mediaAssetDetails','sitemapManagement','aiSitemapPanel','apiFeedPanel','helpCentre','nearbyListing'];
     const productsRoutes = ['productListing','productDetails'];
     const productOpsRoutes = ['productOpsInventory','productOpsDetail','productOpsConfig','productOpsAlerts'];
-    const bookingsCustomersRoutes = ['bookingListing','bookingDetails','customerListing','customerDetails','reviewListing','reviewDetail','couponListing','couponCreate','couponDetails'];
+    const bookingsCustomersRoutes = ['bookingListing','bookingDetails','customerListing','customerDetails','reviewListing','reviewDetail','couponListing','couponCreate','couponDetails','bulkCouponGenerate','batchDetail'];
     const settingsAdminRoutes = ['usersListing','usersCreate','usersDetails','rolesListing','rolesCreate','rolesDetails','promptManagement','promptEditor'];
     const matches = [
       [marketingContentRoutes, 'marketingContent'], [productsRoutes, 'products'],
@@ -3227,7 +3285,7 @@ const Comp = {
           <button type="button" class="nav-sub" ${['bookingListing','bookingDetails'].includes(Router.route) ? 'aria-current="page"' : ''} onclick="Router.go('bookingListing')">Bookings</button>
           <button type="button" class="nav-sub" ${['customerListing','customerDetails'].includes(Router.route) ? 'aria-current="page"' : ''} onclick="Router.go('customerListing')">Customers</button>
           <button type="button" class="nav-sub" ${['reviewListing','reviewDetail'].includes(Router.route) ? 'aria-current="page"' : ''} onclick="Router.go('reviewListing')">Reviews</button>
-          <button type="button" class="nav-sub" ${['couponListing','couponCreate','couponDetails'].includes(Router.route) ? 'aria-current="page"' : ''} onclick="Router.go('couponListing')">Discount Coupons</button>
+          <button type="button" class="nav-sub" ${['couponListing','couponCreate','couponDetails','bulkCouponGenerate','batchDetail'].includes(Router.route) ? 'aria-current="page"' : ''} onclick="Router.go('couponListing')">Discount Coupons</button>
         </div>
 
 
@@ -20412,8 +20470,45 @@ const COUPON_STATUS_ACTIVE = {'Active':true,'Fully redeemed':false,'Scheduled':f
 
 function pageCouponListing(params){
   const p = params || {};
+  const activeTab = p.tab || 'individual';
+
+  // ── BULK BATCHES TAB ──────────────────────────────────────────────────────
+  if (activeTab === 'batches') {
+    const batchRows = (DATA.couponBatches || []).map(b => {
+      const codesInBatch = DATA.coupons.filter(c => c.batchId === b.id);
+      const totalCodes = codesInBatch.length;
+      const batchDisabled = b.disabled;
+      const dateLabel = new Date(b.createdAt).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'2-digit'});
+      const statusBadge = Comp.Badge(batchDisabled ? 'Disabled' : 'Active', !batchDisabled);
+      return `
+      <tr class="row-clickable" tabindex="0" role="button" onclick="Router.go('batchDetail',{id:'${b.id}'})">
+        <td class="cell-name">${Comp._escHtml(b.name)}<div class="text-muted-xs-regular">Prefix: ${Comp._escHtml(b.prefix||'(none)')}</div></td>
+        <td class="cell-secondary">${dateLabel}</td>
+        <td class="cell-secondary">${totalCodes}</td>
+        <td>${statusBadge}</td>
+        <td onclick="event.stopPropagation()">${Comp.RowMenu(b.id, [
+          {label:'View batch', handler:() => Router.go('batchDetail',{id:b.id})},
+          {label:'Download CSV', handler:() => Comp.downloadBatchCsv(b.id)},
+          {label: batchDisabled ? 'Enable batch' : 'Disable batch', danger: !batchDisabled, handler:() => Comp.confirmToggleBatch(b.id)}
+        ])}</td>
+      </tr>`;
+    }).join('');
+
+    return Comp.Shell(`
+      ${Comp.PageHeader({title:'Discount Coupons', actions:`
+        <button type="button" class="btn" onclick="Router.go('couponCreate')">+ Create coupon</button>
+        <button type="button" class="btn btn-primary" onclick="Router.go('bulkCouponGenerate')" style="margin-left:8px;">⚡ Generate Bulk Coupons</button>`})}
+      <div class="ops-tabs" style="margin-bottom:16px;">
+        <button type="button" class="ops-tab" onclick="Router.go('couponListing',{tab:'individual'})">Individual Coupons</button>
+        <button type="button" class="ops-tab is-active" onclick="Router.go('couponListing',{tab:'batches'})">Bulk Batches</button>
+      </div>
+      ${Comp.Table({columns:[{label:'Batch Name / Prefix'},{label:'Created',width:'130px'},{label:'Total Codes',width:'110px'},{label:'Status',width:'120px'},{label:'Actions',width:'120px'}], rows:batchRows, emptyText:'No bulk batches yet. Click "⚡ Generate Bulk Coupons" to create one.'})}
+    `);
+  }
+
+  // ── INDIVIDUAL COUPONS TAB ────────────────────────────────────────────────
   const q = (p.q || '').toLowerCase();
-  let list = DATA.coupons.filter(c => !q || c.code.toLowerCase().includes(q) || (c.description||'').toLowerCase().includes(q));
+  let list = DATA.coupons.filter(c => !c.batchId && (!q || c.code.toLowerCase().includes(q) || (c.description||'').toLowerCase().includes(q)));
   if (p.fStatus) list = list.filter(c => Comp.getCouponStatus(c) === p.fStatus);
   if (p.fEligLevel) list = list.filter(c => (c.eligibilityLevel || 'product') === p.fEligLevel);
   if (p.fEligMode) {
@@ -20443,9 +20538,15 @@ function pageCouponListing(params){
     </tr>`;
   }).join('');
 
+  const individualTotal = DATA.coupons.filter(c => !c.batchId).length;
   return Comp.Shell(`
     ${Comp.PageHeader({title:'Discount Coupons', actions:`
-${Comp.Button('+ Create coupon', {variant:'btn-primary', onclick:"Router.go('couponCreate')"})}`})}
+      <button type="button" class="btn" onclick="Router.go('couponCreate')">+ Create coupon</button>
+      <button type="button" class="btn btn-primary" onclick="Router.go('bulkCouponGenerate')" style="margin-left:8px;">⚡ Generate Bulk Coupons</button>`})}
+    <div class="ops-tabs" style="margin-bottom:16px;">
+      <button type="button" class="ops-tab is-active" onclick="Router.go('couponListing',{tab:'individual'})">Individual Coupons</button>
+      <button type="button" class="ops-tab" onclick="Router.go('couponListing',{tab:'batches'})">Bulk Batches</button>
+    </div>
     <div class="filter-bar" role="search">
       <label for="couponSearch" class="visually-hidden">Search by code or description</label>
       <input id="couponSearch" class="search-box" placeholder="Search by code or description" value="${Comp._escAttr(p.q||'')}" onkeydown="if(event.key==='Enter') Router.go('couponListing',{q:this.value})">
@@ -20459,7 +20560,7 @@ ${Comp.Button('+ Create coupon', {variant:'btn-primary', onclick:"Router.go('cou
     </div>
     ${Comp.BulkActionBar('coupon')}
     ${Comp.Table({columns:[{label:Comp.BulkCheckboxTh('coupon'),width:'40px'},{label:'Code / Description'},{label:'Discount',width:'110px'},{label:'Eligibility'},{label:'Valid dates',width:'190px'},{label:'Status',width:'130px'},{label:'Action',width:'70px'}], rows, emptyText:'No coupons found.'})}
-    ${Comp.Pagination(`Showing ${list.length} of ${DATA.coupons.length} coupons`)}
+    ${Comp.Pagination(`Showing ${list.length} of ${individualTotal} coupons`)}
   `);
 }
 // Returns unique customers who have active coupon assignments (userEmails in any non-expired, non-disabled coupon)
@@ -20500,6 +20601,192 @@ Comp.confirmToggleCouponStatus = function(id){
       render();
     }
   });
+};
+
+// ── BULK COUPON BATCH HELPERS ─────────────────────────────────────────────
+Comp._bulkGenCode = function(prefix, existingSet){
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code, tries = 0;
+  do {
+    let s = '';
+    for(let i=0;i<6;i++) s += chars[Math.floor(Math.random()*chars.length)];
+    code = (prefix ? prefix.toUpperCase().replace(/[^A-Z0-9]/g,'')+'-' : '') + s;
+    tries++;
+  } while(existingSet.has(code) && tries < 500);
+  existingSet.add(code);
+  return code;
+};
+
+Comp.confirmToggleBatch = function(batchId){
+  const b = (DATA.couponBatches||[]).find(x=>x.id===batchId);
+  if (!b) return;
+  const enabling = b.disabled;
+  const codes = DATA.coupons.filter(c=>c.batchId===batchId);
+  Comp.openConfirm({
+    title: enabling ? 'Enable batch?' : 'Disable batch?',
+    desc: enabling
+      ? `All ${codes.length} codes in "${b.name}" will become usable at checkout again.`
+      : `All ${codes.length} codes in "${b.name}" will stop working at checkout immediately.`,
+    confirmLabel: enabling ? 'Enable' : 'Disable',
+    danger: !enabling,
+    onConfirm: () => {
+      b.disabled = !enabling;
+      codes.forEach(c => { c.disabled = b.disabled; });
+      Comp.showToast(`Batch "${b.name}" ${enabling?'enabled':'disabled'}.`, enabling?'success':'danger');
+      render();
+    }
+  });
+};
+
+Comp.confirmToggleBatchCode = function(codeId){
+  const c = DATA.coupons.find(x=>x.id===codeId);
+  if (!c) return;
+  const enabling = c.disabled;
+  Comp.openConfirm({
+    title: enabling ? 'Enable code?' : 'Disable code?',
+    desc: enabling ? `"${c.code}" will become usable at checkout again.` : `"${c.code}" will stop working at checkout immediately.`,
+    confirmLabel: enabling ? 'Enable' : 'Disable',
+    danger: !enabling,
+    onConfirm: () => {
+      c.disabled = !enabling;
+      c.history = c.history || [];
+      c.history.unshift({label: enabling ? 'Code enabled' : 'Code disabled', time:new Date().toLocaleString(), actor:'Admin (you)'});
+      Comp.showToast(`Code "${c.code}" ${enabling?'enabled':'disabled'}.`, enabling?'success':'danger');
+      render();
+    }
+  });
+};
+
+Comp.downloadBatchCsv = function(batchId){
+  const b = (DATA.couponBatches||[]).find(x=>x.id===batchId);
+  const codes = DATA.coupons.filter(c=>c.batchId===batchId);
+  if (!codes.length) { Comp.showToast('No codes to download.', 'danger'); return; }
+  const rows = [['Code','Status','Used Count','Valid From','Valid Until']];
+  codes.forEach(c => {
+    rows.push([c.code, c.disabled?'Disabled':'Active', c.usedCount||0, c.validFrom, c.validUntil]);
+  });
+  const csv = rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\r\n');
+  const blob = new Blob([csv], {type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = (b ? b.name.replace(/\s+/g,'_') : 'batch') + '_codes.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+};
+
+// Runtime state for selected codes on batch detail page
+Comp._batchSelectedCodes = new Set();
+Comp.toggleBatchCodeSelect = function(codeId, checked){
+  if (checked) Comp._batchSelectedCodes.add(codeId);
+  else Comp._batchSelectedCodes.delete(codeId);
+  Comp._refreshBatchBulkBar();
+};
+Comp.toggleSelectAllBatchCodes = function(batchId, checked){
+  const codes = DATA.coupons.filter(c=>c.batchId===batchId);
+  if (checked) codes.forEach(c=>Comp._batchSelectedCodes.add(c.id));
+  else Comp._batchSelectedCodes.clear();
+  // Re-sync all checkboxes
+  codes.forEach(c=>{
+    const cb = document.getElementById('bcc-'+c.id);
+    if (cb) cb.checked = !!checked;
+  });
+  Comp._refreshBatchBulkBar();
+};
+Comp._refreshBatchBulkBar = function(){
+  const bar = document.getElementById('batch-bulk-bar');
+  if (!bar) return;
+  const count = Comp._batchSelectedCodes.size;
+  if (count === 0) { bar.style.display='none'; return; }
+  bar.style.display='flex';
+  const lbl = bar.querySelector('#batch-bulk-label');
+  if (lbl) lbl.textContent = count + ' code' + (count!==1?'s':'') + ' selected';
+};
+Comp.bulkToggleBatchCodes = function(enable){
+  if (!Comp._batchSelectedCodes.size) return;
+  const count = Comp._batchSelectedCodes.size;
+  Comp.openConfirm({
+    title: enable ? `Enable ${count} code${count!==1?'s':''}?` : `Disable ${count} code${count!==1?'s':''}?`,
+    desc: enable ? 'Selected codes will become usable at checkout again.' : 'Selected codes will stop working at checkout immediately.',
+    confirmLabel: enable ? 'Enable' : 'Disable',
+    danger: !enable,
+    onConfirm: () => {
+      Comp._batchSelectedCodes.forEach(id => {
+        const c = DATA.coupons.find(x=>x.id===id);
+        if (c) {
+          c.disabled = !enable;
+          c.history = c.history||[];
+          c.history.unshift({label: enable?'Code enabled':'Code disabled', time:new Date().toLocaleString(), actor:'Admin (you)'});
+        }
+      });
+      Comp._batchSelectedCodes.clear();
+      Comp.showToast(`${count} code${count!==1?'s':''} ${enable?'enabled':'disabled'}.`, enable?'success':'danger');
+      render();
+    }
+  });
+};
+
+// ── BULK GENERATION FORM SUBMIT ───────────────────────────────────────────
+Comp.submitBulkCouponForm = function(){
+  const val = id => { const el=document.getElementById(id); return el?el.value.trim():''; };
+  const num = id => { const v=val(id); return v===''?null:Number(v); };
+  const batchName = val('bulkBatchName');
+  const prefix    = val('bulkPrefix').toUpperCase().replace(/[^A-Z0-9]/g,'');
+  const qty       = num('bulkQty');
+  const discountType  = val('bulkDiscountType');
+  const discountValue = num('bulkDiscountValue');
+  const validFrom  = val('bulkValidFrom');
+  const validUntil = val('bulkValidUntil');
+  const minBooking = num('bulkMinBooking') || 0;
+  const maxTotal   = val('bulkMaxTotal')===''?null:num('bulkMaxTotal');
+  const maxPerCust = val('bulkMaxPerCust')===''?null:num('bulkMaxPerCust');
+
+  if (!batchName) { Comp.showToast('Batch name is required.','danger'); return; }
+  if (!qty || qty < 1) { Comp.showToast('Quantity must be at least 1.','danger'); return; }
+  if (!discountValue || discountValue <= 0) { Comp.showToast('Discount value is required.','danger'); return; }
+  if (discountType==='percentage' && discountValue > 100) { Comp.showToast('Percentage cannot exceed 100.','danger'); return; }
+  if (!validFrom || !validUntil) { Comp.showToast('Valid From and Valid Until are required.','danger'); return; }
+  if (validFrom > validUntil) { Comp.showToast('Valid Until must be after Valid From.','danger'); return; }
+
+  const batchId = 'btch-' + Date.now();
+  const batch = {
+    id: batchId, name: batchName, prefix, quantity: qty,
+    createdAt: new Date().toISOString(), disabled: false,
+    discountType, discountValue,
+    validFrom, validUntil,
+    minBookingValue: minBooking,
+    maxTotalUses: maxTotal,
+    maxUsesPerCustomer: maxPerCust,
+    productEligibility:'all', productIds:[],
+    userEligibility:'all', userEmails:[],
+    productSource:'All', eligibilityLevel:'product'
+  };
+  DATA.couponBatches = DATA.couponBatches || [];
+  DATA.couponBatches.unshift(batch);
+
+  const existingCodes = new Set(DATA.coupons.map(c=>c.code));
+  const generatedIds = [];
+  for (let i=0;i<qty;i++){
+    const code = Comp._bulkGenCode(prefix, existingCodes);
+    const cid = batchId+'-c'+(i+1);
+    DATA.coupons.push({
+      id:cid, code, batchId,
+      discountType, discountValue,
+      validFrom, validUntil,
+      minBookingValue: minBooking,
+      maxTotalUses: maxTotal,
+      maxUsesPerCustomer: maxPerCust,
+      productEligibility:'all', productIds:[],
+      userEligibility:'all', userEmails:[],
+      productSource:'All', eligibilityLevel:'product',
+      disabled: false, usedCount: 0, maxUsersAllowed: null,
+      history:[{label:'Code generated (bulk batch)', time:new Date().toLocaleString(), actor:'Admin (you)'}]
+    });
+    generatedIds.push(cid);
+  }
+
+  // Show result view
+  Router.go('bulkCouponGenerate', {batchId, done:true});
 };
 
 // Reusable "All X / Specific X (pick one or more)" eligibility selector —
@@ -21140,6 +21427,219 @@ Comp.submitCouponForm = function(editId){
   Comp.showToast(`Coupon ${isNew ? 'created' : 'updated'}.`, 'success');
   Router.go('couponDetails', {id:c.id});
 };
+// ── PAGE: BULK COUPON GENERATE ────────────────────────────────────────────
+function pageBulkCouponGenerate(params){
+  const p = params || {};
+
+  // Post-generation result view
+  if (p.done && p.batchId) {
+    const b = (DATA.couponBatches||[]).find(x=>x.id===p.batchId);
+    const codes = DATA.coupons.filter(c=>c.batchId===p.batchId);
+    if (!b) return Comp.Shell('<p>Batch not found.</p>');
+    const tableRows = codes.slice(0,100).map(c=>`
+      <tr>
+        <td style="font-family:monospace; font-size:13px;">${Comp._escHtml(c.code)}</td>
+        <td>${Comp.Badge('Active', true)}</td>
+      </tr>`).join('');
+    const moreNote = codes.length > 100 ? `<p class="field-hint" style="margin:6px 0 0;">… and ${codes.length-100} more. Download CSV to see all.</p>` : '';
+    return Comp.Shell(`
+      ${Comp.Breadcrumb([{label:'Discount Coupons', route:'couponListing'},{label:'Generate Bulk Coupons', onclick:"Router.go('bulkCouponGenerate')"},{label:'Result'}])}
+      <div style="max-width:720px; margin:0 auto;">
+        <div style="background:var(--success-50,#f0fdf4); border:1px solid var(--success-200,#bbf7d0); border-radius:10px; padding:20px 24px; margin-bottom:20px; display:flex; align-items:flex-start; gap:14px;">
+          <div style="font-size:28px; line-height:1;">✅</div>
+          <div>
+            <div style="font-size:17px; font-weight:700; color:var(--success-700,#15803d); margin-bottom:4px;">${codes.length} codes generated successfully</div>
+            <div style="font-size:13px; color:var(--text-secondary);">Batch: <strong>${Comp._escHtml(b.name)}</strong> &nbsp;·&nbsp; Prefix: <strong>${Comp._escHtml(b.prefix||'(none)')}</strong></div>
+          </div>
+        </div>
+        <div style="display:flex; gap:10px; margin-bottom:16px;">
+          <button type="button" class="btn btn-primary" onclick="Comp.downloadBatchCsv('${b.id}')">⬇ Download CSV</button>
+          <button type="button" class="btn" onclick="Router.go('batchDetail',{id:'${b.id}'})">View Batch</button>
+          <button type="button" class="btn" onclick="Router.go('couponListing',{tab:'batches'})">Done</button>
+        </div>
+        <div style="max-height:340px; overflow-y:auto;">
+          ${Comp.Table({columns:[{label:'Code'},{label:'Status',width:'110px'}], rows:tableRows, emptyText:'No codes generated.'})}
+        </div>
+        ${moreNote}
+      </div>
+    `);
+  }
+
+  // ── Bulk generation form ──────────────────────────────────────────────────
+  return Comp.Shell(`
+    ${Comp.PageHeader({title:'Generate Bulk Coupons'})}
+    ${Comp.Breadcrumb([{label:'Discount Coupons', route:'couponListing'},{label:'Generate Bulk Coupons'}])}
+    <form id="bulkCouponForm" data-validate>
+
+      ${Comp.Card({title:'Batch details', body:`
+        <div class="field">
+          <label for="bulkBatchName">Batch name <span class="required">*</span></label>
+          <input type="text" id="bulkBatchName" class="card-input" placeholder="e.g. Black Friday 2026" required>
+        </div>
+        <div class="field-row">
+          <div class="field flex-1">
+            <label for="bulkPrefix">Code prefix</label>
+            <input type="text" id="bulkPrefix" class="card-input" placeholder="e.g. BF26" maxlength="10" oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')">
+            <p class="field-hint">Optional. e.g. BF26 → BF26-A1B2C3</p>
+          </div>
+          <div class="field flex-1">
+            <label for="bulkQty">Quantity <span class="required">*</span></label>
+            <input type="number" id="bulkQty" class="card-input" placeholder="e.g. 100" min="1" step="1" required>
+            <p class="field-hint">Number of unique codes to generate.</p>
+          </div>
+        </div>
+      `})}
+
+      ${Comp.Card({title:'Discount', body:`
+        <div class="field">
+          <label for="bulkDiscountType">Discount type <span class="required">*</span></label>
+          <select id="bulkDiscountType" class="card-input">
+            <option value="percentage">Percentage off (%)</option>
+            <option value="fixed">Fixed amount off ($)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="bulkDiscountValue">Discount value <span class="required">*</span></label>
+          <input type="number" id="bulkDiscountValue" class="card-input" placeholder="e.g. 20" min="0.01" step="0.01" required>
+        </div>
+        <div class="field">
+          <label for="bulkMinBooking">Minimum booking value ($)</label>
+          <input type="number" id="bulkMinBooking" class="card-input" placeholder="0 — no minimum" min="0" step="0.01">
+          <p class="field-hint">Coupon applies only when the cart total meets or exceeds this value. Leave empty for no minimum.</p>
+        </div>
+        <div class="field-row">
+          <div class="field flex-1">
+            <label for="bulkValidFrom">Valid from <span class="required">*</span></label>
+            <input type="date" id="bulkValidFrom" class="card-input" required>
+          </div>
+          <div class="field flex-1">
+            <label for="bulkValidUntil">Valid until <span class="required">*</span></label>
+            <input type="date" id="bulkValidUntil" class="card-input" required>
+          </div>
+        </div>
+      `})}
+
+      <div class="card">
+        <p class="card-title">Eligibility</p>
+        <p class="meta-box-hint card-hint card-hint--loose">Choose who can redeem these codes and which products they apply to.</p>
+        <div class="field">
+          <label for="bulkAppliesTo">Applies to <span class="required">*</span></label>
+          <select id="bulkAppliesTo" class="card-input">
+            <option value="all">All products (Rosotravel + Viator)</option>
+            <option value="rosotravel">Rosotravel products only</option>
+            <option value="viator">Viator products only</option>
+          </select>
+          <p class="field-hint">Each code is applied per item in the cart that matches this scope.</p>
+        </div>
+        <div class="field">
+          <label for="bulkUserScope">User scope</label>
+          <select id="bulkUserScope" class="card-input">
+            <option value="all">All users — anyone with a valid code can redeem it</option>
+            <option value="new">New customers only — first-time buyers</option>
+          </select>
+        </div>
+        <div style="margin-top:16px; padding-top:14px; border-top:1px solid var(--border);">
+          <p class="card-title text-sm" style="margin-bottom:4px;">Usage limits</p>
+          <p class="field-hint mb-3">Optionally cap how many times each code can be used in total, and how many times each individual customer can use it.</p>
+          <div class="field-row">
+            <div class="field flex-1">
+              <label for="bulkMaxPerCust">Per-customer limit</label>
+              <input type="number" id="bulkMaxPerCust" class="card-input" placeholder="Unlimited" min="1" step="1">
+              <p class="field-hint">Maximum number of times a single customer can use each code.</p>
+            </div>
+            <div class="field flex-1">
+              <label for="bulkMaxTotal">Total redemption limit per code</label>
+              <input type="number" id="bulkMaxTotal" class="card-input" placeholder="Unlimited" min="1" step="1">
+              <p class="field-hint">Maximum total redemptions per individual code across all customers.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="display:flex; gap:10px;">
+          <button type="button" class="btn btn-primary" onclick="Comp.submitBulkCouponForm()">⚡ Generate Codes</button>
+          <button type="button" class="btn" onclick="Router.go('couponListing')">Cancel</button>
+        </div>
+      </div>
+
+    </form>
+  `);
+}
+
+// ── PAGE: BATCH DETAIL ────────────────────────────────────────────────────
+function pageBatchDetail(params){
+  const p = params || {};
+  const b = (DATA.couponBatches||[]).find(x=>x.id===p.id);
+  if (!b) return Comp.Shell('<p>Batch not found.</p>');
+
+  Comp._batchSelectedCodes = Comp._batchSelectedCodes || new Set();
+  // Clear stale selection on fresh load
+  if (!p._keepSel) Comp._batchSelectedCodes.clear();
+
+  const codes = DATA.coupons.filter(c=>c.batchId===b.id);
+  const totalCodes = codes.length;
+  const activeCodes = codes.filter(c=>!c.disabled).length;
+  const usedCodes = codes.filter(c=>(c.usedCount||0)>0).length;
+  const batchStatus = Comp.Badge(b.disabled ? 'Disabled' : 'Active', !b.disabled);
+
+  const codeRows = codes.map(c=>{
+    const statusBadge = Comp.Badge(c.disabled ? 'Disabled' : 'Active', !c.disabled);
+    const isChecked = Comp._batchSelectedCodes.has(c.id);
+    return `
+    <tr>
+      <td style="width:40px; padding:8px 10px;">
+        <input type="checkbox" id="bcc-${c.id}" class="bulk-checkbox" ${isChecked?'checked':''} onchange="Comp.toggleBatchCodeSelect('${c.id}', this.checked)">
+      </td>
+      <td class="cell-name" style="font-family:monospace; font-size:13px;">${Comp._escHtml(c.code)}</td>
+      <td class="cell-secondary">${statusBadge}</td>
+      <td class="cell-secondary">${c.usedCount||0} use${(c.usedCount||0)!==1?'s':''}</td>
+      <td onclick="event.stopPropagation()">${Comp.RowMenu(c.id, [
+        {label:'View details', handler:() => Router.go('couponDetails',{id:c.id})},
+        {label: c.disabled ? 'Enable' : 'Disable', danger: !c.disabled, handler:() => Comp.confirmToggleBatchCode(c.id)}
+      ])}</td>
+    </tr>`;
+  }).join('');
+
+  const selCount = Comp._batchSelectedCodes.size;
+
+  return Comp.Shell(`
+    ${Comp.Breadcrumb([{label:'Discount Coupons', route:'couponListing'},{label:'Bulk Batches', onclick:"Router.go('couponListing',{tab:'batches'})"},{label:Comp._escHtml(b.name)}])}
+    <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:20px;">
+      <div>
+        <h1 style="font-size:22px; font-weight:700; margin:0 0 4px;">${Comp._escHtml(b.name)}</h1>
+        <div style="font-size:13px; color:var(--text-secondary);">
+          Created: ${new Date(b.createdAt).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})}
+          &nbsp;·&nbsp; ${batchStatus}
+        </div>
+      </div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <button type="button" class="btn" onclick="Comp.downloadBatchCsv('${b.id}')">⬇ Download CSV</button>
+        <button type="button" class="btn${b.disabled?'':' btn-danger-outline'}" onclick="Comp.confirmToggleBatch('${b.id}')">${b.disabled?'Enable Batch':'Disable Batch'}</button>
+      </div>
+    </div>
+
+    <!-- Bulk action bar -->
+    <div id="batch-bulk-bar" style="display:${selCount>0?'flex':'none'}; align-items:center; gap:12px; background:var(--primary-50,#eff6ff); border:1px solid var(--primary-200,#bfdbfe); border-radius:8px; padding:10px 16px; margin-bottom:12px;">
+      <span id="batch-bulk-label" style="font-size:13px; font-weight:600;">${selCount} code${selCount!==1?'s':''} selected</span>
+      <button type="button" class="btn btn-sm" onclick="Comp.bulkToggleBatchCodes(true)">Enable Selected</button>
+      <button type="button" class="btn btn-sm btn-danger-outline" onclick="Comp.bulkToggleBatchCodes(false)">Disable Selected</button>
+      <button type="button" class="btn btn-sm btn-ghost" onclick="Comp.toggleSelectAllBatchCodes('${b.id}',false)">Clear</button>
+    </div>
+
+    <div style="max-height:600px; overflow-y:auto;">
+      ${Comp.Table({columns:[
+        {label:`<input type="checkbox" class="bulk-checkbox" title="Select all" onchange="Comp.toggleSelectAllBatchCodes('${b.id}', this.checked)">`, width:'40px'},
+        {label:'Code'},
+        {label:'Status', width:'110px'},
+        {label:'Uses', width:'90px'},
+        {label:'Actions', width:'80px'}
+      ], rows:codeRows, emptyText:'No codes in this batch.'})}
+    </div>
+    <p class="field-hint" style="margin-top:8px;">Showing all ${totalCodes} codes in this batch.</p>
+  `);
+}
+
 function pageCouponDetails(params){
   const c = DATA.coupons.find(x => x.id === (params && params.id));
   if (!c) return pageCouponListing();
@@ -22385,6 +22885,8 @@ const ROUTES = {
   couponListing: pageCouponListing,
   couponCreate: pageCouponCreate,
   couponDetails: pageCouponDetails,
+  bulkCouponGenerate: pageBulkCouponGenerate,
+  batchDetail: pageBatchDetail,
   bookingDetails: pageBookingDetails,
   customerListing: pageCustomerListing,
   customerDetails: pageCustomerDetails,
