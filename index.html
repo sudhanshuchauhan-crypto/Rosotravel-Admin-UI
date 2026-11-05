@@ -199,7 +199,16 @@
   .approval-badge{display:inline-flex; align-items:center; gap:5px; padding:3px 10px; border-radius:20px; font-size:var(--fs-xs); font-weight:700; background:var(--warning-50); color:var(--warning-700); border:1px solid var(--warning-600); cursor:pointer; margin-left:10px;}.approval-badge:hover{background:var(--warning-50);}.listing-pending-badge{display:inline-flex; align-items:center; gap:4px; padding:2px 8px; border-radius:20px; font-size:11px; font-weight:700; background:var(--warning-50); color:var(--warning-700); border:1px solid var(--warning-600); margin-left:8px; vertical-align:middle;}/* Generate-with-AI (Add/Create forms only — no approval badge/workflow shown here) */
   .compare-grid{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:16px 0;}.compare-col{border:1px solid var(--border); border-radius:var(--radius-md); padding:14px; background:var(--surface-sunken);}.compare-col.ai-col{background:var(--accent-50); border-color:var(--accent-500);}.compare-col-header{display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;}.compare-col-title{font-size:11px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--text-muted);}.ai-col .compare-col-title{color:var(--accent-700);}.compare-field-label{font-size:12px; font-weight:600; color:var(--text-secondary); margin:12px 0 4px;}.compare-field-check{display:flex; align-items:center; gap:7px; cursor:pointer; margin:12px 0 4px;}.compare-field-check:first-of-type{margin-top:0;}.compare-field-check input[type="checkbox"]{width:14px; height:14px; flex-shrink:0; accent-color:var(--accent-500); cursor:pointer; margin:0;}.compare-field-label:first-child{margin-top:0;}.compare-value{font-size:var(--fs-sm); color:var(--text-primary); line-height:var(--lh-normal); white-space:pre-wrap;}.diff-added{background:#DCFCE7; color:var(--success-700); border-radius:3px; padding:0 2px;}.diff-removed{background:#FEE2E2; color:var(--danger-700); text-decoration:line-through; border-radius:3px; padding:0 2px;}.compare-generated-date{font-size:11px; color:var(--text-muted); margin-top:2px;}@media (max-width:640px){.compare-grid{grid-template-columns:1fr;} }/* Add Product wizard */
   .product-stepper{display:flex; align-items:flex-start; width:100%; margin-bottom:10px;}.product-step{display:flex; flex-direction:column; align-items:center; justify-content:flex-start; gap:6px; background:none; border:none; cursor:pointer; padding:2px; flex-shrink:0; width:78px;}/* Persistent label under each step dot — the step name is no longer hover-only. */
-  .product-step-label{font-size:10px; line-height:1.25; font-weight:600; color:var(--text-muted); text-align:center; word-break:break-word; hyphens:auto;}.product-step.active .product-step-label{color:var(--accent-600);}.product-step.done .product-step-label, .product-step.step-complete .product-step-label{color:var(--success-700);}.product-step.has-missing .product-step-label{color:var(--warning-700);}.product-step:disabled .product-step-label{color:var(--text-muted); opacity:.55;}.product-step:disabled{cursor:default;}.product-step-num{display:flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:50%; font-size:12px; font-weight:700; flex-shrink:0; background:var(--n-100); color:var(--text-muted); border:1.5px solid var(--border-strong); transition:background .15s, border-color .15s, color .15s;}.product-step.active .product-step-num{background:var(--accent-500); color:#fff; border-color:var(--accent-500);}.product-step.done .product-step-num{background:var(--success-50); color:var(--success-700); border-color:var(--success-600);}.product-step.step-complete .product-step-num{background:var(--success-50); color:var(--success-700); border-color:var(--success-600);}.product-step.has-missing .product-step-num{background:var(--warning-50); color:var(--warning-700); border-color:var(--warning-600);}.product-step-sep{flex:1 1 auto; min-width:6px; height:1.5px; background:var(--border-strong); align-self:flex-start; margin-top:15px;}.product-step-sep.done{background:var(--success-600);}.product-stepper-heading{font-size:13px; color:var(--text-muted); margin:0 0 22px;}.product-stepper-heading strong{color:var(--text-primary); font-weight:700;}.product-action-bar{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:24px; padding-top:20px; border-top:1px solid var(--border); flex-wrap:wrap;}.product-action-left, .product-action-right{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}.product-tags-wrap{display:flex; flex-wrap:wrap; gap:10px;}.product-tag-chip{display:inline-flex; align-items:center; gap:6px; padding:7px 14px; border-radius:20px; border:1.5px solid var(--border-strong); background:var(--surface-card); font-size:13px; font-weight:600; color:var(--text-secondary); cursor:pointer;}.product-tag-chip .chip-check{width:14px; height:14px; border-radius:50%; border:1.5px solid var(--border-strong); flex-shrink:0;}.product-tag-chip.tag-selected{background:var(--accent-50); border-color:var(--accent-500); color:var(--accent-700);}.product-tag-chip.tag-selected .chip-check{background:var(--accent-500); border-color:var(--accent-500); position:relative;}.product-tag-chip.tag-selected .chip-check::after{content:'✓'; position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:var(--text-on-accent); font-size:10px;}/* Bulk row-select + bulk action bar — reused across all Master Data listings */
+  .product-step-label{font-size:10px; line-height:1.25; font-weight:600; color:var(--text-muted); text-align:center; word-break:break-word; hyphens:auto;}.product-step.active .product-step-label{color:var(--accent-600);}.product-step.done .product-step-label, .product-step.step-complete .product-step-label{color:var(--success-700);}.product-step.has-missing .product-step-label{color:var(--warning-700);}.product-step:disabled .product-step-label{color:var(--text-muted); opacity:.55;}.product-step:disabled{cursor:default;}.product-step-num{display:flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:50%; font-size:12px; font-weight:700; flex-shrink:0; background:var(--n-100); color:var(--text-muted); border:1.5px solid var(--border-strong); transition:background .15s, border-color .15s, color .15s;}.product-step.active .product-step-num{background:var(--accent-500); color:#fff; border-color:var(--accent-500);}.product-step.done .product-step-num{background:var(--success-50); color:var(--success-700); border-color:var(--success-600);}.product-step.step-complete .product-step-num{background:var(--success-50); color:var(--success-700); border-color:var(--success-600);}.product-step.has-missing .product-step-num{background:var(--warning-50); color:var(--warning-700); border-color:var(--warning-600);}.product-step-sep{flex:1 1 auto; min-width:6px; height:1.5px; background:var(--border-strong); align-self:flex-start; margin-top:15px;}.product-step-sep.done{background:var(--success-600);}.product-stepper-heading{font-size:13px; color:var(--text-muted); margin:0 0 22px;}.product-stepper-heading strong{color:var(--text-primary); font-weight:700;}.product-action-bar{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:24px; padding-top:20px; border-top:1px solid var(--border); flex-wrap:wrap;}.product-action-left, .product-action-right{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}.product-tags-wrap{display:flex; flex-wrap:wrap; gap:10px;}.product-tag-chip{display:inline-flex; align-items:center; gap:6px; padding:7px 14px; border-radius:20px; border:1.5px solid var(--border-strong); background:var(--surface-card); font-size:13px; font-weight:600; color:var(--text-secondary); cursor:pointer;}.product-tag-chip .chip-check{width:14px; height:14px; border-radius:50%; border:1.5px solid var(--border-strong); flex-shrink:0;}.product-tag-chip.tag-selected{background:var(--accent-50); border-color:var(--accent-500); color:var(--accent-700);}.product-tag-chip.tag-selected .chip-check{background:var(--accent-500); border-color:var(--accent-500); position:relative;}.product-tag-chip.tag-selected .chip-check::after{content:'✓'; position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:var(--text-on-accent); font-size:10px;}
+  /* RSO taxonomy — cascading category + attributes selectors */
+  .rso-chips-row{display:flex; flex-wrap:wrap; gap:8px; min-height:32px; margin-bottom:8px;}.rso-chips-empty{font-size:12px; color:var(--text-muted); font-style:italic; align-self:center;}
+  .rso-chip{display:inline-flex; align-items:center; gap:5px; padding:5px 10px 5px 12px; border-radius:20px; background:var(--accent-50); border:1.5px solid var(--accent-300); color:var(--accent-700); font-size:12px; font-weight:600;}
+  .rso-chip-remove{display:inline-flex; align-items:center; justify-content:center; width:16px; height:16px; border-radius:50%; border:none; background:var(--accent-200); color:var(--accent-700); font-size:14px; line-height:1; cursor:pointer; padding:0; flex-shrink:0;}.rso-chip-remove:hover{background:var(--accent-400); color:#fff;}
+  .rso-dd-wrap{position:relative; width:100%;}.rso-dd-input{width:100%; box-sizing:border-box;}
+  .rso-dropdown{position:absolute; top:calc(100% + 4px); left:0; right:0; background:var(--surface-card); border:1.5px solid var(--border-strong); border-radius:var(--radius-md); box-shadow:0 6px 24px rgba(0,0,0,.14); z-index:200; max-height:240px; overflow-y:auto;}
+  .rso-dd-option{padding:9px 14px; font-size:13px; color:var(--text-primary); cursor:pointer; border-bottom:1px solid var(--border);}.rso-dd-option:last-child{border-bottom:none;}.rso-dd-option:hover{background:var(--accent-50); color:var(--accent-700);}.rso-dd-selected{background:var(--accent-50); color:var(--accent-700); font-weight:600;}
+  .rso-dd-empty{padding:10px 14px; font-size:12px; color:var(--text-muted); font-style:italic;}
+  /* Bulk row-select + bulk action bar — reused across all Master Data listings */
   .bulk-checkbox-cell{width:40px;}.bulk-checkbox-cell input[type="checkbox"], th.bulk-checkbox-cell input[type="checkbox"]{width:16px; height:16px; accent-color:var(--accent-500); cursor:pointer;}.bulk-action-bar{display:flex; align-items:center; gap:10px; background:var(--accent-50); border:1px solid var(--accent-500); border-radius:var(--radius-md); padding:10px 14px; margin-bottom:14px;}.bulk-action-bar .bulk-count{font-size:13px; font-weight:700; color:var(--accent-700); margin-right:4px;}/* Reusable search-and-select field — used for City/Attraction and anywhere
      else a searchable dropdown with an "add new" fallback is needed. */
   .search-select{position:relative;}.search-select-input{width:100%; padding:10px 36px 10px 14px; border:1px solid var(--border-strong); border-radius:var(--radius-md); font-size:var(--fs-sm); font-family:inherit; background:var(--surface-card);}.search-select-input:focus{outline:none; border-color:var(--accent-500); box-shadow:0 0 0 3px var(--accent-100);}.search-select-caret{position:absolute; right:12px; top:50%; transform:translateY(-50%); pointer-events:none; color:var(--text-muted); font-size:11px;}.search-select-panel{position:absolute; top:calc(100% + 4px); left:0; right:0; background:var(--surface-card); border:1px solid var(--border-strong); border-radius:var(--radius-md); box-shadow:var(--shadow-lg); max-height:240px; overflow-y:auto; z-index:40; display:none;}.search-select.open .search-select-panel{display:block;}.search-select-option{padding:10px 14px; font-size:var(--fs-sm); cursor:pointer; border-bottom:1px solid var(--border);}.search-select-option:last-child{border-bottom:none;}.search-select-option:hover, .search-select-option.active{background:var(--accent-50);}.search-select-option .ss-sub{font-size:12px; color:var(--text-muted); margin-top:1px;}.search-select-empty{padding:16px 14px; text-align:center;}.search-select-empty p{font-size:13px; color:var(--text-muted); margin:0 0 8px;}.search-select-addnew{font-size:13px; font-weight:600; color:var(--accent-600); background:none; border:none; cursor:pointer; padding:0;}.guest-row{border:1px solid var(--border); border-radius:var(--radius-md); padding:16px; background:var(--n-50);}.guest-row + .guest-row{margin-top:12px;}.guest-row-header{display:flex; align-items:center; gap:10px; margin-bottom:12px;}.guest-row-header .g-name{font-weight:600; font-size:var(--fs-base);}.guest-field-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:14px;}.guest-field{display:flex; flex-direction:column; gap:3px;}.guest-field .g-label{font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.02em;}.guest-field .g-value{font-size:var(--fs-sm); font-weight:500; color:var(--text-primary);}@media (max-width:900px){.guest-field-grid{grid-template-columns:repeat(2,1fr);} }.filter-bar{display:flex; gap:10px; align-items:center; margin-bottom:16px; flex-wrap:wrap;}.filter-icon-btn{position:relative; display:inline-flex; align-items:center; justify-content:center; gap:6px; width:auto; height:38px; padding:0 14px; border:1px solid var(--border); border-radius:var(--radius-md); background:var(--surface-card); color:var(--text-primary); font-size:var(--fs-sm); font-weight:600; cursor:pointer;}.filter-icon-btn:hover{background:var(--surface-sunken);}.filter-icon-btn .filter-icon-glyph{font-size:15px;}.filter-icon-btn .filter-badge-count{display:inline-flex; align-items:center; justify-content:center; min-width:18px; height:18px; padding:0 5px; border-radius:10px; background:var(--accent-500); color:#fff; font-size:11px; font-weight:700;}.filter-drawer-group{margin-bottom:18px;}.filter-drawer-group label{display:block; font-size:var(--fs-sm); font-weight:600; margin-bottom:6px;}.search-box{
@@ -4173,8 +4182,8 @@ const Comp = {
   // FAQs, Facilities) are next phase — stepper shows them as
   // upcoming but they are not yet clickable.
   // ============================================================
-  PRODUCT_STEPS: ['Basic Info', 'Description & Highlight', 'Tag & Included/Excluded', 'Gallery', 'Tour Options', 'FAQs', 'Facilities', 'Model C Classification', 'Meeting Point & Pickup', 'Cancellation Policy'],
-  PRODUCT_BUILT_STEPS: 10,
+  PRODUCT_STEPS: ['Basic Info', 'Description & Highlight', 'Category & Included/Excluded', 'Gallery', 'Tour Options', 'FAQs', 'Facilities', 'Meeting Point & Pickup', 'Cancellation Policy'],
+  PRODUCT_BUILT_STEPS: 9,
 
   // Model C Classification (Internal Product) — per scope_part_2.pdf 3.3X.
   MODELC_CLASSES: ['TOUR','ACTIVITY','TICKET','CITY_PASS_CITY_CARD','WORKSHOP','TRANSFER'],
@@ -4770,7 +4779,7 @@ const Comp = {
   },
   startProductWizard(prefill){
     Comp._productEditId = null;
-    Comp._productDraft = { name:'', productCode:'', urlSlug:'', source:'Rosotravel', type:'Tour', country:'', region:'', city:'', attraction:'', placeId:'', geoLat:'', geoLng:'', shortDesc:'', fullDesc:'', highlights:['',''  ,''], itinerary:[], tags:[], includedDesc:'', excludedDesc:'', gallery:[], videoUrl:'', tourOptions:[], faqs:[], facilities:{ tourType:'Private', guideType:'Live Guide', vehicle:'Walking Tour', languages:[], instantOrganize:false, skipLine:false },
+    Comp._productDraft = { name:'', productCode:'', urlSlug:'', source:'Rosotravel', type:'Tour', country:'', region:'', city:'', attraction:'', placeId:'', geoLat:'', geoLng:'', shortDesc:'', fullDesc:'', highlights:['',''  ,''], itinerary:[], tags:[], rsoCategories:[], rsoSubCategories:[], rsoDetailedCategories:[], attrFamily:'', rsoAttributes:[], includedDesc:'', excludedDesc:'', gallery:[], videoUrl:'', tourOptions:[], faqs:[], facilities:{ tourType:'Private', guideType:'Live Guide', vehicle:'Walking Tour', languages:[], instantOrganize:false, skipLine:false },
       modelC:{ declaredClass:'', decisionRailRole:'', valueTier:'', physicalLevel:'', primaryAudience:'', intents:[], primaryIntent:'', supportingIntents:[], constraints:[], eligibilityStates:{}, intentSource:'Rule-based', constraintsSource:'Rule-based', intentReviewed:false, constraintsReviewed:false, assignmentRunAt:null, assignmentLog:[], accessibilityFlags:[] },
       meetingPickup:{ pickupSupported:null, pickupOption:'', pickupLocationName:'', pickupLocationType:'', pickupAddress:'', pickupPlaceId:'', meetingPoint:'', hasEndPoint:false, endPointName:'', endPointType:'' },
       cancellationPolicy:{ policyType:'', policyMode:'STANDARD', freeCancellationHours:24, refundPercentAfterCutoff:50, customTiers:[] },
@@ -4847,7 +4856,7 @@ const Comp = {
     } else if (Comp._productStep === 3) {
       d.includedDesc = document.getElementById('pIncludedDesc').value;
       d.excludedDesc = document.getElementById('pExcludedDesc').value;
-      // tags already synced live via toggleProductTag
+      // rsoCategories, rsoSubCategories, rsoDetailedCategories, attrFamily, rsoAttributes — synced live via rsoToggle* helpers
     } else if (Comp._productStep === 4) {
       d.videoUrl = document.getElementById('pVideoUrl') ? document.getElementById('pVideoUrl').value.trim() : d.videoUrl;
     } else if (Comp._productStep === 6) {
@@ -4940,17 +4949,16 @@ const Comp = {
     if (!d.shortDesc || d.shortDesc.length < 50) add('Short Description — minimum 50 characters', 2);
     if (!d.fullDesc || d.fullDesc.length < 200) add('Product Description — minimum 200 characters (1,600–2,400 recommended)', 2);
     if (d.highlights.filter(h => h.trim()).length < 3) add('Product Highlights — at least 3 required', 2);
-    if (d.tags.length === 0) add('Tags — at least 1 required', 3);
+    if (d.rsoCategories.length === 0) add('Category — at least 1 required', 3);
     if (d.tourOptions.length === 0) add('Tour Options — at least 1 required', 5);
     if (d.faqs.filter(f => f.q.trim()).length === 0) add('FAQs — at least 1 required', 6);
     if (d.facilities.languages.length === 0) add('Facilities — at least 1 language required', 7);
-    Comp.modelCMissingFields(d).forEach(f => add(f, 8));
-    if (d.meetingPickup.pickupSupported === null) add('Meeting Point & Pickup — pickup support not set', 9);
-    else if (d.meetingPickup.pickupSupported === true && !d.meetingPickup.pickupOption) add('Meeting Point & Pickup — pickup option required', 9);
-    else if (d.meetingPickup.pickupSupported === false && !d.meetingPickup.meetingPoint.trim()) add('Meeting Point & Pickup — meeting point required', 9);
-    if (!d.cancellationPolicy.policyType) add('Cancellation Policy — policy type required', 10);
+    if (d.meetingPickup.pickupSupported === null) add('Meeting Point & Pickup — pickup support not set', 8);
+    else if (d.meetingPickup.pickupSupported === true && !d.meetingPickup.pickupOption) add('Meeting Point & Pickup — pickup option required', 8);
+    else if (d.meetingPickup.pickupSupported === false && !d.meetingPickup.meetingPoint.trim()) add('Meeting Point & Pickup — meeting point required', 8);
+    if (!d.cancellationPolicy.policyType) add('Cancellation Policy — policy type required', 9);
     if (d.cancellationPolicy.policyMode === 'CUSTOM') {
-      Comp.validateCancellationTiers(d.cancellationPolicy).forEach(e => add('Cancellation Policy — ' + e, 10));
+      Comp.validateCancellationTiers(d.cancellationPolicy).forEach(e => add('Cancellation Policy — ' + e, 9));
     }
     return pending;
   },
@@ -5000,6 +5008,185 @@ const Comp = {
     const idx = d.tags.indexOf(tagName);
     if (idx > -1) { d.tags.splice(idx, 1); btn.classList.remove('tag-selected'); }
     else { d.tags.push(tagName); btn.classList.add('tag-selected'); }
+  },
+  rsoToggleCategory(code){
+    const d = Comp._productDraft;
+    const idx = d.rsoCategories.indexOf(code);
+    if (idx > -1) {
+      d.rsoCategories.splice(idx, 1);
+      // Remove subcategories belonging to this category
+      d.rsoSubCategories = d.rsoSubCategories.filter(sc => {
+        const sub = DATA.ROSO_SUBCATEGORIES.find(s => s.code === sc);
+        return sub && sub.parent !== code;
+      });
+      // Remove detailed categories belonging to removed subcategories
+      Comp._rsoCleanDetailedCategories();
+    } else {
+      d.rsoCategories.push(code);
+    }
+    Comp._rsoRenderStep3();
+  },
+  rsoToggleSubCategory(code){
+    const d = Comp._productDraft;
+    const idx = d.rsoSubCategories.indexOf(code);
+    if (idx > -1) {
+      d.rsoSubCategories.splice(idx, 1);
+      // Remove detailed categories belonging to this subcategory
+      d.rsoDetailedCategories = d.rsoDetailedCategories.filter(dc => {
+        const det = DATA.ROSO_DETAILED_CATEGORIES.find(d2 => d2.code === dc);
+        return det && det.parent !== code;
+      });
+    } else {
+      d.rsoSubCategories.push(code);
+    }
+    Comp._rsoRenderStep3();
+  },
+  rsoToggleDetailed(code){
+    const d = Comp._productDraft;
+    const idx = d.rsoDetailedCategories.indexOf(code);
+    if (idx > -1) d.rsoDetailedCategories.splice(idx, 1);
+    else d.rsoDetailedCategories.push(code);
+    Comp._rsoRenderStep3();
+  },
+  rsoSetAttrFamily(code){
+    Comp._productDraft.attrFamily = code;
+    Comp._rsoRenderStep3();
+  },
+  rsoToggleAttribute(code){
+    const d = Comp._productDraft;
+    const idx = d.rsoAttributes.indexOf(code);
+    if (idx > -1) d.rsoAttributes.splice(idx, 1);
+    else d.rsoAttributes.push(code);
+    Comp._rsoRenderStep3();
+  },
+  _rsoCleanDetailedCategories(){
+    const d = Comp._productDraft;
+    d.rsoDetailedCategories = d.rsoDetailedCategories.filter(dc => {
+      const det = DATA.ROSO_DETAILED_CATEGORIES.find(d2 => d2.code === dc);
+      return det && d.rsoSubCategories.includes(det.parent);
+    });
+  },
+  _rsoRenderStep3(){
+    // Re-render just the category/attribute portion inside step 3 without full navigation
+    const container = document.getElementById('rsoTaxonomySection');
+    if (!container) { Router.go('productCreate'); return; }
+    container.innerHTML = Comp._buildRsoTaxonomyHTML();
+  },
+  _buildRsoTaxonomyHTML(){
+    const d = Comp._productDraft;
+    // --- Level 1: Categories ---
+    const catChips = d.rsoCategories.map(code => {
+      const cat = DATA.ROSO_CATEGORIES.find(c => c.code === code);
+      return cat ? `<span class="rso-chip">${cat.name}<button type="button" class="rso-chip-remove" onclick="Comp.rsoToggleCategory('${code}')" title="Remove">×</button></span>` : '';
+    }).join('');
+    const catOptions = DATA.ROSO_CATEGORIES.filter(c => !d.rsoCategories.includes(c.code))
+      .map(c => `<div class="rso-dd-option" onclick="Comp.rsoToggleCategory('${c.code}');document.getElementById('rsoCatSearch').value='';document.getElementById('rsoCatDropdown').style.display='none';">${c.name}</div>`).join('');
+
+    // --- Level 2: Subcategories (filtered by selected categories) ---
+    const availSubs = DATA.ROSO_SUBCATEGORIES.filter(s => d.rsoCategories.includes(s.parent));
+    const subChips = d.rsoSubCategories.map(code => {
+      const sub = availSubs.find(s => s.code === code);
+      return sub ? `<span class="rso-chip">${sub.name}<button type="button" class="rso-chip-remove" onclick="Comp.rsoToggleSubCategory('${code}')" title="Remove">×</button></span>` : '';
+    }).join('');
+    const subOptions = availSubs.filter(s => !d.rsoSubCategories.includes(s.code))
+      .map(s => `<div class="rso-dd-option" onclick="Comp.rsoToggleSubCategory('${s.code}');document.getElementById('rsoSubSearch').value='';document.getElementById('rsoSubDropdown').style.display='none';">${s.name}</div>`).join('');
+
+    // --- Level 3: Detailed categories (filtered by selected subcategories) ---
+    const availDets = DATA.ROSO_DETAILED_CATEGORIES.filter(d2 => d.rsoSubCategories.includes(d2.parent));
+    const detChips = d.rsoDetailedCategories.map(code => {
+      const det = availDets.find(d2 => d2.code === code);
+      return det ? `<span class="rso-chip">${det.name}<button type="button" class="rso-chip-remove" onclick="Comp.rsoToggleDetailed('${code}')" title="Remove">×</button></span>` : '';
+    }).join('');
+    const detOptions = availDets.filter(d2 => !d.rsoDetailedCategories.includes(d2.code))
+      .map(d2 => `<div class="rso-dd-option" onclick="Comp.rsoToggleDetailed('${d2.code}');document.getElementById('rsoDetSearch').value='';document.getElementById('rsoDetDropdown').style.display='none';">${d2.name}</div>`).join('');
+
+    // --- Attribute Family ---
+    const selFamily = DATA.ROSO_ATTR_FAMILIES.find(f => f.code === d.attrFamily);
+    const famOptions = DATA.ROSO_ATTR_FAMILIES
+      .map(f => `<div class="rso-dd-option${d.attrFamily === f.code ? ' rso-dd-selected' : ''}" onclick="Comp.rsoSetAttrFamily('${f.code}');document.getElementById('rsoFamSearch').value='';document.getElementById('rsoFamDropdown').style.display='none';">${f.name}</div>`).join('');
+
+    // --- Attributes (filtered by selected family) ---
+    const availAttrs = d.attrFamily ? DATA.ROSO_ATTRIBUTES.filter(a => a.family === d.attrFamily) : [];
+    const attrChips = d.rsoAttributes.map(code => {
+      const attr = DATA.ROSO_ATTRIBUTES.find(a => a.code === code);
+      return attr ? `<span class="rso-chip">${attr.name}<button type="button" class="rso-chip-remove" onclick="Comp.rsoToggleAttribute('${code}')" title="Remove">×</button></span>` : '';
+    }).join('');
+    const attrOptions = availAttrs.filter(a => !d.rsoAttributes.includes(a.code))
+      .map(a => `<div class="rso-dd-option" onclick="Comp.rsoToggleAttribute('${a.code}');document.getElementById('rsoAttrSearch').value='';document.getElementById('rsoAttrDropdown').style.display='none';">${a.name}</div>`).join('');
+
+    return `
+      <div class="field">
+        <label>Category <span class="required">*</span></label>
+        <p class="field-hint mb-2h">Select one or more top-level categories.</p>
+        <div class="rso-chips-row">${catChips || '<span class="rso-chips-empty">No categories selected</span>'}</div>
+        <div class="rso-dd-wrap" id="rsoCatWrap">
+          <input type="text" id="rsoCatSearch" class="card-input rso-dd-input" placeholder="Search categories…" autocomplete="off"
+            onfocus="document.getElementById('rsoCatDropdown').style.display='block'"
+            oninput="Comp._rsoFilterDropdown('rsoCatSearch','rsoCatDropdown')"
+            onblur="setTimeout(()=>{const el=document.getElementById('rsoCatDropdown');if(el)el.style.display='none';},200)">
+          <div class="rso-dropdown" id="rsoCatDropdown" style="display:none">${catOptions || '<div class="rso-dd-empty">All categories selected</div>'}</div>
+        </div>
+      </div>
+      ${d.rsoCategories.length > 0 ? `
+      <div class="field">
+        <label>Sub-category</label>
+        <p class="field-hint mb-2h">Filtered by your selected categories.</p>
+        <div class="rso-chips-row">${subChips || '<span class="rso-chips-empty">No sub-categories selected</span>'}</div>
+        <div class="rso-dd-wrap" id="rsoSubWrap">
+          <input type="text" id="rsoSubSearch" class="card-input rso-dd-input" placeholder="Search sub-categories…" autocomplete="off"
+            onfocus="document.getElementById('rsoSubDropdown').style.display='block'"
+            oninput="Comp._rsoFilterDropdown('rsoSubSearch','rsoSubDropdown')"
+            onblur="setTimeout(()=>{const el=document.getElementById('rsoSubDropdown');if(el)el.style.display='none';},200)">
+          <div class="rso-dropdown" id="rsoSubDropdown" style="display:none">${subOptions || '<div class="rso-dd-empty">All sub-categories selected</div>'}</div>
+        </div>
+      </div>` : ''}
+      ${d.rsoSubCategories.length > 0 ? `
+      <div class="field">
+        <label>Detailed category</label>
+        <p class="field-hint mb-2h">Filtered by your selected sub-categories.</p>
+        <div class="rso-chips-row">${detChips || '<span class="rso-chips-empty">No detailed categories selected</span>'}</div>
+        <div class="rso-dd-wrap" id="rsoDetWrap">
+          <input type="text" id="rsoDetSearch" class="card-input rso-dd-input" placeholder="Search detailed categories…" autocomplete="off"
+            onfocus="document.getElementById('rsoDetDropdown').style.display='block'"
+            oninput="Comp._rsoFilterDropdown('rsoDetSearch','rsoDetDropdown')"
+            onblur="setTimeout(()=>{const el=document.getElementById('rsoDetDropdown');if(el)el.style.display='none';},200)">
+          <div class="rso-dropdown" id="rsoDetDropdown" style="display:none">${detOptions || '<div class="rso-dd-empty">All detailed categories selected</div>'}</div>
+        </div>
+      </div>` : ''}
+      <div class="field mt-3">
+        <label>Attributes Family</label>
+        <p class="field-hint mb-2h">Select a family to browse its attributes.</p>
+        <div class="rso-dd-wrap" id="rsoFamWrap">
+          <input type="text" id="rsoFamSearch" class="card-input rso-dd-input" placeholder="${selFamily ? selFamily.name : 'Search attribute families…'}" autocomplete="off"
+            onfocus="document.getElementById('rsoFamDropdown').style.display='block'"
+            oninput="Comp._rsoFilterDropdown('rsoFamSearch','rsoFamDropdown')"
+            onblur="setTimeout(()=>{const el=document.getElementById('rsoFamDropdown');if(el)el.style.display='none';},200)">
+          <div class="rso-dropdown" id="rsoFamDropdown" style="display:none">${famOptions}</div>
+        </div>
+      </div>
+      ${d.attrFamily ? `
+      <div class="field">
+        <label>Attributes</label>
+        <p class="field-hint mb-2h">Filtered by selected family: <strong>${selFamily ? selFamily.name : ''}</strong></p>
+        <div class="rso-chips-row">${attrChips || '<span class="rso-chips-empty">No attributes selected</span>'}</div>
+        <div class="rso-dd-wrap" id="rsoAttrWrap">
+          <input type="text" id="rsoAttrSearch" class="card-input rso-dd-input" placeholder="Search attributes…" autocomplete="off"
+            onfocus="document.getElementById('rsoAttrDropdown').style.display='block'"
+            oninput="Comp._rsoFilterDropdown('rsoAttrSearch','rsoAttrDropdown')"
+            onblur="setTimeout(()=>{const el=document.getElementById('rsoAttrDropdown');if(el)el.style.display='none';},200)">
+          <div class="rso-dropdown" id="rsoAttrDropdown" style="display:none">${attrOptions || '<div class="rso-dd-empty">All attributes selected</div>'}</div>
+        </div>
+      </div>` : ''}
+    `;
+  },
+  _rsoFilterDropdown(inputId, dropdownId){
+    const q = (document.getElementById(inputId).value || '').toLowerCase();
+    const dd = document.getElementById(dropdownId);
+    if (!dd) return;
+    dd.style.display = 'block';
+    dd.querySelectorAll('.rso-dd-option').forEach(el => {
+      el.style.display = el.textContent.toLowerCase().includes(q) ? '' : 'none';
+    });
   },
   toggleProductDetailTag(productId, tagName, btn){
     const p = DATA.products.find(x => x.id === productId);
@@ -9737,6 +9924,13 @@ DATA.countries.forEach((c,ci) => initSectionLocks(c, COUNTRY_SECTIONS, (si,li) =
 DATA.regions.forEach((r,ri)   => initSectionLocks(r, REGION_SECTIONS,  (si,li) => (ri===0 && si===0 && li===0)));
 DATA.cities.forEach((c,ci)    => initSectionLocks(c, CITY_SECTIONS,    (si,li) => (ci===0 && si===0 && li===0)));
 
+// ROSO taxonomy data — generated from Categories Dictionary & Attributes Dictionary
+DATA.ROSO_CATEGORIES = [{"code":"C00","name":"Top Things to Do"},{"code":"C01","name":"Tickets"},{"code":"C02","name":"City Tours"},{"code":"C03","name":"Day Tours"},{"code":"C04","name":"Cruises"},{"code":"C05","name":"Activities"},{"code":"C06","name":"Food & Drink"},{"code":"C07","name":"Workshops"},{"code":"C08","name":"Nightlife"},{"code":"C09","name":"Wellness & Spa"},{"code":"C10","name":"Multi-Day Trips"},{"code":"C11","name":"Rentals"},{"code":"C12","name":"Transfers & Transport Services"},{"code":"C13","name":"Bundles"}];
+DATA.ROSO_SUBCATEGORIES = [{"code":"C01.S01","name":"Top Tickets","parent":"C01"},{"code":"C01.S02","name":"Must-See Attraction Tickets","parent":"C01"},{"code":"C01.S03","name":"Historical Attraction Tickets","parent":"C01"},{"code":"C01.S04","name":"Museum & Exhibition Tickets","parent":"C01"},{"code":"C01.S05","name":"City Card","parent":"C01"},{"code":"C01.S06","name":"Viewpoints","parent":"C01"},{"code":"C01.S07","name":"Theme Parks","parent":"C01"},{"code":"C01.S08","name":"Zoos & Aquariums","parent":"C01"},{"code":"C01.S09","name":"Religious Site Tickets","parent":"C01"},{"code":"C01.S10","name":"Natural Attraction Tickets","parent":"C01"},{"code":"C01.S11","name":"Show Tickets","parent":"C01"},{"code":"C01.S12","name":"Concert Tickets","parent":"C01"},{"code":"C01.S13","name":"Sports Tickets","parent":"C01"},{"code":"C01.S14","name":"Festival Tickets","parent":"C01"},{"code":"C01.S15","name":"Event Tickets","parent":"C01"},{"code":"C01.S16","name":"Lift Tickets","parent":"C01"},{"code":"C02.S01","name":"Top City Tours","parent":"C02"},{"code":"C02.S02","name":"Must-See Attraction Tours","parent":"C02"},{"code":"C02.S03","name":"Walking Tours","parent":"C02"},{"code":"C02.S04","name":"Sightseeing Tours","parent":"C02"},{"code":"C02.S05","name":"Culture & History Tours","parent":"C02"},{"code":"C02.S06","name":"Vehicle Tours","parent":"C02"},{"code":"C02.S07","name":"Bike Tours","parent":"C02"},{"code":"C02.S08","name":"Special Interest Tours","parent":"C02"},{"code":"C02.S09","name":"Ghost & Mystery Tours","parent":"C02"},{"code":"C02.S10","name":"Art & Architecture Tours","parent":"C02"},{"code":"C02.S11","name":"Night Tours","parent":"C02"},{"code":"C02.S12","name":"Photography Tours","parent":"C02"},{"code":"C02.S13","name":"Literary Tours","parent":"C02"},{"code":"C03.S01","name":"Top Day Tours","parent":"C03"},{"code":"C03.S02","name":"Day Trips to Towns & Villages","parent":"C03"},{"code":"C03.S03","name":"Day Trips to Natural Attractions","parent":"C03"},{"code":"C03.S04","name":"Day Trips to Historical Sites","parent":"C03"},{"code":"C03.S05","name":"Wine & Gastronomy Day Tours","parent":"C03"},{"code":"C03.S06","name":"Ski & Snow Day Tours","parent":"C03"},{"code":"C03.S07","name":"Shore Excursions","parent":"C03"},{"code":"C04.S01","name":"Top Cruises","parent":"C04"},{"code":"C04.S02","name":"Sightseeing Cruises","parent":"C04"},{"code":"C04.S03","name":"Dinner Cruises","parent":"C04"},{"code":"C04.S04","name":"Sunset Cruises","parent":"C04"},{"code":"C04.S05","name":"Party & Special Event Cruises","parent":"C04"},{"code":"C04.S06","name":"Sailing Experiences","parent":"C04"},{"code":"C04.S07","name":"Ferry & Water Taxi","parent":"C04"},{"code":"C04.S08","name":"Speed & Jet Boat Experiences","parent":"C04"},{"code":"C04.S09","name":"Kayak & Canoe Tours","parent":"C04"},{"code":"C04.S10","name":"Submarine & Underwater","parent":"C04"},{"code":"C05.S01","name":"Top Activities","parent":"C05"},{"code":"C05.S02","name":"Outdoor & Extreme Sports","parent":"C05"},{"code":"C05.S03","name":"Water Sports","parent":"C05"},{"code":"C05.S04","name":"Snow Sports","parent":"C05"},{"code":"C05.S05","name":"Air Activities","parent":"C05"},{"code":"C05.S06","name":"Cycling & E-Bike","parent":"C05"},{"code":"C05.S07","name":"Horse Riding","parent":"C05"},{"code":"C05.S08","name":"Golf","parent":"C05"},{"code":"C06.S01","name":"Top Food & Drink","parent":"C06"},{"code":"C06.S02","name":"Food Tours","parent":"C06"},{"code":"C06.S03","name":"Tasting Experiences","parent":"C06"},{"code":"C06.S04","name":"Wine & Cocktail Experiences","parent":"C06"},{"code":"C06.S05","name":"Dining Experiences","parent":"C06"},{"code":"C06.S06","name":"Cooking Classes","parent":"C06"},{"code":"C07.S01","name":"Top Workshops","parent":"C07"},{"code":"C07.S02","name":"Art & Craft Workshops","parent":"C07"},{"code":"C07.S03","name":"Dance & Music Lessons","parent":"C07"},{"code":"C07.S04","name":"Language Classes","parent":"C07"},{"code":"C07.S05","name":"Pottery & Ceramic Workshops","parent":"C07"},{"code":"C08.S01","name":"Top Nightlife","parent":"C08"},{"code":"C08.S02","name":"Club Entry","parent":"C08"},{"code":"C08.S03","name":"Bar Crawls","parent":"C08"},{"code":"C08.S04","name":"Party Experiences","parent":"C08"},{"code":"C08.S05","name":"Stag & Hen Parties","parent":"C08"},{"code":"C08.S06","name":"Casino Experiences","parent":"C08"},{"code":"C09.S01","name":"Top Wellness & Spa","parent":"C09"},{"code":"C09.S02","name":"Spa & Hammam","parent":"C09"},{"code":"C09.S03","name":"Yoga & Meditation","parent":"C09"},{"code":"C09.S04","name":"Thermal Baths","parent":"C09"},{"code":"C10.S01","name":"Top Multi-Day Trips","parent":"C10"},{"code":"C10.S02","name":"Multi-Day Sightseeing Tours","parent":"C10"},{"code":"C10.S03","name":"Multi-Day Adventure Tours","parent":"C10"},{"code":"C10.S04","name":"Multi-Day Cruises","parent":"C10"},{"code":"C11.S01","name":"Top Rentals","parent":"C11"},{"code":"C11.S02","name":"Bike & Scooter Rentals","parent":"C11"},{"code":"C11.S03","name":"Car Rentals","parent":"C11"},{"code":"C11.S04","name":"Boat Rentals","parent":"C11"},{"code":"C11.S05","name":"Gear & Equipment Rentals","parent":"C11"},{"code":"C12.S01","name":"Top Transfers","parent":"C12"},{"code":"C12.S02","name":"Airport Transfers","parent":"C12"},{"code":"C12.S03","name":"Private Transfers","parent":"C12"},{"code":"C12.S04","name":"Shared Shuttles","parent":"C12"},{"code":"C12.S05","name":"Transport Passes","parent":"C12"},{"code":"C13.S01","name":"Top Bundles","parent":"C13"},{"code":"C13.S02","name":"City Bundles","parent":"C13"},{"code":"C13.S03","name":"Activity Bundles","parent":"C13"}];
+DATA.ROSO_DETAILED_CATEGORIES = [{"code":"C01.S03.D001","name":"Ancient Ruins Tickets","parent":"C01.S03"},{"code":"C01.S03.D002","name":"Catacombs Tickets","parent":"C01.S03"},{"code":"C01.S03.D003","name":"Monument & Memorial Tickets","parent":"C01.S03"},{"code":"C01.S03.D004","name":"Palaces & Castles Tickets","parent":"C01.S03"},{"code":"C01.S04.D001","name":"Art Gallery Tickets","parent":"C01.S04"},{"code":"C01.S04.D002","name":"Immersive Art Tickets","parent":"C01.S04"},{"code":"C01.S04.D003","name":"Museum Tickets & Passes","parent":"C01.S04"},{"code":"C01.S04.D004","name":"Natural History Museum Tickets","parent":"C01.S04"},{"code":"C01.S04.D005","name":"Planetariums","parent":"C01.S04"},{"code":"C01.S04.D006","name":"Wax Museum Tickets","parent":"C01.S04"},{"code":"C01.S06.D001","name":"Ferris Wheel Tickets","parent":"C01.S06"},{"code":"C01.S06.D002","name":"Natural Viewpoints","parent":"C01.S06"},{"code":"C01.S06.D003","name":"Observation Deck Tickets","parent":"C01.S06"},{"code":"C01.S07.D001","name":"Amusement Park Tickets","parent":"C01.S07"},{"code":"C01.S07.D002","name":"Water Park Tickets","parent":"C01.S07"},{"code":"C01.S08.D001","name":"Aquarium Tickets","parent":"C01.S08"},{"code":"C01.S08.D002","name":"Zoo Tickets","parent":"C01.S08"},{"code":"C01.S09.D001","name":"Church & Cathedral Tickets","parent":"C01.S09"},{"code":"C01.S09.D002","name":"Mosque Tickets","parent":"C01.S09"},{"code":"C01.S09.D003","name":"Synagogue Tickets","parent":"C01.S09"},{"code":"C01.S09.D004","name":"Temple Tickets","parent":"C01.S09"},{"code":"C01.S10.D001","name":"Cave Entry Tickets","parent":"C01.S10"},{"code":"C01.S10.D002","name":"National Park Entry Tickets","parent":"C01.S10"},{"code":"C01.S10.D003","name":"Nature Park Tickets","parent":"C01.S10"},{"code":"C01.S11.D001","name":"Top Shows","parent":"C01.S11"},{"code":"C01.S11.D002","name":"Cabaret Shows","parent":"C01.S11"},{"code":"C01.S11.D003","name":"Circus Shows","parent":"C01.S11"},{"code":"C01.S11.D004","name":"Comedy Shows","parent":"C01.S11"},{"code":"C01.S11.D005","name":"Dinner Shows","parent":"C01.S11"},{"code":"C01.S11.D006","name":"Flamenco Shows","parent":"C01.S11"},{"code":"C01.S11.D007","name":"Magic Shows","parent":"C01.S11"},{"code":"C01.S11.D008","name":"Sound & Light Shows","parent":"C01.S11"},{"code":"C01.S11.D009","name":"Traditional Cultural Shows","parent":"C01.S11"},{"code":"C01.S12.D001","name":"Classical Music Concerts","parent":"C01.S12"},{"code":"C01.S12.D002","name":"Opera Tickets","parent":"C01.S12"},{"code":"C01.S12.D003","name":"Pop & Rock Concert Tickets","parent":"C01.S12"},{"code":"C01.S13.D001","name":"Football Match Tickets","parent":"C01.S13"},{"code":"C01.S13.D002","name":"Basketball Tickets","parent":"C01.S13"},{"code":"C01.S13.D003","name":"Tennis Match Tickets","parent":"C01.S13"},{"code":"C01.S14.D001","name":"Carnival Tickets","parent":"C01.S14"},{"code":"C01.S15.D001","name":"Art Exhibition Tickets","parent":"C01.S15"},{"code":"C01.S15.D002","name":"Film & Cinema Tickets","parent":"C01.S15"},{"code":"C01.S15.D003","name":"Theatre Tickets","parent":"C01.S15"},{"code":"C02.S02.D001","name":"Top Attraction Tours","parent":"C02.S02"},{"code":"C02.S03.D001","name":"Free Walking Tours","parent":"C02.S03"},{"code":"C02.S03.D002","name":"Guided Walking Tours","parent":"C02.S03"},{"code":"C02.S03.D003","name":"Self-Guided Walking Tours","parent":"C02.S03"},{"code":"C02.S04.D001","name":"Bus Tours","parent":"C02.S04"},{"code":"C02.S04.D002","name":"Hop-On Hop-Off Bus","parent":"C02.S04"},{"code":"C02.S04.D003","name":"Tuk-Tuk Tours","parent":"C02.S04"},{"code":"C02.S05.D001","name":"Architecture Tours","parent":"C02.S05"},{"code":"C02.S05.D002","name":"Art Tours","parent":"C02.S05"},{"code":"C02.S05.D003","name":"History Tours","parent":"C02.S05"},{"code":"C02.S05.D004","name":"Jewish Heritage Tours","parent":"C02.S05"},{"code":"C02.S05.D005","name":"LGBTQ+ History Tours","parent":"C02.S05"},{"code":"C02.S05.D006","name":"Local Neighbourhood Tours","parent":"C02.S05"},{"code":"C02.S05.D007","name":"Medieval Tours","parent":"C02.S05"},{"code":"C02.S05.D008","name":"Religious Site Tours","parent":"C02.S05"},{"code":"C02.S05.D009","name":"Street Art Tours","parent":"C02.S05"},{"code":"C02.S06.D001","name":"Golf Cart Tours","parent":"C02.S06"},{"code":"C02.S06.D002","name":"Rickshaw & Pedicab Tours","parent":"C02.S06"},{"code":"C02.S06.D003","name":"Segway Tours","parent":"C02.S06"},{"code":"C02.S07.D001","name":"Bike Tours","parent":"C02.S07"},{"code":"C02.S07.D002","name":"E-Bike Tours","parent":"C02.S07"},{"code":"C02.S08.D001","name":"Film & TV Set Tours","parent":"C02.S08"},{"code":"C02.S08.D002","name":"Food & Market Tours","parent":"C02.S08"},{"code":"C02.S08.D003","name":"Graffiti & Street Art Tours","parent":"C02.S08"},{"code":"C02.S08.D004","name":"Music & Nightlife Tours","parent":"C02.S08"},{"code":"C02.S09.D001","name":"Ghost Tours","parent":"C02.S09"},{"code":"C02.S09.D002","name":"Mystery & Crime Tours","parent":"C02.S09"},{"code":"C02.S10.D001","name":"Architecture Photography Tours","parent":"C02.S10"},{"code":"C02.S11.D001","name":"Evening Sightseeing Tours","parent":"C02.S11"},{"code":"C02.S12.D001","name":"Photography Tours & Workshops","parent":"C02.S12"},{"code":"C03.S02.D001","name":"Day Trips to Beach Towns","parent":"C03.S02"},{"code":"C03.S02.D002","name":"Day Trips to Medieval Towns","parent":"C03.S02"},{"code":"C03.S02.D003","name":"Day Trips to Mountain Villages","parent":"C03.S02"},{"code":"C03.S03.D001","name":"Day Trips to National Parks","parent":"C03.S03"},{"code":"C03.S03.D002","name":"Day Trips to Waterfalls","parent":"C03.S03"},{"code":"C03.S04.D001","name":"Day Trips to Ancient Ruins","parent":"C03.S04"},{"code":"C03.S04.D002","name":"Day Trips to Palaces & Castles","parent":"C03.S04"},{"code":"C03.S05.D001","name":"Wine Tasting Day Tours","parent":"C03.S05"},{"code":"C03.S06.D001","name":"Ski Day Trips","parent":"C03.S06"},{"code":"C03.S07.D001","name":"Half-Day Shore Excursions","parent":"C03.S07"},{"code":"C03.S07.D002","name":"Full-Day Shore Excursions","parent":"C03.S07"},{"code":"C04.S02.D001","name":"River Cruises","parent":"C04.S02"},{"code":"C04.S02.D002","name":"Harbour Cruises","parent":"C04.S02"},{"code":"C04.S02.D003","name":"Canal Cruises","parent":"C04.S02"},{"code":"C04.S03.D001","name":"Dinner Cruises","parent":"C04.S03"},{"code":"C04.S04.D001","name":"Sunset Cocktail Cruises","parent":"C04.S04"},{"code":"C04.S05.D001","name":"Themed Party Cruises","parent":"C04.S05"},{"code":"C04.S06.D001","name":"Catamaran Sailing","parent":"C04.S06"},{"code":"C04.S06.D002","name":"Yacht Sailing","parent":"C04.S06"},{"code":"C04.S09.D001","name":"Kayak Tours","parent":"C04.S09"},{"code":"C04.S09.D002","name":"Canoe Tours","parent":"C04.S09"},{"code":"C05.S02.D001","name":"Bungee Jumping","parent":"C05.S02"},{"code":"C05.S02.D002","name":"Canyoning","parent":"C05.S02"},{"code":"C05.S02.D003","name":"Climbing & Abseiling","parent":"C05.S02"},{"code":"C05.S02.D004","name":"Hiking & Trekking","parent":"C05.S02"},{"code":"C05.S02.D005","name":"Mountain Biking","parent":"C05.S02"},{"code":"C05.S02.D006","name":"Quad Biking & ATVs","parent":"C05.S02"},{"code":"C05.S02.D007","name":"Via Ferrata","parent":"C05.S02"},{"code":"C05.S02.D008","name":"Zip-lining & Canopy","parent":"C05.S02"},{"code":"C05.S03.D001","name":"Diving & Snorkelling","parent":"C05.S03"},{"code":"C05.S03.D002","name":"Kitesurfing & Windsurfing","parent":"C05.S03"},{"code":"C05.S03.D003","name":"Parasailing","parent":"C05.S03"},{"code":"C05.S03.D004","name":"Rafting & Tubing","parent":"C05.S03"},{"code":"C05.S03.D005","name":"Surfing Lessons","parent":"C05.S03"},{"code":"C05.S03.D006","name":"Wakeboarding","parent":"C05.S03"},{"code":"C05.S04.D001","name":"Skiing","parent":"C05.S04"},{"code":"C05.S04.D002","name":"Snowboarding","parent":"C05.S04"},{"code":"C05.S04.D003","name":"Snowshoeing","parent":"C05.S04"},{"code":"C05.S05.D001","name":"Hot Air Balloon Rides","parent":"C05.S05"},{"code":"C05.S05.D002","name":"Paragliding","parent":"C05.S05"},{"code":"C05.S05.D003","name":"Helicopter Tours","parent":"C05.S05"},{"code":"C05.S05.D004","name":"Skydiving","parent":"C05.S05"},{"code":"C05.S06.D001","name":"City Cycling Tours","parent":"C05.S06"},{"code":"C05.S07.D001","name":"Horse Riding Tours","parent":"C05.S07"},{"code":"C05.S08.D001","name":"Golf Tours","parent":"C05.S08"},{"code":"C06.S02.D001","name":"Local Market Tours","parent":"C06.S02"},{"code":"C06.S02.D002","name":"Street Food Tours","parent":"C06.S02"},{"code":"C06.S03.D001","name":"Chocolate & Dessert Tastings","parent":"C06.S03"},{"code":"C06.S03.D002","name":"Cheese Tastings","parent":"C06.S03"},{"code":"C06.S03.D003","name":"Beer & Brewery Tours","parent":"C06.S03"},{"code":"C06.S03.D004","name":"Gin Tastings","parent":"C06.S03"},{"code":"C06.S03.D005","name":"Olive Oil Tastings","parent":"C06.S03"},{"code":"C06.S04.D001","name":"Wine Tours & Tastings","parent":"C06.S04"},{"code":"C06.S04.D002","name":"Cocktail Making Classes","parent":"C06.S04"},{"code":"C06.S05.D001","name":"Dinner with a View","parent":"C06.S05"},{"code":"C06.S05.D002","name":"Dining with Entertainment","parent":"C06.S05"},{"code":"C06.S06.D001","name":"Pasta Making Classes","parent":"C06.S06"},{"code":"C06.S06.D002","name":"Pizza Making Classes","parent":"C06.S06"},{"code":"C06.S06.D003","name":"Sushi & Japanese Cooking","parent":"C06.S06"},{"code":"C06.S06.D004","name":"Local Cuisine Classes","parent":"C06.S06"},{"code":"C07.S02.D001","name":"Jewellery Making","parent":"C07.S02"},{"code":"C07.S02.D002","name":"Leather Craft Workshops","parent":"C07.S02"},{"code":"C07.S02.D003","name":"Mosaic Workshops","parent":"C07.S02"},{"code":"C07.S02.D004","name":"Painting Classes","parent":"C07.S02"},{"code":"C07.S02.D005","name":"Printmaking Workshops","parent":"C07.S02"},{"code":"C07.S02.D006","name":"Textile & Weaving Workshops","parent":"C07.S02"},{"code":"C07.S03.D001","name":"Dance Lessons","parent":"C07.S03"},{"code":"C07.S03.D002","name":"Flamenco Lessons","parent":"C07.S03"},{"code":"C07.S03.D003","name":"Tango Lessons","parent":"C07.S03"},{"code":"C07.S05.D001","name":"Pottery Classes","parent":"C07.S05"},{"code":"C07.S05.D002","name":"Ceramic Workshops","parent":"C07.S05"},{"code":"C08.S02.D001","name":"Nightclub Entry","parent":"C08.S02"},{"code":"C08.S02.D002","name":"Rooftop Bar Access","parent":"C08.S02"},{"code":"C08.S02.D003","name":"Nightclub Tickets","parent":"C08.S02"},{"code":"C08.S03.D001","name":"Pub Crawls","parent":"C08.S03"},{"code":"C08.S04.D001","name":"Party Boat","parent":"C08.S04"},{"code":"C08.S04.D002","name":"Party Bus","parent":"C08.S04"},{"code":"C08.S05.D001","name":"Hen Party Activities","parent":"C08.S05"},{"code":"C08.S05.D002","name":"Stag Party Activities","parent":"C08.S05"},{"code":"C09.S02.D001","name":"Hammam & Turkish Bath","parent":"C09.S02"},{"code":"C09.S02.D002","name":"Massage & Body Treatments","parent":"C09.S02"},{"code":"C09.S02.D003","name":"Spa Day Packages","parent":"C09.S02"},{"code":"C09.S04.D001","name":"Hot Spring Bathing","parent":"C09.S04"},{"code":"C09.S04.D002","name":"Mineral Bath Experiences","parent":"C09.S04"},{"code":"C10.S02.D001","name":"Multi-Day City Tours","parent":"C10.S02"},{"code":"C10.S02.D002","name":"Multi-Day Cultural Tours","parent":"C10.S02"},{"code":"C10.S02.D003","name":"Multi-Day Historical Tours","parent":"C10.S02"},{"code":"C10.S03.D001","name":"Multi-Day Hiking Tours","parent":"C10.S03"},{"code":"C10.S03.D002","name":"Multi-Day Safari Tours","parent":"C10.S03"},{"code":"C10.S04.D001","name":"Multi-Day River Cruises","parent":"C10.S04"},{"code":"C11.S02.D001","name":"Bike Rentals","parent":"C11.S02"},{"code":"C11.S02.D002","name":"E-Bike Rentals","parent":"C11.S02"},{"code":"C11.S02.D003","name":"Scooter Rentals","parent":"C11.S02"},{"code":"C11.S04.D001","name":"Sailing Boat Rentals","parent":"C11.S04"},{"code":"C11.S04.D002","name":"Motorboat Rentals","parent":"C11.S04"},{"code":"C12.S02.D001","name":"Private Airport Transfers","parent":"C12.S02"},{"code":"C12.S02.D002","name":"Shared Airport Shuttles","parent":"C12.S02"},{"code":"C12.S03.D001","name":"Private City Transfers","parent":"C12.S03"},{"code":"C12.S03.D002","name":"Intercity Transfers","parent":"C12.S03"},{"code":"C12.S05.D001","name":"City Transport Cards","parent":"C12.S05"},{"code":"C12.S05.D002","name":"Metro & Train Passes","parent":"C12.S05"}];
+DATA.ROSO_ATTR_FAMILIES = [{"code":"AF01","name":"Experience Format"},{"code":"AF02","name":"Group Size"},{"code":"AF03","name":"Participation Format"},{"code":"AF04","name":"Guidance"},{"code":"AF05","name":"Duration"},{"code":"AF06","name":"Occasions"},{"code":"AF07","name":"Seasons"},{"code":"AF08","name":"Accessibility"},{"code":"AF09","name":"Setting"},{"code":"AF10","name":"Physical Effort & Route"},{"code":"AF11","name":"Experience Level"},{"code":"AF12","name":"Skill Requirements"},{"code":"AF13","name":"Meals & Drinks"},{"code":"AF14","name":"Equipment & Materials"},{"code":"AF15","name":"Photos & Take-Home Items"},{"code":"AF16","name":"Dietary Needs"},{"code":"AF18","name":"Customization"},{"code":"AF19","name":"Pickup & Transfers"},{"code":"AF20","name":"Transport Type"},{"code":"AF21","name":"Ticket Conditions"},{"code":"AF22","name":"Participation & Access Rules"},{"code":"AF24","name":"Weather Dependency"},{"code":"AF25","name":"Event Seating"},{"code":"AF31","name":"Merchandising"},{"code":"AF34","name":"Recommendation Signals"}];
+DATA.ROSO_ATTRIBUTES = [{"code":"AF01.A003","name":"MULTI_DAY_TOUR","family":"AF01"},{"code":"AF01.A001","name":"HOP_ON_HOP_OFF","family":"AF01"},{"code":"AF01.A004","name":"RENTAL","family":"AF01"},{"code":"AF01.A005","name":"ACTIVITY","family":"AF01"},{"code":"AF01.A006","name":"WORKSHOP","family":"AF01"},{"code":"AF01.A007","name":"TRANSFER","family":"AF01"},{"code":"AF01.A008","name":"CITY_CARD_PASS","family":"AF01"},{"code":"AF01.A009","name":"TICKET","family":"AF01"},{"code":"AF01.A010","name":"TOUR","family":"AF01"},{"code":"AF01.A011","name":"SIGHTSEEING_CRUISE","family":"AF01"},{"code":"AF01.A012","name":"BUNDLES","family":"AF01"},{"code":"AF02.A001","name":"Small Group","family":"AF02"},{"code":"AF02.A002","name":"Standard Group","family":"AF02"},{"code":"AF02.A003","name":"Maximum Group Size","family":"AF02"},{"code":"AF03.A001","name":"Private","family":"AF03"},{"code":"AF03.A002","name":"Shared Group","family":"AF03"},{"code":"AF04.A001","name":"Self-Guided","family":"AF04"},{"code":"AF04.A002","name":"Live Guide","family":"AF04"},{"code":"AF04.A003","name":"Host","family":"AF04"},{"code":"AF04.A004","name":"Instructor","family":"AF04"},{"code":"AF04.A005","name":"Audio Guide","family":"AF04"},{"code":"AF04.A006","name":"Digital Self-Guided","family":"AF04"},{"code":"AF04.A007","name":"Admission Only","family":"AF04"},{"code":"AF04.A008","name":"Driver","family":"AF04"},{"code":"AF04.A009","name":"No Guidance","family":"AF04"},{"code":"AF04.A010","name":"Remote Live Guide","family":"AF04"},{"code":"AF04.A011","name":"Written Guide","family":"AF04"},{"code":"AF04.A012","name":"Audio Self-Guided App","family":"AF04"},{"code":"AF04.A013","name":"Multilingual Guide","family":"AF04"},{"code":"AF04.A014","name":"Specialist Guide","family":"AF04"},{"code":"AF04.A015","name":"Signed Language Guide","family":"AF04"},{"code":"AF04.A016","name":"Child-Friendly Guide","family":"AF04"},{"code":"AF05.A001","name":"Multi-day","family":"AF05"},{"code":"AF05.A002","name":"Half-day","family":"AF05"},{"code":"AF05.A003","name":"Full-day","family":"AF05"},{"code":"AF05.A004","name":"Overnight","family":"AF05"},{"code":"AF06.A001","name":"Christmas","family":"AF06"},{"code":"AF06.A002","name":"Halloween","family":"AF06"},{"code":"AF06.A003","name":"Easter","family":"AF06"},{"code":"AF06.A004","name":"Valentine’s Day","family":"AF06"},{"code":"AF06.A005","name":"Thanksgiving","family":"AF06"},{"code":"AF06.A006","name":"Lunar New Year","family":"AF06"},{"code":"AF06.A008","name":"Diwali","family":"AF06"},{"code":"AF06.A009","name":"Hanukkah","family":"AF06"},{"code":"AF06.A010","name":"Mardi Gras","family":"AF06"},{"code":"AF06.A011","name":"Oktoberfest","family":"AF06"},{"code":"AF06.A012","name":"New Year’s Eve","family":"AF06"},{"code":"AF06.A013","name":"New Year’s Day","family":"AF06"},{"code":"AF06.A014","name":"St Patrick’s Day","family":"AF06"},{"code":"AF06.A015","name":"Carnival","family":"AF06"},{"code":"AF06.A016","name":"Day of the Dead","family":"AF06"},{"code":"AF06.A017","name":"Eid al-Fitr","family":"AF06"},{"code":"AF06.A018","name":"Eid al-Adha","family":"AF06"},{"code":"AF06.A019","name":"Songkran","family":"AF06"},{"code":"AF06.A020","name":"Holi","family":"AF06"},{"code":"AF06.A021","name":"Bastille Day","family":"AF06"},{"code":"AF06.A022","name":"Bonfire Night","family":"AF06"},{"code":"AF06.A023","name":"Cherry Blossom Season","family":"AF06"},{"code":"AF06.A024","name":"Summer Solstice","family":"AF06"},{"code":"AF06.A025","name":"Midnight Sun","family":"AF06"},{"code":"AF06.A026","name":"Northern Lights Season","family":"AF06"},{"code":"AF06.A027","name":"Grape Harvest","family":"AF06"},{"code":"AF06.A028","name":"Truffle Season","family":"AF06"},{"code":"AF06.A029","name":"Whale Watching Season","family":"AF06"},{"code":"AF06.A030","name":"Polar Bear Season","family":"AF06"},{"code":"AF06.A031","name":"Olive Harvest","family":"AF06"},{"code":"AF06.A032","name":"Lavender Season","family":"AF06"},{"code":"AF06.A033","name":"Tulip Season","family":"AF06"},{"code":"AF06.A034","name":"Autumn Foliage","family":"AF06"},{"code":"AF06.A035","name":"Wildflower Season","family":"AF06"},{"code":"AF06.A036","name":"Festive Markets","family":"AF06"},{"code":"AF06.A037","name":"Local Festival","family":"AF06"},{"code":"AF06.A038","name":"National Day","family":"AF06"},{"code":"AF06.A039","name":"Regatta & Sailing Events","family":"AF06"},{"code":"AF06.A040","name":"Marathon & Run Events","family":"AF06"},{"code":"AF06.A041","name":"Film Festival","family":"AF06"},{"code":"AF06.A042","name":"Art Biennale","family":"AF06"},{"code":"AF06.A043","name":"Fashion Week","family":"AF06"},{"code":"AF06.A044","name":"Summer Festival","family":"AF06"},{"code":"AF06.A045","name":"Music Festival","family":"AF06"},{"code":"AF06.A046","name":"Winter Festival","family":"AF06"},{"code":"AF06.A047","name":"Pride","family":"AF06"},{"code":"AF06.A048","name":"Remembrance Day","family":"AF06"},{"code":"AF07.A001","name":"Spring","family":"AF07"},{"code":"AF07.A002","name":"Summer","family":"AF07"},{"code":"AF07.A003","name":"Autumn","family":"AF07"},{"code":"AF07.A004","name":"Winter","family":"AF07"},{"code":"AF07.A005","name":"Year-Round","family":"AF07"},{"code":"AF07.A006","name":"Dry Season","family":"AF07"},{"code":"AF07.A007","name":"Wet Season","family":"AF07"},{"code":"AF07.A008","name":"Off-Season","family":"AF07"},{"code":"AF08.A001","name":"Wheelchair Accessible","family":"AF08"},{"code":"AF08.A002","name":"Service Animals Allowed","family":"AF08"},{"code":"AF08.A003","name":"Step-Free Access","family":"AF08"},{"code":"AF08.A004","name":"Hearing Loop Available","family":"AF08"},{"code":"AF08.A005","name":"Stroller Accessible","family":"AF08"},{"code":"AF08.A006","name":"Visually Impaired Friendly","family":"AF08"},{"code":"AF08.A007","name":"Cognitive Accessibility Support","family":"AF08"},{"code":"AF08.A008","name":"Limited Mobility Friendly","family":"AF08"},{"code":"AF08.A009","name":"Portable Wheelchair Provided","family":"AF08"},{"code":"AF08.A010","name":"Signed Language Interpretation","family":"AF08"},{"code":"AF09.A001","name":"Indoor","family":"AF09"},{"code":"AF09.A002","name":"Outdoor","family":"AF09"},{"code":"AF09.A003","name":"Water","family":"AF09"},{"code":"AF09.A004","name":"Underground","family":"AF09"},{"code":"AF10.A001","name":"Low Physical Effort","family":"AF10"},{"code":"AF10.A002","name":"Moderate Physical Effort","family":"AF10"},{"code":"AF10.A003","name":"High Physical Effort","family":"AF10"},{"code":"AF10.A004","name":"Stairs Involved","family":"AF10"},{"code":"AF10.A005","name":"Uneven Surfaces","family":"AF10"},{"code":"AF11.A001","name":"Beginner","family":"AF11"},{"code":"AF11.A002","name":"Intermediate","family":"AF11"},{"code":"AF11.A003","name":"Advanced","family":"AF11"},{"code":"AF11.A004","name":"No Experience Required","family":"AF11"},{"code":"AF11.A005","name":"Expert","family":"AF11"},{"code":"AF12.A001","name":"Swimming Required","family":"AF12"},{"code":"AF12.A002","name":"Driving Licence Required","family":"AF12"},{"code":"AF12.A003","name":"Certification Required","family":"AF12"},{"code":"AF13.A001","name":"Breakfast Included","family":"AF13"},{"code":"AF13.A002","name":"Lunch Included","family":"AF13"},{"code":"AF13.A003","name":"Dinner Included","family":"AF13"},{"code":"AF13.A004","name":"Snacks Included","family":"AF13"},{"code":"AF13.A005","name":"Non-Alcoholic Drinks Included","family":"AF13"},{"code":"AF13.A006","name":"Alcoholic Drinks Included","family":"AF13"},{"code":"AF14.A001","name":"Sports Equipment Included","family":"AF14"},{"code":"AF14.A002","name":"Safety Equipment Included","family":"AF14"},{"code":"AF14.A003","name":"Workshop Materials Included","family":"AF14"},{"code":"AF15.A001","name":"Photos Included","family":"AF15"},{"code":"AF15.A002","name":"Video Included","family":"AF15"},{"code":"AF15.A003","name":"Recipe Included","family":"AF15"},{"code":"AF15.A004","name":"Certificate Included","family":"AF15"},{"code":"AF16.A001","name":"Dietary Adaptations","family":"AF16"},{"code":"AF16.A002","name":"Vegetarian","family":"AF16"},{"code":"AF16.A003","name":"Vegan","family":"AF16"},{"code":"AF16.A004","name":"Gluten-Free","family":"AF16"},{"code":"AF16.A005","name":"Kosher","family":"AF16"},{"code":"AF16.A006","name":"Halal","family":"AF16"},{"code":"AF16.A007","name":"Nut-Free","family":"AF16"},{"code":"AF16.A008","name":"Dairy-Free","family":"AF16"},{"code":"AF16.A009","name":"Shellfish-Free","family":"AF16"},{"code":"AF16.A010","name":"Low-Sodium","family":"AF16"},{"code":"AF16.A011","name":"Diabetic-Friendly","family":"AF16"},{"code":"AF16.A012","name":"Raw Food","family":"AF16"},{"code":"AF18.A001","name":"Customizable Itinerary","family":"AF18"},{"code":"AF18.A002","name":"Adjustable Pace","family":"AF18"},{"code":"AF19.A001","name":"Pickup Included","family":"AF19"},{"code":"AF19.A002","name":"Flight Tracking","family":"AF19"},{"code":"AF19.A003","name":"Meet At Departure Point","family":"AF19"},{"code":"AF19.A004","name":"Hotel Pickup","family":"AF19"},{"code":"AF19.A005","name":"Port Pickup","family":"AF19"},{"code":"AF19.A006","name":"Airport Pickup","family":"AF19"},{"code":"AF19.A007","name":"Return Transfer Included","family":"AF19"},{"code":"AF20.A001","name":"Walking","family":"AF20"},{"code":"AF20.A002","name":"Public Transport","family":"AF20"},{"code":"AF20.A003","name":"Car","family":"AF20"},{"code":"AF20.A004","name":"Coach","family":"AF20"},{"code":"AF20.A005","name":"Boat","family":"AF20"},{"code":"AF20.A006","name":"Bicycle","family":"AF20"},{"code":"AF20.A007","name":"Horse","family":"AF20"},{"code":"AF20.A008","name":"4x4 Vehicle","family":"AF20"},{"code":"AF20.A009","name":"Helicopter","family":"AF20"},{"code":"AF20.A010","name":"Hot Air Balloon","family":"AF20"},{"code":"AF20.A011","name":"Segway","family":"AF20"},{"code":"AF20.A012","name":"Golf Cart","family":"AF20"},{"code":"AF20.A013","name":"Tuk-Tuk","family":"AF20"},{"code":"AF20.A014","name":"Cable Car & Funicular","family":"AF20"},{"code":"AF20.A015","name":"Train","family":"AF20"},{"code":"AF20.A016","name":"Kayak","family":"AF20"},{"code":"AF20.A017","name":"Stand-Up Paddleboard","family":"AF20"},{"code":"AF20.A018","name":"E-Bike","family":"AF20"},{"code":"AF20.A019","name":"Electric Vehicle","family":"AF20"},{"code":"AF21.A001","name":"Skip the Line","family":"AF21"},{"code":"AF21.A002","name":"Admission Included","family":"AF21"},{"code":"AF21.A003","name":"Admission Not Included","family":"AF21"},{"code":"AF21.A004","name":"Free Cancellation","family":"AF21"},{"code":"AF21.A005","name":"Timed Entry","family":"AF21"},{"code":"AF21.A006","name":"Open-Dated Ticket","family":"AF21"},{"code":"AF21.A007","name":"Mobile Ticket","family":"AF21"},{"code":"AF21.A008","name":"Priority Access","family":"AF21"},{"code":"AF21.A009","name":"Instant Confirmation","family":"AF21"},{"code":"AF21.A010","name":"Last-Minute Booking","family":"AF21"},{"code":"AF21.A011","name":"Print Required","family":"AF21"},{"code":"AF21.A012","name":"E-Ticket","family":"AF21"},{"code":"AF21.A013","name":"Combo Ticket","family":"AF21"},{"code":"AF21.A014","name":"Multi-Day Pass","family":"AF21"},{"code":"AF21.A015","name":"Annual Pass","family":"AF21"},{"code":"AF21.A016","name":"Family Ticket","family":"AF21"},{"code":"AF21.A017","name":"Group Discount Ticket","family":"AF21"},{"code":"AF21.A018","name":"Student Discount","family":"AF21"},{"code":"AF21.A019","name":"Senior Discount","family":"AF21"},{"code":"AF21.A020","name":"Concession Ticket","family":"AF21"},{"code":"AF22.A001","name":"Adults Only","family":"AF22"},{"code":"AF22.A002","name":"Minimum participant age","family":"AF22"},{"code":"AF22.A003","name":"Maximum participant age","family":"AF22"},{"code":"AF22.A004","name":"Family-Friendly","family":"AF22"},{"code":"AF22.A005","name":"Children Welcome","family":"AF22"},{"code":"AF22.A006","name":"Infant-Friendly","family":"AF22"},{"code":"AF22.A007","name":"Pet-Friendly","family":"AF22"},{"code":"AF22.A008","name":"Pregnant-Friendly","family":"AF22"},{"code":"AF22.A009","name":"Booking Required","family":"AF22"},{"code":"AF22.A010","name":"No Booking Required","family":"AF22"},{"code":"AF22.A011","name":"Minimum Group Size","family":"AF22"},{"code":"AF22.A012","name":"Dress Code Required","family":"AF22"},{"code":"AF22.A013","name":"ID Required","family":"AF22"},{"code":"AF24.A001","name":"Weather-Proof","family":"AF24"},{"code":"AF24.A002","name":"Low Weather Dependency","family":"AF24"},{"code":"AF24.A003","name":"Moderate Weather Dependency","family":"AF24"},{"code":"AF24.A004","name":"High Weather Dependency","family":"AF24"},{"code":"AF24.A005","name":"Operates in Rain","family":"AF24"},{"code":"AF25.A001","name":"Seating section","family":"AF25"},{"code":"AF25.A002","name":"Assigned seating","family":"AF25"},{"code":"AF25.A003","name":"Restricted view","family":"AF25"},{"code":"AF31.A001","name":"Top Product","family":"AF31"},{"code":"AF31.A002","name":"Excellent Quality","family":"AF31"},{"code":"AF31.A003","name":"Best Selling","family":"AF31"},{"code":"AF31.A004","name":"Likely To Sell Out","family":"AF31"},{"code":"AF31.A005","name":"New","family":"AF31"},{"code":"AF31.A006","name":"Editor’s Choice","family":"AF31"},{"code":"AF31.A007","name":"Award Winner","family":"AF31"},{"code":"AF31.A008","name":"Exclusive","family":"AF31"},{"code":"AF31.A009","name":"Limited Availability","family":"AF31"},{"code":"AF34.A001","name":"Family-Friendly","family":"AF34"},{"code":"AF34.A004","name":"Comfort & Easy Pace","family":"AF34"},{"code":"AF34.A006","name":"Themed Experience","family":"AF34"},{"code":"AF34.A007","name":"Hidden Gems","family":"AF34"},{"code":"AF34.A008","name":"Local Expert","family":"AF34"},{"code":"AF34.A009","name":"Sustainable Tourism","family":"AF34"},{"code":"AF34.A010","name":"Photography Opportunity","family":"AF34"},{"code":"AF34.A011","name":"Iconic Landmarks","family":"AF34"},{"code":"AF34.A012","name":"Off the Beaten Path","family":"AF34"},{"code":"AF34.A013","name":"Cultural Immersion","family":"AF34"},{"code":"AF34.A014","name":"Romantic","family":"AF34"},{"code":"AF34.A015","name":"Solo Traveller Friendly","family":"AF34"},{"code":"AF34.A016","name":"Senior-Friendly","family":"AF34"},{"code":"AF34.A017","name":"Wellness Focus","family":"AF34"}];
+
 // Continent map — logic-based on country name
 (function(){
   const CONTINENT_MAP = {
@@ -12444,11 +12638,8 @@ function pageProductDetails(params){
     {id:'media', label:'Media'},
     {id:'touroptions', label:'Tour Options'},
     {id:'facilities', label:'Facilities & Logistics'},
-    {id:'modelc', label:'Model C Classification'},
     {id:'content', label:'Content & SEO'},
     {id:'seokeywords', label:'Keyword Assign'},
-    {id:'personalization', label:'Personalization'},
-    {id:'hooks', label:'Hooks'},
     {id:'optimization', label:'Optimization'},
     {id:'history', label:'History / Audit'}
   ];
@@ -12481,14 +12672,6 @@ function pageProductDetails(params){
         ['Product Type', p.declaredClass ? (Comp.MODELC_CLASS_LABELS[p.declaredClass] || p.declaredClass) : (p.type || '—')]
       ])}`})}
     ${Comp.productTourOptionsSummaryCard(p)}
-    ${p.declaredClass ? `<div class="card">
-      <p class="card-title">Model C Classification</p>
-      ${Comp._infoTable([
-        ['Decision rail role', p.decisionRailRole || '—'],
-        ['Value tier', p.valueTier || '—'],
-        ['Migration state', p.migrationState === 'COMPLETED' ? Comp.Badge('COMPLETED', true) : Comp.Badge('BLOCKED', false)]
-      ])}
-    </div>` : ''}
     ${Comp.Card({title:'Related views', hint:`This overview links out to the specialized Product Ops view rather than duplicating it.`, body:`
       <div style="display:flex; flex-direction:column; gap:8px; align-items:flex-start;">
         ${Comp.Button('Open in Product Ops (governance) →', {onclick:`Comp.navigateWithReturn('productOpsDetail',{id:'${p.id}'},'${p.name.replace(/'/g,"&#39;")}')`})}
@@ -12756,41 +12939,6 @@ function pageProductDetails(params){
         })}`;
   } else if (tab === 'seokeywords') {
     tabBody = Comp.KeywordAssignTab(p.urlSlug || p.name, 'Product');
-  } else if (tab === 'modelc') {
-    // Model C stays DECISION-INPUT ONLY (feedback §22): factual operational
-    // fields must not be hosted here — the Decision Snapshot only reads them.
-    Comp.initModelCProfile(p.modelC, p);
-    tabBody = `
-    ${Comp.Card({title:'Model C Classification', hint:`Decision inputs only. Factual operational data (format, logistics, duration) lives on its own tabs and is shown read-only in the Decision Snapshot below.`, body:`
-      ${Comp._infoTable([
-        ['Declared Product Class', p.modelC.declaredClass ? (Comp.MODELC_CLASS_LABELS[p.modelC.declaredClass] || p.modelC.declaredClass) : '—'],
-        ['Category Group', Comp.modelCCategoryGroup(p.modelC.declaredClass)],
-        ['Decision Rail Role', p.modelC.decisionRailRole || '—'],
-        ['Value Tier', p.modelC.valueTier || '—'],
-        ['Physical Difficulty', p.modelC.physicalLevel || '—']
-      ])}`})}
-    ${Comp.modelCProfilePanel(p.modelC, p.id)}
-    ${Comp.modelCDecisionSnapshot(p)}`;
-  } else if (tab === 'personalization') {
-    tabBody = Comp.productTripDnaCard(p) + Comp.SmartSection({
-      sectionId:'prodpers-'+p.id, title:'Personalization (DEE)', locked:!!p.sectionLocks.personalization,
-      hint:'Dynamic Experience Engine inputs. Edit, lock from further changes, or regenerate together.',
-      fields:[
-        {key:'snippetFamily2', label:'Dynamic Highlight — Family segment', value:p.personalization.snippetFamily2, isTextarea:true},
-        {key:'whyThisExperience', label:'"Why This Experience" — optional add-on', value:p.personalization.whyThisExperience, isTextarea:true}
-      ],
-      saveCall:`Comp.productSaveSection('${p.id}','personalization')`, lockCall:`Comp.productLockSection('${p.id}','personalization')`, regenCall:`Comp.productRegenSection('${p.id}','personalization')`
-    });
-  } else if (tab === 'hooks') {
-    const h = p.hooks;
-    tabBody = `
-    ${Comp.Card({title:'Hooks — Conversion Layer', hint:`Hooks do not affect SEO or AI versions — safe to change anytime.`, body:`
-      <label class="opt-check"><input type="checkbox" id="prodHookLifetime-${p.id}" ${h.lifetimeDiscount?'checked':''}> Lifetime discount hook</label>
-      <label class="opt-check"><input type="checkbox" id="prodHookWishlist-${p.id}" ${h.wishlist?'checked':''}> Wishlist / Email My Trip</label>
-      <label class="opt-check"><input type="checkbox" id="prodHookSendSelf-${p.id}" ${h.sendToSelf?'checked':''}> Send this tour to myself</label>
-      <label class="opt-check"><input type="checkbox" id="prodHookExit-${p.id}" ${h.exitIntent?'checked':''}> Exit-intent offer</label>
-      <div class="field mt-3h"><label for="prodHookCopy-${p.id}">Hook copy override</label><input id="prodHookCopy-${p.id}" class="card-input" value="${Comp._escAttr(h.copyOverride||'')}" placeholder="Optional custom copy"></div>
-      <div class="mt-3">${Comp.Button('Save hooks', {variant:'btn-primary', onclick:`Comp.productSaveHooks('${p.id}')`})}</div>`})}`;
   } else if (tab === 'optimization') {
     tabBody = Comp.OptimizationPanel({
       title:'Product Optimization', idPrefix:'prodopt-'+p.id,
@@ -19741,22 +19889,11 @@ function pageProductCreate(){
         </div>
       </div>`;
   } else if (step === 3) {
-    const railInvalid = Comp.modelCValidationErrors(d);
     stepBody = `
-      <p class="card-title">Tag &amp; Included/Excluded</p>
+      <p class="card-title">Category, Attributes &amp; Included/Excluded</p>
       <div class="field-stack">
-        <div class="field">
-          <label>Decision Rail Role <span class="required">*</span></label>
-          <p class="field-hint mb-2">Model C decision metadata — portfolio placement rail. Not the same as the Tags below (those are general browse Category Pages).</p>
-          <div class="product-tags-wrap">${Comp.modelCChipGroup('decisionRailRole', Comp.MODELC_RAIL_ROLES, d.modelC.decisionRailRole, false)}</div>
-          ${railInvalid.length ? `<p class="field-hint" style="color:var(--danger-600);">${railInvalid.join('<br>')}</p>` : ''}
-        </div>
-        <div class="field">
-          <label>Tags <span class="required">*</span></label>
-          <p class="field-hint mb-2h">Category Pages — general browse categories. Select all that apply.</p>
-          <div class="product-tags-wrap">
-            ${DATA.categories.map(cat => `<button type="button" class="product-tag-chip ${d.tags.includes(cat.name)?'tag-selected':''}" onclick="Comp.toggleProductTag('${cat.name.replace(/'/g,"&#39;")}', this)"><span class="chip-check"></span>${cat.name}</button>`).join('')}
-          </div>
+        <div id="rsoTaxonomySection">
+          ${Comp._buildRsoTaxonomyHTML()}
         </div>
         ${aiFieldWithCounter('Included Description', d.includedDesc, 'textarea', 1000, 'pIncludedDesc', true)}
         <p class="field-hint field-hint-tight">Min. 500 characters</p>
@@ -19841,73 +19978,6 @@ function pageProductCreate(){
         </div>
       </div>`;
   } else if (step === 8) {
-    const mc = d.modelC;
-    // Auto rule: Group tour forces best_value_for_money (read-only); Private defaults to premium if unset.
-    if (d.facilities.tourType === 'Group') mc.valueTier = 'best_value_for_money';
-    else if (!mc.valueTier) mc.valueTier = 'premium';
-
-    const missing = Comp.modelCMissingFields(d);
-    const errors = Comp.modelCValidationErrors(d);
-    const isComplete = missing.length === 0 && errors.length === 0;
-    const missingDisplay = missing.map(m => m === 'Declared Product Class' ? m + ' (set in Step 1: Basic Info)' : m === 'Decision Rail Role' ? m + ' (set in Step 3: Tag & Included/Excluded)' : m);
-
-    stepBody = `
-      <p class="card-title">Model C Classification (Internal Product)</p>
-      <p class="field-hint card-hint mb-4">Model C decision metadata for internal products. Declared Product Class and Decision Rail Role are captured earlier in this wizard (Steps 1 and 3) so they're asked once; the rest is captured here. Together this determines Pool/Set eligibility.</p>
-
-      <div class="status-banner ${isComplete ? 'is-complete' : 'is-incomplete'}">
-        <span>${isComplete ? ICON.checkCircle : ICON.warning}</span>
-        <span><strong>Model C Decision Metadata: ${isComplete ? 'COMPLETE' : 'INCOMPLETE'}</strong>${!isComplete && missing.length ? ` — missing: ${missingDisplay.join(', ')}` : ''}${errors.length ? `<br>${errors.join('<br>')}` : ''}${!isComplete ? '<br>This product will be blocked from Set until complete.' : ''}</span>
-      </div>
-
-      <div class="field-stack">
-        <p class="card-title" style="margin-bottom:2px;">Captured earlier in this wizard (read-only here)</p>
-        ${Comp._infoTable([
-          ['Declared Product Class', mc.declaredClass ? `${Comp.MODELC_CLASS_LABELS[mc.declaredClass] || mc.declaredClass} — <button type="button" class="btn-sm-link" onclick="Comp.productGoToStep(1)">Edit in Step 1 →</button>` : `Not set — <button type="button" class="btn-sm-link" onclick="Comp.productGoToStep(1)">Set in Step 1 →</button>`],
-          ['Category Group', `${Comp.modelCCategoryGroup(mc.declaredClass)} <span style="font-size:var(--fs-xs); color:var(--text-muted);">(auto-derived, read-only)</span>`],
-          ['Decision Rail Role', mc.decisionRailRole ? `${mc.decisionRailRole} — <button type="button" class="btn-sm-link" onclick="Comp.productGoToStep(3)">Edit in Step 3 →</button>` : `Not set — <button type="button" class="btn-sm-link" onclick="Comp.productGoToStep(3)">Set in Step 3 →</button>`]
-        ])}
-
-        <div class="field">
-          <label>Value Tier <span class="required">*</span></label>
-          <div class="product-tags-wrap mt-1h">${Comp.modelCChipGroup('valueTier', Comp.MODELC_VALUE_TIERS, mc.valueTier, d.facilities.tourType === 'Group')}</div>
-          <p class="field-hint">${d.facilities.tourType === 'Group' ? 'ⓘ Locked to best_value_for_money because Facilities → Tour Type is "Group".' : 'ⓘ Defaults to premium for Private tours — editable.'}</p>
-        </div>
-
-        <div class="field">
-          <label>Physical Difficulty <span class="required">*</span></label>
-          <div class="product-tags-wrap mt-1h">${Comp.modelCChipGroup('physicalLevel', Comp.MODELC_PHYSICAL_LEVELS, mc.physicalLevel, false)}</div>
-        </div>
-
-        <div class="field"><label>Confirmation Type</label><p style="margin:0; color:var(--text-muted);">INSTANT <span style="font-size:var(--fs-xs);">(read-only)</span></p></div>
-
-        <div class="field">
-          <label>Accessibility (optional, up to 2)</label>
-          <div class="product-tags-wrap mt-1h">
-            ${Comp.MODELC_ACCESSIBILITY.map(a => `<button type="button" class="product-tag-chip ${mc.accessibilityFlags.includes(a)?'tag-selected':''}" onclick="Comp.toggleModelCAccessibility('${a}', this)"><span class="chip-check"></span>${a}</button>`).join('')}
-          </div>
-        </div>
-      </div>
-
-      ${Comp.modelCProfilePanel(mc, null)}
-
-      <p class="card-title mt-6">Model C Decision Snapshot (read-only)</p>
-      ${Comp._infoTable([
-        ['URL Slug', d.urlSlug || 'Not yet set'],
-        ['Primary keyword', 'Not yet assigned — set via Keyword Ownership Panel after publishing'],
-        ['Start city/country', `${d.city || '—'}${d.country ? ', ' + d.country : ''}`],
-        ['Linked attraction / POI', d.attraction || 'None linked'],
-        ['Pickup mode + meeting point', Comp._productMeetingPointSummary(d)],
-        ['Group / Private', d.facilities.tourType],
-        ['Guide type', d.facilities.guideType],
-        ['Tour vehicle', d.facilities.vehicle],
-        ['Skip-the-line', d.facilities.skipLine ? 'Yes' : 'No'],
-        ['Languages offered', d.facilities.languages.join(', ') || '—'],
-        ['Duration', d.tourOptions.length ? d.tourOptions[0].duration : 'Add a Tour Option to auto-calculate'],
-        ['Availability schedule', d.tourOptions.some(o => (o.availabilitySlots||[]).length) ? 'Set via Tour Options' : 'No availability set'],
-        ['Cancellation policy', Comp._productCancellationSummary(d)]
-      ])}`;
-  } else if (step === 9) {
     const mp = d.meetingPickup;
     const locTypeChips = (field, prefix) => ['Airport','Cruise port','Train station','Hotel','Other POI'].map(t => `<button type="button" class="product-tag-chip ${mp[field]===t?'tag-selected':''}" onclick="Comp.setDraftNestedField('meetingPickup','${field}','${t}')"><span class="chip-check"></span>${t}</button>`).join('');
     stepBody = `
@@ -19952,7 +20022,7 @@ function pageProductCreate(){
           <div class="product-tags-wrap mt-1h">${locTypeChips('endPointType')}</div>
         </div>` : ''}
       </div>`;
-  } else if (step === 10) {
+  } else if (step === 9) {
     const cp = d.cancellationPolicy;
     stepBody = `
       <p class="card-title">Cancellation Policy</p>
